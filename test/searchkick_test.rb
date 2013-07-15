@@ -53,8 +53,8 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_cheese
-    store_names ["Pepper Jack Cheese"]
-    assert_search "pepperjack cheese", ["Pepper Jack Cheese"]
+    store_names ["Pepper Jack Cheese Skewers"]
+    assert_search "pepperjack cheese skewers", ["Pepper Jack Cheese Skewers"]
   end
 
   def test_middle_token
