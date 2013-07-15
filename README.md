@@ -147,6 +147,7 @@ bundle
 
 ## TODO
 
+- Test helpers - everyone should test their own search
 - Searchkick w/o Tire (Elasticsearch JSON)
 - Built-in synonyms from WordNet
 - Dashboard w/ real-time analytics?
