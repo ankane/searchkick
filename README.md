@@ -6,7 +6,7 @@ Search made easy
 
 ### Searches
 
-Searchkick provides sensible search defaults out of the box. It handles:
+Searchkick provides sensible search defaults out of the box.  It handles:
 
 - stemming - `tomatoes` matches `tomato`
 - special characters - `jalapenos` matches `jalapeños`
@@ -15,7 +15,9 @@ Searchkick provides sensible search defaults out of the box. It handles:
 
 ### Make Searches Better Over Time
 
-Use analytics on search conversions to improve results
+Use analytics on search conversions to improve results.
+
+Also, give popular documents a little boost.
 
 ### Zero Downtime Changes
 
@@ -57,9 +59,9 @@ When changing the mapping in a model, you must create a new index for the change
 curl http://localhost:9200/books/_mapping
 ```
 
-### Low Number of Documents
+### Inconsistent Scores
 
-By default, Tire creates an index on 5 shards - even in development.  With a low number of documents, you will get inconsistent relevance scores by default.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard `settings: {number_of_shards: 1}`.
+Elasticsearch was built to be distributed.  However, with a low number of documents, the default settings can give us incorrect results.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
 
 ## Installation
 
