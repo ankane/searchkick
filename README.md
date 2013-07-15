@@ -145,6 +145,7 @@ bundle
 ## TODO
 
 - Dashboard w/ real-time analytics?
+- Make updates to old and new index while reindexing [possibly with an another alias](http://www.kickstarter.com/backing-and-hacking)
 
 ## Contributing
 
