@@ -147,6 +147,7 @@ bundle
 
 ## TODO
 
+- Built-in synonyms from WordNet
 - Dashboard w/ real-time analytics?
 - [Suggest API](http://www.elasticsearch.org/guide/reference/api/search/suggest/) "Did you mean?"
 - Allow for "exact search" with quotes
