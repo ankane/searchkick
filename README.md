@@ -43,9 +43,7 @@ There is also a rake task.
 rake searchkick:reindex CLASS=Book
 ```
 
-Thanks to Jaroslav Kalistsuk for the [original source](https://gist.github.com/jarosan/3124884).
-
-Clinton Gormley also has a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
+Thanks to Jaroslav Kalistsuk for the [original source](https://gist.github.com/jarosan/3124884), and Clinton Gormley for [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
 
 ## Elasticsearch Gotchas
 
