@@ -56,7 +56,7 @@ Clinton Gormley also has a [good post](http://www.elasticsearch.org/blog/changin
 When changing the mapping in a model, you must create a new index for the changes to take place.  Elasticsearch does not support updates to the mapping.  For zero downtime, use the `reindex` method above which creates a new index and swaps it in once built. To see the current mapping, use:
 
 ```sh
-curl http://localhost:9200/books/_mapping
+curl "http://localhost:9200/books/_mapping?pretty=1"
 ```
 
 ### Inconsistent Scores
