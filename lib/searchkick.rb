@@ -89,12 +89,12 @@ module Searchkick
             tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_index_shingle"]
           },
           searchkick_search: {
             type: "custom",
             tokenizer: "standard",
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
           }
         },
         filter: {
@@ -119,6 +119,7 @@ module Searchkick
         synonyms: synonyms
       }
       settings[:analysis][:analyzer][:searchkick][:filter] << "searchkick_synonym"
+      settings[:analysis][:analyzer][:searchkick_search][:filter].insert(-2, "searchkick_synonym")
       settings[:analysis][:analyzer][:searchkick_search][:filter] << "searchkick_synonym"
     end
     settings
