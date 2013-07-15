@@ -19,8 +19,8 @@ class Book < ActiveRecord::Base
   include Tire::Model::Callbacks
 
   tire do
-    settings(Searchkick.settings)
-    settings(number_of_shards: 1) # additional settings
+    settings Searchkick.settings(synonyms: ["scallion => green onion"])
+    settings number_of_shards: 1 # additional settings
     mapping do
       indexes :title, analyzer: "searchkick"
     end
