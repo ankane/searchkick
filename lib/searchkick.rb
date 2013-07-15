@@ -50,10 +50,10 @@ module Searchkick
       query do
         boolean do
           should do
-            match fields, term, boost: 10, operator: "and", analyzer: "searchkick2"
+            match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search"
           end
           should do
-            match fields, term, use_dis_max: false, fuzziness: 0.6, max_expansions: 4, prefix_length: 2, operator: "and", analyzer: "searchkick2"
+            match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search"
           end
           should do
             nested path: "conversions", score_mode: "total" do
@@ -85,25 +85,25 @@ module Searchkick
             tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball", "searchkick_synonym"]
             # filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
           },
           # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
-          searchkick2: {
+          searchkick_search: {
             type: "custom",
             tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
             # filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle2", "snowball", "searchkick_synonym"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball", "searchkick_synonym"]
           }
         },
         filter: {
-          searchkick_shingle: {
+          searchkick_index_shingle: {
             type: "shingle",
             token_separator: ""
           },
-          searchkick_shingle2: {
+          searchkick_search_shingle: {
             type: "shingle",
             token_separator: "",
             output_unigrams: false,

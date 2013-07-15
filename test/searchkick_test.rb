@@ -61,9 +61,24 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   # fuzzy
 
-  def test_fuzzy
-    store_names ["Sliced Beets", "Beef"]
-    assert_search "beets", ["Sliced Beets", "Beef"]
+  def test_misspelling_sriracha
+    store_names ["Sriracha"]
+    assert_search "siracha", ["Sriracha"]
+  end
+
+  def test_misspelling_tabasco
+    store_names ["Tabasco"]
+    assert_search "tobasco", ["Tabasco"]
+  end
+
+  def test_misspelling_zucchini
+    store_names ["Zucchini"]
+    assert_search "zuchini", ["Zucchini"]
+  end
+
+  def test_misspelling_ziploc
+    store_names ["Ziploc"]
+    assert_search "zip lock", ["Ziploc"]
   end
 
   # conversions
