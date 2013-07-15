@@ -115,7 +115,7 @@ module Searchkick
             # tokenizer: "keyword",
             synonyms: [
               "clorox => bleach",
-              "saran wrap => plastic wrap",
+              "saranwrap => plastic wrap",
               "scallion => green onion",
               "qtip => cotton swab"
             ]
