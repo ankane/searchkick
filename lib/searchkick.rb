@@ -19,20 +19,20 @@ module Searchkick
           },
           searchkick: {
             type: "custom",
-            tokenizer: "whitespace",
+            tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
-            filter: ["lowercase", "asciifolding", "stop", "snowball", "searchkick_index_shingle"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_index_shingle"]
           },
           searchkick_search: {
             type: "custom",
-            tokenizer: "whitespace",
-            filter: ["lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
+            tokenizer: "standard",
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
           },
           searchkick_search2: {
             type: "custom",
-            tokenizer: "whitespace",
-            filter: ["lowercase", "asciifolding", "stop", "snowball"] #, "searchkick_search_shingle"]
+            tokenizer: "standard",
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"] #, "searchkick_search_shingle"]
           }
         },
         filter: {

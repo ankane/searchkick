@@ -10,7 +10,8 @@ class TestSearchkick < Minitest::Unit::TestCase
       "saranwrap => plastic wrap",
       "scallion => green onion",
       "qtip => cotton swab",
-      "burger => hamburger"
+      "burger => hamburger",
+      "bandaid => bandag"
     ]
     index_options = {
       settings: Searchkick.settings(synonyms: synonyms).merge(number_of_shards: 1),
@@ -63,7 +64,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_percent
-    store_names ["1% Milk", "2% Milk", "1 Gallon Whole Milk"]
+    store_names ["1% Milk", "2% Milk", "Whole Milk"]
     assert_search "1%", ["1% Milk"]
   end
 
@@ -147,10 +148,11 @@ class TestSearchkick < Minitest::Unit::TestCase
   # keywords
 
   def test_keywords
-    store_names ["Clorox Bleach", "Kroger Bleach", "Saran Wrap", "Kroger Plastic Wrap", "Hamburger Buns"]
+    store_names ["Clorox Bleach", "Kroger Bleach", "Saran Wrap", "Kroger Plastic Wrap", "Hamburger Buns", "Band-Aid", "Kroger 12-Pack Bandages"]
     assert_search "clorox", ["Clorox Bleach", "Kroger Bleach"]
     assert_search "saran wrap", ["Saran Wrap", "Kroger Plastic Wrap"]
     assert_search "burger buns", ["Hamburger Buns"]
+    assert_search "bandaids", ["Band-Aid", "Kroger 12-Pack Bandages"]
   end
 
   def test_keywords_qtips
