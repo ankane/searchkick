@@ -4,8 +4,6 @@ Search made easy
 
 ## Usage
 
-### Searches
-
 Searchkick provides sensible search defaults out of the box.  It handles:
 
 - stemming - `tomatoes` matches `tomato`
