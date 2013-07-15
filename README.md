@@ -146,6 +146,7 @@ bundle
 
 - Dashboard w/ real-time analytics?
 - [Suggest API](http://www.elasticsearch.org/guide/reference/api/search/suggest/) "Did you mean?"
+- Allow for "exact search" with quotes
 - Make updates to old and new index while reindexing [possibly with an another alias](http://www.kickstarter.com/backing-and-hacking)
 
 ## Contributing
