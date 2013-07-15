@@ -13,6 +13,10 @@ Searchkick provides sensible search defaults out of the box. It handles:
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
 
+### Make Searches Better Over Time
+
+Use analytics on search conversions to improve results
+
 ### Zero Downtime Changes
 
 Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
@@ -43,7 +47,7 @@ Thanks to Jaroslav Kalistsuk for the [original source](https://gist.github.com/j
 
 Clinton Gormley also has a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
 
-## Gotchas
+## Elasticsearch Gotchas
 
 ### Mappings
 
@@ -55,15 +59,7 @@ curl http://localhost:9200/books/_mapping
 
 ### Low Number of Documents
 
-By default, Tire creates an index on 5 shards - even in development.  With a low number of documents, you will get inconsistent relevance scores by default.  There are two different ways to fix this:
-
-- Use one shard
-
-```ruby
-settings: {number_of_shards: 1}
-```
-
-- Set the search type to `dfs_query_and_fetch`.  More about [search types here](http://www.elasticsearch.org/guide/reference/api/search/search-type/).
+By default, Tire creates an index on 5 shards - even in development.  With a low number of documents, you will get inconsistent relevance scores by default.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard `settings: {number_of_shards: 1}`.
 
 ## Installation
 
