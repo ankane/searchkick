@@ -62,6 +62,11 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "dish soap", ["Dish Washer Amazing Organic Soap"]
   end
 
+  def test_percent
+    store_names ["1% Milk", "2% Milk", "1 Gallon Whole Milk"]
+    assert_search "1%", ["1% Milk"]
+  end
+
   # ascii
 
   def test_jalapenos
