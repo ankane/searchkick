@@ -4,7 +4,16 @@ Search made easy
 
 ## Usage
 
-### Change Mappings with Zero Downtime
+### Searches
+
+Searchkick provides sensible search defaults out of the box. It handles:
+
+- stemming - `tomatoes` matches `tomato`
+- special characters - `jalapenos` matches `jalapeños`
+- extra whitespace - `dishwasher` matches `dish washer`
+- misspellings - `zuchini` matches `zucchini`
+
+### Zero Downtime Changes
 
 Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
 
