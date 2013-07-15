@@ -10,6 +10,7 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - special characters - `jalapenos` matches `jalapeños`
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
+- custom synonyms - `qtip` matches `cotton swab`
 
 Simply use the `searchkick` analyzer.
 
@@ -35,6 +36,8 @@ Book.search do
   searchkick_query ["title"], "Nobody Listens to Andrew"
 end
 ```
+
+**Note:** We recommend reindexing when changing synonyms for best results.
 
 ### Make Searches Better Over Time
 
