@@ -50,11 +50,21 @@ module Searchkick
     def searchkick_query(fields, term, conversions = false)
       query do
         boolean do
-          should do
-            match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search"
-          end
           must do
-            match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search"
+            dis_max do
+              query do
+                match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search"
+              end
+              query do
+                match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search2"
+              end
+              query do
+                match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search"
+              end
+              query do
+                match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search2"
+              end
+            end
           end
           if conversions
             should do
@@ -95,6 +105,11 @@ module Searchkick
             type: "custom",
             tokenizer: "whitespace",
             filter: ["lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
+          },
+          searchkick_search2: {
+            type: "custom",
+            tokenizer: "whitespace",
+            filter: ["lowercase", "asciifolding", "stop", "snowball"] #, "searchkick_search_shingle"]
           }
         },
         filter: {
@@ -123,6 +138,7 @@ module Searchkick
       settings[:analysis][:analyzer][:searchkick][:filter] << "searchkick_synonym"
       settings[:analysis][:analyzer][:searchkick_search][:filter].insert(-2, "searchkick_synonym")
       settings[:analysis][:analyzer][:searchkick_search][:filter] << "searchkick_synonym"
+      settings[:analysis][:analyzer][:searchkick_search2][:filter] << "searchkick_synonym"
     end
     settings
   end

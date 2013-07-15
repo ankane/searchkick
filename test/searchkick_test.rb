@@ -58,8 +58,8 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_middle_token
-    store_names ["Dish Washer Soap"]
-    assert_search "dish soap", ["Dish Washer Soap"]
+    store_names ["Dish Washer Amazing Organic Soap"]
+    assert_search "dish soap", ["Dish Washer Amazing Organic Soap"]
   end
 
   # ascii
