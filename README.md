@@ -43,7 +43,7 @@ There is also a rake task.
 rake searchkick:reindex CLASS=Book
 ```
 
-Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884), and Clinton Gormley for a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
+Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884) and Clinton Gormley for a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
 
 ## Elasticsearch Gotchas
 
@@ -57,7 +57,7 @@ curl "http://localhost:9200/books/_mapping?pretty=1"
 
 ### Inconsistent Scores
 
-Elasticsearch was built to be distributed.  However, with a low number of documents, the default settings can give us incorrect results.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
+Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
 
 ## Installation
 
