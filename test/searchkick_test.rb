@@ -6,41 +6,7 @@ class TestSearchkick < Minitest::Unit::TestCase
     $index = Tire::Index.new("products")
     $index.delete
     index_options = {
-      settings: {
-        number_of_shards: 1,
-        analysis: {
-          analyzer: {
-            searchkick_keyword: {
-              type: "custom",
-              tokenizer: "keyword",
-              filter: ["lowercase", "snowball"]
-            },
-            searchkick: {
-              type: "custom",
-              tokenizer: "standard",
-              # synonym should come last, after stemming and shingle
-              # shingle must come before snowball
-              filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
-            }
-          },
-          filter: {
-            searchkick_shingle: {
-              type: "shingle",
-              token_separator: ""
-            },
-            searchkick_synonym: {
-              type: "synonym",
-              ignore_case: true,
-              synonyms: [
-                "clorox => bleach",
-                "saran wrap => plastic wrap",
-                "scallion => green onion",
-                "qtip => cotton swab"
-              ]
-            }
-          }
-        }
-      },
+      settings: Searchkick.settings.merge(number_of_shards: 1),
       mappings: {
         document: {
           properties: {
@@ -207,28 +173,9 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected)
-    fields = ["name"]
     search =
       Tire.search "products", type: "document" do
-        query do
-          boolean do
-            should do
-              match fields, term, boost: 10
-            end
-            should do
-              match fields, term, use_dis_max: false, fuzziness: 0.6, max_expansions: 4, prefix_length: 2
-            end
-            should do
-              nested path: "conversions", score_mode: "total" do
-                query do
-                  custom_score script: "log(doc['count'].value)" do
-                    match "query", term
-                  end
-                end
-              end
-            end
-          end
-        end
+        searchkick_query ["name"], term
         explain true
       end
 

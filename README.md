@@ -11,6 +11,31 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
 
+Simply use the `searchkick` analyzer.
+
+```ruby
+class Book < ActiveRecord::Base
+  include Tire::Model::Search
+  include Tire::Model::Callbacks
+
+  tire do
+    settings(Searchkick.settings)
+    settings(number_of_shards: 1) # additional settings
+    mapping do
+      indexes :title, analyzer: "searchkick"
+    end
+  end
+end
+```
+
+And to query, use:
+
+```ruby
+Book.search do
+  searchkick_query ["title"], "Nobody Listens to Andrew"
+end
+```
+
 ### Make Searches Better Over Time
 
 Use analytics on search conversions to improve results.

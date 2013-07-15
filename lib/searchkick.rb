@@ -44,6 +44,81 @@ module Searchkick
     end
 
   end
+
+  module SearchMethods
+    def searchkick_query(fields, term)
+      query do
+        boolean do
+          should do
+            match fields, term, boost: 10, operator: "and", analyzer: "searchkick2"
+          end
+          should do
+            match fields, term, use_dis_max: false, fuzziness: 0.6, max_expansions: 4, prefix_length: 2, operator: "and", analyzer: "searchkick2"
+          end
+          should do
+            nested path: "conversions", score_mode: "total" do
+              query do
+                custom_score script: "log(doc['count'].value)" do
+                  match "query", term
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  # TODO fix this monstrosity
+  # TODO add custom synonyms
+  def self.settings
+    {
+      analysis: {
+        analyzer: {
+          searchkick_keyword: {
+            type: "custom",
+            tokenizer: "keyword",
+            filter: ["lowercase", "snowball"]
+          },
+          searchkick: {
+            type: "custom",
+            tokenizer: "standard",
+            # synonym should come last, after stemming and shingle
+            # shingle must come before snowball
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
+            # filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
+          },
+          searchkick2: {
+            type: "custom",
+            tokenizer: "standard",
+            # synonym should come last, after stemming and shingle
+            # shingle must come before snowball
+            # filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_synonym"]
+          }
+        },
+        filter: {
+          searchkick_shingle: {
+            type: "shingle",
+            token_separator: ""
+          },
+          searchkick_synonym: {
+            type: "synonym",
+            ignore_case: true,
+            # tokenizer: "keyword",
+            synonyms: [
+              "clorox => bleach",
+              "saran wrap => plastic wrap",
+              "scallion => green onion",
+              "qtip => cotton swab"
+            ]
+          }
+        }
+      }
+    }
+  end
+
 end
 
 Tire::Model::Search::ClassMethodsProxy.send :include, Searchkick::ClassMethods
+Tire::Search::Search.send :include, Searchkick::SearchMethods
