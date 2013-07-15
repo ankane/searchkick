@@ -5,8 +5,14 @@ class TestSearchkick < Minitest::Unit::TestCase
   def setup
     $index = Tire::Index.new("products")
     $index.delete
+    synonyms = [
+      "clorox => bleach",
+      "saranwrap => plastic wrap",
+      "scallion => green onion",
+      "qtip => cotton swab"
+    ]
     index_options = {
-      settings: Searchkick.settings.merge(number_of_shards: 1),
+      settings: Searchkick.settings(synonyms: synonyms).merge(number_of_shards: 1),
       mappings: {
         document: {
           properties: {

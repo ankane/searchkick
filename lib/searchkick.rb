@@ -71,8 +71,9 @@ module Searchkick
 
   # TODO fix this monstrosity
   # TODO add custom synonyms
-  def self.settings
-    {
+  def self.settings(options = {})
+    synonyms = options[:synonyms] || []
+    settings = {
       analysis: {
         analyzer: {
           searchkick_keyword: {
@@ -85,17 +86,12 @@ module Searchkick
             tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball", "searchkick_synonym"]
-            # filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball"]
           },
-          # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
           searchkick_search: {
             type: "custom",
             tokenizer: "standard",
-            # synonym should come last, after stemming and shingle
-            # shingle must come before snowball
-            # filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
-            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball", "searchkick_synonym"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball"]
           }
         },
         filter: {
@@ -103,26 +99,26 @@ module Searchkick
             type: "shingle",
             token_separator: ""
           },
+          # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
           searchkick_search_shingle: {
             type: "shingle",
             token_separator: "",
             output_unigrams: false,
             output_unigrams_if_no_shingles: true
-          },
-          searchkick_synonym: {
-            type: "synonym",
-            ignore_case: true,
-            # tokenizer: "keyword",
-            synonyms: [
-              "clorox => bleach",
-              "saranwrap => plastic wrap",
-              "scallion => green onion",
-              "qtip => cotton swab"
-            ]
           }
         }
       }
     }
+    if synonyms.any?
+      settings[:analysis][:filter][:searchkick_synonym] = {
+        type: "synonym",
+        ignore_case: true,
+        synonyms: synonyms
+      }
+      settings[:analysis][:analyzer][:searchkick][:filter] << "searchkick_synonym"
+      settings[:analysis][:analyzer][:searchkick_search][:filter] << "searchkick_synonym"
+    end
+    settings
   end
 
 end
