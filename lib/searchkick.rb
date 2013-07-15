@@ -88,19 +88,26 @@ module Searchkick
             filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
             # filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
           },
+          # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
           searchkick2: {
             type: "custom",
             tokenizer: "standard",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
             # filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle", "snowball", "searchkick_synonym"]
-            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_synonym"]
+            filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_shingle2", "snowball", "searchkick_synonym"]
           }
         },
         filter: {
           searchkick_shingle: {
             type: "shingle",
             token_separator: ""
+          },
+          searchkick_shingle2: {
+            type: "shingle",
+            token_separator: "",
+            output_unigrams: false,
+            output_unigrams_if_no_shingles: true
           },
           searchkick_synonym: {
             type: "synonym",
