@@ -42,7 +42,7 @@ Use analytics on search conversions to improve results.
 
 Also, give popular documents a little boost.
 
-Create a model to keep track of searches.
+Keep track of searches.  The database works well for low volume, but feel free to use redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
