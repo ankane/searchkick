@@ -196,7 +196,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   def assert_search(term, expected)
     search =
       Tire.search "products", type: "document" do
-        searchkick_query ["name"], term
+        searchkick_query ["name"], term, true
         explain true
       end
 
