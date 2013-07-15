@@ -52,6 +52,11 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "MILK", ["Milk", "Whole Milk", "Fat Free Milk"]
   end
 
+  def test_cheese
+    store_names ["Pepper Jack Cheese"]
+    assert_search "pepperjack cheese", ["Pepper Jack Cheese"]
+  end
+
   # ascii
 
   def test_jalapenos

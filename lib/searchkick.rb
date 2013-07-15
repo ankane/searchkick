@@ -100,14 +100,16 @@ module Searchkick
         filter: {
           searchkick_index_shingle: {
             type: "shingle",
-            token_separator: ""
+            token_separator: "",
+            max_shingle_size: 3
           },
           # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
           searchkick_search_shingle: {
             type: "shingle",
             token_separator: "",
             output_unigrams: false,
-            output_unigrams_if_no_shingles: true
+            output_unigrams_if_no_shingles: true,
+            max_shingle_size: 3
           }
         }
       }
