@@ -57,6 +57,11 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "pepperjack cheese", ["Pepper Jack Cheese"]
   end
 
+  def test_middle_token
+    store_names ["Dish Washer Soap"]
+    assert_search "dish soap", ["Dish Washer Soap"]
+  end
+
   # ascii
 
   def test_jalapenos
@@ -97,13 +102,11 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def test_conversions
     store [
-      {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 100}, {query: "tomato", count: 2}]},
+      {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 5}, {query: "tomato", count: 200}]},
       {name: "Tomato Paste", conversions: []},
       {name: "Tomatoes", conversions: [{query: "tomato", count: 100}, {query: "tomato sauce", count: 2}]}
     ]
-    assert_search "tomato sauce", ["Tomato Sauce", "Tomatoes"] #, "Tomato Paste"]
-    assert_search "tomato", ["Tomatoes", "Tomato Sauce", "Tomato Paste"]
-    assert_search "tomato paste", ["Tomato Paste"] #, "Tomatoes", "Tomato Sauce"]
+    assert_search "tomato", ["Tomato Sauce", "Tomatoes", "Tomato Paste"]
   end
 
   def test_conversions_stemmed

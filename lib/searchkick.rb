@@ -53,7 +53,7 @@ module Searchkick
           should do
             match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search"
           end
-          should do
+          must do
             match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search"
           end
           if conversions
@@ -86,15 +86,15 @@ module Searchkick
           },
           searchkick: {
             type: "custom",
-            tokenizer: "standard",
+            tokenizer: "whitespace",
             # synonym should come last, after stemming and shingle
             # shingle must come before snowball
-            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_index_shingle"]
+            filter: ["lowercase", "asciifolding", "stop", "snowball", "searchkick_index_shingle"]
           },
           searchkick_search: {
             type: "custom",
-            tokenizer: "standard",
-            filter: ["standard", "lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
+            tokenizer: "whitespace",
+            filter: ["lowercase", "asciifolding", "stop", "snowball", "searchkick_search_shingle"]
           }
         },
         filter: {
