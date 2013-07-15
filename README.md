@@ -42,6 +42,39 @@ Use analytics on search conversions to improve results.
 
 Also, give popular documents a little boost.
 
+Create a model to keep track of searches.
+
+```ruby
+class Search < ActiveRecord::Base
+  belongs_to :item
+  # fields: id, query, searched_at, converted_at, item_id
+end
+```
+
+Add the conversions to the index.
+
+```ruby
+class Book < ActiveRecord::Base
+  has_many :searches
+
+  def to_indexed_json
+    {
+      title: title,
+      conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix
+      _boost: Math.log(copies_sold_count) # boost more popular books a bit
+    }
+  end
+end
+```
+
+Tell the query to use conversions once the reindex is complete.
+
+```ruby
+Book.search do
+  searchkick_query ["title"], "Nobody Listens to Andrew", true
+end
+```
+
 ### Zero Downtime Changes
 
 Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
