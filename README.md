@@ -4,9 +4,9 @@ Search made easy
 
 ## Usage
 
-### Reindex with Zero Downtime
+### Change Mappings with Zero Downtime
 
-Elasticsearch has a feature called aliases that allows you to reindex with no downtime.
+Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
 
 ```ruby
 Book.tire.reindex
@@ -30,15 +30,31 @@ There is also a rake task.
 rake searchkick:reindex CLASS=Book
 ```
 
-[Thanks to Jaroslav Kalistsuk for the original source](https://gist.github.com/jarosan/3124884)
+Thanks to Jaroslav Kalistsuk for the [original source](https://gist.github.com/jarosan/3124884).
 
-#### Gotchas
+Clinton Gormley also has a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
+
+## Gotchas
+
+### Mappings
 
 When changing the mapping in a model, you must create a new index for the changes to take place.  Elasticsearch does not support updates to the mapping.  For zero downtime, use the `reindex` method above which creates a new index and swaps it in once built. To see the current mapping, use:
 
 ```sh
 curl http://localhost:9200/books/_mapping
 ```
+
+### Low Number of Documents
+
+By default, Tire creates an index on 5 shards - even in development.  With a low number of documents, you will get inconsistent relevance scores by default.  There are two different ways to fix this:
+
+- Use one shard
+
+```ruby
+settings: {number_of_shards: 1}
+```
+
+- Set the search type to `dfs_query_and_fetch`.  More about [search types here](http://www.elasticsearch.org/guide/reference/api/search/search-type/).
 
 ## Installation
 
