@@ -32,6 +32,10 @@ rake searchkick:reindex CLASS=Book
 
 [Thanks to Jaroslav Kalistsuk for the original source](https://gist.github.com/jarosan/3124884)
 
+#### Gotchas
+
+When changing the mapping in a model, you must create a new index for the changes to take place.  Elasticsearch does not support updates to the mapping.  For zero downtime, use the `reindex` method above which creates a new index and swaps it in once built.
+
 ## Installation
 
 Add this line to your application's Gemfile:
