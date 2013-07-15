@@ -57,6 +57,17 @@ Add the conversions to the index.
 class Book < ActiveRecord::Base
   has_many :searches
 
+  tire do
+    settings Searchkick.settings
+    mapping do
+      indexes :title, analyzer: "searchkick"
+      indexes :conversions, type: "nested" do
+        indexes :query, analyzer: "searchkick_keyword"
+        indexes :count, type: "integer"
+      end
+    end
+  end
+
   def to_indexed_json
     {
       title: title,
