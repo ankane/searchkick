@@ -67,7 +67,7 @@ class Book < ActiveRecord::Base
 end
 ```
 
-*After the reindex is complete* (to prevent errors), tell the search query to use conversions.
+After the reindex is complete (to prevent errors), tell the search query to use conversions.
 
 ```ruby
 Book.search do
