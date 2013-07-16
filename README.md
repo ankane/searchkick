@@ -116,14 +116,6 @@ Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.gith
 
 ## Elasticsearch Gotchas
 
-### Mappings
-
-When changing the mapping in a model, you must create a new index for the changes to take place.  Elasticsearch does not support updates to mappings.  For zero downtime, use the `reindex` method above, which creates a new index and swaps it in after it's built.  To view the current mapping, use:
-
-```sh
-curl "http://localhost:9200/products/_mapping?pretty=1"
-```
-
 ### Inconsistent Scores
 
 Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
