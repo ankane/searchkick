@@ -38,8 +38,16 @@ Product.search "Butter", fields: [:name, :brand]
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
-# TODO not equal, greater than, less than, ranges, or operator
-Product.search "1% Milk", where: {orders_count: 1..10, expires_at: {gt: Time.now}, store_id: {not: 2}}
+```
+
+More operators
+
+```
+Product.search "1% Milk", where: {
+  orders_count: 1..10,
+  expires_at: {gt: Time.now},
+  store_id: {not: 2}
+}
 ```
 
 ### Facets
