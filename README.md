@@ -92,15 +92,11 @@ Product.search "Fat Free Milk", conversions: true
 
 ### Zero Downtime Changes
 
-Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
-
 ```ruby
 Product.reindex
 ```
 
-This creates a new index `products_20130714181054` and points the `products` alias to the new index when complete - an atomic operation :)
-
-**First time:** If products is an existing index, it will be replaced by an alias.
+Behind the scenes, this creates a new index `products_20130714181054` and points the `products` alias to the new index when complete - an atomic operation :)
 
 Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
 
@@ -116,7 +112,7 @@ There is also a rake task.
 rake searchkick:reindex CLASS=Product
 ```
 
-Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884) and Clinton Gormley for a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
+Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884).
 
 ## Elasticsearch Gotchas
 
