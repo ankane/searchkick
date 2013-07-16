@@ -37,12 +37,10 @@ Product.search "Butter", fields: [:name, :brand]
 ### Query Like SQL
 
 ```ruby
-Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50, order: {name: :desc}
+Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
 
-The default order is most relevant first, which is `{_score: :desc}`.
-
-Additional operators
+#### Where
 
 ```ruby
 where: {
@@ -57,10 +55,18 @@ where: {
 }
 ```
 
-Explain
+#### Order
 
 ```ruby
-Product.search "1% Milk", explain: true
+order: {name: :desc}
+```
+
+The default order is most relevant first, which is `{_score: :desc}`.
+
+#### Explain
+
+```ruby
+explain: true
 ```
 
 ### Facets
