@@ -40,7 +40,7 @@ Product.search "Butter", fields: [:name, :brand]
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50, order: {name: :desc}
 ```
 
-The default order is `{_score: :desc}` (most relevant first).
+The default order is most relevant first, which is `{_score: :desc}`.
 
 Additional operators
 
