@@ -26,6 +26,9 @@ And to query, use:
 
 ```ruby
 Product.search "2% Milk"
+
+# or search specific fields
+Product.search "Butter", fields: [:name, :brand]
 ```
 
 ### Query Like SQL
