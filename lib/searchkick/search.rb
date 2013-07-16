@@ -6,7 +6,7 @@ module Searchkick
     end
 
     def search(term, options = {})
-      fields = ["name"]
+      fields = options[:fields] || ["_all"]
       tire.search do
         query do
           boolean do

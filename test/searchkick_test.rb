@@ -116,7 +116,7 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def test_conversions_stemmed
     store [
-      {name: "Tomato A", conversions: [{query: "tomato", count: 1}, {query: "tomatos", count: 1}, {query: "Tomatoes", count: 3}]},
+      {name: "Tomato A", conversions: [{query: "tomato", count: 2}, {query: "tomatos", count: 2}, {query: "Tomatoes", count: 2}]},
       {name: "Tomato B", conversions: [{query: "tomato", count: 4}]}
     ]
     assert_search "tomato", ["Tomato A", "Tomato B"]
