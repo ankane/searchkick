@@ -1,6 +1,6 @@
 # Searchkick
 
-Search made easy
+:tada: Search made easy
 
 Searchkick provides sensible search defaults out of the box.  It handles:
 
