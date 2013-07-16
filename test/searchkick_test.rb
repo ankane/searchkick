@@ -3,12 +3,12 @@ require "test_helper"
 class Product < ActiveRecord::Base
   searchkick \
     synonyms: [
-      "clorox => bleach",
-      "saranwrap => plastic wrap",
-      "scallion => green onion",
-      "qtip => cotton swab",
-      "burger => hamburger",
-      "bandaid => bandag"
+      ["clorox", "bleach"],
+      ["scallion", "greenonion"],
+      ["saranwrap", "plasticwrap"],
+      ["qtip", "cotton swab"],
+      ["burger", "hamburger"],
+      ["bandaid", "bandag"]
     ],
     settings: {
       number_of_shards: 1

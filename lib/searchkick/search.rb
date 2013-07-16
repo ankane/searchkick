@@ -2,7 +2,7 @@ module Searchkick
   # can't check mapping for conversions since the new index may not be built
   module Search
     def index_types
-      Hash[ Product.index.mapping["product"]["properties"].map{|k, v| [k, v["type"]] } ].reject{|k, v| k == "conversions" || k[0] == "_" }
+      Hash[ (((Product.index.mapping || {})["product"] || {})["properties"] || {}).map{|k, v| [k, v["type"]] } ].reject{|k, v| k == "conversions" || k[0] == "_" }
     end
 
     def search(term, options = {})

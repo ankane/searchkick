@@ -45,7 +45,7 @@ Product.search "2% Milk", facets: [:store_id, :aisle_id]
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick synonyms: ["scallion => green onion"] # TODO Ruby syntax
+  searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
 end
 ```
 
