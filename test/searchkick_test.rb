@@ -159,6 +159,11 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "q tips", ["Q Tips", "Kroger Cotton Swabs"]
   end
 
+  def test_keywords_reverse
+    store_names ["Scallions"]
+    assert_search "green onions", ["Scallions"]
+  end
+
   def test_keywords_exact
     store_names ["Green Onions", "Yellow Onions"]
     assert_search "scallion", ["Green Onions"]
