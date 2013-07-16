@@ -59,11 +59,9 @@ You must call `Product.reindex` after changing synonyms.
 
 ### Make Searches Better Over Time
 
-Use analytics on search conversions to improve results.
+Improve results with analytics on conversions and give popular documents a little boost.
 
-Also, give popular documents a little boost.
-
-Keep track of searches.  The database works well for low volume, but feel free to use redis or another datastore.
+First, you must keep track of search conversions.  The database works well for low volume, but feel free to use redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
@@ -90,7 +88,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-After the reindex is complete (to prevent errors), tell the search query to use conversions.
+After the reindex is complete (to prevent errors), tell the search method to use conversions.
 
 ```ruby
 Product.search "Fat Free Milk", conversions: true
