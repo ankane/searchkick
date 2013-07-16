@@ -35,6 +35,12 @@ Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 # TODO not equal, greater than, less than, ranges, or operator
 ```
 
+### Facets
+
+```ruby
+Product.search "2% Milk", facets: [:aisle_id, :warehouse_id]
+```
+
 ### Synonyms
 
 ```ruby

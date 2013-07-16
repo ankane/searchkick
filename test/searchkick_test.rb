@@ -217,11 +217,19 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_equal "Product Hide", Product.search("Product", where: {visible: false}).first.name
   end
 
+  def test_facets
+    store [
+      {name: "Product Show", store_id: 1},
+      {name: "Product Hide", store_id: 2}
+    ]
+    assert_equal 2, Product.search("Product", facets: [:store_id]).facets["store_id"]["total"]
+  end
+
   protected
 
   def store(documents)
     documents.each do |document|
-      Product.index.store ({_type: "product", visible: true}).merge(document)
+      Product.index.store ({_type: "product"}).merge(document)
     end
     Product.index.refresh
   end

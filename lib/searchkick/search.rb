@@ -43,6 +43,11 @@ module Searchkick
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
         filter :term, options[:where] if options[:where]
+        (options[:facets] || []).each do |field|
+          facet field do
+            terms field
+          end
+        end
       end
     end
   end
