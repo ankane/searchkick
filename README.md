@@ -17,7 +17,7 @@ Runs on Elasticsearch
 ## Usage
 
 ```ruby
-class Book < ActiveRecord::Base
+class Product < ActiveRecord::Base
   searchkick :name
 end
 ```
@@ -25,18 +25,18 @@ end
 And to query, use:
 
 ```ruby
-Book.search("Nobody Listens to Andrew")
+Product.search("2% Milk")
 ```
 
 ### Synonyms
 
 ```ruby
-class Book < ActiveRecord::Base
+class Product < ActiveRecord::Base
   searchkick :name, synonyms: ["scallion => green onion"] # TODO Ruby syntax
 end
 ```
 
-You must call `Book.reindex` after changing synonyms.
+You must call `Product.reindex` after changing synonyms.
 
 ### Make Searches Better Over Time
 
@@ -48,24 +48,24 @@ Keep track of searches.  The database works well for low volume, but feel free t
 
 ```ruby
 class Search < ActiveRecord::Base
-  belongs_to :item
-  # fields: id, query, searched_at, converted_at, item_id
+  belongs_to :product
+  # fields: id, query, searched_at, converted_at, product_id
 end
 ```
 
 Add the conversions to the index.
 
 ```ruby
-class Book < ActiveRecord::Base
+class Product < ActiveRecord::Base
   has_many :searches
 
   searchkick :name, conversions: true
 
   def to_indexed_json
     {
-      title: title,
+      name: name,
       conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix
-      _boost: Math.log(copies_sold_count) # boost more popular books a bit
+      _boost: Math.log(orders_count) # boost more popular products a bit
     }
   end
 end
@@ -74,7 +74,7 @@ end
 After the reindex is complete (to prevent errors), tell the search query to use conversions.
 
 ```ruby
-Book.search("Nobody Listens to Andrew", conversions: true)
+Product.search("Nobody Listens to Andrew", conversions: true)
 ```
 
 ### Zero Downtime Changes
@@ -82,25 +82,25 @@ Book.search("Nobody Listens to Andrew", conversions: true)
 Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
 
 ```ruby
-Book.reindex
+Product.reindex
 ```
 
-This creates a new index `books_20130714181054` and points the `books` alias to the new index when complete - an atomic operation :)
+This creates a new index `products_20130714181054` and points the `products` alias to the new index when complete - an atomic operation :)
 
-**First time:** If books is an existing index, it will be replaced by an alias.
+**First time:** If products is an existing index, it will be replaced by an alias.
 
 Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
 
 ```ruby
-class Book < ActiveRecord::Base
-  scope :searchkick_import, where(active: true).includes(:author, :chapters)
+class Product < ActiveRecord::Base
+  scope :searchkick_import, where(active: true).includes(:searches)
 end
 ```
 
 There is also a rake task.
 
 ```sh
-rake searchkick:reindex CLASS=Book
+rake searchkick:reindex CLASS=Product
 ```
 
 Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884) and Clinton Gormley for a [good post](http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) on this.
@@ -112,7 +112,7 @@ Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.gith
 When changing the mapping in a model, you must create a new index for the changes to take place.  Elasticsearch does not support updates to mappings.  For zero downtime, use the `reindex` method above, which creates a new index and swaps it in after it's built.  To view the current mapping, use:
 
 ```sh
-curl "http://localhost:9200/books/_mapping?pretty=1"
+curl "http://localhost:9200/products/_mapping?pretty=1"
 ```
 
 ### Inconsistent Scores
