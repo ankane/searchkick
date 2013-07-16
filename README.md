@@ -50,6 +50,12 @@ where: {
 }
 ```
 
+Explain
+
+```ruby
+Product.search "1% Milk", explain: true
+```
+
 ### Facets
 
 ```ruby
