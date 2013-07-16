@@ -12,7 +12,7 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 
 Runs on Elasticsearch
 
-:watermelon: Battle-tested at [Instacart](https://www.instacart.com)
+:tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 ## Usage
 
