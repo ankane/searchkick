@@ -25,7 +25,7 @@ end
 And to query, use:
 
 ```ruby
-Product.search("2% Milk")
+Product.search "2% Milk"
 ```
 
 ### Synonyms
@@ -74,7 +74,7 @@ end
 After the reindex is complete (to prevent errors), tell the search query to use conversions.
 
 ```ruby
-Product.search("Nobody Listens to Andrew", conversions: true)
+Product.search "Fat Free Milk", conversions: true
 ```
 
 ### Zero Downtime Changes
