@@ -1,44 +1,25 @@
 require "test_helper"
 
+class Product < ActiveRecord::Base
+  searchkick :name, synonyms: [
+    "clorox => bleach",
+    "saranwrap => plastic wrap",
+    "scallion => green onion",
+    "qtip => cotton swab",
+    "burger => hamburger",
+    "bandaid => bandag"
+  ], settings: {number_of_shards: 1}
+end
+
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
-    $index = Tire::Index.new("products")
-    $index.delete
-    synonyms = [
-      "clorox => bleach",
-      "saranwrap => plastic wrap",
-      "scallion => green onion",
-      "qtip => cotton swab",
-      "burger => hamburger",
-      "bandaid => bandag"
-    ]
-    index_options = {
-      settings: Searchkick.settings(synonyms: synonyms).merge(number_of_shards: 1),
-      mappings: {
-        document: {
-          properties: {
-            name: {
-              type: "string",
-              analyzer: "searchkick"
-            },
-            conversions: {
-              type: "nested",
-              properties: {
-                query: {
-                  type: "string",
-                  analyzer: "searchkick_keyword"
-                },
-                count: {
-                  type: "integer"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    $index.create index_options
+    Product.index.delete
+    Product.create_elasticsearch_index
+  end
+
+  def test_reindex
+    assert Product.reindex
   end
 
   # exact
@@ -206,9 +187,9 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def store(documents)
     documents.each do |document|
-      $index.store document
+      Product.index.store document.merge(_type: "product")
     end
-    $index.refresh
+    Product.index.refresh
   end
 
   def store_names(names)
@@ -216,13 +197,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected)
-    search =
-      Tire.search "products", type: "document" do
-        searchkick_query ["name"], term, true
-        explain true
-      end
-
-    assert_equal expected, search.results.map(&:name)
+    assert_equal expected, Product.search(term).map(&:name)
   end
 
 end

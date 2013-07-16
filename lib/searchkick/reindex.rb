@@ -3,13 +3,13 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     def reindex
-      alias_name = klass.tire.index.name
+      alias_name = tire.index.name
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S")
 
       # Rake::Task["tire:import"].invoke
       index = Tire::Index.new(new_index)
-      Tire::Tasks::Import.create_index(index, klass)
-      scope = klass.respond_to?(:tire_import) ? klass.tire_import : klass
+      Tire::Tasks::Import.create_index(index, self)
+      scope = respond_to?(:searchkick_import) ? searchkick_import : self
       scope.find_in_batches do |batch|
         index.import batch
       end
@@ -37,6 +37,7 @@ module Searchkick
       end
 
       puts "[IMPORT] Saved alias #{alias_name} pointing to #{new_index}"
+      true
     end
 
   end
