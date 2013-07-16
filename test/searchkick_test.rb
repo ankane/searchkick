@@ -183,6 +183,21 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "zero", ["Zero Boost A", "Zero Boost B", "Zero Boost C"]
   end
 
+  # search method
+
+  def test_limit
+    store_names ["Product A", "Product B"]
+    assert_equal 1, Product.search("Product", limit: 1).size
+  end
+
+  def test_offset
+    store_names ["Product A", "Product B"]
+    assert_equal 1, Product.search("Product", offset: 1).size
+  end
+
+  def test_where
+  end
+
   protected
 
   def store(documents)
