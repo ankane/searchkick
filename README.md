@@ -32,6 +32,7 @@ Product.search "2% Milk"
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
+# TODO not equal, greater than, less than, ranges, or operator
 ```
 
 ### Synonyms
