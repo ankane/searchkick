@@ -40,12 +40,12 @@ Product.search "Butter", fields: [:name, :brand]
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
 
-More operators
+Additional operators
 
 ```ruby
-Product.search "1% Milk", where: {
-  orders_count: 1..10,
-  expires_at: {gt: Time.now},
+where: {
+  expires_at: {gt: Time.now}, # lt, gte, lte also available
+  orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
   store_id: {not: 2}
 }
 ```
