@@ -169,6 +169,7 @@ bundle
 
 ## TODO
 
+- Focus on results format (load: true?)
 - Test helpers - everyone should test their own search
 - Built-in synonyms from WordNet
 - Dashboard w/ real-time analytics?
