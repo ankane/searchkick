@@ -46,8 +46,9 @@ Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 where: {
   expires_at: {gt: Time.now}, # lt, gte, lte also available
   orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
-  aisle_id: [10, 11],         # in
-  store_id: {not: 2},
+  aisle_id: [25, 30],         # in
+  store_id: {not: 2},         # not
+  aisle_id: {not: [25, 30]}   # not in
   or: [
     {in_stock: true},
     {backordered: true}
