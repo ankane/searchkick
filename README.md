@@ -18,7 +18,7 @@ Runs on Elasticsearch
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick :name
+  searchkick
 end
 ```
 
@@ -28,11 +28,17 @@ And to query, use:
 Product.search "2% Milk"
 ```
 
+### Query Like SQL
+
+```ruby
+Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
+```
+
 ### Synonyms
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick :name, synonyms: ["scallion => green onion"] # TODO Ruby syntax
+  searchkick synonyms: ["scallion => green onion"] # TODO Ruby syntax
 end
 ```
 
@@ -59,7 +65,7 @@ Add the conversions to the index.
 class Product < ActiveRecord::Base
   has_many :searches
 
-  searchkick :name, conversions: true
+  searchkick conversions: true
 
   def to_indexed_json
     {
