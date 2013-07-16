@@ -58,10 +58,8 @@ where: {
 #### Order
 
 ```ruby
-order: {name: :desc}
+order: {_score: :desc} # most relevant first - default
 ```
-
-The default order is most relevant first, which is `{_score: :desc}`.
 
 #### Explain
 
