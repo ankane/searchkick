@@ -42,7 +42,7 @@ Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 
 More operators
 
-```
+```ruby
 Product.search "1% Milk", where: {
   orders_count: 1..10,
   expires_at: {gt: Time.now},
