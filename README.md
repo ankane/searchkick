@@ -12,8 +12,6 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
 
-Simply use the `searchkick` analyzer.
-
 ```ruby
 class Book < ActiveRecord::Base
   searchkick :name
