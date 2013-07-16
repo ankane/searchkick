@@ -8,7 +8,7 @@ module Searchkick
 
       # Rake::Task["tire:import"].invoke
       index = Tire::Index.new(new_index)
-      Tire::Tasks::Import.create_index(index, self)
+      Tire::Tasks::Import.create_index(index, self) # TODO remove puts
       scope = respond_to?(:searchkick_import) ? searchkick_import : self
       scope.find_in_batches do |batch|
         index.import batch
