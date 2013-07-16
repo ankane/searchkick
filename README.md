@@ -2,8 +2,6 @@
 
 Search made easy
 
-## Usage
-
 Searchkick provides sensible search defaults out of the box.  It handles:
 
 - stemming - `tomatoes` matches `tomato`
@@ -11,6 +9,8 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
+
+## Usage
 
 ```ruby
 class Book < ActiveRecord::Base
@@ -24,7 +24,15 @@ And to query, use:
 Book.search("Nobody Listens to Andrew")
 ```
 
-**Note:** We recommend reindexing when changing synonyms for best results.
+### Synonyms
+
+```ruby
+class Book < ActiveRecord::Base
+  searchkick :name, synonyms: ["scallion => green onion"] # TODO Ruby syntax
+end
+```
+
+You must call `Book.reindex` after changing synonyms.
 
 ### Make Searches Better Over Time
 
