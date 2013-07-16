@@ -38,7 +38,7 @@ Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ### Facets
 
 ```ruby
-Product.search "2% Milk", facets: [:aisle_id, :warehouse_id]
+Product.search "2% Milk", facets: [:store_id, :aisle_id]
 ```
 
 ### Synonyms
