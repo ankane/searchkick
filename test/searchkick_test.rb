@@ -1,15 +1,28 @@
 require "test_helper"
 
 class Product < ActiveRecord::Base
-  searchkick :name, synonyms: [
-    "clorox => bleach",
-    "saranwrap => plastic wrap",
-    "scallion => green onion",
-    "qtip => cotton swab",
-    "burger => hamburger",
-    "bandaid => bandag"
-  ], settings: {number_of_shards: 1}, conversions: true
+  searchkick \
+    synonyms: [
+      "clorox => bleach",
+      "saranwrap => plastic wrap",
+      "scallion => green onion",
+      "qtip => cotton swab",
+      "burger => hamburger",
+      "bandaid => bandag"
+    ],
+    settings: {
+      number_of_shards: 1
+    },
+    conversions: true
+
+  # searchkick do
+  #   string :name
+  #   boolean :visible
+  #   integer :orders_count
+  # end
 end
+
+p Product.index_types
 
 class TestSearchkick < Minitest::Unit::TestCase
 
@@ -202,7 +215,7 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def store(documents)
     documents.each do |document|
-      Product.index.store document.merge(_type: "product")
+      Product.index.store ({_type: "product", visible: true}).merge(document)
     end
     Product.index.refresh
   end

@@ -6,7 +6,7 @@ require "tire"
 
 module Searchkick
   module Model
-    def searchkick(field, options = {})
+    def searchkick(options = {})
       custom_settings = {
         analysis: {
           analyzer: {
@@ -15,7 +15,7 @@ module Searchkick
               tokenizer: "keyword",
               filter: ["lowercase", "snowball"]
             },
-            searchkick: {
+            default_index: {
               type: "custom",
               tokenizer: "standard",
               # synonym should come last, after stemming and shingle
@@ -55,7 +55,7 @@ module Searchkick
           ignore_case: true,
           synonyms: synonyms
         }
-        custom_settings[:analysis][:analyzer][:searchkick][:filter] << "searchkick_synonym"
+        custom_settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
         custom_settings[:analysis][:analyzer][:searchkick_search][:filter].insert(-2, "searchkick_synonym")
         custom_settings[:analysis][:analyzer][:searchkick_search][:filter] << "searchkick_synonym"
         custom_settings[:analysis][:analyzer][:searchkick_search2][:filter] << "searchkick_synonym"
@@ -70,7 +70,7 @@ module Searchkick
         tire do
           settings custom_settings
           mapping do
-            indexes field, analyzer: "searchkick"
+            # indexes field, analyzer: "searchkick"
             if options[:conversions]
               indexes :conversions, type: "nested" do
                 indexes :query, analyzer: "searchkick_keyword"
