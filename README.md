@@ -1,6 +1,6 @@
 # Searchkick
 
-:tada: Search made easy
+:rocket: Search made easy
 
 Searchkick provides sensible search defaults out of the box.  It handles:
 
@@ -9,6 +9,10 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
+
+Runs on Elasticsearch
+
+:watermelon: Battle-tested at [Instacart](https://www.instacart.com)
 
 ## Usage
 
