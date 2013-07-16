@@ -37,8 +37,10 @@ Product.search "Butter", fields: [:name, :brand]
 ### Query Like SQL
 
 ```ruby
-Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
+Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50, order: {name: :desc}
 ```
+
+The default order is `{_score: :desc}` (most relevant first).
 
 Additional operators
 
@@ -46,7 +48,12 @@ Additional operators
 where: {
   expires_at: {gt: Time.now}, # lt, gte, lte also available
   orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
-  store_id: {not: 2}
+  store_id: {not: 2},
+  aisle_id: {in: [10, 11]},
+  or: [
+    {in_stock: true},
+    {backordered: true}
+  ]
 }
 ```
 
