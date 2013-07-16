@@ -1,7 +1,7 @@
 module Searchkick
   # can't check mapping for conversions since the new index may not be built
   module Search
-    def search(term, conversions = false)
+    def search(term, options = {})
       fields = ["name"]
       tire.search do
         query do
@@ -22,17 +22,17 @@ module Searchkick
                 end
               end
             end
-            # if conversions
-            #   should do
-            #     nested path: "conversions", score_mode: "total" do
-            #       query do
-            #         custom_score script: "log(doc['count'].value)" do
-            #           match "query", term
-            #         end
-            #       end
-            #     end
-            #   end
-            # end
+            if options[:conversions]
+              should do
+                nested path: "conversions", score_mode: "total" do
+                  query do
+                    custom_score script: "log(doc['count'].value)" do
+                      match "query", term
+                    end
+                  end
+                end
+              end
+            end
           end
         end
       end

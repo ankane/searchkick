@@ -8,7 +8,7 @@ class Product < ActiveRecord::Base
     "qtip => cotton swab",
     "burger => hamburger",
     "bandaid => bandag"
-  ], settings: {number_of_shards: 1}
+  ], settings: {number_of_shards: 1}, conversions: true
 end
 
 class TestSearchkick < Minitest::Unit::TestCase
@@ -197,7 +197,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected)
-    assert_equal expected, Product.search(term).map(&:name)
+    assert_equal expected, Product.search(term, conversions: true).map(&:name)
   end
 
 end

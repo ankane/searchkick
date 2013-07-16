@@ -71,6 +71,12 @@ module Searchkick
           settings custom_settings
           mapping do
             indexes field, analyzer: "searchkick"
+            if options[:conversions]
+              indexes :conversions, type: "nested" do
+                indexes :query, analyzer: "searchkick_keyword"
+                indexes :count, type: "integer"
+              end
+            end
           end
         end
       end
