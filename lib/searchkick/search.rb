@@ -42,6 +42,7 @@ module Searchkick
         size options[:limit] if options[:limit]
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
+        filter :term, options[:where] if options[:where]
       end
     end
   end

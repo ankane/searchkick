@@ -209,6 +209,12 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_where
+    store [
+      {name: "Product Show", visible: true},
+      {name: "Product Hide", visible: false}
+    ]
+    assert_equal "Product Show", Product.search("Product", where: {visible: true}).first.name
+    assert_equal "Product Hide", Product.search("Product", where: {visible: false}).first.name
   end
 
   protected
