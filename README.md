@@ -16,25 +16,14 @@ Simply use the `searchkick` analyzer.
 
 ```ruby
 class Book < ActiveRecord::Base
-  include Tire::Model::Search
-  include Tire::Model::Callbacks
-
-  tire do
-    settings Searchkick.settings(synonyms: ["scallion => green onion"])
-    settings number_of_shards: 1 # additional settings
-    mapping do
-      indexes :title, analyzer: "searchkick"
-    end
-  end
+  searchkick :name
 end
 ```
 
 And to query, use:
 
 ```ruby
-Book.search do
-  searchkick_query ["title"], "Nobody Listens to Andrew"
-end
+Book.search("Nobody Listens to Andrew")
 ```
 
 **Note:** We recommend reindexing when changing synonyms for best results.
@@ -94,18 +83,18 @@ end
 Elasticsearch has a feature called aliases that allows you to change mappings with no downtime.
 
 ```ruby
-Book.tire.reindex
+Book.reindex
 ```
 
 This creates a new index `books_20130714181054` and points the `books` alias to the new index when complete - an atomic operation :)
 
 **First time:** If books is an existing index, it will be replaced by an alias.
 
-Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `tire_import` scope.
+Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
 
 ```ruby
 class Book < ActiveRecord::Base
-  scope :tire_import, where(active: true).includes(:author, :chapters)
+  scope :searchkick_import, where(active: true).includes(:author, :chapters)
 end
 ```
 
