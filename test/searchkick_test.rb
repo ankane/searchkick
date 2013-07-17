@@ -238,7 +238,7 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "product", ["Product A", "Product B"], where: {store_id: [1, 2]}
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
-    assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [{in_stock: true}, {store_id: 3}]}
+    assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
   end
 
   def test_order

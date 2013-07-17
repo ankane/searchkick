@@ -50,9 +50,8 @@ where: {
   store_id: {not: 2},         # not
   aisle_id: {not: [25, 30]},  # not in
   or: [
-    {in_stock: true},
-    {backordered: true}
-  ] # TODO better or
+    [{in_stock: true}, {backordered: true}]
+  ]
 }
 ```
 

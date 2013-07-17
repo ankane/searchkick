@@ -55,7 +55,9 @@ module Searchkick
         # where
         (options[:where] || {}).each do |k, v|
           if k == :or
-            filter :or, v.map{|v2| {term: v2} }
+            v.each do |v2|
+              filter :or, v2.map{|v3| {term: v3} }
+            end
           else
             if v.is_a?(Range)
               v = {gte: v.first, (v.exclude_end? ? :lt : :lte) => v.last}
