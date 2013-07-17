@@ -214,12 +214,31 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_where
+    now = Time.now
     store [
-      {name: "Product Show", visible: true},
-      {name: "Product Hide", visible: false}
+      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, _boost: 4},
+      {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, _boost: 3},
+      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, _boost: 2},
+      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, _boost: 1},
     ]
-    assert_equal "Product Show", Product.search("Product", where: {visible: true}).first.name
-    assert_equal "Product Hide", Product.search("Product", where: {visible: false}).first.name
+    assert_search "Product", ["Product A", "Product B"], where: {in_stock: true}
+    # date
+    assert_search "Product", ["Product A"], where: {created_at: {gt: now - 1}}
+    assert_search "Product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
+    assert_search "Product", ["Product D"], where: {created_at: {lt: now - 2}}
+    assert_search "Product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
+    # integer
+    assert_search "Product", ["Product A"], where: {store_id: {lt: 2}}
+    assert_search "Product", ["Product A", "Product B"], where: {store_id: {lte: 2}}
+    assert_search "Product", ["Product D"], where: {store_id: {gt: 3}}
+    assert_search "Product", ["Product C", "Product D"], where: {store_id: {gte: 3}}
+    # range
+    assert_search "Product", ["Product A", "Product B"], where: {store_id: 1..2}
+    assert_search "Product", ["Product A"], where: {store_id: 1...2}
+    assert_search "Product", ["Product A", "Product B"], where: {store_id: [1, 2]}
+    assert_search "Product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
+    assert_search "Product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
+    assert_search "Product", ["Product A", "Product B", "Product C"], where: {or: [{in_stock: true}, {store_id: 3}]}
   end
 
   def test_facets
@@ -243,8 +262,8 @@ class TestSearchkick < Minitest::Unit::TestCase
     store names.map{|name| {name: name} }
   end
 
-  def assert_search(term, expected)
-    assert_equal expected, Product.search(term, fields: [:name], conversions: true).map(&:name)
+  def assert_search(term, expected, options = {})
+    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true)).map(&:name)
   end
 
 end

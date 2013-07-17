@@ -42,7 +42,46 @@ module Searchkick
         size options[:limit] if options[:limit]
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
-        filter :term, options[:where] if options[:where]
+        (options[:where] || {}).each do |k, v|
+          if k == :or
+            filter :or, v.map{|v2| {term: v2} }
+          else
+            if v.is_a?(Range)
+              v = {gte: v.first, (v.exclude_end? ? :lt : :lte) => v.last}
+            end
+
+            if v.is_a?(Array)
+              filter :terms, {k => v}
+            elsif v.is_a?(Hash)
+              v.each do |k2, v2|
+                if k2 == :not
+                  if v2.is_a?(Array)
+                    filter :not, {terms: {k => v2}}
+                  else
+                    filter :not, {term: {k => v2}}
+                  end
+                else
+                  opts =
+                    case k2
+                    when :gt
+                      {from: v2, include_lower: false}
+                    when :gte
+                      {from: v2, include_lower: true}
+                    when :lt
+                      {to: v2, include_upper: false}
+                    when :lte
+                      {to: v2, include_upper: true}
+                    else
+                      raise "Unknown where operator"
+                    end
+                  filter :range, k => opts
+                end
+              end
+            else
+              filter :term, {k => v}
+            end
+          end
+        end
         (options[:facets] || []).each do |field|
           facet field do
             terms field

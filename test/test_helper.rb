@@ -16,6 +16,9 @@ ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "
 
 ActiveRecord::Migration.create_table :products, :force => true do |t|
   t.string :name
+  t.integer :store_id
+  t.boolean :in_stock
+  t.boolean :backordered
   t.timestamps
 end
 
