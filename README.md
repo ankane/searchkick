@@ -72,8 +72,6 @@ explain: true
 
 ```ruby
 Product.search "2% Milk", facets: [:store_id, :aisle_id]
-# TODO pass options
-Product.search "2% Milk", facets: {store_id: true, aisle_id: {order: "max"}} # defaults to count
 ```
 
 ### Synonyms

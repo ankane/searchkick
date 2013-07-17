@@ -252,7 +252,6 @@ class TestSearchkick < Minitest::Unit::TestCase
       {name: "Product Hide", store_id: 2}
     ]
     assert_equal 2, Product.search("Product", facets: [:store_id]).facets["store_id"]["terms"].size
-    assert_equal 2, Product.search("Product", facets: {store_id: true}).facets["store_id"]["terms"].size
   end
 
   protected
