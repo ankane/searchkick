@@ -73,6 +73,12 @@ explain: true
 Product.search "2% Milk", facets: [:store_id, :aisle_id]
 ```
 
+Advanced
+
+```ruby
+Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
+```
+
 ### Synonyms
 
 ```ruby

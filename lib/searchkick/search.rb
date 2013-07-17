@@ -54,54 +54,82 @@ module Searchkick
 
         # where
         # TODO expand or
-        (options[:where] || {}).each do |field, value|
-          if field == :or
-            value.each do |or_clause|
-              filter :or, or_clause.map{|or_statement| {term: or_statement} }
-            end
-          else
-            # expand ranges
-            if value.is_a?(Range)
-              value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
-            end
 
-            if value.is_a?(Array) # in query
-              filter :terms, {field => value}
-            elsif value.is_a?(Hash)
-              value.each do |op, op_value|
-                if op == :not
-                  if op_value.is_a?(Array)
-                    filter :not, {terms: {field => op_value}}
-                  else
-                    filter :not, {term: {field => op_value}}
+        where_filters =
+          proc do |where|
+            filters = []
+            (where || {}).each do |field, value|
+              if field == :or
+                value.each do |or_clause|
+                  filters << {or: or_clause.map{|or_statement| {term: or_statement} }}
+                end
+              else
+                # expand ranges
+                if value.is_a?(Range)
+                  value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
+                end
+
+                if value.is_a?(Array) # in query
+                  filters << {terms: {field => value}}
+                elsif value.is_a?(Hash)
+                  value.each do |op, op_value|
+                    if op == :not # not equal
+                      if op_value.is_a?(Array)
+                        filters << {not: {terms: {field => op_value}}}
+                      else
+                        filters << {not: {term: {field => op_value}}}
+                      end
+                    else
+                      range_query =
+                        case op
+                        when :gt
+                          {from: op_value, include_lower: false}
+                        when :gte
+                          {from: op_value, include_lower: true}
+                        when :lt
+                          {to: op_value, include_upper: false}
+                        when :lte
+                          {to: op_value, include_upper: true}
+                        else
+                          raise "Unknown where operator"
+                        end
+                      filters << {range: {field => range_query}}
+                    end
                   end
                 else
-                  range_query =
-                    case op
-                    when :gt
-                      {from: op_value, include_lower: false}
-                    when :gte
-                      {from: op_value, include_lower: true}
-                    when :lt
-                      {to: op_value, include_upper: false}
-                    when :lte
-                      {to: op_value, include_upper: true}
-                    else
-                      raise "Unknown where operator"
-                    end
-                  filter :range, field => range_query
+                  filters << {term: {field => value}}
                 end
               end
-            else
-              filter :term, {field => value}
+            end
+            filters
+          end
+
+        where_filters.call(options[:where]).each do |f|
+          type, value = f.first
+          filter type, value
+        end
+
+        # facets
+        if options[:facets]
+          facets = options[:facets] || {}
+          if facets.is_a?(Array) # convert to more advanced syntax
+            facets = Hash[ facets.map{|f| [f, {}] } ]
+          end
+
+          facets.each do |field, facet_options|
+            facet_filters = where_filters.call(facet_options[:where])
+            facet field do
+              terms field
+              if facet_filters.size == 1
+                type, value = facet_filters.first.first
+                facet_filter type, value
+              elsif facet_filters.size > 1
+                facet_filter :and, *facet_filters
+              end
             end
           end
         end
-        (options[:facets] || []).each do |field|
-          facet field do
-            terms field
-          end
-        end
+
       end
     end
   end
