@@ -48,11 +48,11 @@ where: {
   orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
   aisle_id: [25, 30],         # in
   store_id: {not: 2},         # not
-  aisle_id: {not: [25, 30]}   # not in
+  aisle_id: {not: [25, 30]},  # not in
   or: [
     {in_stock: true},
     {backordered: true}
-  ]
+  ] # TODO better or
 }
 ```
 
@@ -73,7 +73,7 @@ explain: true
 ```ruby
 Product.search "2% Milk", facets: [:store_id, :aisle_id]
 # TODO pass options
-Product.search "2% Milk", facets: {store_id: true, aisle_id: true}
+Product.search "2% Milk", facets: {store_id: true, aisle_id: {order: "max"}} # defaults to count
 ```
 
 ### Synonyms

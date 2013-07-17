@@ -93,9 +93,17 @@ module Searchkick
             end
           end
         end
-        (options[:facets] || []).each do |field|
+        (options[:facets] || []).each do |f|
+          field, facet_options =
+            if f.is_a?(Array)
+              [f[0], f[1].is_a?(Hash) ? f[1] : {}]
+            else
+              [f, {}]
+            end
           facet field do
-            terms field
+            terms_stats field, nil, value_script: "doc.score", order: facet_options[:order] || "count", size: facet_options[:limit] || 0
+            # terms field, order: "term" #, size: 100
+            # facet_filter :and
           end
         end
       end
