@@ -53,45 +53,47 @@ module Searchkick
         end
 
         # where
-        (options[:where] || {}).each do |k, v|
-          if k == :or
-            v.each do |v2|
-              filter :or, v2.map{|v3| {term: v3} }
+        # TODO expand or
+        (options[:where] || {}).each do |field, value|
+          if field == :or
+            value.each do |or_clause|
+              filter :or, or_clause.map{|or_statement| {term: or_statement} }
             end
           else
-            if v.is_a?(Range)
-              v = {gte: v.first, (v.exclude_end? ? :lt : :lte) => v.last}
+            # expand ranges
+            if value.is_a?(Range)
+              value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
             end
 
-            if v.is_a?(Array)
-              filter :terms, {k => v}
-            elsif v.is_a?(Hash)
-              v.each do |k2, v2|
-                if k2 == :not
-                  if v2.is_a?(Array)
-                    filter :not, {terms: {k => v2}}
+            if value.is_a?(Array) # in query
+              filter :terms, {field => value}
+            elsif value.is_a?(Hash)
+              value.each do |op, op_value|
+                if op == :not
+                  if op_value.is_a?(Array)
+                    filter :not, {terms: {field => op_value}}
                   else
-                    filter :not, {term: {k => v2}}
+                    filter :not, {term: {field => op_value}}
                   end
                 else
-                  opts =
-                    case k2
+                  range_query =
+                    case op
                     when :gt
-                      {from: v2, include_lower: false}
+                      {from: op_value, include_lower: false}
                     when :gte
-                      {from: v2, include_lower: true}
+                      {from: op_value, include_lower: true}
                     when :lt
-                      {to: v2, include_upper: false}
+                      {to: op_value, include_upper: false}
                     when :lte
-                      {to: v2, include_upper: true}
+                      {to: op_value, include_upper: true}
                     else
                       raise "Unknown where operator"
                     end
-                  filter :range, k => opts
+                  filter :range, field => range_query
                 end
               end
             else
-              filter :term, {k => v}
+              filter :term, {field => value}
             end
           end
         end
