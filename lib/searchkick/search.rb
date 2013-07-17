@@ -42,6 +42,17 @@ module Searchkick
         size options[:limit] if options[:limit]
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
+
+        # order
+        if options[:order]
+          sort do
+            options[:order].each do |k, v|
+              by k, v
+            end
+          end
+        end
+
+        # where
         (options[:where] || {}).each do |k, v|
           if k == :or
             filter :or, v.map{|v2| {term: v2} }
