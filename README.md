@@ -1,4 +1,4 @@
-# Searchkick
+# Searchkick [alpha]
 
 :rocket: Search made easy
 
