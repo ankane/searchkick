@@ -65,6 +65,7 @@ module Searchkick
         tire do
           settings custom_settings
           mapping do
+            index_name options[:index_name] if options[:index_name]
             # indexes field, analyzer: "searchkick"
             if options[:conversions]
               indexes :conversions, type: "nested" do
