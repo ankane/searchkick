@@ -40,7 +40,7 @@ module Searchkick
             end
           end
         end
-        size options[:limit] || 100000 # huge number
+        size options[:limit] || 100000 # return all - like sql query
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
 
