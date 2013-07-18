@@ -159,6 +159,12 @@ product = Product.find(1)
 product.update_index
 ```
 
+Partial matches (needs better name)
+
+```ruby
+Item.search "fresh honey", partial: true # matches organic honey
+```
+
 ## Elasticsearch Gotchas
 
 ### Inconsistent Scores
@@ -181,6 +187,7 @@ bundle
 
 ## TODO
 
+- Autocomplete
 - Focus on results format (load: true?)
 - Test helpers - everyone should test their own search
 - Built-in synonyms from WordNet

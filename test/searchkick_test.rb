@@ -257,6 +257,12 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_equal 1, Product.search("Product", facets: {store_id: {where: {in_stock: true, color: "blue"}}}).facets["store_id"]["terms"].size
   end
 
+  def test_partial
+    store_names ["Honey"]
+    assert_search "fresh honey", []
+    assert_search "fresh honey", ["Honey"], partial: true
+  end
+
   protected
 
   def store(documents)

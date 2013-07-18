@@ -7,22 +7,23 @@ module Searchkick
 
     def search(term, options = {})
       fields = options[:fields] || ["_all"]
+      operator = options[:partial] ? "or" : "and"
       tire.search do
         query do
           boolean do
             must do
               dis_max do
                 query do
-                  match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search"
+                  match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
                 end
                 query do
-                  match fields, term, boost: 10, operator: "and", analyzer: "searchkick_search2"
+                  match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
                 end
                 query do
-                  match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search"
+                  match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search"
                 end
                 query do
-                  match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: "and", analyzer: "searchkick_search2"
+                  match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search2"
                 end
               end
             end
