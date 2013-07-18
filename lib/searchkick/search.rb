@@ -40,7 +40,7 @@ module Searchkick
             end
           end
         end
-        size options[:limit] if options[:limit]
+        size options[:limit] || 100000 # huge number
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
 
