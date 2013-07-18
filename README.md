@@ -150,6 +150,15 @@ rake searchkick:reindex CLASS=Product
 
 Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884).
 
+### Reference
+
+Reindex one item
+
+```ruby
+product = Product.find(1)
+product.update_index
+```
+
 ## Elasticsearch Gotchas
 
 ### Inconsistent Scores
