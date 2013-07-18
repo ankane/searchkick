@@ -165,6 +165,34 @@ Partial matches (needs better name)
 Item.search "fresh honey", partial: true # matches organic honey
 ```
 
+### Migrating from Tire
+
+1. Change `search` methods to `tire.search` and add index name in existing search calls
+
+  ```ruby
+  Product.search "fruit"
+  ```
+
+  should be replaced with
+
+  ```ruby
+  Product.tire.search "fruit", index: "products"
+  ```
+
+2. Replace tire mapping w/ searchkick method
+
+  ```ruby
+  searchkick index_name: "products_v2"
+  ```
+
+3. Deploy and reindex
+
+  ```ruby
+  rake searchkick:reindex CLASS=Product # or Product.reindex in the console
+  ```
+
+4. Once it finishes, replace search calls w/ searchkick calls
+
 ## Elasticsearch Gotchas
 
 ### Inconsistent Scores
