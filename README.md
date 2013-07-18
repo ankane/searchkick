@@ -188,6 +188,8 @@ bundle
 ## TODO
 
 - Autocomplete
+- Option to turn off fuzzy matching (should this be default?)
+- Exact phrase matches (in order)
 - Focus on results format (load: true?)
 - Test helpers - everyone should test their own search
 - Built-in synonyms from WordNet
