@@ -111,6 +111,24 @@ end
 
 You must call `Product.reindex` after changing synonyms.
 
+### Control What Get Indexed
+
+```ruby
+class Product < ActiveRecord::Base
+  def search_data
+    as_json(only: [:name, :active])
+  end
+end
+```
+
+Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
+
+```ruby
+class Product < ActiveRecord::Base
+  scope :searchkick_import, where(active: true).includes(:searches)
+end
+```
+
 ### Make Searches Better Over Time
 
 Improve results with analytics on conversions and give popular documents a little boost.
@@ -132,7 +150,7 @@ class Product < ActiveRecord::Base
 
   searchkick conversions: true
 
-  def to_indexed_json
+  def search_data
     {
       name: name,
       conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix
@@ -155,14 +173,6 @@ Product.reindex
 ```
 
 Behind the scenes, this creates a new index `products_20130714181054` and points the `products` alias to the new index when complete - an atomic operation :)
-
-Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
-
-```ruby
-class Product < ActiveRecord::Base
-  scope :searchkick_import, where(active: true).includes(:searches)
-end
-```
 
 There is also a rake task.
 

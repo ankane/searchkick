@@ -29,10 +29,6 @@ class TestSearchkick < Minitest::Unit::TestCase
     Product.reindex
   end
 
-  def test_reindex
-    assert Product.reindex
-  end
-
   # exact
 
   def test_match
