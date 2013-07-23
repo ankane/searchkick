@@ -8,7 +8,7 @@ module Searchkick
     def search(term, options = {})
       fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
-      tire.search do
+      tire.search load: true do
         query do
           boolean do
             must do

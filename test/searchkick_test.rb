@@ -14,6 +14,12 @@ class Product < ActiveRecord::Base
       number_of_shards: 1
     },
     conversions: true
+
+  serialize :conversions, JSON
+
+  def search_data
+    as_json(except: [:updated_at])
+  end
 end
 
 class TestSearchkick < Minitest::Unit::TestCase
@@ -259,7 +265,7 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def store(documents)
     documents.each do |document|
-      Product.index.store ({_type: "product"}).merge(document)
+      Product.create!(document)
     end
     Product.index.refresh
   end

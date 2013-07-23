@@ -19,6 +19,9 @@ ActiveRecord::Migration.create_table :products, :force => true do |t|
   t.integer :store_id
   t.boolean :in_stock
   t.boolean :backordered
+  t.text :conversions
+  t.integer :_boost
+  t.string :color
   t.timestamps
 end
 
