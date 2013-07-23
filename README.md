@@ -14,12 +14,32 @@ Runs on Elasticsearch
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
-## Usage
+## Get Started
+
+Install Elasticsearch.
+
+```sh
+brew install elasticsearch
+```
+
+Add this line to your application’s Gemfile:
+
+```ruby
+gem "searchkick"
+```
+
+Add searchkick to models you want to search.
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick
 end
+```
+
+Add data to the search index.
+
+```ruby
+Product.reindex
 ```
 
 And to query, use:
@@ -28,13 +48,15 @@ And to query, use:
 Product.search "2% Milk"
 ```
 
-or only search specific fields:
+### Query Like SQL
+
+Search specific fields
 
 ```ruby
 Product.search "Butter", fields: [:name, :brand]
 ```
 
-### Query Like SQL
+Filter queries
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
@@ -198,20 +220,6 @@ Item.search "fresh honey", partial: true # matches organic honey
 ### Inconsistent Scores
 
 Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem "searchkick"
-```
-
-And then execute:
-
-```sh
-bundle
-```
 
 ## TODO
 
