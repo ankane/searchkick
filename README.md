@@ -188,7 +188,7 @@ Reindex one item
 
 ```ruby
 product = Product.find(1)
-product.update_index
+product.reindex
 ```
 
 Partial matches (needs better name)
