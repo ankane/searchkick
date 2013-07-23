@@ -40,6 +40,7 @@ module Searchkick
             end
           end
         end
+        # fields "_id", "_type", "name" # only return _id and _type - http://www.elasticsearch.org/guide/reference/api/search/fields/
         size options[:limit] || 100000 # return all - like sql query
         from options[:offset] if options[:offset]
         explain options[:explain] if options[:explain]
