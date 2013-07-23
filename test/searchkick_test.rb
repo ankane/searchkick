@@ -14,21 +14,13 @@ class Product < ActiveRecord::Base
       number_of_shards: 1
     },
     conversions: true
-
-  # searchkick do
-  #   string :name
-  #   boolean :visible
-  #   integer :orders_count
-  # end
 end
-
-p Product.index_types
 
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
     Product.index.delete
-    Product.create_elasticsearch_index
+    Product.reindex
   end
 
   def test_reindex
