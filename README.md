@@ -115,7 +115,7 @@ You must call `Product.reindex` after changing synonyms.
 
 ```ruby
 class Product < ActiveRecord::Base
-  def search_data
+  def search_source
     as_json(only: [:name, :active])
   end
 end
@@ -150,7 +150,7 @@ class Product < ActiveRecord::Base
 
   searchkick conversions: true
 
-  def search_data
+  def search_source
     {
       name: name,
       conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix
