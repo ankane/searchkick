@@ -16,7 +16,7 @@ Runs on Elasticsearch
 
 ## Get Started
 
-Install Elasticsearch.
+[Install Elasticsearch](http://www.elasticsearch.org/guide/reference/setup/installation/). For Homebrew, use:
 
 ```sh
 brew install elasticsearch
@@ -166,23 +166,13 @@ After the reindex is complete (to prevent errors), tell the search method to use
 Product.search "Fat Free Milk", conversions: true
 ```
 
-### Zero Downtime Changes
+### Reference
 
-```ruby
-Product.reindex
-```
-
-Behind the scenes, this creates a new index `products_20130714181054` and points the `products` alias to the new index when complete - an atomic operation :)
-
-There is also a rake task.
+Reindex rake task
 
 ```sh
 rake searchkick:reindex CLASS=Product
 ```
-
-Thanks to Jaroslav Kalistsuk for the [original implementation](https://gist.github.com/jarosan/3124884).
-
-### Reference
 
 Reindex one item
 
