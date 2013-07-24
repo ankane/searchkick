@@ -22,11 +22,12 @@ class Product < ActiveRecord::Base
   end
 end
 
+Product.reindex
+
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
-    Product.index.delete
-    Product.reindex
+    Product.destroy_all
   end
 
   # exact

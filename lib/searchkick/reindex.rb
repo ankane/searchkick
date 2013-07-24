@@ -12,11 +12,11 @@ module Searchkick
       # use scope for import
       scope = respond_to?(:searchkick_import) ? searchkick_import : self
       scope.find_in_batches do |batch|
-        tire.index.import batch
+        index.import batch
       end
 
       if a = Tire::Alias.find(alias_name)
-        old_indices = Tire::Alias.find(alias_name).indices
+        old_indices = a.indices.dup
         old_indices.each do |index|
           a.indices.delete index
         end
@@ -26,7 +26,7 @@ module Searchkick
 
         old_indices.each do |index|
           i = Tire::Index.new(index)
-          i.delete if i.exists?
+          i.delete
         end
       else
         i = Tire::Index.new(alias_name)
