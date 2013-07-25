@@ -101,6 +101,14 @@ Boost by a field
 boost: "orders_count" # give popular documents a little boost
 ```
 
+### Partial Matches
+
+By default, results must match all words in a query.  To change this, use:
+
+```ruby
+Product.search "fresh honey", partial: true # matches organic honey
+```
+
 ### Facets
 
 ```ruby
@@ -217,12 +225,6 @@ Reindex one item
 ```ruby
 product = Product.find(1)
 product.reindex
-```
-
-Partial matches (needs better name)
-
-```ruby
-Product.search "fresh honey", partial: true # matches organic honey
 ```
 
 ### Migrating from Tire
