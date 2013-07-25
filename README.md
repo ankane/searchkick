@@ -131,7 +131,15 @@ Choose what data gets indexed.
 ```ruby
 class Product < ActiveRecord::Base
   def _source
-    as_json(only: [:name, :active], include: {brand: {only: [:country]}})
+    as_json only: [:name, :active], include: {brand: {only: [:city]}}
+    # or
+    {
+      name: self.name,
+      active: self.active,
+      brand: {
+        city: self.brand.city
+      }
+    }
   end
 end
 ```
