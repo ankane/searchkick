@@ -252,6 +252,23 @@ heroku run rake searchkick:reindex CLASS=Product
 
 4. Once it finishes, replace search calls w/ searchkick calls
 
+## Reference
+
+Reindex one record
+
+```ruby
+product = Product.find 10
+product.reindex
+```
+
+Use a different index name
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick index_name: "products_v2"
+end
+```
+
 ## Elasticsearch Gotchas
 
 ### Inconsistent Scores
