@@ -6,6 +6,7 @@ module Searchkick
     end
 
     def search(term, options = {})
+      term = term.to_s
       fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
       results =
