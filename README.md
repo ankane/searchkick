@@ -87,11 +87,9 @@ Order results
 order: {_score: :desc} # most relevant first - default
 ```
 
-Paginate
+Limit / offset
 
 ```ruby
-page: 3, per_page: 20 # works with will_paginate and kaminari
-# or equivalently
 limit: 20, offset: 40
 ```
 
@@ -99,6 +97,18 @@ Boost by a field
 
 ```ruby
 boost: "orders_count" # give popular documents a little boost
+```
+
+### Pagination
+
+Plays nicely with kaminari and will_paginate
+
+```ruby
+# controller
+@products = Product.search "milk", page: params[:page], per_page: 20
+
+# view
+<%= paginate @products %>
 ```
 
 ### Partial Matches
