@@ -138,7 +138,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Make Searches Better Over Time
+### Get Better Over Time
 
 Improve results with analytics on conversions and give popular documents a little boost.
 
