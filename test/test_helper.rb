@@ -19,10 +19,16 @@ ActiveRecord::Migration.create_table :products, :force => true do |t|
   t.integer :store_id
   t.boolean :in_stock
   t.boolean :backordered
-  t.text :conversions
-  t.integer :_boost
+  t.integer :orders_count
   t.string :color
   t.timestamps
+end
+
+ActiveRecord::Migration.create_table :searches, :force => true do |t|
+  t.string :query
+  t.timestamp :searched_at
+  t.timestamp :converted_at
+  t.references :product
 end
 
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")

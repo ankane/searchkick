@@ -13,21 +13,23 @@ module Searchkick
         tire.search load: true do
           query do
             boolean do
-              # if options[:boost]
-              # custom_score script: "_score * log(doc['ordered_count'].value + 2)" do
               must do
-                dis_max do
-                  query do
-                    match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
-                  end
-                  query do
-                    match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
-                  end
-                  query do
-                    match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search"
-                  end
-                  query do
-                    match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search2"
+                # TODO escape field
+                score_script = options[:boost] ? "_score * log(doc['#{options[:boost]}'].value)" : "_score"
+                custom_score script: score_script do
+                  dis_max do
+                    query do
+                      match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
+                    end
+                    query do
+                      match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
+                    end
+                    query do
+                      match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search"
+                    end
+                    query do
+                      match fields, term, use_dis_max: false, fuzziness: 0.7, max_expansions: 1, prefix_length: 1, operator: operator, analyzer: "searchkick_search2"
+                    end
                   end
                 end
               end

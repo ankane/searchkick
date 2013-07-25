@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Product < ActiveRecord::Base
+  has_many :searches
+
   searchkick \
     synonyms: [
       ["clorox", "bleach"],
@@ -15,11 +17,13 @@ class Product < ActiveRecord::Base
     },
     conversions: true
 
-  serialize :conversions, JSON
-
   def _source
-    as_json(except: [:updated_at])
+    as_json.merge(conversions: searches.group("query").count.map{|query, count| {query: query, count: count} })
   end
+end
+
+class Search < ActiveRecord::Base
+  belongs_to :product
 end
 
 Product.reindex
@@ -109,7 +113,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   # conversions
 
   def test_conversions
-    store [
+    store_conversions [
       {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 5}, {query: "tomato", count: 200}]},
       {name: "Tomato Paste", conversions: []},
       {name: "Tomatoes", conversions: [{query: "tomato", count: 100}, {query: "tomato sauce", count: 2}]}
@@ -118,7 +122,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_conversions_stemmed
-    store [
+    store_conversions [
       {name: "Tomato A", conversions: [{query: "tomato", count: 2}, {query: "tomatos", count: 2}, {query: "Tomatoes", count: 2}]},
       {name: "Tomato B", conversions: [{query: "tomato", count: 4}]}
     ]
@@ -181,27 +185,17 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def test_boost
     store [
-      {name: "Organic Tomato A", _boost: 10},
-      {name: "Tomato B"}
+      {name: "Organic Tomato A"},
+      {name: "Tomato B", orders_count: 10}
     ]
-    assert_search "tomato", ["Organic Tomato A", "Tomato B"]
+    assert_search "tomato", ["Tomato B", "Organic Tomato A"], boost: "orders_count"
   end
 
   def test_boost_zero
     store [
-      {name: "Zero Boost", _boost: 0}
+      {name: "Zero Boost", orders_count: 0}
     ]
-    assert_search "zero", ["Zero Boost"]
-  end
-
-  # default to 1
-  def test_boost_null
-    store [
-      {name: "Zero Boost A", _boost: 1.1},
-      {name: "Zero Boost B"},
-      {name: "Zero Boost C", _boost: 0.9},
-    ]
-    assert_search "zero", ["Zero Boost A", "Zero Boost B", "Zero Boost C"]
+    assert_search "zero", ["Zero Boost"], boost: "orders_count"
   end
 
   # search method
@@ -219,10 +213,10 @@ class TestSearchkick < Minitest::Unit::TestCase
   def test_where
     now = Time.now
     store [
-      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, _boost: 4},
-      {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, _boost: 3},
-      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, _boost: 2},
-      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, _boost: 1},
+      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4},
+      {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, orders_count: 3},
+      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2},
+      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1},
     ]
     assert_search "product", ["Product A", "Product B"], where: {in_stock: true}
     # date
@@ -277,6 +271,20 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def store_names(names)
     store names.map{|name| {name: name} }
+  end
+
+  def store_conversions(documents)
+    documents.each do |document|
+      conversions = document.delete(:conversions)
+      product = Product.create!(document)
+      conversions.each do |c|
+        c[:count].times do
+          product.searches.create!(query: c[:query])
+        end
+      end
+    end
+    Product.reindex
+    Product.index.refresh
   end
 
   def assert_search(term, expected, options = {})
