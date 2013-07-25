@@ -10,7 +10,7 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
 
-Runs on Elasticsearch
+Powered by Elasticsearch
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
@@ -192,7 +192,7 @@ Product.search "Fat Free Milk", conversions: true
 ```ruby
 search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
 search.facets.each do |facet|
-  p facet # TODO
+  p facet
 end
 ```
 
@@ -221,7 +221,7 @@ ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
 Then deploy and reindex:
 
 ```sh
-rake searchkick:reindex CLASS=Product # or Product.reindex in the console
+heroku run rake searchkick:reindex CLASS=Product
 ```
 
 ## Migrating from Tire
