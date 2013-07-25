@@ -136,11 +136,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Searchkick uses `find_in_batches` to import documents.  To filter documents or eagar load associations, use the `searchkick_import` scope.
+Searchkick uses `find_in_batches` to import documents.  To eagar load associations, use the `searchkick_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
-  scope :searchkick_import, where(active: true).includes(:searches)
+  scope :searchkick_import, includes(:searches)
 end
 ```
 
