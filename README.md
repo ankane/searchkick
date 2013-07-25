@@ -45,8 +45,8 @@ Product.reindex
 And to query, use:
 
 ```ruby
-search = Product.search "2% Milk"
-search.each do |product|
+products = Product.search "2% Milk"
+products.each do |product|
   puts product.name
   puts product._score # added by searchkick
 end
@@ -214,7 +214,7 @@ product.reindex
 Partial matches (needs better name)
 
 ```ruby
-Item.search "fresh honey", partial: true # matches organic honey
+Product.search "fresh honey", partial: true # matches organic honey
 ```
 
 ### Migrating from Tire
