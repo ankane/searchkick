@@ -270,16 +270,14 @@ Thanks to [Karel Minarik](https://github.com/karmi) for Tire and [Jaroslav Kalis
 
 ## TODO
 
-- Autocomplete
-- Option to turn off fuzzy matching (should this be default?)
-- Option to disable callbacks
-- Exact phrase matches (in order)
-- Test helpers - everyone should test their own search
 - Built-in synonyms from WordNet
-- Dashboard w/ real-time analytics?
-- [Suggest API](http://www.elasticsearch.org/guide/reference/api/search/suggest/) "Did you mean?"
+- Autocomplete (partial word matching)
+- Exact phrase matches (in order)
 - Allow for "exact search" with quotes
+- Test helpers - everyone should test their own search
+- [Did you mean?](http://www.elasticsearch.org/guide/reference/api/search/suggest/)
 - Make updates to old and new index while reindexing [possibly with an another alias](http://www.kickstarter.com/backing-and-hacking)
+- Dashboard w/ real-time analytics (separate gem)
 
 ## Contributing
 
