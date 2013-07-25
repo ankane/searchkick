@@ -9,10 +9,12 @@ module Searchkick
       term = term.to_s
       fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
-      results =
-        tire.search do
+      collection =
+        tire.search load: true do
           query do
             boolean do
+              # if options[:boost]
+              # custom_score script: "_score * log(doc['ordered_count'].value + 2)" do
               must do
                 dis_max do
                   query do
@@ -135,11 +137,10 @@ module Searchkick
           end
         end
 
-      models = Hash[ find(results.map(&:id)).map{|m| [m.id.to_s, m] } ]
-      {
-        hits: results.select{|r| models[r.id] }.map{|r| model = models[r.id]; model._score = r._score; model },
-        facets: results.facets || {}
-      }
+      collection.each_with_hit do |model, hit|
+        model._score = hit["_score"]
+      end
+      collection
     end
   end
 end

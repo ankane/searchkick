@@ -14,11 +14,12 @@ module Searchkick
           update_index
         end
 
-        # alias_method_chain style
-        alias_method :to_indexed_json_without_searchkick, :to_indexed_json
+        def _source
+          as_json
+        end
 
         def to_indexed_json
-          respond_to?(:_source) ? _source.to_json : to_indexed_json_without_searchkick
+          _source.to_json
         end
       end
     end

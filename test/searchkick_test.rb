@@ -24,6 +24,14 @@ end
 
 Product.reindex
 
+# remove
+# Product.create!(name: "Butter")
+# Product.index.refresh
+# p Product.search("butter").first._score
+# # p Product.first._source
+# exit
+# end
+
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
@@ -272,7 +280,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected, options = {})
-    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true))[:hits].map(&:name)
+    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true)).map(&:name)
   end
 
 end

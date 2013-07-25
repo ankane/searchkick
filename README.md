@@ -46,7 +46,7 @@ And to query, use:
 
 ```ruby
 search = Product.search "2% Milk"
-search[:hits].each do |product|
+search.each do |product|
   puts product.name
   puts product._score # added by searchkick
 end
@@ -103,7 +103,7 @@ boost: "orders_count" # give popular documents a little boost
 
 ```ruby
 search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-search[:facets].each do |facet|
+search.facets.each do |facet|
   p facet # TODO
 end
 ```
@@ -250,6 +250,10 @@ Item.search "fresh honey", partial: true # matches organic honey
 ### Inconsistent Scores
 
 Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
+
+## Thanks
+
+Thanks to [Karel Minarik](https://github.com/karmi) for Tire and [Jaroslav Kalistsuk](https://github.com/jarosan) for zero downtime reindexing.
 
 ## TODO
 
