@@ -91,6 +91,8 @@ Paginate
 
 ```ruby
 limit: 50, offset: 1000
+# or
+page: 1, per_page: 20 # works with will_paginate and kaminari
 ```
 
 Boost by a field
