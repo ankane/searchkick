@@ -88,7 +88,7 @@ module Searchkick
         settings[:analysis][:filter][:searchkick_synonym] = {
           type: "synonym",
           ignore_case: true,
-          synonyms: synonyms.map{|s| s.join(" => ") } # TODO support more than 2 synonyms on a line
+          synonyms: synonyms.select{|s| s.size > 1 }.map{|s| "#{s[0..-2].join(",")} => #{s[-1]}" }
         }
         settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
         settings[:analysis][:analyzer][:searchkick_search][:filter].insert(-2, "searchkick_synonym")
