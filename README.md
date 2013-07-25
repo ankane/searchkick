@@ -97,7 +97,7 @@ limit: 50, offset: 1000
 
 ```ruby
 search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-search["facets"].each do |facet|
+search[:facets].each do |facet|
   p facet # TODO
 end
 ```
