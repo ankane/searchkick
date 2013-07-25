@@ -241,13 +241,13 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Load associations
+Eagar load associations
 
 ```ruby
 Product.search "milk", include: [:brand, :stores]
 ```
 
-Do not load records from database
+Do not load models
 
 ```ruby
 Product.search "milk", load: false
