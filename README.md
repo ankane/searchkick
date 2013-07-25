@@ -198,7 +198,7 @@ Install the add-on:
 heroku addons:add bonsai
 ```
 
-Create an initializer `config/initializers/bonsai.rb` with:
+And create an initializer `config/initializers/bonsai.rb` with:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
