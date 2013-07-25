@@ -18,7 +18,7 @@ class Product < ActiveRecord::Base
     conversions: true
 
   def _source
-    as_json.merge(conversions: searches.group("query").count.map{|query, count| {query: query, count: count} })
+    as_json.merge(conversions: searches.group("query").count)
   end
 end
 

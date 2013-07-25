@@ -168,7 +168,7 @@ class Product < ActiveRecord::Base
   def _source
     {
       name: name,
-      conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }
+      conversions: searches.group("query").count
     }
   end
 end

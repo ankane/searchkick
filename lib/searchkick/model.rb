@@ -19,7 +19,11 @@ module Searchkick
         end
 
         def to_indexed_json
-          _source.to_json
+          source = _source
+          if self.class.instance_variable_get("@searchkick_options")[:conversions] and source[:conversions]
+            source[:conversions] = source[:conversions].map{|k, v| {query: k, count: v} }
+          end
+          source.to_json
         end
       end
     end
