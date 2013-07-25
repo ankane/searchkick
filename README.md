@@ -186,7 +186,7 @@ Product.search "Fat Free Milk", conversions: true
 
 Install the add-on:
 
-```ruby
+```sh
 heroku addons:add bonsai
 ```
 
