@@ -202,9 +202,9 @@ After the reindex is complete, tell the search method to use conversions.
 Product.search "Fat Free Milk", conversions: true
 ```
 
-### Deployment
+## Deployment
 
-#### Bonsai on Heroku
+### Bonsai on Heroku
 
 Install the add-on:
 
@@ -218,19 +218,10 @@ And create an initializer `config/initializers/bonsai.rb` with:
 ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
 ```
 
-### Reference
-
-Reindex rake task
+Then deploy and reindex:
 
 ```sh
-rake searchkick:reindex CLASS=Product
-```
-
-Reindex one item
-
-```ruby
-product = Product.find(1)
-product.reindex
+rake searchkick:reindex CLASS=Product # or Product.reindex in the console
 ```
 
 ### Migrating from Tire
