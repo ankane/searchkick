@@ -6,6 +6,8 @@ module Searchkick
       fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
+      load = (options[:include] || true) if load
+
       collection =
         tire.search load: load, page: options[:page], per_page: options[:per_page] do
           query do

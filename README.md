@@ -244,7 +244,7 @@ end
 Load associations
 
 ```ruby
-Product.search "milk", load: {include: [:brand, :stores]}
+Product.search "milk", include: [:brand, :stores]
 ```
 
 Do not load records from database
