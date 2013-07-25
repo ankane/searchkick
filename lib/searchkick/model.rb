@@ -10,6 +10,9 @@ module Searchkick
         extend Searchkick::Reindex
         include Tire::Model::Search
         include Tire::Model::Callbacks
+        tire do
+          index_name options[:index_name] || [klass.model_name.plural, ENV["RACK_ENV"] || "development"].join("_")
+        end
         attr_accessor :_score
 
         def reindex
