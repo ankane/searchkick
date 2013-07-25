@@ -132,7 +132,7 @@ Choose what data gets indexed.
 class Product < ActiveRecord::Base
   def _source
     as_json only: [:name, :active], include: {brand: {only: [:city]}}
-    # or
+    # or equivalently
     {
       name: self.name,
       active: self.active,
