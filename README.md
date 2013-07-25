@@ -50,19 +50,19 @@ Product.search "2% Milk"
 
 ### Queries
 
-Search specific fields
-
-```ruby
-Product.search "Butter", fields: [:name, :brand]
-```
-
-Add conditions
+Queries are as easy as SQL.
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
 
-More examples
+Search specific fields
+
+```ruby
+fields: [:name, :brand]
+```
+
+Conditions
 
 ```ruby
 where: {
@@ -77,10 +77,16 @@ where: {
 }
 ```
 
-Order
+Ordering
 
 ```ruby
 order: {_score: :desc} # most relevant first - default
+```
+
+Pagination
+
+```ruby
+limit: 50, offset: 1000
 ```
 
 ### Facets
