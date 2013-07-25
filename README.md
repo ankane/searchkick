@@ -173,8 +173,6 @@ Add the conversions to the index.
 class Product < ActiveRecord::Base
   has_many :searches
 
-  searchkick conversions: true
-
   def _source
     {
       name: name,
@@ -184,7 +182,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-After the reindex is complete (to prevent errors), tell the search method to use conversions.
+After the reindex is complete, tell the search method to use conversions.
 
 ```ruby
 Product.search "Fat Free Milk", conversions: true

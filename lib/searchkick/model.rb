@@ -2,7 +2,9 @@ module Searchkick
   module Model
 
     def searchkick(options = {})
-      @searchkick_options = options
+      @searchkick_options = options.dup
+      @searchkick_options[:conversions] = true if options[:conversions].nil?
+
       class_eval do
         extend Searchkick::Search
         extend Searchkick::Reindex
