@@ -180,6 +180,22 @@ After the reindex is complete (to prevent errors), tell the search method to use
 Product.search "Fat Free Milk", conversions: true
 ```
 
+### Deployment
+
+#### Bonsai on Heroku
+
+Install the add-on:
+
+```ruby
+heroku addons:add bonsai
+```
+
+Create an initializer `config/initializers/bonsai.rb` with:
+
+```ruby
+ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
+```
+
 ### Reference
 
 Reindex rake task
