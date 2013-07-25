@@ -50,7 +50,7 @@ Product.search "2% Milk"
 
 ### Queries
 
-Queries are as easy as SQL.
+Queries are just like SQL.
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
@@ -62,7 +62,7 @@ Search specific fields
 fields: [:name, :brand]
 ```
 
-Conditions
+Add conditions
 
 ```ruby
 where: {
@@ -77,13 +77,13 @@ where: {
 }
 ```
 
-Ordering
+Order results
 
 ```ruby
 order: {_score: :desc} # most relevant first - default
 ```
 
-Pagination
+Paginate
 
 ```ruby
 limit: 50, offset: 1000
