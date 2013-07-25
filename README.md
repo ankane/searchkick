@@ -118,7 +118,9 @@ end
 
 You must call `Product.reindex` after changing synonyms.
 
-### Control What Gets Indexed
+### Indexing
+
+Choose the data that gets indexed.
 
 ```ruby
 class Product < ActiveRecord::Base
