@@ -4,6 +4,6 @@ require "searchkick/search"
 require "searchkick/model"
 require "searchkick/tasks"
 require "tire"
-require "active_record" # TODO only require active_model
 
-ActiveRecord::Base.send(:extend, Searchkick::Model)
+# TODO find better ActiveModel hook
+ActiveModel::Conversion::ClassMethods.send(:include, Searchkick::Model)
