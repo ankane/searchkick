@@ -257,7 +257,13 @@ Product.search "fresh honey", partial: true # matches organic honey
 
 ### Inconsistent Scores
 
-Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, set the search type to `dfs_query_and_fetch`.  Alternatively, you can just use one shard with `settings: {number_of_shards: 1}`.
+Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, do:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick settings: {number_of_shards: 1}
+end
+```
 
 ## Thanks
 
@@ -269,7 +275,6 @@ Thanks to [Karel Minarik](https://github.com/karmi) for Tire and [Jaroslav Kalis
 - Option to turn off fuzzy matching (should this be default?)
 - Option to disable callbacks
 - Exact phrase matches (in order)
-- Focus on results format (load: true?)
 - Test helpers - everyone should test their own search
 - Built-in synonyms from WordNet
 - Dashboard w/ real-time analytics?
