@@ -54,7 +54,7 @@ end
 
 ### Queries
 
-Queries are just like SQL.
+Query like SQL
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
@@ -91,6 +91,12 @@ Paginate
 
 ```ruby
 limit: 50, offset: 1000
+```
+
+Boost by a field (give popular documents a little boost)
+
+```ruby
+boost: "orders_count"
 ```
 
 ### Facets
@@ -138,9 +144,9 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Get Better Over Time
+### Get Better With Time
 
-Improve results with analytics on conversions and give popular documents a little boost.
+Improve results with analytics on conversions.
 
 First, you must keep track of search conversions.  The database works well for low volume, but feel free to use redis or another datastore.
 
@@ -162,8 +168,7 @@ class Product < ActiveRecord::Base
   def _source
     {
       name: name,
-      conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix
-      _boost: Math.log(orders_count) # boost more popular products a bit
+      conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }
     }
   end
 end
