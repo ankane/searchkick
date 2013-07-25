@@ -241,6 +241,18 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Load associations
+
+```ruby
+Product.search "milk", load: {include: [:brand, :stores]}
+```
+
+Do not load records from database
+
+```ruby
+Product.search "milk", load: false
+```
+
 ## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
