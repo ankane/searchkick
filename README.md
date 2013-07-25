@@ -93,7 +93,7 @@ Paginate
 limit: 50, offset: 1000
 ```
 
-[TODO] Boost by a field
+Boost by a field
 
 ```ruby
 boost: "orders_count" # give popular documents a little boost
