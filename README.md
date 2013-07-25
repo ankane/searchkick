@@ -115,21 +115,6 @@ To change this, use:
 Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
-### Facets
-
-```ruby
-search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-search.facets.each do |facet|
-  p facet # TODO
-end
-```
-
-Advanced
-
-```ruby
-Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
-```
-
 ### Synonyms
 
 ```ruby
@@ -202,6 +187,21 @@ After the reindex is complete, tell the search method to use conversions.
 Product.search "Fat Free Milk", conversions: true
 ```
 
+### Facets
+
+```ruby
+search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
+search.facets.each do |facet|
+  p facet # TODO
+end
+```
+
+Advanced
+
+```ruby
+Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
+```
+
 ## Deployment
 
 ### Bonsai on Heroku
@@ -224,7 +224,7 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product # or Product.reindex in the console
 ```
 
-### Migrating from Tire
+## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
 
