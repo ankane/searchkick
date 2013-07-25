@@ -48,7 +48,7 @@ And to query, use:
 products = Product.search "2% Milk"
 products.each do |product|
   puts product.name
-  puts product._score # added by searchkick
+  puts product._score # added by searchkick - between 0 and 1
 end
 ```
 

@@ -141,7 +141,7 @@ module Searchkick
         end
 
       collection.each_with_hit do |model, hit|
-        model._score = hit["_score"]
+        model._score = hit["_score"].to_f / collection.max_score
       end
       collection
     end

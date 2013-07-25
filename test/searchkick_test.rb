@@ -30,8 +30,9 @@ Product.reindex
 
 # remove
 # Product.create!(name: "Butter")
+# Product.create!(name: "I Can't Believe It's Not Butter")
 # Product.index.refresh
-# p Product.search("butter").first._score
+# p Product.search("butter", fields: [:name]).map(&:_score)
 # # p Product.first._source
 # exit
 # end
