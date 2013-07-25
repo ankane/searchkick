@@ -135,10 +135,10 @@ class Product < ActiveRecord::Base
     as_json only: [:name, :active], include: {brand: {only: [:city]}}
     # or equivalently
     {
-      name: self.name,
-      active: self.active,
+      name: name,
+      active: active,
       brand: {
-        city: self.brand.city
+        city: brand.city
       }
     }
   end
