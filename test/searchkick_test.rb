@@ -39,6 +39,7 @@ Product.reindex
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
+    Search.delete_all
     Product.destroy_all
   end
 
@@ -188,6 +189,7 @@ class TestSearchkick < Minitest::Unit::TestCase
       {name: "Organic Tomato A"},
       {name: "Tomato B", orders_count: 10}
     ]
+    # p Product.search("tomata", fields: [:name], conversions: true, boost: "orders_count").map(&:_score)
     assert_search "tomato", ["Tomato B", "Organic Tomato A"], boost: "orders_count"
   end
 

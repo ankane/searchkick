@@ -15,7 +15,7 @@ module Searchkick
             boolean do
               must do
                 # TODO escape field
-                score_script = options[:boost] ? "_score * log(doc['#{options[:boost]}'].value)" : "_score"
+                score_script = options[:boost] ? "_score * log(doc['#{options[:boost]}'].value + 2.718281828)" : "_score"
                 custom_score script: score_script do
                   dis_max do
                     query do
