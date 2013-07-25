@@ -90,9 +90,9 @@ order: {_score: :desc} # most relevant first - default
 Paginate
 
 ```ruby
-limit: 20, offset: 60
+page: 3, per_page: 20 # works with will_paginate and kaminari
 # or equivalently
-page: 4, per_page: 20 # works with will_paginate and kaminari
+offset: 40, limit: 20
 ```
 
 Boost by a field
