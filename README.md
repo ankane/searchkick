@@ -45,8 +45,8 @@ Product.reindex
 And to query, use:
 
 ```ruby
-query = Product.search "2% Milk"
-query[:hits].each do |product|
+search = Product.search "2% Milk"
+search[:hits].each do |product|
   puts product.name
   puts product._score # added by searchkick
 end
@@ -96,8 +96,8 @@ limit: 50, offset: 1000
 ### Facets
 
 ```ruby
-query = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-query[:facets].each do |facet|
+search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
+search[:facets].each do |facet|
   p facet # TODO
 end
 ```
