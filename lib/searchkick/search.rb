@@ -9,8 +9,9 @@ module Searchkick
       term = term.to_s
       fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
+      load = options[:load].nil? ? true : options[:load]
       collection =
-        tire.search load: true do
+        tire.search load: load do
           query do
             boolean do
               must do
