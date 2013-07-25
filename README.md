@@ -103,10 +103,16 @@ boost: "orders_count" # give popular documents a little boost
 
 ### Partial Matches
 
-By default, results must match all words in a query.  To change this, use:
+By default, results must match all words in the query.
 
 ```ruby
-Product.search "fresh honey", partial: true # matches organic honey
+Product.search "fresh honey" # fresh AND honey
+```
+
+To change this, use:
+
+```ruby
+Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
 ### Facets
