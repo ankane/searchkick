@@ -17,7 +17,7 @@ class Product < ActiveRecord::Base
 
   serialize :conversions, JSON
 
-  def search_data
+  def _source
     as_json(except: [:updated_at])
   end
 end
@@ -272,7 +272,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected, options = {})
-    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true)).map(&:name)
+    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true))[:hits].map(&:name)
   end
 
 end

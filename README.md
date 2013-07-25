@@ -45,7 +45,11 @@ Product.reindex
 And to query, use:
 
 ```ruby
-Product.search "2% Milk"
+query = Product.search "2% Milk"
+query[:hits].each do |product|
+  puts product.name
+  puts product._score # added by searchkick
+end
 ```
 
 ### Queries
@@ -92,7 +96,10 @@ limit: 50, offset: 1000
 ### Facets
 
 ```ruby
-Product.search "2% Milk", facets: [:store_id, :aisle_id]
+search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
+search["facets"].each do |facet|
+  p facet # TODO
+end
 ```
 
 Advanced
@@ -115,7 +122,7 @@ You must call `Product.reindex` after changing synonyms.
 
 ```ruby
 class Product < ActiveRecord::Base
-  def search_source
+  def _source
     as_json(only: [:name, :active])
   end
 end
@@ -150,7 +157,7 @@ class Product < ActiveRecord::Base
 
   searchkick conversions: true
 
-  def search_source
+  def _source
     {
       name: name,
       conversions: searches.group("query").count.map{|query, count| {query: query, count: count} }, # TODO fix

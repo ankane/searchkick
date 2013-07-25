@@ -134,9 +134,11 @@ module Searchkick
           end
         end
 
-      result_ids = results.map(&:id)
-      models = Hash[ find(result_ids).map{|m| [m.id.to_s, m] } ]
-      result_ids.map{|id| models[id] }.compact
+      models = Hash[ find(results.map(&:id)).map{|m| [m.id.to_s, m] } ]
+      {
+        hits: results.select{|r| models[r.id] }.map{|r| model = models[r.id]; model._score = r._score; model },
+        facets: results.facets || {}
+      }
     end
   end
 end
