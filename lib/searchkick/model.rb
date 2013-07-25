@@ -14,7 +14,7 @@ module Searchkick
         end
 
         def to_indexed_json
-          respond_to?(:search_data) ? search_data.to_json : super
+          respond_to?(:search_source) ? search_source.to_json : super
         end
       end
     end

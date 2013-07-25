@@ -48,7 +48,7 @@ And to query, use:
 Product.search "2% Milk"
 ```
 
-### Query Like SQL
+### Queries
 
 Search specific fields
 
@@ -56,13 +56,13 @@ Search specific fields
 Product.search "Butter", fields: [:name, :brand]
 ```
 
-Filter queries
+Add conditions
 
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
 
-#### Where
+More examples
 
 ```ruby
 where: {
@@ -77,16 +77,10 @@ where: {
 }
 ```
 
-#### Order
+Order
 
 ```ruby
 order: {_score: :desc} # most relevant first - default
-```
-
-#### Explain
-
-```ruby
-explain: true
 ```
 
 ### Facets
