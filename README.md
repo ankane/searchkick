@@ -153,9 +153,9 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Get Better With Time
+### Improve Over Time
 
-Improve results with analytics on conversions.
+Get better results from your analytics on conversions.
 
 First, you must keep track of search conversions.  The database works well for low volume, but feel free to use redis or another datastore.
 
