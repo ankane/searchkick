@@ -6,4 +6,4 @@ require "searchkick/tasks"
 require "tire"
 
 # TODO find better ActiveModel hook
-ActiveModel::Conversion::ClassMethods.send(:include, Searchkick::Model)
+ActiveModel::AttributeMethods::ClassMethods.send(:include, Searchkick::Model)
