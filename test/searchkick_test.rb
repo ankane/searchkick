@@ -28,15 +28,6 @@ end
 
 Product.reindex
 
-# remove
-# Product.create!(name: "Butter")
-# Product.create!(name: "I Can't Believe It's Not Butter")
-# Product.index.refresh
-# p Product.search("butter", fields: [:name]).map(&:_score)
-# # p Product.first._source
-# exit
-# end
-
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
@@ -190,7 +181,6 @@ class TestSearchkick < Minitest::Unit::TestCase
       {name: "Organic Tomato A"},
       {name: "Tomato B", orders_count: 10}
     ]
-    # p Product.search("tomata", fields: [:name], conversions: true, boost: "orders_count").map(&:_score)
     assert_search "tomato", ["Tomato B", "Organic Tomato A"], boost: "orders_count"
   end
 
