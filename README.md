@@ -1,14 +1,20 @@
-# Searchkick [alpha]
+# Searchkick
 
 :rocket: Search made easy
 
 Searchkick provides sensible search defaults out of the box.  It handles:
 
 - stemming - `tomatoes` matches `tomato`
-- special characters - `jalapenos` matches `jalapeños`
+- special characters - `jalapeno` matches `jalapeño`
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
+
+Plus, you can:
+
+- query like SQL
+- boost popular documents
+- improve results from conversions
 
 Powered by Elasticsearch
 
@@ -101,7 +107,7 @@ boost: "orders_count" # give popular documents a little boost
 
 ### Pagination
 
-Plays nicely with kaminari and will_paginate
+Plays nicely with kaminari and will_paginate.
 
 ```ruby
 # controller
@@ -137,7 +143,7 @@ You must call `Product.reindex` after changing synonyms.
 
 ### Indexing
 
-Choose what data gets indexed.
+Choose what data is indexed.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -155,7 +161,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Searchkick uses `find_in_batches` to import documents.  To eagar load associations, use the `searchkick_import` scope.
+Searchkick uses `find_in_batches` to import documents.  To eager load associations, use the `searchkick_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -163,11 +169,9 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Improve Over Time
+### Improve Search from Conversions
 
-Get better results from your analytics on conversions.
-
-First, you must keep track of search conversions.  The database works well for low volume, but feel free to use redis or another datastore.
+First, keep track of conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
@@ -176,7 +180,7 @@ class Search < ActiveRecord::Base
 end
 ```
 
-Add the conversions to the index.
+Add conversions to the index.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -201,9 +205,7 @@ Product.search "Fat Free Milk", conversions: true
 
 ```ruby
 search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-search.facets.each do |facet|
-  p facet
-end
+p search.facets
 ```
 
 Advanced
@@ -310,13 +312,6 @@ Thanks to [Karel Minarik](https://github.com/karmi) for Tire and [Jaroslav Kalis
 ## TODO
 
 - Built-in synonyms from WordNet
-- Autocomplete (partial word matching)
-- Exact phrase matches (in order)
-- Allow for "exact search" with quotes
-- Test helpers - everyone should test their own search
-- [Did you mean?](http://www.elasticsearch.org/guide/reference/api/search/suggest/)
-- Make updates to old and new index while reindexing [possibly with an another alias](http://www.kickstarter.com/backing-and-hacking)
-- Dashboard w/ real-time analytics (separate gem)
 
 ## Contributing
 
