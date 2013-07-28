@@ -14,7 +14,7 @@ Plus, you can:
 
 - query like SQL
 - boost popular documents
-- improve results from conversions
+- continually improve results from conversions
 
 Powered by Elasticsearch
 
@@ -169,7 +169,9 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Improve Search from Conversions
+### Continually Improve Results
+
+Use data on search conversions to improve results.  This can make a **huge** difference.
 
 First, keep track of conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
