@@ -2,7 +2,7 @@
 
 :rocket: Search made easy
 
-Searchkick provides sensible search defaults out of the box.  It handles:
+Searchkick provides sensible search defaults.  It handles:
 
 - stemming - `tomatoes` matches `tomato`
 - special characters - `jalapeno` matches `jalapeño`
@@ -10,7 +10,7 @@ Searchkick provides sensible search defaults out of the box.  It handles:
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
 
-Plus, you can query like SQL and **continually improve results** from conversions.
+Plus, **continually improve results** from conversions and query like SQL - no need to learn a new query language.
 
 Powered by Elasticsearch
 
