@@ -72,7 +72,7 @@ Search specific fields
 fields: [:name, :brand]
 ```
 
-Add conditions
+Where
 
 ```ruby
 where: {
@@ -87,7 +87,7 @@ where: {
 }
 ```
 
-Order results
+Order
 
 ```ruby
 order: {_score: :desc} # most relevant first - default
@@ -197,7 +197,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-After the reindex is complete, tell the search method to use conversions.
+Reindex and tell the search method to use conversions.
 
 ```ruby
 Product.search "Fat Free Milk", conversions: true
