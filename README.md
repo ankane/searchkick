@@ -13,8 +13,8 @@ Searchkick provides sensible search defaults.  It handles:
 Plus:
 
 - query like SQL - no need to learn a new query language
-- **continually improve results** from conversions
 - reindex without downtime
+- continually improve results from conversions - **pretty awesome**
 
 Powered by Elasticsearch
 
