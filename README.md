@@ -10,7 +10,11 @@ Searchkick provides sensible search defaults.  It handles:
 - misspellings - `zuchini` matches `zucchini`
 - custom synonyms - `qtip` matches `cotton swab`
 
-Plus, **continually improve results** from conversions and query like SQL - no need to learn a new query language.
+Plus:
+
+- query like SQL - no need to learn a new query language
+- **continually improve results** from conversions
+- reindex without downtime
 
 Powered by Elasticsearch
 
