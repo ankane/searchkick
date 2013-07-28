@@ -107,9 +107,9 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def test_conversions
     store_conversions [
-      {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 5}, {query: "tomato", count: 200}]},
+      {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 5}, {query: "tomato", count: 20}]},
       {name: "Tomato Paste", conversions: []},
-      {name: "Tomatoes", conversions: [{query: "tomato", count: 100}, {query: "tomato sauce", count: 2}]}
+      {name: "Tomatoes", conversions: [{query: "tomato", count: 10}, {query: "tomato sauce", count: 2}]}
     ]
     assert_search "tomato", ["Tomato Sauce", "Tomatoes", "Tomato Paste"]
   end

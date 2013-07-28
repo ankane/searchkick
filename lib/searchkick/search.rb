@@ -13,7 +13,7 @@ module Searchkick
           query do
             boolean do
               must do
-                # TODO escape field
+                # TODO escape boost field
                 score_script = options[:boost] ? "_score * log(doc['#{options[:boost]}'].value + 2.718281828)" : "_score"
                 custom_score script: score_script do
                   dis_max do
@@ -46,7 +46,6 @@ module Searchkick
               end
             end
           end
-          # fields "_id", "_type", "name" # only return _id and _type - http://www.elasticsearch.org/guide/reference/api/search/fields/
           size options[:limit] || 100000 # return all - like sql query
           from options[:offset] if options[:offset]
           explain options[:explain] if options[:explain]
@@ -62,7 +61,6 @@ module Searchkick
 
           # where
           # TODO expand or
-
           where_filters =
             proc do |where|
               filters = []

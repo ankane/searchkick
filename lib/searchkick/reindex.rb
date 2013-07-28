@@ -65,7 +65,7 @@ module Searchkick
             searchkick_search2: {
               type: "custom",
               tokenizer: "standard",
-              filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"] #, "searchkick_search_shingle"]
+              filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
             }
           },
           filter: {
