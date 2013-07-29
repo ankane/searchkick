@@ -52,7 +52,6 @@ And to query, use:
 products = Product.search "2% Milk"
 products.each do |product|
   puts product.name
-  puts product._score # added by searchkick - between 0 and 1
 end
 ```
 
@@ -145,7 +144,7 @@ Choose what data is indexed.
 
 ```ruby
 class Product < ActiveRecord::Base
-  def _source
+  def search_data
     as_json only: [:name, :active], include: {brand: {only: [:city]}}
     # or equivalently
     {
@@ -159,11 +158,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Searchkick uses `find_in_batches` to import documents.  To eager load associations, use the `searchkick_import` scope.
+Searchkick uses `find_in_batches` to import documents.  To eager load associations, use the `search_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
-  scope :searchkick_import, includes(:searches)
+  scope :search_import, includes(:searches)
 end
 ```
 
@@ -186,7 +185,7 @@ Add conversions to the index.
 class Product < ActiveRecord::Base
   has_many :searches
 
-  def _source
+  def search_data
     {
       name: name,
       conversions: searches.group("query").count

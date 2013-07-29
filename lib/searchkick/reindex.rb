@@ -10,7 +10,7 @@ module Searchkick
       index.create searchkick_index_options
 
       # use scope for import
-      scope = respond_to?(:searchkick_import) ? searchkick_import : self
+      scope = respond_to?(:search_import) ? search_import : self
       scope.find_in_batches do |batch|
         index.import batch
       end

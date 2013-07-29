@@ -13,18 +13,17 @@ module Searchkick
         tire do
           index_name options[:index_name] || [klass.model_name.plural, ENV["RACK_ENV"] || "development"].join("_")
         end
-        attr_accessor :_score
 
         def reindex
           update_index
         end
 
-        def _source
+        def search_data
           as_json
         end
 
         def to_indexed_json
-          source = _source
+          source = search_data
           if self.class.instance_variable_get("@searchkick_options")[:conversions] and source[:conversions]
             source[:conversions] = source[:conversions].map{|k, v| {query: k, count: v} }
           end
