@@ -16,8 +16,6 @@ Plus:
 - reindex without downtime
 - continually improve results from conversions - **pretty awesome**
 
-Powered by Elasticsearch
-
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 ## Get Started
