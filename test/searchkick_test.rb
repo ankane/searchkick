@@ -14,8 +14,7 @@ class Product < ActiveRecord::Base
     ],
     settings: {
       number_of_shards: 1
-    },
-    conversions: true
+    }
 
   def _source
     as_json.merge conversions: searches.group("query").count
