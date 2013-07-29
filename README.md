@@ -216,18 +216,32 @@ Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
 
 ## Deployment
 
-### SearchBox on Heroku
+### Heroku
 
-Install the add-on:
+Choose an add-on: [SearchBox](https://addons.heroku.com/searchbox), [Bonsai](https://addons.heroku.com/bonsai), or [Found](https://addons.heroku.com/foundelasticsearch).
 
 ```sh
+# SearchBox
 heroku addons:add searchbox:starter
+
+# Bonsai
+heroku addons:add bonsai
+
+# Found
+heroku addons:add foundelasticsearch
 ```
 
 And create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
+# SearchBox
 ENV["ELASTICSEARCH_URL"] = ENV["SEARCHBOX_URL"]
+
+# Bonsai
+ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
+
+# Found
+ENV["ELASTICSEARCH_URL"] = ENV["FOUNDELASTICSEARCH_URL"]
 ```
 
 Then deploy and reindex:
