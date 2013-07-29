@@ -140,7 +140,7 @@ You must call `Product.reindex` after changing synonyms.
 
 ### Indexing
 
-Choose what data is indexed.
+Control what data is indexed with the `search_data` method.
 
 ```ruby
 class Product < ActiveRecord::Base
