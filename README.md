@@ -200,7 +200,7 @@ end
 Reindex and set up a cron job to add new conversions daily.
 
 ```ruby
-heroku run rake searchkick:reindex CLASS=Product
+rake searchkick:reindex CLASS=Product
 ```
 
 ### Facets
