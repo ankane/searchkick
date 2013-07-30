@@ -169,14 +169,14 @@ end
 
 ### Continually Improve Results
 
-Use data on search conversions to improve results.  This can make a **huge** difference.
+Searchkick uses conversion data to learn what users are looking for.
 
 First, keep track of conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
   belongs_to :product
-  # fields: id, query, searched_at, converted_at, product_id
+  # fields: query, searched_at, converted_at, product_id
 end
 ```
 
