@@ -280,7 +280,7 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def assert_search(term, expected, options = {})
-    assert_equal expected, Product.search(term, options.merge(fields: [:name], conversions: true)).map(&:name)
+    assert_equal expected, Product.search(term, options.merge(fields: [:name])).map(&:name)
   end
 
 end

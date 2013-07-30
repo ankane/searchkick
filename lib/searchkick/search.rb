@@ -32,8 +32,7 @@ module Searchkick
                   end
                 end
               end
-              # can't check mapping for conversions since the new index may not be built
-              if options[:conversions]
+              unless options[:conversions] == false
                 should do
                   nested path: "conversions", score_mode: "total" do
                     query do
