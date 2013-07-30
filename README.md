@@ -176,7 +176,7 @@ First, keep track of conversions.  The database works well for low volume, but f
 ```ruby
 class Search < ActiveRecord::Base
   belongs_to :product
-  # fields: query, searched_at, converted_at, product_id
+  # fields: id, query, searched_at, converted_at, product_id
 end
 ```
 
