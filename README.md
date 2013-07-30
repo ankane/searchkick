@@ -1,8 +1,10 @@
 # Searchkick
 
-:rocket: Search made easy
+:rocket: Intelligent search made easy
 
-Searchkick provides sensible search defaults.  It handles:
+Searchkick learns what **your users** are looking for.  As more people search, it gets smarter and the results get better.  It's friendly for developers - and magical for your users.
+
+Searchkick handles:
 
 - stemming - `tomatoes` matches `tomato`
 - special characters - `jalapeno` matches `jalapeño`
@@ -14,7 +16,6 @@ Plus:
 
 - query like SQL - no need to learn a new query language
 - reindex without downtime
-- continually improve results from conversions - **pretty awesome**
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
@@ -198,6 +199,12 @@ Reindex and tell the search method to use conversions.
 
 ```ruby
 Product.search "Fat Free Milk", conversions: true
+```
+
+Set up a cron job to add new conversions daily.
+
+```ruby
+heroku run rake searchkick:reindex CLASS=Product
 ```
 
 ### Facets
