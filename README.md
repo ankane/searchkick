@@ -171,7 +171,9 @@ end
 
 Searchkick uses conversion data to learn what users are looking for.
 
-First, keep track of conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
+First, choose a conversion metric for your application.  At Instacart, an item added to the cart is a conversion.
+
+Next, track the conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
