@@ -195,13 +195,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Reindex and tell the search method to use conversions.
-
-```ruby
-Product.search "Fat Free Milk", conversions: true
-```
-
-Set up a cron job to add new conversions daily.
+Reindex and set up a cron job to add new conversions daily.
 
 ```ruby
 heroku run rake searchkick:reindex CLASS=Product
