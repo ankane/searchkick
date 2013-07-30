@@ -321,10 +321,11 @@ end
 
 ## Thanks
 
-Thanks to [Karel Minarik](https://github.com/karmi) for Tire and [Jaroslav Kalistsuk](https://github.com/jarosan) for zero downtime reindexing.
+Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire) and Jaroslav Kalistsuk for [zero downtime reindexing](https://gist.github.com/jarosan/3124884).
 
 ## TODO
 
+- Make Searchkick work with any language
 - Built-in synonyms from WordNet
 
 ## Contributing
