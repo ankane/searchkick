@@ -167,13 +167,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Continually Improve Results
+### Train for Better Results
 
-Searchkick uses conversion data to learn what users are looking for.
+Searchkick uses conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
-First, choose a conversion metric for your application.  At Instacart, an item added to the cart is a conversion.
-
-Next, track the conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
+The first step is to define your conversion metric and start tracking conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
 ```ruby
 class Search < ActiveRecord::Base
