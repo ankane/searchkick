@@ -167,7 +167,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Train for Better Results
+### Keep Getting Better
 
 Searchkick uses conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
