@@ -31,8 +31,7 @@ module Searchkick
           end
         end
       else
-        i = Tire::Index.new(alias_name)
-        i.delete
+        tire.index.delete
         response = Tire::Alias.create(name: alias_name, indices: [new_index])
       end
 
