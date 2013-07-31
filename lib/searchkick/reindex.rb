@@ -22,19 +22,21 @@ module Searchkick
         end
 
         a.indices.add new_index
-        a.save
+        response = a.save
 
-        old_indices.each do |index|
-          i = Tire::Index.new(index)
-          i.delete
+        if response.success?
+          old_indices.each do |index|
+            i = Tire::Index.new(index)
+            i.delete
+          end
         end
       else
         i = Tire::Index.new(alias_name)
-        i.delete if i.exists?
-        Tire::Alias.create(name: alias_name, indices: [new_index])
+        i.delete
+        response = Tire::Alias.create(name: alias_name, indices: [new_index])
       end
 
-      true
+      response.success? || (raise response.to_s)
     end
 
     private
