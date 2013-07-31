@@ -7,9 +7,15 @@ module Searchkick
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
       load = (options[:include] || true) if load
+      tire_options = {
+        load: load,
+        page: options[:page],
+        per_page: options[:per_page]
+      }
+      tire_options[:index] = options[:index_name] if options[:index_name]
 
       collection =
-        tire.search load: load, page: options[:page], per_page: options[:per_page] do
+        tire.search tire_options do
           query do
             boolean do
               must do
