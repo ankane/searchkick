@@ -297,7 +297,7 @@ Product.search "milk", load: false
 
   ```ruby
   class Product < ActiveRecord::Base
-    searchkick
+      searchkick
   end
   ```
 
