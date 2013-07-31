@@ -296,7 +296,9 @@ Product.search "milk", load: false
 2. Replace tire mapping w/ searchkick method
 
   ```ruby
-  searchkick index_name: "products_v2"
+  class Product < ActiveRecord::Base
+    searchkick
+  end
   ```
 
 3. Deploy and reindex
