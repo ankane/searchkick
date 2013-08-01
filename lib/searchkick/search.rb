@@ -42,7 +42,7 @@ module Searchkick
                 should do
                   nested path: "conversions", score_mode: "total" do
                     query do
-                      custom_score script: "log(doc['count'].value)" do
+                      custom_score script: "doc['count'].value" do
                         match "query", term
                       end
                     end

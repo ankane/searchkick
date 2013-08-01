@@ -101,13 +101,11 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def test_conversions
     store [
-      {name: "Tomato Sauce", conversions: {"tomato sauce" => 5, "tomato" => 20}},
-      {name: "Tomato Paste", conversions: {}},
-      {name: "Tomatoes", conversions: {"tomato" => 10, "tomato sauce" => 2}}
+      {name: "Tomato A", conversions: {"tomato" => 1}},
+      {name: "Tomato B", conversions: {"tomato" => 2}},
+      {name: "Tomato C", conversions: {"tomato" => 3}}
     ]
-    require "pp"
-    pp Product.search("tomato",fields: [:name], explain: true).each_with_hit.first
-    assert_search "tomato", ["Tomato Sauce", "Tomatoes", "Tomato Paste"]
+    assert_search "tomato", ["Tomato C", "Tomato B", "Tomato A"]
   end
 
   def test_conversions_stemmed
