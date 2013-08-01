@@ -125,8 +125,10 @@ module Searchkick
                   # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
                   type: "multi_field",
                   fields: {
-                    # TODO analyzed field must be the default field for include_in_all
+                    # analyzed field must be the default field for include_in_all
                     # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+                    # however, we can include the not_analyzed field in _all
+                    # and the _all index analyzer will take care of it
                     "{name}" => {type: "string", index: "not_analyzed"},
                     "analyzed" => {type: "string", index: "analyzed"}
                   }

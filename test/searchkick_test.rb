@@ -272,6 +272,11 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "fresh honey", ["Honey"], partial: true
   end
 
+  def test_all_field
+    store_names ["Tomatoes"]
+    assert ["Tomatoes"], Product.search("tomato").map(&:name)
+  end
+
   protected
 
   def store(documents)
