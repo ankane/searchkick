@@ -118,10 +118,11 @@ module Searchkick
                 match: "*",
                 match_mapping_type: "string",
                 mapping: {
+                  # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
                   type: "multi_field",
                   fields: {
-                    "{name}_analyzed" => {type: "string", index: "analyzed"},
-                    "{name}" => {type: "string", index: "not_analyzed"}
+                    "{name}" => {type: "string", index: "not_analyzed"},
+                    "analyzed" => {type: "string", index: "analyzed"}
                   }
                 }
               }
