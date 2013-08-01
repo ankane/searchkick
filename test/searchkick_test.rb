@@ -1,8 +1,6 @@
-require "test_helper"
+require_relative "test_helper"
 
 class Product < ActiveRecord::Base
-  has_many :searches
-
   searchkick \
     synonyms: [
       ["clorox", "bleach"],
@@ -16,13 +14,11 @@ class Product < ActiveRecord::Base
       number_of_shards: 1
     }
 
-  def search_data
-    as_json.merge conversions: searches.group("query").count
-  end
-end
+  attr_accessor :conversions
 
-class Search < ActiveRecord::Base
-  belongs_to :product
+  def search_data
+    as_json.merge conversions: conversions
+  end
 end
 
 Product.reindex
@@ -30,7 +26,6 @@ Product.reindex
 class TestSearchkick < Minitest::Unit::TestCase
 
   def setup
-    Search.delete_all
     Product.destroy_all
   end
 
@@ -105,18 +100,20 @@ class TestSearchkick < Minitest::Unit::TestCase
   # conversions
 
   def test_conversions
-    store_conversions [
-      {name: "Tomato Sauce", conversions: [{query: "tomato sauce", count: 5}, {query: "tomato", count: 20}]},
-      {name: "Tomato Paste", conversions: []},
-      {name: "Tomatoes", conversions: [{query: "tomato", count: 10}, {query: "tomato sauce", count: 2}]}
+    store [
+      {name: "Tomato Sauce", conversions: {"tomato sauce" => 5, "tomato" => 20}},
+      {name: "Tomato Paste", conversions: {}},
+      {name: "Tomatoes", conversions: {"tomato" => 10, "tomato sauce" => 2}}
     ]
+    require "pp"
+    pp Product.search("tomato",fields: [:name], explain: true).each_with_hit.first
     assert_search "tomato", ["Tomato Sauce", "Tomatoes", "Tomato Paste"]
   end
 
   def test_conversions_stemmed
-    store_conversions [
-      {name: "Tomato A", conversions: [{query: "tomato", count: 2}, {query: "tomatos", count: 2}, {query: "Tomatoes", count: 2}]},
-      {name: "Tomato B", conversions: [{query: "tomato", count: 4}]}
+    store [
+      {name: "Tomato A", conversions: {"tomato" => 1, "tomatos" => 1, "Tomatoes" => 1}},
+      {name: "Tomato B", conversions: {"tomato" => 2}}
     ]
     assert_search "tomato", ["Tomato A", "Tomato B"]
   end
@@ -263,20 +260,6 @@ class TestSearchkick < Minitest::Unit::TestCase
 
   def store_names(names)
     store names.map{|name| {name: name} }
-  end
-
-  def store_conversions(documents)
-    documents.each do |document|
-      conversions = document.delete(:conversions)
-      product = Product.create!(document)
-      conversions.each do |c|
-        c[:count].times do
-          product.searches.create!(query: c[:query])
-        end
-      end
-    end
-    Product.reindex
-    Product.index.refresh
   end
 
   def assert_search(term, expected, options = {})

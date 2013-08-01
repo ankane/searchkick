@@ -24,12 +24,5 @@ ActiveRecord::Migration.create_table :products, :force => true do |t|
   t.timestamps
 end
 
-ActiveRecord::Migration.create_table :searches, :force => true do |t|
-  t.string :query
-  t.timestamp :searched_at
-  t.timestamp :converted_at
-  t.references :product
-end
-
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
 Tire.configure { logger "elasticsearch.log", :level => "debug" }
