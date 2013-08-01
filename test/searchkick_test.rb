@@ -2,6 +2,9 @@ require_relative "test_helper"
 
 class Product < ActiveRecord::Base
   searchkick \
+    settings: {
+      number_of_shards: 1
+    },
     synonyms: [
       ["clorox", "bleach"],
       ["scallion", "greenonion"],
@@ -9,10 +12,7 @@ class Product < ActiveRecord::Base
       ["qtip", "cotton swab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"]
-    ],
-    settings: {
-      number_of_shards: 1
-    }
+    ]
 
   attr_accessor :conversions
 
@@ -82,6 +82,24 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "siracha", ["Sriracha"]
   end
 
+  def test_short_word
+    store_names ["Finn"]
+    assert_search "fin", ["Finn"]
+  end
+
+  def test_edit_distance
+    store_names ["Bingo"]
+    assert_search "bin", []
+    assert_search "bing", ["Bingo"]
+    assert_search "bingoo", ["Bingo"]
+    assert_search "bingooo", []
+    assert_search "ringo", ["Bingo"]
+    assert_search "mango", []
+    store_names ["thisisareallylongword"]
+    assert_search "thisisareallylongwor", ["thisisareallylongword"] # missing letter
+    assert_search "thisisareelylongword", [] # edit distance = 2
+  end
+
   def test_misspelling_tabasco
     store_names ["Tabasco"]
     assert_search "tobasco", ["Tabasco"]
@@ -124,8 +142,8 @@ class TestSearchkick < Minitest::Unit::TestCase
   end
 
   def test_spaces_in_query
-    store_names ["Dishwasher Soap"]
-    assert_search "dish washer", ["Dishwasher Soap"]
+    store_names ["Dishwasher"]
+    assert_search "dish washer", ["Dishwasher"]
   end
 
   def test_spaces_three_words
