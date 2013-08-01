@@ -225,6 +225,13 @@ class TestSearchkick < Minitest::Unit::TestCase
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
   end
 
+  def test_where_string
+    store [
+      {name: "Product A", color: "RED"}
+    ]
+    assert_search "product", ["Product A"], where: {color: ["RED"]}
+  end
+
   def test_order
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_search "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}

@@ -110,7 +110,23 @@ module Searchkick
 
       mappings = {
         document_type.to_sym => {
-          properties: mapping
+          properties: mapping,
+          # https://gist.github.com/kimchy/2898285
+          dynamic_templates: [
+            {
+              string_template: {
+                match: "*",
+                match_mapping_type: "string",
+                mapping: {
+                  type: "multi_field",
+                  fields: {
+                    "{name}_analyzed" => {type: "string", index: "analyzed"},
+                    "{name}" => {type: "string", index: "not_analyzed"}
+                  }
+                }
+              }
+            }
+          ]
         }
       }
 
