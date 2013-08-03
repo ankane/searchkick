@@ -93,6 +93,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_kind_of Tire::Results::Item, Product.search("product", load: false).first
   end
 
+  def test_load_false_with_include
+    store_names ["Product A"]
+    assert_kind_of Tire::Results::Item, Product.search("product", load: false, include: [:brand]).first
+  end
+
   # TODO
   # :include option
 end
