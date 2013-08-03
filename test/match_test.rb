@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestMatching < Minitest::Unit::TestCase
+class TestMatch < Minitest::Unit::TestCase
 
   # exact
 
