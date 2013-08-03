@@ -25,4 +25,60 @@ ActiveRecord::Migration.create_table :products, :force => true do |t|
 end
 
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
-Tire.configure { logger "elasticsearch.log", :level => "debug" }
+Tire.configure do
+  logger "elasticsearch.log", :level => "debug"
+  pretty true
+end
+
+class Product < ActiveRecord::Base
+  searchkick \
+    settings: {
+      number_of_shards: 1
+    },
+    synonyms: [
+      ["clorox", "bleach"],
+      ["scallion", "greenonion"],
+      ["saranwrap", "plasticwrap"],
+      ["qtip", "cotton swab"],
+      ["burger", "hamburger"],
+      ["bandaid", "bandag"]
+    ]
+
+  attr_accessor :conversions
+
+  def search_data
+    as_json.merge conversions: conversions
+  end
+end
+
+Product.reindex
+
+class MiniTest::Unit::TestCase
+
+  def setup
+    Product.destroy_all
+  end
+
+  protected
+
+  def store(documents)
+    documents.each do |document|
+      Product.create!(document)
+    end
+    Product.index.refresh
+  end
+
+  def store_names(names)
+    store names.map{|name| {name: name} }
+  end
+
+  # no order
+  def assert_search(term, expected, options = {})
+    assert_equal expected.sort, Product.search(term, options).map(&:name).sort
+  end
+
+  def assert_order(term, expected, options = {})
+    assert_equal expected, Product.search(term, options).map(&:name)
+  end
+
+end
