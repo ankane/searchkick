@@ -6,7 +6,7 @@ module Searchkick
       fields = options[:fields] ? options[:fields].map{|f| "#{f}.analyzed" } : ["_all"]
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
-      load = (options[:include] || true) if load
+      load = (options[:include] ? {include: options[:include]} : true) if load
       page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
       tire_options = {
         load: load,

@@ -24,6 +24,9 @@ ActiveRecord::Migration.create_table :products, :force => true do |t|
   t.timestamps
 end
 
+ActiveRecord::Migration.create_table :store, :force => true do |t|
+end
+
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
 Tire.configure do
   logger "elasticsearch.log", :level => "debug"
@@ -31,6 +34,8 @@ Tire.configure do
 end
 
 class Product < ActiveRecord::Base
+  belongs_to :store
+
   searchkick \
     settings: {
       number_of_shards: 1
@@ -49,6 +54,9 @@ class Product < ActiveRecord::Base
   def search_data
     as_json.merge conversions: conversions
   end
+end
+
+class Store < ActiveRecord::Base
 end
 
 Product.reindex

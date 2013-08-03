@@ -95,9 +95,12 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_load_false_with_include
     store_names ["Product A"]
-    assert_kind_of Tire::Results::Item, Product.search("product", load: false, include: [:brand]).first
+    assert_kind_of Tire::Results::Item, Product.search("product", load: false, include: [:store]).first
   end
 
-  # TODO
-  # :include option
+  def test_include
+    store_names ["Product A"]
+    assert Product.search("product", include: [:store]).first.association(:store).loaded?
+  end
+
 end
