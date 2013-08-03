@@ -327,6 +327,7 @@ Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire) and Jaroslav K
 
 ## TODO
 
+- Custom results for each user
 - Make Searchkick work with any language
 - Built-in synonyms from WordNet
 
