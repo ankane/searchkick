@@ -12,6 +12,16 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2
   end
 
+  def test_pagination
+    store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
+    assert_search "product", ["Product C", "Product D"], order: {name: :asc}, page: 2, per_page: 2
+  end
+
+  def test_pagination_nil_page
+    store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
+    assert_search "product", ["Product A", "Product B"], order: {name: :asc}, page: nil, per_page: 2
+  end
+
   def test_where
     now = Time.now
     store [
@@ -72,7 +82,6 @@ class TestSql < Minitest::Unit::TestCase
   end
 
   # TODO
-  # pagination
   # :include option
   # :load option
 

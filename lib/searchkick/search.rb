@@ -7,10 +7,11 @@ module Searchkick
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
       load = (options[:include] || true) if load
+      page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
       tire_options = {
         load: load,
-        page: options[:page],
-        per_page: options[:per_page]
+        page: page,
+        per_page: options[:limit] || options[:per_page] || 100000 # return all
       }
       tire_options[:index] = options[:index_name] if options[:index_name]
 
@@ -51,7 +52,6 @@ module Searchkick
               end
             end
           end
-          size options[:limit] || 100000 # return all - like sql query
           from options[:offset] if options[:offset]
           explain options[:explain] if options[:explain]
 
