@@ -81,8 +81,18 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "blue", ["red"], fields: ["color"]
   end
 
+  # load
+
+  def test_load_default
+    store_names ["Product A"]
+    assert_kind_of Product, Product.search("product").first
+  end
+
+  def test_load_false
+    store_names ["Product A"]
+    assert_kind_of Tire::Results::Item, Product.search("product", load: false).first
+  end
+
   # TODO
   # :include option
-  # :load option
-
 end
