@@ -3,13 +3,13 @@ require_relative "test_helper"
 class TestSql < Minitest::Unit::TestCase
 
   def test_limit
-    store_names ["Product A", "Product B"]
-    assert_equal 1, Product.search("Product", limit: 1).size
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    assert_search "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
   end
 
   def test_offset
-    store_names ["Product A", "Product B"]
-    assert_equal 1, Product.search("Product", offset: 1).size
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    assert_search "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2
   end
 
   def test_where
@@ -47,9 +47,14 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A"], where: {color: ["RED"]}
   end
 
-  def test_order
+  def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_search "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}
+  end
+
+  def test_order_string
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    assert_search "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
   def test_partial

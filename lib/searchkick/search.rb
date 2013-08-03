@@ -57,8 +57,9 @@ module Searchkick
 
           # order
           if options[:order]
+            order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
             sort do
-              options[:order].each do |k, v|
+              order.each do |k, v|
                 by k, v
               end
             end
