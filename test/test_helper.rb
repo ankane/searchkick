@@ -49,10 +49,10 @@ class Product < ActiveRecord::Base
       ["bandaid", "bandag"]
     ]
 
-  attr_accessor :conversions
+  attr_accessor :conversions, :user_ids
 
   def search_data
-    as_json.merge conversions: conversions
+    as_json.merge conversions: conversions, user_ids: user_ids
   end
 end
 
@@ -87,6 +87,10 @@ class MiniTest::Unit::TestCase
 
   def assert_order(term, expected, options = {})
     assert_equal expected, Product.search(term, options).map(&:name)
+  end
+
+  def assert_first(term, expected, options = {})
+    assert_equal expected, Product.search(term, options).map(&:name).first
   end
 
 end

@@ -56,6 +56,13 @@ module Searchkick
                   script "log(doc['#{options[:boost]}'].value + 2.718281828)"
                 end
               end
+              if options[:user_id]
+                filter do
+                  filter :term, user_ids: options[:user_id]
+                  boost 100
+                end
+              end
+              score_mode "total"
             end
           end
           from options[:offset] if options[:offset]

@@ -201,6 +201,29 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
+### Personalized Results [master branch]
+
+**Subject to change before the next gem release**
+
+Order results differently for each user.  For example, show a user’s previously ordered products before other results.
+
+```ruby
+class Product < ActiveRecord::Base
+  def search_data
+    {
+      name: name,
+      user_ids: [4, 8, 15, 16, 23, 42] # boost this product for these users
+    }
+  end
+end
+```
+
+Reindex and search with:
+
+```ruby
+Product.search "milk", user_id: 8
+```
+
 ### Facets
 
 ```ruby
