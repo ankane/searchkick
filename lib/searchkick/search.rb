@@ -18,36 +18,42 @@ module Searchkick
       collection =
         tire.search tire_options do
           query do
-            boolean do
-              must do
-                # TODO escape boost field
-                score_script = options[:boost] ? "_score * log(doc['#{options[:boost]}'].value + 2.718281828)" : "_score"
-                custom_score script: score_script do
-                  dis_max do
-                    query do
-                      match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
+            custom_filters_score do
+              query do
+                boolean do
+                  must do
+                    dis_max do
+                      query do
+                        match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
+                      end
+                      query do
+                        match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
+                      end
+                      query do
+                        match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search"
+                      end
+                      query do
+                        match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search2"
+                      end
                     end
-                    query do
-                      match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
-                    end
-                    query do
-                      match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search"
-                    end
-                    query do
-                      match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search2"
+                  end
+                  unless options[:conversions] == false
+                    should do
+                      nested path: "conversions", score_mode: "total" do
+                        query do
+                          custom_score script: "doc['count'].value" do
+                            match "query", term
+                          end
+                        end
+                      end
                     end
                   end
                 end
               end
-              unless options[:conversions] == false
-                should do
-                  nested path: "conversions", score_mode: "total" do
-                    query do
-                      custom_score script: "doc['count'].value" do
-                        match "query", term
-                      end
-                    end
-                  end
+              if options[:boost]
+                filter do
+                  filter :exists, field: options[:boost]
+                  script "log(doc['#{options[:boost]}'].value + 2.718281828)"
                 end
               end
             end
