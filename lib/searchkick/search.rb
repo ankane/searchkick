@@ -3,7 +3,7 @@ module Searchkick
 
     def search(term, options = {})
       term = term.to_s
-      fields = options[:fields] ? options[:fields].map{|f| "#{f}.analyzed" } : ["_all"]
+      fields = options[:fields] || ["_all"]
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
       load = (options[:include] ? {include: options[:include]} : true) if load
