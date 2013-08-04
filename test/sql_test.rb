@@ -75,8 +75,8 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_fields
     store [
-      {name: "red", color: "blue"},
-      {name: "blue", color: "red"}
+      {name: "red", color: "light blue"},
+      {name: "blue", color: "red fish"}
     ]
     assert_search "blue", ["red"], fields: ["color"]
   end
