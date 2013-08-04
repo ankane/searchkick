@@ -191,6 +191,7 @@ class Product < ActiveRecord::Base
     {
       name: name,
       conversions: searches.group("query").count
+      # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
     }
   end
 end
@@ -213,7 +214,8 @@ class Product < ActiveRecord::Base
   def search_data
     {
       name: name,
-      user_ids: [4, 8, 15, 16, 23, 42] # boost this product for these users
+      user_ids: orders.pluck(:user_id) # boost this product for these users
+      # [4, 8, 15, 16, 23, 42]
     }
   end
 end
