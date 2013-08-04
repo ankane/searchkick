@@ -38,4 +38,12 @@ class TestBoost < Minitest::Unit::TestCase
     assert_order "zero", ["Zero Boost"], boost: "orders_count"
   end
 
+  def test_conversions_weight
+    store [
+      {name: "Product Boost", orders_count: 20},
+      {name: "Product Conversions", conversions: {"product" => 10}}
+    ]
+    assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
+  end
+
 end
