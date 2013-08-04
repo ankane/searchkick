@@ -16,6 +16,7 @@ Plus:
 
 - query like SQL - no need to learn a new query language
 - reindex without downtime
+- easily personalize results for each user [master branch]
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
