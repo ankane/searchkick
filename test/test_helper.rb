@@ -70,7 +70,7 @@ class MiniTest::Unit::TestCase
   protected
 
   def store(documents)
-    documents.each do |document|
+    documents.shuffle.each do |document|
       Product.create!(document)
     end
     Product.index.refresh
