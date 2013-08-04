@@ -138,11 +138,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-You must call `Product.reindex` after changing synonyms.
+Call `Product.reindex` after changing synonyms.
 
 ### Indexing
 
-Control what data is indexed with the `search_data` method.
+Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
 
 ```ruby
 class Product < ActiveRecord::Base
