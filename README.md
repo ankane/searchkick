@@ -330,6 +330,7 @@ Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire) and Jaroslav K
 - Custom results for each user
 - Make Searchkick work with any language
 - Built-in synonyms from WordNet
+- [Did you mean?](http://www.elasticsearch.org/guide/reference/api/search/suggest/)
 
 ## Contributing
 
