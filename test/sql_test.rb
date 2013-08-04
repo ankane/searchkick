@@ -4,22 +4,22 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_search "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
+    assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
   end
 
   def test_offset
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_search "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2
+    assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2
   end
 
   def test_pagination
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
-    assert_search "product", ["Product C", "Product D"], order: {name: :asc}, page: 2, per_page: 2
+    assert_order "product", ["Product C", "Product D"], order: {name: :asc}, page: 2, per_page: 2
   end
 
   def test_pagination_nil_page
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
-    assert_search "product", ["Product A", "Product B"], order: {name: :asc}, page: nil, per_page: 2
+    assert_order "product", ["Product A", "Product B"], order: {name: :asc}, page: nil, per_page: 2
   end
 
   def test_where
@@ -59,12 +59,12 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_search "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}
+    assert_order "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}
   end
 
   def test_order_string
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_search "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
+    assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
   def test_partial
