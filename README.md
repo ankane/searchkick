@@ -17,7 +17,7 @@ Plus:
 - query like SQL - no need to learn a new query language
 - reindex without downtime
 - easily personalize results for each user [master branch]
-- typeahead / autocomplete [master branch]
+- autocomplete [master branch]
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
@@ -131,20 +131,20 @@ To change this, use:
 Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
-### Typeahead / Autocomplete [master branch]
+### Autocomplete [master branch]
 
 You must specify which fields use this feature since this can increase the index size significantly.  Don’t worry - this gives you blazing faster queries.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick typeahead: [:name]
+  searchkick autocomplete: [:name]
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-Product.search "puddi", typeahead: true
+Product.search "puddi", autocomplete: true
 ```
 
 ### Synonyms

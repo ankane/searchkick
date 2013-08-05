@@ -110,21 +110,21 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "almondmilks", ["Almond Milk"]
   end
 
-  # typeahead
+  # autocomplete
 
-  def test_typeahead
+  def test_autocomplete
     store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], typeahead: true
+    assert_search "hum", ["Hummus"], autocomplete: true
   end
 
-  def test_typeahead_two_words
+  def test_autocomplete_two_words
     store_names ["Organic Hummus"]
-    assert_search "hum", [], typeahead: true
+    assert_search "hum", [], autocomplete: true
   end
 
-  def test_typeahead_fields
+  def test_autocomplete_fields
     store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], typeahead: true, fields: [:name]
+    assert_search "hum", ["Hummus"], autocomplete: true, fields: [:name]
   end
 
 end

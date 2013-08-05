@@ -48,7 +48,7 @@ class Product < ActiveRecord::Base
       ["burger", "hamburger"],
       ["bandaid", "bandag"]
     ],
-    typeahead: [:name]
+    autocomplete: [:name]
 
   attr_accessor :conversions, :user_ids
 

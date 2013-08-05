@@ -70,12 +70,12 @@ module Searchkick
               filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
             },
             # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
-            searchkick_typeahead_index: {
+            searchkick_autocomplete_index: {
               type: "custom",
-              tokenizer: "searchkick_typeahead_ngram",
+              tokenizer: "searchkick_autocomplete_ngram",
               filter: ["lowercase", "asciifolding"]
             },
-            searchkick_typeahead_search: {
+            searchkick_autocomplete_search: {
               type: "custom",
               tokenizer: "keyword",
               filter: ["lowercase", "asciifolding"]
@@ -95,7 +95,7 @@ module Searchkick
             }
           },
           tokenizer: {
-            searchkick_typeahead_ngram: {
+            searchkick_autocomplete_ngram: {
               type: "edgeNGram",
               min_gram: 1,
               max_gram: 50
@@ -135,14 +135,14 @@ module Searchkick
         }
       end
 
-      # typeahead
-      (options[:typeahead] || []).each do |field|
+      # autocomplete
+      (options[:autocomplete] || []).each do |field|
         mapping[field] = {
           type: "multi_field",
           fields: {
             field => {type: "string", index: "not_analyzed"},
             "analyzed" => {type: "string", index: "analyzed"},
-            "typeahead" => {type: "string", index: "analyzed", analyzer: "searchkick_typeahead_index"}
+            "autocomplete" => {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
           }
         }
       end

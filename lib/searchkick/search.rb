@@ -5,14 +5,14 @@ module Searchkick
       term = term.to_s
       fields =
         if options[:fields]
-          if options[:typeahead]
-            options[:fields].map{|f| "#{f}.typeahead" }
+          if options[:autocomplete]
+            options[:fields].map{|f| "#{f}.autocomplete" }
           else
             options[:fields].map{|f| "#{f}.analyzed" }
           end
         else
-          if options[:typeahead]
-            (@searchkick_options[:typeahead] || []).map{|f| "#{f}.typeahead" }
+          if options[:autocomplete]
+            (@searchkick_options[:autocomplete] || []).map{|f| "#{f}.autocomplete" }
           else
             ["_all"]
           end
@@ -35,8 +35,8 @@ module Searchkick
               query do
                 boolean do
                   must do
-                    if options[:typeahead]
-                      match fields, term, analyzer: "searchkick_typeahead_search"
+                    if options[:autocomplete]
+                      match fields, term, analyzer: "searchkick_autocomplete_search"
                     else
                       dis_max do
                         query do
