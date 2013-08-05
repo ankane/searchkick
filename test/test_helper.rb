@@ -47,7 +47,8 @@ class Product < ActiveRecord::Base
       ["qtip", "cotton swab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"]
-    ]
+    ],
+    typeahead: [:name]
 
   attr_accessor :conversions, :user_ids
 

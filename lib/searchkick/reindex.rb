@@ -68,6 +68,17 @@ module Searchkick
               type: "custom",
               tokenizer: "standard",
               filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
+            },
+            # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
+            searchkick_typeahead_index: {
+              type: "custom",
+              tokenizer: "searchkick_typeahead_ngram",
+              filter: ["lowercase", "asciifolding"]
+            },
+            searchkick_typeahead_search: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase", "asciifolding"]
             }
           },
           filter: {
@@ -82,9 +93,18 @@ module Searchkick
               output_unigrams: false,
               output_unigrams_if_no_shingles: true
             }
+          },
+          tokenizer: {
+            searchkick_typeahead_ngram: {
+              type: "edgeNGram",
+              min_gram: 1,
+              max_gram: 50
+            }
           }
         }
       }.merge(options[:settings] || {})
+
+      # synonyms
       synonyms = options[:synonyms] || []
       if synonyms.any?
         settings[:analysis][:filter][:searchkick_synonym] = {
@@ -103,12 +123,26 @@ module Searchkick
       end
 
       mapping = {}
+
+      # conversions
       if options[:conversions]
         mapping[:conversions] = {
           type: "nested",
           properties: {
             query: {type: "string", analyzer: "searchkick_keyword"},
             count: {type: "integer"}
+          }
+        }
+      end
+
+      # typeahead
+      (options[:typeahead] || []).each do |field|
+        mapping[field] = {
+          type: "multi_field",
+          fields: {
+            field => {type: "string", index: "not_analyzed"},
+            "analyzed" => {type: "string", index: "analyzed"},
+            "typeahead" => {type: "string", index: "analyzed", analyzer: "searchkick_typeahead_index"}
           }
         }
       end

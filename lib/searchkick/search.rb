@@ -3,7 +3,20 @@ module Searchkick
 
     def search(term, options = {})
       term = term.to_s
-      fields = options[:fields] ? options[:fields].map{|f| "#{f}.analyzed" } : ["_all"]
+      fields =
+        if options[:fields]
+          if options[:typeahead]
+            options[:fields].map{|f| "#{f}.typeahead" }
+          else
+            options[:fields].map{|f| "#{f}.analyzed" }
+          end
+        else
+          if options[:typeahead]
+            (@searchkick_options[:typeahead] || []).map{|f| "#{f}.typeahead" }
+          else
+            ["_all"]
+          end
+        end
       operator = options[:partial] ? "or" : "and"
       load = options[:load].nil? ? true : options[:load]
       load = (options[:include] ? {include: options[:include]} : true) if load
@@ -22,18 +35,22 @@ module Searchkick
               query do
                 boolean do
                   must do
-                    dis_max do
-                      query do
-                        match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
-                      end
-                      query do
-                        match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
-                      end
-                      query do
-                        match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search"
-                      end
-                      query do
-                        match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search2"
+                    if options[:typeahead]
+                      match fields, term, analyzer: "searchkick_typeahead_search"
+                    else
+                      dis_max do
+                        query do
+                          match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search"
+                        end
+                        query do
+                          match fields, term, boost: 10, operator: operator, analyzer: "searchkick_search2"
+                        end
+                        query do
+                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search"
+                        end
+                        query do
+                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search2"
+                        end
                       end
                     end
                   end
