@@ -7,7 +7,8 @@ module Searchkick
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S")
       index = Tire::Index.new(new_index)
 
-      index.create searchkick_index_options
+      success = index.create searchkick_index_options
+      raise index.response.to_s if !success
 
       # use scope for import
       scope = respond_to?(:search_import) ? search_import : self
