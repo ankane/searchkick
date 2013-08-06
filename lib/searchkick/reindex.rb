@@ -117,6 +117,9 @@ module Searchkick
         # TODO use a snowball stemmer on synonyms when creating the token filter
         settings[:analysis][:analyzer][:default_index][:filter].insert(-4, "searchkick_synonym")
         settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
+        settings[:analysis][:analyzer][:searchkick_search][:filter].insert(-4, "searchkick_synonym")
+        settings[:analysis][:analyzer][:searchkick_search][:filter] << "searchkick_synonym"
+        settings[:analysis][:analyzer][:searchkick_search2][:filter] << "searchkick_synonym"
       end
 
       mapping = {}
