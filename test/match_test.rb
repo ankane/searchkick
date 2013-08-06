@@ -131,7 +131,7 @@ class TestMatch < Minitest::Unit::TestCase
 
   def test_suggest
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
-    assert_suggest "How Big is a Tigre Shar?", "how big is a tiger shark?"
+    assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark"
   end
 
   def test_suggest_perfect
