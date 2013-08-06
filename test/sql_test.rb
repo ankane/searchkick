@@ -7,6 +7,12 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
   end
 
+  def test_no_limit
+    names = 20.times.map{|i| "Product #{i}" }
+    store_names names
+    assert_search "product", names
+  end
+
   def test_offset
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2

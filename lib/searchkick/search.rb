@@ -26,8 +26,8 @@ module Searchkick
 
       # pagination
       page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
-      per_page = options[:limit] || options[:per_page]
-      offset = options[:offset] || (page && per_page && (page - 1) * per_page)
+      per_page = options[:limit] || options[:per_page] || 100000
+      offset = options[:offset] || (page && (page - 1) * per_page)
       index_name = options[:index_name] || index.name
 
       # TODO lose Tire DSL for more flexibility
@@ -85,7 +85,7 @@ module Searchkick
               score_mode "total"
             end
           end
-          size per_page if per_page
+          size per_page
           from offset if offset
           explain options[:explain] if options[:explain]
 
