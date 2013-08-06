@@ -79,6 +79,11 @@ module Searchkick
               type: "custom",
               tokenizer: "keyword",
               filter: ["lowercase", "asciifolding"]
+            },
+            searchkick_suggest_index: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "shingle"]
             }
           },
           filter: {
@@ -152,7 +157,7 @@ module Searchkick
           field_mapping[:fields]["autocomplete"] = {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
         end
         if suggest.include?(field)
-          field_mapping[:fields]["suggest"] = {type: "string", index: "analyzed", analyzer: "standard"}
+          field_mapping[:fields]["suggest"] = {type: "string", index: "analyzed", analyzer: "searchkick_suggest_index"}
         end
         mapping[field] = field_mapping
       end

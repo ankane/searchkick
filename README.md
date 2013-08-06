@@ -247,7 +247,7 @@ Product.search "milk", user_id: 8
 
 ### Suggestions [master branch]
 
-Did you mean: :sunglasses:
+Did you mean: awesome :sunglasses:
 
 ```ruby
 class Product < ActiveRecord::Base

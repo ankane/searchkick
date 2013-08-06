@@ -5,15 +5,7 @@ module Searchkick
     # return nil suggestion if term does not change
     def suggestion
       if @response["suggest"]
-        original_term = options[:term].downcase
-        suggestion = original_term.dup
-        @response["suggest"].values.first.each do |s|
-          first_option = s["options"].first
-          if first_option
-            suggestion.sub!(s["text"], first_option["text"])
-          end
-        end
-        suggestion == original_term ? nil : suggestion
+        @response["suggest"].values.first.first["options"].first["text"]
       else
         raise "Pass `suggest: true` to the search method for suggestions"
       end

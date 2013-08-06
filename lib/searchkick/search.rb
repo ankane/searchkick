@@ -185,9 +185,8 @@ module Searchkick
         payload[:suggest] = {text: term}
         suggest_fields.each do |field|
           payload[:suggest][field] = {
-            term: {
-              field: "#{field}.suggest",
-              suggest_mode: "popular"
+            phrase: {
+              field: "#{field}.suggest"
             }
           }
         end

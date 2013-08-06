@@ -139,6 +139,11 @@ class TestMatch < Minitest::Unit::TestCase
     assert_suggest "Tiger Shark", nil # no correction
   end
 
+  def test_suggest_phrase
+    store_names ["Tiger Shark", "Sharp Teeth", "Sharp Mind"]
+    assert_suggest "How to catch a tiger shar", "how to catch a tiger shark"
+  end
+
   def test_suggest_without_option
     assert_raises(RuntimeError){ Product.search("hi").suggestion }
   end
