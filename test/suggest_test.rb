@@ -18,13 +18,13 @@ class TestSuggest < Minitest::Unit::TestCase
   end
 
   def test_without_option
-    assert_raises(RuntimeError){ Product.search("hi").suggestion }
+    assert_raises(RuntimeError){ Product.search("hi").suggestions }
   end
 
   protected
 
   def assert_suggest(term, expected)
-    assert_equal expected, Product.search(term, suggest: true).suggestion
+    assert_equal expected, Product.search(term, suggest: true).suggestions.first
   end
 
 end

@@ -259,10 +259,8 @@ Reindex and search with:
 
 ```ruby
 products = Product.search "peantu butta", suggest: true
-products.suggestion # peanut butter
+products.suggestions # ["peanut butter"]
 ```
-
-Returns `nil` when there are no suggestions.
 
 ### Facets
 
