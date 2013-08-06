@@ -13,8 +13,8 @@ class TestSuggest < Minitest::Unit::TestCase
   end
 
   def test_phrase
-    store_names ["Tiger Shark", "Sharp Teeth", "Sharp Mind"]
-    assert_suggest "How to catch a tiger shar", "how to catch a tiger shark"
+    store_names ["Big Tiger Shark", "Tiger Sharp Teeth", "Tiger Sharp Mind"]
+    assert_suggest "How to catch a big tiger shar", "how to catch a big tiger shark"
   end
 
   def test_without_option

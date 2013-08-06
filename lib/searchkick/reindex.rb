@@ -83,7 +83,7 @@ module Searchkick
             searchkick_suggest_index: {
               type: "custom",
               tokenizer: "standard",
-              filter: ["lowercase", "asciifolding", "shingle"]
+              filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
             }
           },
           filter: {
@@ -97,6 +97,10 @@ module Searchkick
               token_separator: "",
               output_unigrams: false,
               output_unigrams_if_no_shingles: true
+            },
+            searchkick_suggest_shingle: {
+              type: "shingle",
+              max_shingle_size: 5
             }
           },
           tokenizer: {
