@@ -118,7 +118,7 @@ module Searchkick
         # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
         # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
         # - Only apply the synonym expansion at index time
-        # - Don't have the synonym  filter applied search
+        # - Don't have the synonym filter applied search
         # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
         settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_synonym")
         settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
