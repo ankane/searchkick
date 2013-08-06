@@ -18,6 +18,7 @@ Plus:
 - reindex without downtime
 - easily personalize results for each user [master branch]
 - autocomplete [master branch]
+- “Did you mean” suggestions [master branch]
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
@@ -244,11 +245,30 @@ Reindex and search with:
 Product.search "milk", user_id: 8
 ```
 
+### Suggestions [master branch]
+
+Did you mean: :sunglasses:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick suggest: [:name] # fields to generate suggestions
+end
+```
+
+Reindex and search with:
+
+```ruby
+products = Product.search "peantu butta", suggest: true
+products.suggestion # peanut butter
+```
+
+Returns `nil` when there are no suggestions.
+
 ### Facets
 
 ```ruby
-search = Product.search "2% Milk", facets: [:store_id, :aisle_id]
-p search.facets
+products = Product.search "2% Milk", facets: [:store_id, :aisle_id]
+p products.facets
 ```
 
 Advanced
@@ -371,8 +391,6 @@ Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire), Jaroslav Kali
 ## TODO
 
 - Make Searchkick work with any language
-- Built-in synonyms from WordNet
-- [Did you mean?](http://www.elasticsearch.org/guide/reference/api/search/suggest/)
 
 ## Contributing
 

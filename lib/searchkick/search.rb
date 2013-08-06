@@ -17,19 +17,22 @@ module Searchkick
             ["_all"]
           end
         end
+
       operator = options[:partial] ? "or" : "and"
+
+      # model and eagar loading
       load = options[:load].nil? ? true : options[:load]
       load = (options[:include] ? {include: options[:include]} : true) if load
-      page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
-      tire_options = {
-        load: load,
-        page: page,
-        per_page: options[:limit] || options[:per_page] || 100000 # return all
-      }
-      tire_options[:index] = options[:index_name] if options[:index_name]
 
-      collection =
-        tire.search tire_options do
+      # pagination
+      page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
+      per_page = options[:limit] || options[:per_page]
+      offset = options[:offset] || (page && per_page && (page - 1) * per_page)
+      index_name = options[:index_name] || index.name
+
+      # TODO lose Tire DSL for more flexibility
+      s =
+        Tire::Search::Search.new do
           query do
             custom_filters_score do
               query do
@@ -82,7 +85,8 @@ module Searchkick
               score_mode "total"
             end
           end
-          from options[:offset] if options[:offset]
+          size per_page if per_page
+          from offset if offset
           explain options[:explain] if options[:explain]
 
           # order
@@ -173,7 +177,24 @@ module Searchkick
           end
         end
 
-      collection
+      payload = s.to_hash
+
+      # suggested fields
+      suggest_fields = options[:fields] || @searchkick_options[:suggest] || []
+      if options[:suggest] and suggest_fields.any?
+        payload[:suggest] = {text: term}
+        suggest_fields.each do |field|
+          payload[:suggest][field] = {
+            term: {
+              field: "#{field}.suggest",
+              suggest_mode: "popular"
+            }
+          }
+        end
+      end
+
+      search = Tire::Search::Search.new(index_name, load: load, payload: payload)
+      Searchkick::Results.new(search.json, search.options.merge(term: term))
     end
 
   end

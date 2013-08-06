@@ -137,16 +137,24 @@ module Searchkick
         }
       end
 
-      # autocomplete
-      (options[:autocomplete] || []).each do |field|
-        mapping[field] = {
+      # autocomplete and suggest
+      autocomplete = options[:autocomplete] || []
+      suggest = options[:suggest] || []
+      (autocomplete + suggest).uniq.each do |field|
+        field_mapping = {
           type: "multi_field",
           fields: {
             field => {type: "string", index: "not_analyzed"},
-            "analyzed" => {type: "string", index: "analyzed"},
-            "autocomplete" => {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
+            "analyzed" => {type: "string", index: "analyzed"}
           }
         }
+        if autocomplete.include?(field)
+          field_mapping[:fields]["autocomplete"] = {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
+        end
+        if suggest.include?(field)
+          field_mapping[:fields]["suggest"] = {type: "string", index: "analyzed", analyzer: "standard"}
+        end
+        mapping[field] = field_mapping
       end
 
       mappings = {

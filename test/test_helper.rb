@@ -48,7 +48,8 @@ class Product < ActiveRecord::Base
       ["burger", "hamburger"],
       ["bandaid", "bandag"]
     ],
-    autocomplete: [:name]
+    autocomplete: [:name],
+    suggest: [:name]
 
   attr_accessor :conversions, :user_ids
 

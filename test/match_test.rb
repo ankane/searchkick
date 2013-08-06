@@ -127,4 +127,26 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "hum", ["Hummus"], autocomplete: true, fields: [:name]
   end
 
+  # suggest
+
+  def test_suggest
+    store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
+    assert_suggest "How Big is a Tigre Shar?", "how big is a tiger shark?"
+  end
+
+  def test_suggest_perfect
+    store_names ["Tiger Shark", "Great White Shark"]
+    assert_suggest "Tiger Shark", nil # no correction
+  end
+
+  def test_suggest_without_option
+    assert_raises(RuntimeError){ Product.search("hi").suggestion }
+  end
+
+  protected
+
+  def assert_suggest(term, expected)
+    assert_equal expected, Product.search(term, suggest: true).suggestion
+  end
+
 end
