@@ -44,7 +44,7 @@ class Product < ActiveRecord::Base
       ["clorox", "bleach"],
       ["scallion", "greenonion"],
       ["saranwrap", "plasticwrap"],
-      ["qtip", "cotton swab"],
+      ["qtip", "cottonswab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"]
     ],
