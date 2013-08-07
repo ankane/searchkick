@@ -24,9 +24,22 @@ module Searchkick
 
         def to_indexed_json
           source = search_data
-          if self.class.instance_variable_get("@searchkick_options")[:conversions] and source[:conversions]
-            source[:conversions] = source[:conversions].map{|k, v| {query: k, count: v} }
+
+          # stringify fields
+          source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
+
+          options = self.class.instance_variable_get("@searchkick_options")
+
+          # conversions
+          if options[:conversions] and source["conversions"]
+            source["conversions"] = source["conversions"].map{|k, v| {query: k, count: v} }
           end
+
+          # hack to prevent generator field doesn't exist error
+          (options[:suggest] || []).map(&:to_s).each do |field|
+            source[field] = "a" if !source[field]
+          end
+
           source.to_json
         end
       end

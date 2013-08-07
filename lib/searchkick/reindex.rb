@@ -147,8 +147,8 @@ module Searchkick
       end
 
       # autocomplete and suggest
-      autocomplete = options[:autocomplete] || []
-      suggest = options[:suggest] || []
+      autocomplete = (options[:autocomplete] || []).map(&:to_s)
+      suggest = (options[:suggest] || []).map(&:to_s)
       (autocomplete + suggest).uniq.each do |field|
         field_mapping = {
           type: "multi_field",
