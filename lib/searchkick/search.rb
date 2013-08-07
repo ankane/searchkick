@@ -179,16 +179,20 @@ module Searchkick
 
       payload = s.to_hash
 
-      # suggested fields
-      suggest_fields = options[:fields] || @searchkick_options[:suggest] || []
-      if options[:suggest] and suggest_fields.any?
-        payload[:suggest] = {text: term}
-        suggest_fields.each do |field|
-          payload[:suggest][field] = {
-            phrase: {
-              field: "#{field}.suggest"
+      # suggestions
+      if options[:suggest]
+        suggest_fields = (@searchkick_options[:suggest] || []).map(&:to_s)
+        # intersection
+        suggest_fields = suggest_fields & options[:fields].map(&:to_s) if options[:fields]
+        if suggest_fields.any?
+          payload[:suggest] = {text: term}
+          suggest_fields.each do |field|
+            payload[:suggest][field] = {
+              phrase: {
+                field: "#{field}.suggest"
+              }
             }
-          }
+          end
         end
       end
 

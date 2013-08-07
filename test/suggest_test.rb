@@ -49,10 +49,17 @@ class TestSuggest < Minitest::Unit::TestCase
     assert_suggest_all "shar", ["shark"], fields: [:name]
   end
 
+  def test_fields_option_multiple
+    store [
+      {name: "Shark"}
+    ]
+    assert_suggest "shar", "shark", fields: [:name, :unknown]
+  end
+
   protected
 
-  def assert_suggest(term, expected)
-    assert_equal expected, Product.search(term, suggest: true).suggestions.first
+  def assert_suggest(term, expected, options = {})
+    assert_equal expected, Product.search(term, options.merge(suggest: true)).suggestions.first
   end
 
   # any order
