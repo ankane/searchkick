@@ -60,14 +60,21 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "fin", ["Finn"]
   end
 
-  def test_edit_distance
+  def test_edit_distance_two
     store_names ["Bingo"]
     assert_search "bin", []
+    assert_search "bingooo", []
+    assert_search "mango", []
+  end
+
+  def test_edit_distance_one
+    store_names ["Bingo"]
     assert_search "bing", ["Bingo"]
     assert_search "bingoo", ["Bingo"]
-    assert_search "bingooo", []
     assert_search "ringo", ["Bingo"]
-    assert_search "mango", []
+  end
+
+  def test_edit_distance_long_word
     store_names ["thisisareallylongword"]
     assert_search "thisisareallylongwor", ["thisisareallylongword"] # missing letter
     assert_search "thisisareelylongword", [] # edit distance = 2
