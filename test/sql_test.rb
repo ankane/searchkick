@@ -92,6 +92,14 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "milk", [], fields: ["not_here"]
   end
 
+  def test_fields_both_match
+    store [
+      {name: "Blue A", color: "red"},
+      {name: "Blue B", color: "light blue"}
+    ]
+    assert_first "blue", "Blue B", fields: [:name, :color]
+  end
+
   # load
 
   def test_load_default
