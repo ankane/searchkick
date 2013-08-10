@@ -87,6 +87,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "blue", ["red"], fields: ["color"]
   end
 
+  def test_non_existent_field
+    store_names ["Milk"]
+    assert_search "milk", [], fields: ["not_here"]
+  end
+
   # load
 
   def test_load_default
