@@ -182,6 +182,10 @@ module Searchkick
 
       payload = s.to_hash
 
+      # An empty array will cause only the _id and _type for each hit to be returned
+      # http://www.elasticsearch.org/guide/reference/api/search/fields/
+      payload[:fields] = [] if load
+
       # suggestions
       if options[:suggest]
         suggest_fields = (@searchkick_options[:suggest] || []).map(&:to_s)
