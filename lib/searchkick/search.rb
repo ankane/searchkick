@@ -52,10 +52,10 @@ module Searchkick
                           match fields, term, use_dis_max: false, boost: 10, operator: operator, analyzer: "searchkick_search2"
                         end
                         query do
-                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search"
+                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search"
                         end
                         query do
-                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 1, operator: operator, analyzer: "searchkick_search2"
+                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search2"
                         end
                       end
                     end

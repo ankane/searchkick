@@ -60,6 +60,11 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "siracha", ["Sriracha"]
   end
 
+  def test_misspelling_multiple
+    store_names ["Greek Yogurt", "Green Onions"]
+    assert_search "greed", ["Greek Yogurt", "Green Onions"]
+  end
+
   def test_short_word
     store_names ["Finn"]
     assert_search "fin", ["Finn"]
