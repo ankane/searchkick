@@ -287,6 +287,8 @@ Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
 
 ## Deployment
 
+Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.
+
 ### Heroku
 
 Choose an add-on: [SearchBox](https://addons.heroku.com/searchbox), [Bonsai](https://addons.heroku.com/bonsai), or [Found](https://addons.heroku.com/foundelasticsearch).
@@ -303,6 +305,20 @@ heroku config:add ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
 # Found
 heroku addons:add foundelasticsearch
 heroku config:add ELASTICSEARCH_URL=`heroku config:get FOUNDELASTICSEARCH_URL`
+```
+
+Then deploy and reindex:
+
+```sh
+heroku run rake searchkick:reindex CLASS=Product
+```
+
+### Other
+
+Create an initializer `config/initializers/elasticsearch.rb` with:
+
+```ruby
+ENV["ELASTICSEARCH_URL"] = "http://username:password@api.searchbox.io"
 ```
 
 Then deploy and reindex:
