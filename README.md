@@ -264,6 +264,10 @@ products.suggestions # ["peanut butter"]
 
 ### Facets
 
+[Facets](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
+
+![Facets](http://www.elasticsearch.org/content/themes/elasticsearch-org/images/content/dashboards/linkedin-faceted-search.png)
+
 ```ruby
 products = Product.search "2% Milk", facets: [:store_id, :aisle_id]
 p products.facets
