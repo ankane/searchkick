@@ -32,7 +32,7 @@ module Searchkick
           end
         end
       else
-        tire.index.delete
+        tire.index.delete if tire.index.exists?
         response = Tire::Alias.create(name: alias_name, indices: [new_index])
       end
 
