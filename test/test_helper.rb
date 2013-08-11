@@ -49,7 +49,9 @@ class Product < ActiveRecord::Base
       ["bandaid", "bandag"]
     ],
     autocomplete: [:name],
-    suggest: [:name, :color]
+    suggest: [:name, :color],
+    conversions: "conversions",
+    personalize: "user_ids"
 
   attr_accessor :conversions, :user_ids
 

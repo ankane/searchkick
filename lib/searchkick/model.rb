@@ -3,7 +3,6 @@ module Searchkick
 
     def searchkick(options = {})
       @searchkick_options = options.dup
-      @searchkick_options[:conversions] = true if options[:conversions].nil?
 
       class_eval do
         extend Searchkick::Search
@@ -31,8 +30,9 @@ module Searchkick
           options = self.class.instance_variable_get("@searchkick_options")
 
           # conversions
-          if options[:conversions] and source["conversions"]
-            source["conversions"] = source["conversions"].map{|k, v| {query: k, count: v} }
+          conversions_field = options[:conversions]
+          if conversions_field and source[conversions_field]
+            source[conversions_field] = source[conversions_field].map{|k, v| {query: k, count: v} }
           end
 
           # hack to prevent generator field doesn't exist error

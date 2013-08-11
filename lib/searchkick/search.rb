@@ -30,6 +30,9 @@ module Searchkick
       offset = options[:offset] || (page && (page - 1) * per_page)
       index_name = options[:index_name] || index.name
 
+      conversions_field = @searchkick_options[:conversions]
+      personalize_field = @searchkick_options[:personalize]
+
       # TODO lose Tire DSL for more flexibility
       s =
         Tire::Search::Search.new do
@@ -57,9 +60,9 @@ module Searchkick
                       end
                     end
                   end
-                  unless options[:conversions] == false
+                  if conversions_field and options[:conversions] != false
                     should do
-                      nested path: "conversions", score_mode: "total" do
+                      nested path: conversions_field, score_mode: "total" do
                         query do
                           custom_score script: "doc['count'].value" do
                             match "query", term
@@ -76,9 +79,9 @@ module Searchkick
                   script "log(doc['#{options[:boost]}'].value + 2.718281828)"
                 end
               end
-              if options[:user_id]
+              if options[:user_id] and personalize_field
                 filter do
-                  filter :term, user_ids: options[:user_id]
+                  filter :term, personalize_field => options[:user_id]
                   boost 100
                 end
               end

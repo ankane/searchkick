@@ -16,9 +16,9 @@ Plus:
 
 - query like SQL - no need to learn a new query language
 - reindex without downtime
-- easily personalize results for each user [master branch]
-- autocomplete [master branch]
-- “Did you mean” suggestions [master branch]
+- easily personalize results for each user
+- autocomplete
+- “Did you mean” suggestions
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
@@ -132,20 +132,22 @@ To change this, use:
 Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
-### Autocomplete [master branch]
+### Autocomplete
+
+![Autocomplete](http://ankane.github.io/searchkick/autocomplete.png)
 
 You must specify which fields use this feature since this can increase the index size significantly.  Don’t worry - this gives you blazing faster queries.
 
 ```ruby
-class Product < ActiveRecord::Base
-  searchkick autocomplete: [:name]
+class Website < ActiveRecord::Base
+  searchkick autocomplete: ["title"]
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-Product.search "puddi", autocomplete: true
+Website.search "where", autocomplete: true
 ```
 
 ### Synonyms
@@ -201,9 +203,13 @@ end
 
 Add conversions to the index.
 
+**Note**: You must specify the conversions field as of version `0.2.0`.
+
 ```ruby
 class Product < ActiveRecord::Base
   has_many :searches
+
+  searchkick conversions: "conversions" # name of field
 
   def search_data
     {
@@ -221,14 +227,14 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
-### Personalized Results [master branch]
+### Personalized Results
 
-**Subject to change before the next gem release**
-
-Order results differently for each user.  For example, show a user’s previously ordered products before other results.
+Order results differently for each user.  For example, show a user’s previously purchased products before other results.
 
 ```ruby
 class Product < ActiveRecord::Base
+  searchkick personalize: "user_ids"
+
   def search_data
     {
       name: name,
@@ -245,13 +251,13 @@ Reindex and search with:
 Product.search "milk", user_id: 8
 ```
 
-### Suggestions [master branch]
+### Suggestions
 
-Did you mean: awesome :sunglasses:
+![Suggest](http://ankane.github.io/searchkick/recursion.png)
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick suggest: [:name] # fields to generate suggestions
+  searchkick suggest: ["name"] # fields to generate suggestions
 end
 ```
 
