@@ -9,5 +9,9 @@ module Searchkick
       end
     end
 
+    # fixes deprecation warning
+    def __find_records_by_ids(klass, ids)
+      @options[:load] === true ? klass.find(ids) : klass.includes(@options[:load][:include]).find(ids)
+    end
   end
 end
