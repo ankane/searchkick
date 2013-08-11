@@ -269,8 +269,8 @@ products.suggestions # ["peanut butter"]
 ![Facets](http://ankane.github.io/searchkick/facets.png)
 
 ```ruby
-shoes = Shoe.search "chuck taylor", facets: [:product_type, :gender, :brand]
-p shoes.facets
+products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
+p products.facets
 ```
 
 Advanced
