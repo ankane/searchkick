@@ -29,6 +29,11 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "dish soap", ["Dish Washer Amazing Organic Soap"]
   end
 
+  def test_middle_token_wine
+    store_names ["Beringer Wine Founders Estate Chardonnay"]
+    assert_search "beringer chardonnay", ["Beringer Wine Founders Estate Chardonnay"]
+  end
+
   def test_percent
     store_names ["1% Milk", "2% Milk", "Whole Milk"]
     assert_search "1%", ["1% Milk"]
