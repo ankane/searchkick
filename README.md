@@ -294,25 +294,15 @@ Choose an add-on: [SearchBox](https://addons.heroku.com/searchbox), [Bonsai](htt
 ```sh
 # SearchBox
 heroku addons:add searchbox:starter
+heroku config:add ELASTICSEARCH_URL=`heroku config:get SEARCHBOX_URL`
 
 # Bonsai
 heroku addons:add bonsai
+heroku config:add ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
 
 # Found
 heroku addons:add foundelasticsearch
-```
-
-And create an initializer `config/initializers/elasticsearch.rb` with:
-
-```ruby
-# SearchBox
-ENV["ELASTICSEARCH_URL"] = ENV["SEARCHBOX_URL"]
-
-# Bonsai
-ENV["ELASTICSEARCH_URL"] = ENV["BONSAI_URL"]
-
-# Found
-ENV["ELASTICSEARCH_URL"] = ENV["FOUNDELASTICSEARCH_URL"]
+heroku config:add ELASTICSEARCH_URL=`heroku config:get FOUNDELASTICSEARCH_URL`
 ```
 
 Then deploy and reindex:
