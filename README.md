@@ -329,6 +329,8 @@ heroku run rake searchkick:reindex CLASS=Product
 
 ## Reference
 
+Searchkick requires Elasticsearch `0.90.0` or higher.
+
 Reindex one record
 
 ```ruby
