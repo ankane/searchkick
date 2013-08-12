@@ -7,6 +7,8 @@ module Searchkick
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S")
       index = Tire::Index.new(new_index)
 
+      clean_indices
+
       success = index.create searchkick_index_options
       raise index.response.to_s if !success
 
