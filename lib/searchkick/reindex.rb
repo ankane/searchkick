@@ -40,6 +40,7 @@ module Searchkick
       indices.each do |index|
         Tire::Index.new(index).delete
       end
+      tire.index.refresh
       indices
     end
 
