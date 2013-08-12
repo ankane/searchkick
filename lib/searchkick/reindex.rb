@@ -36,9 +36,9 @@ module Searchkick
     # remove old indices that start w/ index_name
     def clean_indices
       all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
-      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(Product.index_name)}_\d{14}\z/ }.keys
-      indices.each do |index_name|
-        Tire::Index.new(index_name).delete
+      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(index_name)}_\d{14}\z/ }.keys
+      indices.each do |index|
+        Tire::Index.new(index).delete
       end
       indices
     end
