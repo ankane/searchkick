@@ -17,26 +17,30 @@ module Searchkick
       end
 
       if a = Tire::Alias.find(alias_name)
-        old_indices = a.indices.dup
-        old_indices.each do |index|
+        a.indices.each do |index|
           a.indices.delete index
         end
 
         a.indices.add new_index
         response = a.save
 
-        if response.success?
-          old_indices.each do |index|
-            i = Tire::Index.new(index)
-            i.delete
-          end
-        end
+        clean_indices if response.success?
       else
         tire.index.delete if tire.index.exists?
         response = Tire::Alias.create(name: alias_name, indices: [new_index])
       end
 
       response.success? || (raise response.to_s)
+    end
+
+    # remove old indices that start w/ index_name
+    def clean_indices
+      all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
+      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(Product.index_name)}_\d{14}\z/ }.keys
+      indices.each do |index_name|
+        Tire::Index.new(index_name).delete
+      end
+      indices
     end
 
     private
