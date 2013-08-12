@@ -335,6 +335,12 @@ product = Product.find 10
 product.reindex
 ```
 
+Remove old indices
+
+```ruby
+Product.clean_indices
+```
+
 Use a different index name
 
 ```ruby
