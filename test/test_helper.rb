@@ -4,6 +4,8 @@ require "minitest/autorun"
 require "minitest/pride"
 require "active_record"
 
+ENV["RACK_ENV"] = "test"
+
 # for debugging
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
