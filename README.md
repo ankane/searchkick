@@ -167,14 +167,11 @@ Control what data is indexed with the `search_data` method. Call `Product.reinde
 ```ruby
 class Product < ActiveRecord::Base
   def search_data
-    as_json only: [:name, :active], include: {brand: {only: [:city]}}
+    as_json only: [:name, :active]
     # or equivalently
     {
       name: name,
-      active: active,
-      brand: {
-        city: brand.city
-      }
+      active: active
     }
   end
 end
