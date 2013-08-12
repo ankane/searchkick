@@ -22,6 +22,8 @@ Plus:
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
+[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
+
 ## Get Started
 
 [Install Elasticsearch](http://www.elasticsearch.org/guide/reference/setup/installation/). For Homebrew, use:
