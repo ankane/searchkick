@@ -1,0 +1,13 @@
+language: ruby
+rvm:
+  - 1.9.3
+  - 2.0.0
+services:
+  - elasticsearch
+script: bundle exec rake test
+before_script:
+  - psql -c 'create database searchkick_test;' -U postgres
+notifications:
+  email:
+    on_success: never
+    on_failure: change

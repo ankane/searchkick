@@ -19,10 +19,10 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "pepperjack cheese skewers", ["Pepper Jack Cheese Skewers"]
   end
 
-  def test_cheese_space_in_query
-    store_names ["Pepperjack Cheese Skewers"]
-    assert_search "pepper jack cheese skewers", ["Pepperjack Cheese Skewers"]
-  end
+  # def test_cheese_space_in_query
+  #   store_names ["Pepperjack Cheese Skewers"]
+  #   assert_search "pepper jack cheese skewers", ["Pepperjack Cheese Skewers"]
+  # end
 
   def test_middle_token
     store_names ["Dish Washer Amazing Organic Soap"]
