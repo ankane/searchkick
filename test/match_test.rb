@@ -127,21 +127,4 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "almondmilks", ["Almond Milk"]
   end
 
-  # autocomplete
-
-  def test_autocomplete
-    store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], autocomplete: true
-  end
-
-  def test_autocomplete_two_words
-    store_names ["Organic Hummus"]
-    assert_search "hum", [], autocomplete: true
-  end
-
-  def test_autocomplete_fields
-    store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], autocomplete: true, fields: [:name]
-  end
-
 end
