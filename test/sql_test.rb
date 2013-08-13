@@ -31,7 +31,7 @@ class TestSql < Minitest::Unit::TestCase
   def test_where
     now = Time.now
     store [
-      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4},
+      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4, user_ids: [1, 2, 3]},
       {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, orders_count: 3},
       {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2},
       {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1},
@@ -54,6 +54,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
+    # array
+    assert_search "product", ["Product A"], where: {user_ids: 2}
   end
 
   def test_where_string
