@@ -61,7 +61,7 @@ module Searchkick
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")},
                 {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search")},
-                {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search2")},
+                {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search2")}
               ]
             }
           }
@@ -99,7 +99,7 @@ module Searchkick
         custom_filters << {
           filter: {
             exists: {
-              field: options[:boost],
+              field: options[:boost]
             }
           },
           script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
@@ -111,7 +111,7 @@ module Searchkick
           filter: {
             term: {
               personalize_field => options[:user_id]
-            },
+            }
           },
           boost: 100
         }
