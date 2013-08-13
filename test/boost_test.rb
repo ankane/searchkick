@@ -25,10 +25,11 @@ class TestBoost < Minitest::Unit::TestCase
 
   def test_boost
     store [
-      {name: "Organic Tomato A"},
-      {name: "Tomato B", orders_count: 10}
+      {name: "Tomato A"},
+      {name: "Tomato B", orders_count: 10},
+      {name: "Tomato C", orders_count: 100}
     ]
-    assert_order "tomato", ["Tomato B", "Organic Tomato A"], boost: "orders_count"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost: "orders_count"
   end
 
   def test_boost_zero
