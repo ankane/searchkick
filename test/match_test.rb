@@ -129,4 +129,9 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "almondmilks", ["Almond Milk"]
   end
 
+  def test_all
+    store_names ["Product A", "Product B"]
+    assert_search "*", ["Product A", "Product B"]
+  end
+
 end

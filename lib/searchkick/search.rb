@@ -33,39 +33,43 @@ module Searchkick
       conversions_field = @searchkick_options[:conversions]
       personalize_field = @searchkick_options[:personalize]
 
+      all = term == "*"
+
       # TODO lose Tire DSL for more flexibility
       s =
         Tire::Search::Search.new do
           query do
             custom_filters_score do
               query do
-                boolean do
-                  must do
-                    if options[:autocomplete]
-                      match fields, term, analyzer: "searchkick_autocomplete_search"
-                    else
-                      dis_max do
-                        query do
-                          match fields, term, use_dis_max: false, boost: 10, operator: operator, analyzer: "searchkick_search"
-                        end
-                        query do
-                          match fields, term, use_dis_max: false, boost: 10, operator: operator, analyzer: "searchkick_search2"
-                        end
-                        query do
-                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search"
-                        end
-                        query do
-                          match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search2"
+                if !all
+                  boolean do
+                    must do
+                      if options[:autocomplete]
+                        match fields, term, analyzer: "searchkick_autocomplete_search"
+                      else
+                        dis_max do
+                          query do
+                            match fields, term, use_dis_max: false, boost: 10, operator: operator, analyzer: "searchkick_search"
+                          end
+                          query do
+                            match fields, term, use_dis_max: false, boost: 10, operator: operator, analyzer: "searchkick_search2"
+                          end
+                          query do
+                            match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search"
+                          end
+                          query do
+                            match fields, term, use_dis_max: false, fuzziness: 1, max_expansions: 3, operator: operator, analyzer: "searchkick_search2"
+                          end
                         end
                       end
                     end
-                  end
-                  if conversions_field and options[:conversions] != false
-                    should do
-                      nested path: conversions_field, score_mode: "total" do
-                        query do
-                          custom_score script: "doc['count'].value" do
-                            match "query", term
+                    if conversions_field and options[:conversions] != false
+                      should do
+                        nested path: conversions_field, score_mode: "total" do
+                          query do
+                            custom_score script: "doc['count'].value" do
+                              match "query", term
+                            end
                           end
                         end
                       end
@@ -181,6 +185,10 @@ module Searchkick
         end
 
       payload = s.to_hash
+
+      if all
+        payload[:query][:custom_filters_score][:query][:match_all] = {}
+      end
 
       # An empty array will cause only the _id and _type for each hit to be returned
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
