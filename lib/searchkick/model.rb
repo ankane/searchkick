@@ -7,6 +7,7 @@ module Searchkick
       class_eval do
         extend Searchkick::Search
         extend Searchkick::Reindex
+        include Searchkick::Similar
         include Tire::Model::Search
         include Tire::Model::Callbacks
         tire do

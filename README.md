@@ -284,6 +284,17 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
 ```
 
+### Similar Items [master]
+
+**Note:** Subject to change before the next gem release
+
+Find similar items.
+
+```ruby
+product = Product.first
+product.similar(fields: ["name"])
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.

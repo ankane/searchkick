@@ -3,6 +3,7 @@ require "searchkick/version"
 require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/search"
+require "searchkick/similar"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/logger" if defined?(Rails)
