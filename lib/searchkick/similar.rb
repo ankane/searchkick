@@ -1,5 +1,6 @@
 module Searchkick
   module Similar
+
     def similar(options = {})
       like_text = index.retrieve(document_type, id).to_hash
         .keep_if{|k,v| k[0] != "_" and (!options[:fields] or options[:fields].map(&:to_sym).include?(k)) }
@@ -28,5 +29,6 @@ module Searchkick
       search = Tire::Search::Search.new(index_name, payload: payload)
       Searchkick::Results.new(search.json, search.options)
     end
+
   end
 end
