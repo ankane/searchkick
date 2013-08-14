@@ -413,6 +413,10 @@ Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire), Jaroslav Kali
 
 - Make Searchkick work with any language
 
+## History
+
+View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md)
+
 ## Contributing
 
 1. Fork it
