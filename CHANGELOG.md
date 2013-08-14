@@ -26,7 +26,7 @@
 
 ## 0.1.3
 
-- Changed edit distance of 1 for misspellings
+- Changed edit distance to one for misspellings
 - Raise errors when indexing fails
 - Fixed pagination
 - Fixed :include option
