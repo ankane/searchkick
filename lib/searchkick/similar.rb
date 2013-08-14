@@ -6,28 +6,13 @@ module Searchkick
         .keep_if{|k,v| k[0] != "_" and (!options[:fields] or options[:fields].map(&:to_sym).include?(k)) }
         .values.compact.join(" ")
 
-      fields = options[:fields] ? options[:fields].map{|f| "#{f}.analyzed" } : ["_all"]
-
-      payload = {
-        query: {
-          more_like_this: {
-            fields: fields,
-            like_text: like_text,
-            min_doc_freq: 1,
-            min_term_freq: 1
-          }
-        },
-        filter: {
-          not: {
-            term: {
-              _id: id
-            }
-          }
-        }
-      }
-
-      search = Tire::Search::Search.new(index_name, payload: payload)
-      Searchkick::Results.new(search.json, search.options)
+      # TODO deep merge method
+      options[:where] ||= {}
+      options[:where][:_id] ||= {}
+      options[:where][:_id][:not] = id
+      options[:limit] ||= 10
+      options[:similar] = true
+      self.class.search(like_text, options)
     end
 
   end
