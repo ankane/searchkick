@@ -374,6 +374,12 @@ Do not load models
 Product.search "milk", load: false
 ```
 
+Reindex all models (Rails only)
+
+```ruby
+rake searchkick:reindex:all
+```
+
 ## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
@@ -398,15 +404,8 @@ Product.search "milk", load: false
 
 3. Deploy and reindex
 
-  You can reindex a particular class:
-
   ```ruby
-  rake searchkick:reindex:class[Product] # or Product.reindex in the console
-  ```
-
-  Or you can reindex all models at the same time:
-  ```ruby
-  rake searchkick:reindex:all
+  rake searchkick:reindex CLASS=Product # or Product.reindex in the console
   ```
 
 4. Once it finishes, replace search calls w/ searchkick calls

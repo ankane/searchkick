@@ -1,30 +1,33 @@
 require "rake"
 
 namespace :searchkick do
-  desc "re-index elasticsearch backwards compatibility task"
+
+  desc "reindex model"
   task :reindex => :environment do
-    klass = ENV["CLASS"].constantize
-    klass.reindex
+    if ENV["CLASS"]
+      klass = ENV["CLASS"].constantize rescue nil
+      if klass
+        klass.reindex
+      else
+        abort "Could not find class: #{ENV["CLASS"]}"
+      end
+    else
+      abort "USAGE: rake searchkick:reindex CLASS=Product"
+    end
   end
 
-  desc "re-index elasticsearch backwards compatibility task"
-  namespace :reindex do
-    desc "reindex a Model by passing it as an argument"
-    task :class, [:klass] => [:environment] do |t, args|
-      begin
-        args[:klass].constantize.reindex
-      rescue
-        puts "#{args[:klass]} model not found"
+  if defined?(Rails)
+
+    namespace :reindex do
+      desc "reindex all models"
+      task :all => :environment do
+        Rails.application.eager_load!
+        (Searchkick::Reindex.instance_variable_get(:@descendents) || []).each do |model|
+          model.reindex
+        end
       end
     end
 
-    desc "reindex all models"
-    task :all => [:environment] do
-      Dir[Rails.root + "app/models/**/*.rb"].each { |path| require path }
-      models = ActiveRecord::Base.descendants.map(&:name)
-      models.each do |model|
-        model.constantize.reindex if model.respond_to?(:search)
-      end
-    end
   end
+
 end
