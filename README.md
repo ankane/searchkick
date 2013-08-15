@@ -398,8 +398,15 @@ Product.search "milk", load: false
 
 3. Deploy and reindex
 
+  You can reindex a particular class:
+
   ```ruby
-  rake searchkick:reindex CLASS=Product # or Product.reindex in the console
+  rake searchkick:reindex:class[Product] # or Product.reindex in the console
+  ```
+
+  Or you can reindex all models at the same time:
+  ```ruby
+  rake searchkick:reindex:all
   ```
 
 4. Once it finishes, replace search calls w/ searchkick calls
