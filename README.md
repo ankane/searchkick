@@ -376,7 +376,7 @@ Product.search "milk", load: false
 
 Reindex all models (Rails only)
 
-```ruby
+```sh
 rake searchkick:reindex:all
 ```
 
