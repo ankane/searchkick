@@ -45,6 +45,10 @@ module Searchkick
       indices
     end
 
+    def self.extended(klass)
+      (@descendents ||= []) << klass
+    end
+
     private
 
     def searchkick_index_options
