@@ -4,7 +4,7 @@ module Searchkick
     # https://gist.github.com/jarosan/3124884
     def reindex
       alias_name = tire.index.name
-      new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S")
+      new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
       index = Tire::Index.new(new_index)
 
       clean_indices
@@ -38,7 +38,7 @@ module Searchkick
     # remove old indices that start w/ index_name
     def clean_indices
       all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
-      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(index_name)}_\d{14}\z/ }.keys
+      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(index_name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
         Tire::Index.new(index).delete
       end
