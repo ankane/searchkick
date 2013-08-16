@@ -1,8 +1,10 @@
-## 0.2.3 [in progess]
+## 0.2.3
 
 - Setup Travis
 - Clean old indices before reindex
 - Search for `*` returns all results
+- Fixed pagination
+- Added `similar` method
 
 ## 0.2.2
 

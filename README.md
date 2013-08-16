@@ -284,9 +284,7 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
 ```
 
-### Similar Items [master]
-
-**Note:** Subject to change before the next gem release
+### Similar Items
 
 Find similar items.
 
