@@ -21,17 +21,18 @@ class TestSql < Minitest::Unit::TestCase
   def test_pagination
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
     products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2)
-    assert ["Product C", "Product D"], products.map(&:name)
-    assert 2, products.current_page
-    assert 3, products.total_pages
-    assert 5, products.total_count
+    assert_equal ["Product C", "Product D"], products.map(&:name)
+    assert_equal 2, products.current_page
+    assert_equal 2, products.per_page
+    assert_equal 3, products.total_pages
+    assert_equal 5, products.total_count
   end
 
   def test_pagination_nil_page
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
     products = Product.search("product", order: {name: :asc}, page: nil, per_page: 2)
-    assert ["Product A", "Product B"], products.map(&:name)
-    assert 1, products.current_page
+    assert_equal ["Product A", "Product B"], products.map(&:name)
+    assert_equal 1, products.current_page
   end
 
   def test_where

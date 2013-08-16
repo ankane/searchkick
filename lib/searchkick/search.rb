@@ -25,9 +25,9 @@ module Searchkick
       load = (options[:include] ? {include: options[:include]} : true) if load
 
       # pagination
-      page = options.has_key?(:page) ? [options[:page].to_i, 1].max : nil
+      page = [options[:page].to_i, 1].max
       per_page = options[:limit] || options[:per_page] || 100000
-      offset = options[:offset] || (page && (page - 1) * per_page)
+      offset = options[:offset] || (page - 1) * per_page
       index_name = options[:index_name] || index.name
 
       conversions_field = @searchkick_options[:conversions]
@@ -138,9 +138,9 @@ module Searchkick
 
       payload = {
         query: payload,
-        size: per_page
+        size: per_page,
+        from: offset
       }
-      payload[:from] = offset if offset
       payload[:explain] = options[:explain] if options[:explain]
 
       # order
@@ -255,7 +255,7 @@ module Searchkick
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      search = Tire::Search::Search.new(index_name, load: load, payload: payload)
+      search = Tire::Search::Search.new(index_name, load: load, payload: payload, size: per_page, from: offset)
       Searchkick::Results.new(search.json, search.options.merge(term: term))
     end
 
