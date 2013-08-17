@@ -134,24 +134,6 @@ To change this, use:
 Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
-### Autocomplete
-
-![Autocomplete](http://ankane.github.io/searchkick/autocomplete.png)
-
-You must specify which fields use this feature since this can increase the index size significantly.  Don’t worry - this gives you blazing faster queries.
-
-```ruby
-class Website < ActiveRecord::Base
-  searchkick autocomplete: ["title"]
-end
-```
-
-Reindex and search with:
-
-```ruby
-Website.search "where", autocomplete: true
-```
-
 ### Synonyms
 
 ```ruby
@@ -248,6 +230,57 @@ Reindex and search with:
 
 ```ruby
 Product.search "milk", user_id: 8
+```
+
+### Autocomplete
+
+Autocomplete predicts what a user will type, making the search experience faster and easier.
+
+![Autocomplete](http://ankane.github.io/searchkick/autocomplete.png)
+
+First, specify which fields use this feature.  This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
+
+```ruby
+class City < ActiveRecord::Base
+  searchkick autocomplete: ["name"]
+end
+```
+
+Reindex and search with:
+
+```ruby
+City.search "where", autocomplete: true
+```
+
+Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
+
+#### Here’s how to make it work with Rails
+
+First, add an action to your controller.
+
+```ruby
+class CitiesController < ApplicationController
+
+  def autocomplete
+    render json: City.search(params[:q], autocomplete: true).map(&:name)
+  end
+
+end
+```
+
+Then add the search box to one of your views.
+
+```html
+<input type="text" id="q" name="q" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"></script>
+<script>
+  $("#q").typeahead({
+    name: "city",
+    remote: "/cities/autocomplete?q=%QUERY"
+  });
+</script>
 ```
 
 ### Suggestions
