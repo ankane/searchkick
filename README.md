@@ -256,9 +256,10 @@ Typically, you want to use a Javascript library like [typeahead.js](http://twitt
 
 #### Here’s how to make it work with Rails
 
-First, add an action to your controller.
+First, add a controller action.
 
 ```ruby
+# app/controllers/cities_controller.rb
 class CitiesController < ApplicationController
 
   def autocomplete
@@ -268,7 +269,7 @@ class CitiesController < ApplicationController
 end
 ```
 
-Then add the search box to one of your views.
+Then add the search box and Javascript code to a view.
 
 ```html
 <input type="text" id="q" name="q" />
