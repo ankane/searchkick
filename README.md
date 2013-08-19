@@ -369,6 +369,19 @@ Then deploy and reindex:
 heroku run rake searchkick:reindex CLASS=Product
 ```
 
+## To Reindex, or Not to Reindex
+
+### Reindex
+
+- when you install or upgrade searchkick
+- change the `search_data` method
+- change the `searchkick` method
+
+### No need to reindex
+
+- App starts
+- Records are inserted, updated or deleted (syncs automatically)
+
 ## Reference
 
 Searchkick requires Elasticsearch `0.90.0` or higher.
