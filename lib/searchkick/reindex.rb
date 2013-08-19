@@ -19,6 +19,7 @@ module Searchkick
           index.import batch
         end
       else
+        # TODO import in batches
         index.import scope.all
       end
 
