@@ -12,7 +12,7 @@ class TestIndex < Minitest::Unit::TestCase
 
     Product.clean_indices
 
-    assert Product.index.exists?
+    assert Product.tire.index.exists?
     assert different_index.exists?
     assert !old_index.exists?
   end

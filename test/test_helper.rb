@@ -35,7 +35,14 @@ Tire.configure do
   pretty true
 end
 
+# Mongoid.configure do |config|
+#   config.connect_to "searchkick_test"
+# end
+
 class Product < ActiveRecord::Base
+  # include Mongoid::Document
+  # include Mongoid::Attributes::Dynamic
+
   belongs_to :store
 
   searchkick \
@@ -64,9 +71,10 @@ class Product < ActiveRecord::Base
 end
 
 class Store < ActiveRecord::Base
+  # include Mongoid::Document
 end
 
-Product.index.delete if Product.index.exists?
+Product.tire.index.delete if Product.tire.index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
 
@@ -82,7 +90,7 @@ class MiniTest::Unit::TestCase
     documents.shuffle.each do |document|
       Product.create!(document)
     end
-    Product.index.refresh
+    Product.tire.index.refresh
   end
 
   def store_names(names)

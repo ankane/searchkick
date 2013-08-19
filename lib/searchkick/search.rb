@@ -28,7 +28,7 @@ module Searchkick
       page = [options[:page].to_i, 1].max
       per_page = options[:limit] || options[:per_page] || 100000
       offset = options[:offset] || (page - 1) * per_page
-      index_name = options[:index_name] || index.name
+      index_name = options[:index_name] || tire.index.name
 
       conversions_field = @searchkick_options[:conversions]
       personalize_field = @searchkick_options[:personalize]

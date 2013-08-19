@@ -14,8 +14,12 @@ module Searchkick
 
       # use scope for import
       scope = respond_to?(:search_import) ? search_import : self
-      scope.find_in_batches do |batch|
-        index.import batch
+      if scope.respond_to?(:find_in_batches)
+        scope.find_in_batches do |batch|
+          index.import batch
+        end
+      else
+        index.import scope.all
       end
 
       if a = Tire::Alias.find(alias_name)
