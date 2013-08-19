@@ -169,6 +169,19 @@ class Product < ActiveRecord::Base
 end
 ```
 
+### To Reindex, or Not to Reindex
+
+#### Reindex
+
+- when you install or upgrade searchkick
+- change the `search_data` method
+- change the `searchkick` method
+
+#### No need to reindex
+
+- App starts
+- Records are inserted, updated or deleted (syncs automatically)
+
 ### Keep Getting Better
 
 Searchkick uses conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
@@ -368,19 +381,6 @@ Then deploy and reindex:
 ```sh
 heroku run rake searchkick:reindex CLASS=Product
 ```
-
-## To Reindex, or Not to Reindex
-
-### Reindex
-
-- when you install or upgrade searchkick
-- change the `search_data` method
-- change the `searchkick` method
-
-### No need to reindex
-
-- App starts
-- Records are inserted, updated or deleted (syncs automatically)
 
 ## Reference
 
