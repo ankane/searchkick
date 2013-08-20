@@ -66,7 +66,7 @@ class Product < ActiveRecord::Base
   attr_accessor :conversions, :user_ids
 
   def search_data
-    as_json.merge conversions: conversions, user_ids: user_ids
+    as_json(root: false).merge conversions: conversions, user_ids: user_ids
   end
 end
 
