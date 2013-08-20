@@ -19,8 +19,17 @@ module Searchkick
           index.import batch
         end
       else
-        # TODO import in batches
-        index.import scope.all
+        # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
+        # use cursor for Mongoid
+        items = []
+        scope.all.each do |item|
+          items << item
+          if items.length % 1000 == 0
+            index.import items
+            items = []
+          end
+        end
+        index.import items
       end
 
       if a = Tire::Alias.find(alias_name)
