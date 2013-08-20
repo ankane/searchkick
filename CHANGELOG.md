@@ -1,3 +1,8 @@
+## 0.2.4 [unreleased]
+
+- Use `to_hash` instead of `as_json` for default `search_data` method
+- Works for Mongoid 1.3
+
 ## 0.2.3
 
 - Setup Travis
