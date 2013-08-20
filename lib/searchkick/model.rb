@@ -19,7 +19,7 @@ module Searchkick
         end
 
         def search_data
-          as_json
+          to_hash.reject{|k, v| k == "id" }
         end
 
         def to_indexed_json

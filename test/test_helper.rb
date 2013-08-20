@@ -81,7 +81,7 @@ class Product
   attr_accessor :conversions, :user_ids
 
   def search_data
-    as_json(root: false).merge conversions: conversions, user_ids: user_ids
+    to_hash.merge conversions: conversions, user_ids: user_ids
   end
 end
 
