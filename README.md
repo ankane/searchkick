@@ -277,7 +277,7 @@ First, add a controller action.
 class CitiesController < ApplicationController
 
   def autocomplete
-    render json: City.search(params[:q], autocomplete: true).map(&:name)
+    render json: City.search(params[:q], autocomplete: true, limit: 10).map(&:name)
   end
 
 end
