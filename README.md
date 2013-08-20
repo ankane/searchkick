@@ -19,6 +19,7 @@ Plus:
 - easily personalize results for each user
 - autocomplete
 - “Did you mean” suggestions
+- works with ActiveRecord and Mongoid [master]
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
