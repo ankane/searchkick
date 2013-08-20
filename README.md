@@ -263,7 +263,7 @@ end
 Reindex and search with:
 
 ```ruby
-City.search "where", autocomplete: true
+City.search "san fr", autocomplete: true
 ```
 
 Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
