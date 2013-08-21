@@ -26,7 +26,7 @@ module Searchkick
 
       # pagination
       page = [options[:page].to_i, 1].max
-      per_page = options[:limit] || options[:per_page] || 100000
+      per_page = (options[:limit] || options[:per_page] || 100000).to_i
       offset = options[:offset] || (page - 1) * per_page
       index_name = options[:index_name] || tire.index.name
 
