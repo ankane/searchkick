@@ -2,7 +2,8 @@ module Searchkick
   module Reindex
 
     # https://gist.github.com/jarosan/3124884
-    def reindex
+    def reindex(options = {})
+      zero_downtime = options[:zero_downtime] != false
       alias_name = tire.index.name
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
       index = Tire::Index.new(new_index)
@@ -12,6 +13,49 @@ module Searchkick
       success = index.create searchkick_index_options
       raise index.response.to_s if !success
 
+      searchkick_import(index) if zero_downtime
+
+      if a = Tire::Alias.find(alias_name)
+        a.indices.each do |i|
+          a.indices.delete i
+        end
+
+        a.indices.add new_index
+        response = a.save
+
+        if response.success?
+          clean_indices
+        else
+          raise response.to_s
+        end
+      else
+        tire.index.delete if tire.index.exists?
+        response = Tire::Alias.create(name: alias_name, indices: [new_index])
+        raise response.to_s if !response.success?
+      end
+
+      searchkick_import(index) if !zero_downtime
+
+      true
+    end
+
+    # remove old indices that start w/ index_name
+    def clean_indices
+      all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
+      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(index_name)}_\d{14,17}\z/ }.keys
+      indices.each do |index|
+        Tire::Index.new(index).delete
+      end
+      indices
+    end
+
+    def self.extended(klass)
+      (@descendents ||= []) << klass
+    end
+
+    private
+
+    def searchkick_import(index)
       # use scope for import
       scope = respond_to?(:search_import) ? search_import : self
       if scope.respond_to?(:find_in_batches)
@@ -31,39 +75,7 @@ module Searchkick
         end
         index.import items
       end
-
-      if a = Tire::Alias.find(alias_name)
-        a.indices.each do |index|
-          a.indices.delete index
-        end
-
-        a.indices.add new_index
-        response = a.save
-
-        clean_indices if response.success?
-      else
-        tire.index.delete if tire.index.exists?
-        response = Tire::Alias.create(name: alias_name, indices: [new_index])
-      end
-
-      response.success? || (raise response.to_s)
     end
-
-    # remove old indices that start w/ index_name
-    def clean_indices
-      all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
-      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(index_name)}_\d{14,17}\z/ }.keys
-      indices.each do |index|
-        Tire::Index.new(index).delete
-      end
-      indices
-    end
-
-    def self.extended(klass)
-      (@descendents ||= []) << klass
-    end
-
-    private
 
     def searchkick_index_options
       options = @searchkick_options
