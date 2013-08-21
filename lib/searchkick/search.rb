@@ -168,6 +168,15 @@ module Searchkick
               if value.is_a?(Array) # in query
                 filters << {terms: {field => value}}
               elsif value.is_a?(Hash)
+                if value[:near]
+                  filters << {
+                    geo_distance: {
+                      field => value.delete(:near),
+                      distance: value.delete(:within) || "50mi"
+                    }
+                  }
+                end
+
                 value.each do |op, op_value|
                   if op == :not # not equal
                     if op_value.is_a?(Array)

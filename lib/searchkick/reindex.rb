@@ -196,6 +196,12 @@ module Searchkick
         mapping[field] = field_mapping
       end
 
+      (options[:locations] || []).each do |field|
+        mapping[field] = {
+          type: "geo_point"
+        }
+      end
+
       mappings = {
         document_type.to_sym => {
           properties: mapping,

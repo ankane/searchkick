@@ -44,6 +44,8 @@ else
     t.boolean :backordered
     t.integer :orders_count
     t.string :color
+    t.decimal :latitude, precision: 10, scale: 7
+    t.decimal :longitude, precision: 10, scale: 7
     t.timestamps
   end
 
@@ -72,12 +74,13 @@ class Product
     autocomplete: [:name],
     suggest: [:name, :color],
     conversions: "conversions",
-    personalize: "user_ids"
+    personalize: "user_ids",
+    locations: ["location"]
 
   attr_accessor :conversions, :user_ids
 
   def search_data
-    to_hash.merge conversions: conversions, user_ids: user_ids
+    to_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude.to_f, longitude.to_f]
   end
 end
 

@@ -72,6 +72,23 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A"], where: {color: ["RED"]}
   end
 
+  def test_near
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {near: [37, -122]}}
+  end
+
+  def test_near_within
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: [37, -122], within: "2000mi"}}
+  end
+
   def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}

@@ -341,6 +341,24 @@ product = Product.first
 product.similar(fields: ["name"])
 ```
 
+### Geospatial Searches [master]
+
+```ruby
+class City < ActiveRecord::Base
+  searchkick locations: ["location"]
+
+  def search_data
+    to_hash.merge location: [latitude.to_f, longitude.to_f]
+  end
+end
+```
+
+Reindex and search with:
+
+```ruby
+City.search "san", where: {location: {near: [37, -114], within: "100mi"}} # or 160km
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.
