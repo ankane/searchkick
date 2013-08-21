@@ -1,7 +1,8 @@
-## 0.2.4 [unreleased]
+## 0.2.4
 
 - Use `to_hash` instead of `as_json` for default `search_data` method
 - Works for Mongoid 1.3
+- Use one shard in test environment for consistent scores
 
 ## 0.2.3
 
