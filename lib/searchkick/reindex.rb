@@ -135,7 +135,13 @@ module Searchkick
             }
           }
         }
-      }.merge(options[:settings] || {})
+      }
+
+      if ENV["RACK_ENV"] == "test"
+        settings.merge!(number_of_shards: 1, number_of_replicas: 0)
+      end
+
+      settings.merge!(options[:settings] || {})
 
       # synonyms
       synonyms = options[:synonyms] || []

@@ -61,10 +61,6 @@ class Product
   belongs_to :store
 
   searchkick \
-    settings: {
-      number_of_shards: 1,
-      number_of_replicas: 0
-    },
     synonyms: [
       ["clorox", "bleach"],
       ["scallion", "greenonion"],
