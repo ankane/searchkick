@@ -2,8 +2,7 @@ module Searchkick
   module Reindex
 
     # https://gist.github.com/jarosan/3124884
-    def reindex(options = {})
-      zero_downtime = options[:zero_downtime] != false
+    def reindex
       alias_name = tire.index.name
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
       index = Tire::Index.new(new_index)
@@ -13,9 +12,9 @@ module Searchkick
       success = index.create searchkick_index_options
       raise index.response.to_s if !success
 
-      searchkick_import(index) if zero_downtime
-
       if a = Tire::Alias.find(alias_name)
+        searchkick_import(index) # import before swap
+
         a.indices.each do |i|
           a.indices.delete i
         end
@@ -32,9 +31,9 @@ module Searchkick
         tire.index.delete if tire.index.exists?
         response = Tire::Alias.create(name: alias_name, indices: [new_index])
         raise response.to_s if !response.success?
-      end
 
-      searchkick_import(index) if !zero_downtime
+        searchkick_import(index) # import after swap
+      end
 
       true
     end
