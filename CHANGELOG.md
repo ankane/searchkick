@@ -1,3 +1,8 @@
+## 0.2.5 [unreleased]
+
+- Create alias before importing document if no alias exists
+- Fixed exception when :per_page option is a string
+
 ## 0.2.4
 
 - Use `to_hash` instead of `as_json` for default `search_data` method
