@@ -148,7 +148,7 @@ module Searchkick
         }
       }
 
-      if ENV["RACK_ENV"] == "test"
+      if @searchkick_env == "test"
         settings.merge!(number_of_shards: 1, number_of_replicas: 0)
       end
 

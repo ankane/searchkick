@@ -3,6 +3,8 @@ module Searchkick
 
     def searchkick(options = {})
       @searchkick_options = options.dup
+      @searchkick_env = ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
+      searchkick_env = @searchkick_env # for class_eval
 
       class_eval do
         extend Searchkick::Search
@@ -11,7 +13,7 @@ module Searchkick
         include Tire::Model::Search
         include Tire::Model::Callbacks
         tire do
-          index_name options[:index_name] || [klass.model_name.plural, ENV["RACK_ENV"] || "development"].join("_")
+          index_name options[:index_name] || [klass.model_name.plural, searchkick_env].join("_")
         end
 
         def reindex
