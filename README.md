@@ -341,7 +341,7 @@ product = Product.first
 product.similar(fields: ["name"])
 ```
 
-### Geospatial Searches [master]
+### Geospatial Searches
 
 ```ruby
 class City < ActiveRecord::Base

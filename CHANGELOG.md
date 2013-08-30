@@ -1,7 +1,9 @@
-## 0.2.5 [unreleased]
+## 0.2.5
 
+- Added geospartial searches
 - Create alias before importing document if no alias exists
 - Fixed exception when :per_page option is a string
+- Check `RAILS_ENV` if `RACK_ENV` is not set
 
 ## 0.2.4
 
