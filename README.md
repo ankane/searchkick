@@ -268,6 +268,19 @@ City.search "san fr", autocomplete: true
 
 Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
 
+### Fuzzy Search
+
+By default, `searchkick` will return results that match within one character of misspelling. To turn off this feature, supply the `misspelling: false` option.
+
+```ruby
+Word.all
+#=> ["red", "bed"]
+Word.search "red"
+#=> ["red", "bed"]
+Word.search "red", misspelling: false
+#=> ["red"]
+```
+
 #### Here’s how to make it work with Rails
 
 First, add a controller action.
