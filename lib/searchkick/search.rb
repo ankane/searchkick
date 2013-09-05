@@ -64,16 +64,28 @@ module Searchkick
             use_dis_max: false,
             operator: operator
           }
-          payload = {
-            dis_max: {
-              queries: [
-                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
-                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")},
-                {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search")},
-                {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search2")}
-              ]
+          include_misspellings = options[:misspelling].nil? ? true : options[:misspelling]
+          if include_misspellings
+            payload = {
+              dis_max: {
+                queries: [
+                  {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
+                  {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")},
+                  {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search")},
+                  {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search2")}
+                ]
+              }
             }
-          }
+          else
+            payload = {
+              dis_max: {
+                queries: [
+                  {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
+                  {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")},
+                ]
+              }
+            }
+          end
         end
 
         if conversions_field and options[:conversions] != false
