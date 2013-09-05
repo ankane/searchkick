@@ -277,7 +277,7 @@ First, add a controller action.
 class CitiesController < ApplicationController
 
   def autocomplete
-    render json: City.search(params[:q], autocomplete: true, limit: 10).map(&:name)
+    render json: City.search(params[:query], autocomplete: true, limit: 10).map(&:name)
   end
 
 end
@@ -286,14 +286,14 @@ end
 Then add the search box and Javascript code to a view.
 
 ```html
-<input type="text" id="q" name="q" />
+<input type="text" id="query" name="query" />
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"></script>
+<script src="jquery.js"></script>
+<script src="typeahead.js"></script>
 <script>
-  $("#q").typeahead({
+  $("#query").typeahead({
     name: "city",
-    remote: "/cities/autocomplete?q=%QUERY"
+    remote: "/cities/autocomplete?query=%QUERY"
   });
 </script>
 ```
