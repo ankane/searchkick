@@ -145,6 +145,15 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+### Misspellings
+
+By default, Searchkick finds results that are misspelled by one character - [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) is one. To turn off this feature, use:
+
+```ruby
+# master branch only
+Product.search "zuchini", misspellings: false
+```
+
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
@@ -267,19 +276,6 @@ City.search "san fr", autocomplete: true
 ```
 
 Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
-
-### Fuzzy Search
-
-By default, `searchkick` will return results that match within one character of misspelling. To turn off this feature, supply the `misspelling: false` option.
-
-```ruby
-Word.all
-#=> ["red", "bed"]
-Word.search "red"
-#=> ["red", "bed"]
-Word.search "red", misspelling: false
-#=> ["red"]
-```
 
 #### Here’s how to make it work with Rails
 

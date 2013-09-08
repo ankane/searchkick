@@ -105,6 +105,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "fresh honey", ["Honey"], partial: true
   end
 
+  def test_misspellings
+    store_names ["abc", "abd", "aee"]
+    assert_search "abc", ["abc"], misspellings: false
+  end
+
   def test_fields
     store [
       {name: "red", color: "light blue"},

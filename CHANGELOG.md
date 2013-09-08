@@ -1,3 +1,7 @@
+## 0.2.6 [unreleased]
+
+- Added option to disable misspellings
+
 ## 0.2.5
 
 - Added geospartial searches
