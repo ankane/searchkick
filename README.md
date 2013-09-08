@@ -147,7 +147,7 @@ Call `Product.reindex` after changing synonyms.
 
 ### Misspellings
 
-By default, Searchkick finds results that are misspelled by one character - [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) is one. To turn off this feature, use:
+By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one. To turn off this feature, use:
 
 ```ruby
 # master branch only
