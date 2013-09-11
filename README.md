@@ -150,7 +150,6 @@ Call `Product.reindex` after changing synonyms.
 By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one. To turn off this feature, use:
 
 ```ruby
-# master branch only
 Product.search "zuchini", misspellings: false
 ```
 
