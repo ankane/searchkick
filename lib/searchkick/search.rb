@@ -41,7 +41,8 @@ module Searchkick
             fields: fields,
             like_text: term,
             min_doc_freq: 1,
-            min_term_freq: 1
+            min_term_freq: 1,
+            analyzer: "searchkick_search"
           }
         }
       elsif all
