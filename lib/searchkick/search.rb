@@ -233,7 +233,8 @@ module Searchkick
         facets.each do |field, facet_options|
           payload[:facets][field] = {
             terms: {
-              field: field
+              field: field,
+              size: facet_options[:limit] || 100000
             }
           }
 

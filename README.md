@@ -337,7 +337,7 @@ p products.facets
 Advanced
 
 ```ruby
-Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}}}
+Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
 ```
 
 ### Similar Items

@@ -19,4 +19,8 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal 1, Product.search("Product", facets: {store_id: {where: {in_stock: true}}}).facets["store_id"]["terms"].size
   end
 
+  def test_limit
+    assert_equal 1, Product.search("Product", facets: {store_id: {limit: 1}}).facets["store_id"]["terms"].size
+  end
+
 end

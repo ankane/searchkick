@@ -1,3 +1,7 @@
+## 0.2.7 [unreleased]
+
+- Added limit to facet
+
 ## 0.2.6
 
 - Added option to disable misspellings
