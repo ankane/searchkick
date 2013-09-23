@@ -12,4 +12,9 @@ class TestSimilar < Minitest::Unit::TestCase
     assert_equal ["2% Organic Milk"], Product.where(name: "1% Organic Milk").first.similar(fields: ["name"]).map(&:name)
   end
 
+  def test_order
+    store_names ["Lucerne Milk Chocolate Fat Free", "Clover Fat Free Milk"]
+    assert_order "Lucerne Fat Free Chocolate Milk", ["Lucerne Milk Chocolate Fat Free", "Clover Fat Free Milk"], similar: true
+  end
+
 end
