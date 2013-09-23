@@ -42,7 +42,7 @@ module Searchkick
             like_text: term,
             min_doc_freq: 1,
             min_term_freq: 1,
-            analyzer: "searchkick_search"
+            analyzer: "searchkick_search2"
           }
         }
       elsif all
