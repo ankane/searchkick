@@ -1,6 +1,7 @@
-## 0.2.7 [unreleased]
+## 0.2.7
 
 - Added limit to facet
+- Improved similar items
 
 ## 0.2.6
 
