@@ -442,7 +442,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Eagar load associations
+Eager load associations
 
 ```ruby
 Product.search "milk", include: [:brand, :stores]
