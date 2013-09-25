@@ -434,6 +434,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Turn off callbacks [master branch]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: false
+end
+```
+
 Eagar load associations
 
 ```ruby
