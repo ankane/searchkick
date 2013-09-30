@@ -434,7 +434,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Turn off callbacks [master branch]
+Turn off callbacks
 
 ```ruby
 class Product < ActiveRecord::Base

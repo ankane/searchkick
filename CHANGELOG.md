@@ -1,3 +1,8 @@
+## 0.2.8
+
+- Added option to disable callbacks
+- Fixed bug with facets with Elasticsearch 0.90.5
+
 ## 0.2.7
 
 - Added limit to facet
