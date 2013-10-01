@@ -156,14 +156,13 @@ module Searchkick
       end
 
       # where
-      # TODO expand or
       where_filters =
         proc do |where|
           filters = []
           (where || {}).each do |field, value|
             if field == :or
               value.each do |or_clause|
-                filters << {or: or_clause.map{|or_statement| {term: or_statement} }}
+                filters << {or: or_clause.map{|or_statement| {and: where_filters.call(or_statement)} }}
               end
             else
               # expand ranges
