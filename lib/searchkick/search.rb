@@ -177,8 +177,19 @@ module Searchkick
                 if value[:near]
                   filters << {
                     geo_distance: {
-                      field => value.delete(:near),
+                      field => value.delete(:near).reverse,
                       distance: value.delete(:within) || "50mi"
+                    }
+                  }
+                end
+
+                if value[:top_left]
+                  filters << {
+                    geo_bounding_box: {
+                      field => {
+                        top_left: value.delete(:top_left).reverse,
+                        bottom_right: value.delete(:bottom_right).reverse
+                      }
                     }
                   }
                 end

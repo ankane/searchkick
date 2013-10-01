@@ -367,6 +367,12 @@ Reindex and search with:
 City.search "san", where: {location: {near: [37, -114], within: "100mi"}} # or 160km
 ```
 
+Bounded by a box [master]
+
+```ruby
+City.search "san", where: {location: {top_right: [38, -123], bottom_right: [37, -122]}}
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.

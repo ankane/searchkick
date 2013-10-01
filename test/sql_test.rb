@@ -77,7 +77,7 @@ class TestSql < Minitest::Unit::TestCase
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
       {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
     ]
-    assert_search "san", ["San Francisco"], where: {location: {near: [37, -122]}}
+    assert_search "san", ["San Francisco"], where: {location: {near: [37.5, -122.5]}}
   end
 
   def test_near_within
@@ -87,6 +87,14 @@ class TestSql < Minitest::Unit::TestCase
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: [37, -122], within: "2000mi"}}
+  end
+
+  def test_top_left_bottom_right
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
   end
 
   def test_order_hash

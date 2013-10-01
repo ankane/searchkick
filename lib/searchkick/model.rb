@@ -43,6 +43,11 @@ module Searchkick
             source[field] = "a" if !source[field]
           end
 
+          # locations
+          (options[:locations] || []).map(&:to_s).each do |field|
+            source[field] = source[field].reverse if source[field]
+          end
+
           source.to_json
         end
       end
