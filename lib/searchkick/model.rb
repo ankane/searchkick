@@ -17,7 +17,7 @@ module Searchkick
         end
 
         def reindex
-          update_index
+          tire.update_index
         end
 
         def search_data
