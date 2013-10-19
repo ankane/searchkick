@@ -412,7 +412,7 @@ ENV["ELASTICSEARCH_URL"] = "http://username:password@api.searchbox.io"
 Then deploy and reindex:
 
 ```sh
-heroku run rake searchkick:reindex CLASS=Product
+rake searchkick:reindex CLASS=Product
 ```
 
 ## Reference
