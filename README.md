@@ -21,8 +21,6 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord and Mongoid
 
-:zap: Even better with [Intel](http://ankane.github.io/intel/)
-
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
