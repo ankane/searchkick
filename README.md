@@ -472,6 +472,15 @@ Do not load models
 Product.search "milk", load: false
 ```
 
+Turn off special characters [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  # A will not match Ä
+  searchkick special_characters: false
+end
+```
+
 Reindex all models (Rails only)
 
 ```sh
