@@ -444,7 +444,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Prefix the index name [master]
+Prefix the index name
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -472,7 +472,7 @@ Do not load models
 Product.search "milk", load: false
 ```
 
-Turn off special characters [master]
+Turn off special characters
 
 ```ruby
 class Product < ActiveRecord::Base

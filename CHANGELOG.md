@@ -1,3 +1,9 @@
+## 0.3.1
+
+- Added index_prefix option
+- Fixed ES issue with incorrect facet counts
+- Added option to turn off special characters
+
 ## 0.3.0
 
 - Fixed reversed coordinates
