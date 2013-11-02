@@ -444,6 +444,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Prefix the index name [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick index_prefix: "datakick"
+end
+```
+
 Turn off callbacks
 
 ```ruby
