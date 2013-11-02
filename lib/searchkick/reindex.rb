@@ -174,6 +174,12 @@ module Searchkick
         settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
       end
 
+      if options[:special_characters] == false
+        settings[:analysis][:analyzer].each do |analyzer, analyzer_settings|
+          analyzer_settings[:filter].reject!{|f| f == "asciifolding" }
+        end
+      end
+
       mapping = {}
 
       # conversions

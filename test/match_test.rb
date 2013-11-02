@@ -48,6 +48,11 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "jalapeno", ["Jalapeño"]
   end
 
+  def test_swedish
+    store_names ["ÅÄÖ"]
+    assert_search "aao", ["ÅÄÖ"]
+  end
+
   # stemming
 
   def test_stemming
