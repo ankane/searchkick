@@ -234,6 +234,7 @@ module Searchkick
       end
 
       # facets
+      facet_limits = {}
       if options[:facets]
         facets = options[:facets] || {}
         if facets.is_a?(Array) # convert to more advanced syntax
@@ -242,12 +243,15 @@ module Searchkick
 
         payload[:facets] = {}
         facets.each do |field, facet_options|
+          # ask for extra facets due to
+          # https://github.com/elasticsearch/elasticsearch/issues/1305
           payload[:facets][field] = {
             terms: {
               field: field,
-              size: facet_options[:limit] || 100000
+              size: facet_options[:limit] ? facet_options[:limit] + 150 : 100000
             }
           }
+          facet_limits[field] = facet_options[:limit] if facet_options[:limit]
 
           # offset is not possible
           # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
@@ -285,7 +289,18 @@ module Searchkick
       payload[:fields] = [] if load
 
       search = Tire::Search::Search.new(index_name, load: load, payload: payload, size: per_page, from: offset)
-      Searchkick::Results.new(search.json, search.options.merge(term: term))
+      response = search.json
+
+      # apply facet limit in client due to
+      # https://github.com/elasticsearch/elasticsearch/issues/1305
+      facet_limits.each do |field, limit|
+        field = field.to_s
+        facet = response["facets"][field]
+        response["facets"][field]["terms"] = facet["terms"].first(limit)
+        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
+      end
+
+      Searchkick::Results.new(response, search.options.merge(term: term))
     end
 
   end

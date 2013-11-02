@@ -20,7 +20,10 @@ class TestFacets < Minitest::Unit::TestCase
   end
 
   def test_limit
-    assert_equal 1, Product.search("Product", facets: {store_id: {limit: 1}}).facets["store_id"]["terms"].size
+    facet = Product.search("Product", facets: {store_id: {limit: 1}}).facets["store_id"]
+    assert_equal 1, facet["terms"].size
+    assert_equal 3, facet["total"]
+    assert_equal 1, facet["other"]
   end
 
 end
