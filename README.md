@@ -353,6 +353,8 @@ product.similar(fields: ["name"])
 
 ### Geospatial Searches
 
+**Note:** Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
+
 ```ruby
 class City < ActiveRecord::Base
   searchkick locations: ["location"]
@@ -369,7 +371,7 @@ Reindex and search with:
 City.search "san", where: {location: {near: [37, -114], within: "100mi"}} # or 160km
 ```
 
-Bounded by a box [master]
+Bounded by a box
 
 ```ruby
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}

@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Fixed reversed coordinates
+- Added bounded by a box queries
+- Expanded `or` queries
+
 ## 0.2.8
 
 - Added option to disable callbacks
