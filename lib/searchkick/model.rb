@@ -20,6 +20,7 @@ module Searchkick
         end
 
         unless options[:callbacks] == false
+          # TODO ability to temporarily disable
           after_save :reindex
           after_destroy :reindex
         end
