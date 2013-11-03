@@ -435,9 +435,9 @@ Animal.reindex
 Dog.reindex # equivalent
 ```
 
-And searching works like:
+And to search, use:
 
-```
+```ruby
 Animal.search "*" # all animals
 Dog.search "*"    # just dogs
 ```
