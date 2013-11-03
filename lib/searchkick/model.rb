@@ -8,10 +8,6 @@ module Searchkick
         class_variable_set :@@searchkick_klass, self
         cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
 
-        def self.searchkick_index
-          searchkick_klass.tire.index
-        end
-
         extend Searchkick::Search
         extend Searchkick::Reindex
         include Searchkick::Similar
@@ -22,16 +18,17 @@ module Searchkick
 
         tire.index_name index_name
 
-        descendants.each do |subclass|
-          subclass.tire.index_name index_name
-        end
-
-        def self.inherited(subclass)
-          subclass.tire.index_name index_name
+        def self.searchkick_index
+          searchkick_klass.tire.index
         end
 
         def reindex
-          tire.update_index
+          index = self.class.searchkick_index
+          if destroyed?
+            index.remove self
+          else
+            index.store self
+          end
         end
 
         unless options[:callbacks] == false
