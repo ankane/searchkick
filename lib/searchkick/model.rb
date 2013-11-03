@@ -15,6 +15,10 @@ module Searchkick
           index_name options[:index_name] || [options[:index_prefix], klass.model_name.plural, searchkick_env].compact.join("_")
         end
 
+        class << self
+          attr_reader :searchkick_options
+        end
+
         def reindex
           tire.update_index
         end
@@ -35,7 +39,7 @@ module Searchkick
           # stringify fields
           source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
 
-          options = self.class.instance_variable_get("@searchkick_options")
+          options = self.class.searchkick_options
 
           # conversions
           conversions_field = options[:conversions]
