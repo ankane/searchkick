@@ -112,7 +112,7 @@ class Animal
   searchkick
 end
 
-Product.tire.index.delete if Product.tire.index.exists?
+Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
 
@@ -130,7 +130,7 @@ class MiniTest::Unit::TestCase
     documents.shuffle.each do |document|
       klass.create!(document)
     end
-    klass.tire.index.refresh
+    klass.searchkick_index.refresh
   end
 
   def store_names(names, klass = Product)

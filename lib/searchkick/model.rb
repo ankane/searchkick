@@ -8,6 +8,10 @@ module Searchkick
         class_variable_set :@@searchkick_klass, self
         cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
 
+        def self.searchkick_index
+          searchkick_klass.tire.index
+        end
+
         extend Searchkick::Search
         extend Searchkick::Reindex
         include Searchkick::Similar

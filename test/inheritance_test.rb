@@ -10,7 +10,7 @@ class TestInheritance < Minitest::Unit::TestCase
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex
-    Animal.tire.index.refresh
+    Animal.searchkick_index.refresh
     assert_equal 1, Animal.search("*").size
   end
 
