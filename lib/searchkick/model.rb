@@ -13,10 +13,16 @@ module Searchkick
         include Searchkick::Similar
         include Tire::Model::Search
 
+        # set index name
         index_name = options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
 
         tire.index_name index_name
+
         descendants.each do |subclass|
+          subclass.tire.index_name index_name
+        end
+
+        def self.inherited(subclass)
           subclass.tire.index_name index_name
         end
 
