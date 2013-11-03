@@ -1,3 +1,8 @@
+## 0.3.2 [unreleased]
+
+- Added support for single table inheritance
+- Removed Tire::Model::Search
+
 ## 0.3.1
 
 - Added index_prefix option
