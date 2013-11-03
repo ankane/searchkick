@@ -419,7 +419,7 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
-## Inheritance [master]
+## Inheritance
 
 Searchkick supports single table inheritance.
 

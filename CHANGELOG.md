@@ -1,4 +1,4 @@
-## 0.3.2 [unreleased]
+## 0.3.2
 
 - Added support for single table inheritance
 - Removed Tire::Model::Search
