@@ -34,7 +34,7 @@ module Searchkick
         end
 
         def search_data
-          to_hash.reject{|k, v| k == "id" }
+          respond_to?(:to_hash) ? to_hash : serializable_hash
         end
 
         def to_indexed_json
@@ -65,12 +65,6 @@ module Searchkick
         end
 
         # TODO remove
-
-        if !method_defined?(:to_hash)
-          def to_hash
-            serializable_hash
-          end
-        end
 
         def self.document_type
           model_name.to_s.underscore

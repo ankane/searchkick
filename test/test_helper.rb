@@ -104,7 +104,7 @@ class Product
   attr_accessor :conversions, :user_ids
 
   def search_data
-    to_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude.to_f, longitude.to_f]
+    attributes.merge conversions: conversions, user_ids: user_ids, location: [latitude.to_f, longitude.to_f]
   end
 end
 
