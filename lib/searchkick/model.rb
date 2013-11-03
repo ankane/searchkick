@@ -11,13 +11,17 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
         include Tire::Model::Search
-        include Tire::Model::Callbacks unless options[:callbacks] == false
         tire do
           index_name options[:index_name] || [options[:index_prefix], klass.model_name.plural, searchkick_env].compact.join("_")
         end
 
         def reindex
           tire.update_index
+        end
+
+        unless options[:callbacks] == false
+          after_save :reindex
+          after_destroy :reindex
         end
 
         def search_data
