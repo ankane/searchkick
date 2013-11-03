@@ -149,7 +149,7 @@ module Searchkick
         }
       }
 
-      if @searchkick_env == "test"
+      if searchkick_env == "test"
         settings.merge!(number_of_shards: 1, number_of_replicas: 0)
       end
 
@@ -221,7 +221,7 @@ module Searchkick
       end
 
       mappings = {
-        document_type.to_sym => {
+        searchkick_klass.document_type.to_sym => {
           properties: mapping,
           # https://gist.github.com/kimchy/2898285
           dynamic_templates: [

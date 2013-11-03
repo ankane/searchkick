@@ -3,24 +3,20 @@ module Searchkick
 
     def searchkick(options = {})
       class_eval do
+        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass, :searchkick_index
+
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
-        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
+
+        # set index name
+        # TODO support proc
+        index_name = options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
+        class_variable_set :@@searchkick_index, Tire::Index.new(index_name)
 
         extend Searchkick::Search
         extend Searchkick::Reindex
         include Searchkick::Similar
-        include Tire::Model::Search
-
-        # set index name
-        index_name = options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
-
-        tire.index_name index_name
-
-        def self.searchkick_index
-          searchkick_klass.tire.index
-        end
 
         def reindex
           index = self.class.searchkick_index
@@ -67,6 +63,23 @@ module Searchkick
 
           source.to_json
         end
+
+        # TODO remove
+
+        if !method_defined?(:to_hash)
+          def to_hash
+            serializable_hash
+          end
+        end
+
+        def self.document_type
+          model_name.to_s.underscore
+        end
+
+        def document_type
+          self.class.document_type
+        end
+
       end
     end
 
