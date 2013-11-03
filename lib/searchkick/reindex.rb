@@ -56,7 +56,8 @@ module Searchkick
 
     def searchkick_import(index)
       # use scope for import
-      scope = respond_to?(:search_import) ? search_import : self
+      scope = searchkick_klass
+      scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
         scope.find_in_batches do |batch|
           index.import batch
@@ -77,7 +78,7 @@ module Searchkick
     end
 
     def searchkick_index_options
-      options = @searchkick_options
+      options = searchkick_options
 
       settings = {
         analysis: {

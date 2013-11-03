@@ -24,6 +24,16 @@ if ENV["MONGOID"]
   class Store
     include Mongoid::Document
   end
+
+  class Animal
+    include Mongoid::Document
+  end
+
+  class Dog < Animal
+  end
+
+  class Cat < Animal
+  end
 else
   require "active_record"
 
@@ -49,13 +59,27 @@ else
     t.timestamps
   end
 
-  ActiveRecord::Migration.create_table :store, :force => true do |t|
+  ActiveRecord::Migration.create_table :stores, :force => true do |t|
+  end
+
+  ActiveRecord::Migration.create_table :animals, :force => true do |t|
+    t.string :name
+    t.string :type
   end
 
   class Product < ActiveRecord::Base
   end
 
   class Store < ActiveRecord::Base
+  end
+
+  class Animal < ActiveRecord::Base
+  end
+
+  class Dog < Animal
+  end
+
+  class Cat < Animal
   end
 end
 
@@ -84,9 +108,15 @@ class Product
   end
 end
 
+class Animal
+  searchkick
+end
+
 Product.tire.index.delete if Product.tire.index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
+
+Animal.reindex
 
 class MiniTest::Unit::TestCase
 
@@ -96,15 +126,15 @@ class MiniTest::Unit::TestCase
 
   protected
 
-  def store(documents)
+  def store(documents, klass = Product)
     documents.shuffle.each do |document|
-      Product.create!(document)
+      klass.create!(document)
     end
-    Product.tire.index.refresh
+    klass.tire.index.refresh
   end
 
-  def store_names(names)
-    store names.map{|name| {name: name} }
+  def store_names(names, klass = Product)
+    store names.map{|name| {name: name} }, klass
   end
 
   # no order

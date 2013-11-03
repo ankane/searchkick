@@ -12,7 +12,7 @@ module Searchkick
           end
         else
           if options[:autocomplete]
-            (@searchkick_options[:autocomplete] || []).map{|f| "#{f}.autocomplete" }
+            (searchkick_options[:autocomplete] || []).map{|f| "#{f}.autocomplete" }
           else
             ["_all"]
           end
@@ -30,8 +30,8 @@ module Searchkick
       offset = options[:offset] || (page - 1) * per_page
       index_name = options[:index_name] || tire.index.name
 
-      conversions_field = @searchkick_options[:conversions]
-      personalize_field = @searchkick_options[:personalize]
+      conversions_field = searchkick_options[:conversions]
+      personalize_field = searchkick_options[:personalize]
 
       all = term == "*"
 
@@ -269,7 +269,7 @@ module Searchkick
 
       # suggestions
       if options[:suggest]
-        suggest_fields = (@searchkick_options[:suggest] || []).map(&:to_s)
+        suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
         # intersection
         suggest_fields = suggest_fields & options[:fields].map(&:to_s) if options[:fields]
         if suggest_fields.any?
@@ -288,7 +288,9 @@ module Searchkick
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      search = Tire::Search::Search.new(index_name, load: load, payload: payload, size: per_page, from: offset)
+      tire_options = {load: load, payload: payload, size: per_page, from: offset}
+      tire_options[:type] = document_type if self != searchkick_klass
+      search = Tire::Search::Search.new(index_name, tire_options)
       response = search.json
 
       # apply facet limit in client due to

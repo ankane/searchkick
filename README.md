@@ -419,6 +419,29 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
+## Inheritance [master]
+
+Searchkick supports single table inheritance.
+
+```ruby
+class Dog < Animal
+end
+```
+
+The parent or child model can both reindex.
+
+```ruby
+Animal.reindex
+Dog.reindex # equivalent
+```
+
+And searching works like:
+
+```
+Animal.search "*" # all animals
+Dog.search "*"    # just dogs
+```
+
 ## Reference
 
 Searchkick requires Elasticsearch `0.90.0` or higher.

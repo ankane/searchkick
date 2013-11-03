@@ -2,21 +2,22 @@ module Searchkick
   module Model
 
     def searchkick(options = {})
-      @searchkick_options = options.dup
-      @searchkick_env = ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
-      searchkick_env = @searchkick_env # for class_eval
-
       class_eval do
+        class_variable_set :@@searchkick_options, options.dup
+        class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
+        class_variable_set :@@searchkick_klass, self
+        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
+
         extend Searchkick::Search
         extend Searchkick::Reindex
         include Searchkick::Similar
         include Tire::Model::Search
-        tire do
-          index_name options[:index_name] || [options[:index_prefix], klass.model_name.plural, searchkick_env].compact.join("_")
-        end
 
-        class << self
-          attr_reader :searchkick_options
+        index_name = options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
+
+        tire.index_name index_name
+        descendants.each do |subclass|
+          subclass.tire.index_name index_name
         end
 
         def reindex
