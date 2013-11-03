@@ -428,7 +428,7 @@ class Dog < Animal
 end
 ```
 
-The parent or child model can both reindex.
+The parent and child model can both reindex.
 
 ```ruby
 Animal.reindex
