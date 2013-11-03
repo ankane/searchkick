@@ -58,7 +58,7 @@ module Searchkick
 
           # locations
           (options[:locations] || []).map(&:to_s).each do |field|
-            source[field] = source[field].reverse if source[field]
+            source[field] = source[field].map(&:to_f).reverse if source[field]
           end
 
           source.to_json

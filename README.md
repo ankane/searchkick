@@ -360,7 +360,7 @@ class City < ActiveRecord::Base
   searchkick locations: ["location"]
 
   def search_data
-    to_hash.merge location: [latitude.to_f, longitude.to_f]
+    to_hash.merge location: [latitude, longitude]
   end
 end
 ```
