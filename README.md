@@ -560,7 +560,6 @@ Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire), Jaroslav Kali
 
 ## TODO
 
-- Analytics for searches and conversions
 - Generate autocomplete predictions from past search queries
 - Automatic failover
 - Make Searchkick work with any language
