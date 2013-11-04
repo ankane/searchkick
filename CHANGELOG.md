@@ -1,3 +1,8 @@
+## 0.3.3
+
+- Better error messages
+- Added where: {field: nil} queries
+
 ## 0.3.2
 
 - Added support for single table inheritance
