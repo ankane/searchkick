@@ -29,7 +29,7 @@ Plus:
 
 ## Get Started
 
-[Install Elasticsearch](http://www.elasticsearch.org/guide/reference/setup/installation/). For Homebrew, use:
+[Install Elasticsearch](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
 
 ```sh
 brew install elasticsearch
