@@ -218,7 +218,11 @@ module Searchkick
                   end
                 end
               else
-                filters << {term: {field => value}}
+                if value.nil?
+                  filters << {missing: {"field" => field, existence: true, null_value: true}}
+                else
+                  filters << {term: {field => value}}
+                end
               end
             end
           end

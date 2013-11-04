@@ -53,7 +53,7 @@ module Searchkick
 
           # hack to prevent generator field doesn't exist error
           (options[:suggest] || []).map(&:to_s).each do |field|
-            source[field] = "a" if !source[field]
+            source[field] = nil if !source[field]
           end
 
           # locations
