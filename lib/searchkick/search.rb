@@ -295,7 +295,18 @@ module Searchkick
       tire_options = {load: load, payload: payload, size: per_page, from: offset}
       tire_options[:type] = document_type if self != searchkick_klass
       search = Tire::Search::Search.new(index_name, tire_options)
-      response = search.json
+      begin
+        response = search.json
+      rescue Tire::Search::SearchRequestFailed => e
+        status_code = e.message[0..3].to_i
+        if status_code == 404
+          raise "Index missing - run #{searchkick_klass.name}.reindex"
+        elsif status_code == 500 and e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]")
+          raise "Upgrade Elasticsearch to 0.90.0 or greater"
+        else
+          raise e
+        end
+      end
 
       # apply facet limit in client due to
       # https://github.com/elasticsearch/elasticsearch/issues/1305
