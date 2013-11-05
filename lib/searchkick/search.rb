@@ -288,6 +288,17 @@ module Searchkick
         end
       end
 
+      # highlight
+      if options[:highlight]
+        payload[:highlight] = {
+          fields: Hash[ fields.map{|f| [f, {}] } ]
+        }
+        if options[:highlight].is_a?(Hash) and tag = options[:highlight][:tag]
+          payload[:highlight][:pre_tags] = [tag]
+          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+        end
+      end
+
       # An empty array will cause only the _id and _type for each hit to be returned
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load

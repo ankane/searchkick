@@ -342,6 +342,32 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
 ```
 
+### Highlight [master - subject to change]
+
+Highlight the search query in the results.
+
+```ruby
+bands = Band.search "cinema", fields: [:name], highlight: true
+```
+
+**Note:** The `fields` option is required.
+
+View the highlighted fields with:
+
+```ruby
+bands.each_with_hit do |band, hit|
+  puts hit["highlight"]["name.analyzed"].first # "Two Door <em>Cinema</em> Club"
+end
+```
+
+**Note:** A simpler interface coming before the next release.
+
+To change the tag, use:
+
+```ruby
+Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
+```
+
 ### Similar Items
 
 Find similar items.
