@@ -155,6 +155,12 @@ By default, Searchkick handles misspelled queries by returning results with an [
 Product.search "zuchini", misspellings: false
 ```
 
+You can also change the edit distance with:
+
+```ruby
+Product.search "zucini", misspellings: {distance: 2}
+```
+
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.

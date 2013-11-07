@@ -70,9 +70,10 @@ module Searchkick
             {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
           ]
           if options[:misspellings] != false
+            distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
             queries.concat [
-              {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search")},
-              {multi_match: shared_options.merge(fuzziness: 1, max_expansions: 3, analyzer: "searchkick_search2")}
+              {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search")},
+              {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")}
             ]
           end
           payload = {

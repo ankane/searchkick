@@ -129,6 +129,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "abc", ["abc"], misspellings: false
   end
 
+  def test_misspellings_distance
+    store_names ["abbb", "aabb"]
+    assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
+  end
+
   def test_fields
     store [
       {name: "red", color: "light blue"},
