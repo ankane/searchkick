@@ -202,8 +202,8 @@ module Searchkick
           type: "multi_field",
           fields: {
             field => {type: "string", index: "not_analyzed"},
-            "analyzed" => {type: "string", index: "analyzed", term_vector: "with_positions_offsets"}
-            # term_vector for fast / correct highlighting
+            "analyzed" => {type: "string", index: "analyzed"}
+            # term_vector: "with_positions_offsets" for fast / correct highlighting
             # http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_fast_vector_highlighter
           }
         }
