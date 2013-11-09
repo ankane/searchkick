@@ -558,7 +558,7 @@ rake searchkick:reindex:all
 
   ```ruby
   class Product < ActiveRecord::Base
-      searchkick
+    searchkick
   end
   ```
 
