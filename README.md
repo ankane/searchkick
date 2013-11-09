@@ -348,7 +348,7 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
 ```
 
-### Highlight [master - subject to change]
+### Highlight [master]
 
 Highlight the search query in the results.
 
@@ -361,12 +361,10 @@ bands = Band.search "cinema", fields: [:name], highlight: true
 View the highlighted fields with:
 
 ```ruby
-bands.each_with_hit do |band, hit|
-  puts hit["highlight"]["name.analyzed"].first # "Two Door <em>Cinema</em> Club"
+bands.with_details.each do |band, details|
+  puts details[:highlight][:name] # "Two Door <em>Cinema</em> Club"
 end
 ```
-
-**Note:** A simpler interface coming before the next release.
 
 To change the tag, use:
 
