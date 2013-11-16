@@ -21,14 +21,12 @@ namespace :searchkick do
     namespace :reindex do
       desc "reindex all models"
       task :all => :environment do
-        dir = ENV['DIR'].to_s != '' ? ENV['DIR'] : Rails.root.join("app/models")
-        puts "Loading models from: #{dir}"
         Rails.application.eager_load!
         (Searchkick::Reindex.instance_variable_get(:@descendents) || []).each do |model|
-          puts "Reindexing #{model.name.try(:pluralize)} ..."
+          puts "Reindexing #{model.name}..."
           model.reindex
         end
-        puts "Reindexing Done."
+        puts "Reindex complete"
       end
     end
 
