@@ -63,6 +63,7 @@ module Searchkick
 
           # change all BigDecimal values to floats due to
           # https://github.com/rails/rails/issues/6033
+          # possible loss of precision :/
           cast_big_decimal =
             proc do |obj|
               case obj
