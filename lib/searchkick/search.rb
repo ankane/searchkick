@@ -250,12 +250,22 @@ module Searchkick
         facets.each do |field, facet_options|
           # ask for extra facets due to
           # https://github.com/elasticsearch/elasticsearch/issues/1305
-          payload[:facets][field] = {
-            terms: {
-              field: field,
-              size: facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+          
+          if facet_options[:range]
+            payload[:facets][field] = {
+              range: {
+                field.to_sym => facet_options[:range]
+              }
             }
-          }
+          else
+            payload[:facets][field] = {
+              terms: {
+                field: field,
+                size: facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+              }
+            }
+          end
+
           facet_limits[field] = facet_options[:limit] if facet_options[:limit]
 
           # offset is not possible
