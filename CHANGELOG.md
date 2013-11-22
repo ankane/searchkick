@@ -1,3 +1,8 @@
+## 0.3.4 [unreleased]
+
+- Added highlighting
+- Fixed issue w/ BigDecimal serialization
+
 ## 0.3.3
 
 - Better error messages
