@@ -53,6 +53,7 @@ else
     t.boolean :in_stock
     t.boolean :backordered
     t.integer :orders_count
+    t.integer :price
     t.string :color
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
