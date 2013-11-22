@@ -61,6 +61,29 @@ module Searchkick
             source[field] = source[field].map(&:to_f).reverse if source[field]
           end
 
+          # change all BigDecimal values to floats due to
+          # https://github.com/rails/rails/issues/6033
+          # possible loss of precision :/
+          cast_big_decimal =
+            proc do |obj|
+              case obj
+              when BigDecimal
+                obj.to_f
+              when Hash
+                obj.each do |k, v|
+                  obj[k] = cast_big_decimal.call(v)
+                end
+              when Enumerable
+                obj.map! do |v|
+                  cast_big_decimal.call(v)
+                end
+              else
+                obj
+              end
+            end
+
+          cast_big_decimal.call(source)
+
           source.to_json
         end
 

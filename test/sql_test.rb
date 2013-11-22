@@ -155,6 +155,13 @@ class TestSql < Minitest::Unit::TestCase
     assert_first "blue", "Blue B", fields: [:name, :color]
   end
 
+  def test_big_decimal
+    store [
+      {name: "Product", latitude: 100.0}
+    ]
+    assert_search "product", ["Product"], where: {latitude: {gt: 99}}
+  end
+
   # load
 
   def test_load_default
