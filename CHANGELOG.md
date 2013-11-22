@@ -1,6 +1,7 @@
-## 0.3.4 [unreleased]
+## 0.3.4
 
 - Added highlighting
+- Added :distance option to misspellings
 - Fixed issue w/ BigDecimal serialization
 
 ## 0.3.3

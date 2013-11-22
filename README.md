@@ -348,7 +348,7 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
 ```
 
-### Highlight [master]
+### Highlight
 
 Highlight the search query in the results.
 
