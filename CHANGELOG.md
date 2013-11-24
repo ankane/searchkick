@@ -1,3 +1,7 @@
+## 0.3.5 [unreleased]
+
+- Added facet ranges
+
 ## 0.3.4
 
 - Added highlighting
