@@ -26,9 +26,9 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal 1, facet["other"]
   end
 
-  def test_range
+  def test_ranges
     price_ranges = [{to: 10}, {from: 10, to: 20}, {from: 20}]
-    facet = Product.search("Product", facets: { price: { range: price_ranges } }).facets["price"]
+    facet = Product.search("Product", facets: {price: {ranges: price_ranges}}).facets["price"]
 
     assert_equal 3, facet["ranges"].size
     assert_equal 10.0, facet["ranges"][0]["to"]

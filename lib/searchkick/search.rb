@@ -250,11 +250,11 @@ module Searchkick
         facets.each do |field, facet_options|
           # ask for extra facets due to
           # https://github.com/elasticsearch/elasticsearch/issues/1305
-          
-          if facet_options[:range]
+
+          if facet_options[:ranges]
             payload[:facets][field] = {
               range: {
-                field.to_sym => facet_options[:range]
+                field.to_sym => facet_options[:ranges]
               }
             }
           else

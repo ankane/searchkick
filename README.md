@@ -352,10 +352,10 @@ Ranges
 
 ```ruby
 price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
-Product.search "*", facets: {price: {range: price_ranges, where: {in_stock: true}, limit: 10}}
+Product.search "*", facets: {price: {ranges: price_ranges}}
 ```
 
-### Highlight [master]
+### Highlight
 
 Highlight the search query in the results.
 
