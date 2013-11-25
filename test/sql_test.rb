@@ -72,7 +72,7 @@ class TestSql < Minitest::Unit::TestCase
     store [
       {name: "Product A", color: "RED"}
     ]
-    assert_search "product", ["Product A"], where: {color: ["RED"]}
+    assert_search "product", ["Product A"], where: {color: "RED"}
   end
 
   def test_where_nil
