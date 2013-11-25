@@ -29,7 +29,7 @@ class TestAutocomplete < Minitest::Unit::TestCase
 
   def test_text_end
     store_names ["Where in the World is Carmen San Diego?"]
-    assert_search "ego", ["Where in the World is Carmen San Diego?"], fields: [{name: :text_end}]
+    assert_search "ego?", ["Where in the World is Carmen San Diego?"], fields: [{name: :text_end}]
   end
 
   def test_word_start
