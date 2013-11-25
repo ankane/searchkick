@@ -83,6 +83,12 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A"], where: {color: nil}
   end
 
+  def test_where_id
+    store_names ["Product A"]
+    product = Product.last
+    assert_search "product", ["Product A"], where: {id: product.id}
+  end
+
   def test_near
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
