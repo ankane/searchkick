@@ -8,7 +8,10 @@ module Searchkick
           if options[:autocomplete]
             options[:fields].map{|f| "#{f}.autocomplete" }
           else
-            options[:fields].map{|f| "#{f}.analyzed" }
+            options[:fields].map do |value|
+              k, v = value.is_a?(Hash) ? value.to_a.first : [value, :word]
+              "#{k}.#{v == :word ? "analyzed" : v}"
+            end
           end
         else
           if options[:autocomplete]

@@ -100,7 +100,13 @@ class Product
     suggest: [:name, :color],
     conversions: "conversions",
     personalize: "user_ids",
-    locations: ["location"]
+    locations: ["location"],
+    text_start: [:name],
+    text_middle: [:name],
+    text_end: [:name],
+    word_start: [:name],
+    word_middle: [:name],
+    word_end: [:name]
 
   attr_accessor :conversions, :user_ids
 
