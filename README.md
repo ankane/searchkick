@@ -111,6 +111,14 @@ Boost by a field
 boost: "orders_count" # give popular documents a little boost
 ```
 
+### Get Everything
+
+Use a `*` for the query.
+
+```ruby
+Product.search "*"
+```
+
 ### Pagination
 
 Plays nicely with kaminari and will_paginate.
