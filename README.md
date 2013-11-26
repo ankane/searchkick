@@ -408,10 +408,16 @@ Reindex and search with:
 City.search "san", where: {location: {near: [37, -114], within: "100mi"}} # or 160km
 ```
 
-Bounded by a box
+Bounded by a box:
 
 ```ruby
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
+```
+
+To order the results by distance:
+
+```ruby
+City.search "san", order: { _geo_distance: { location: "#{lat},#{lon}", order: "asc"} }
 ```
 
 ## Deployment
