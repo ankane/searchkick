@@ -417,9 +417,8 @@ City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -
 To order the results by distance:
 
 ```ruby
-City.search "san", order: { _geo_distance: { geo_point: "#{lat},#{lon}", order: "asc"} }
+City.search "san", order: { _geo_distance: { location: "#{lat},#{lon}", order: "asc"} }
 ```
-
 
 ## Deployment
 
