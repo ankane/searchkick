@@ -414,6 +414,29 @@ Bounded by a box
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
 ```
 
+## Inheritance
+
+Searchkick supports single table inheritance.
+
+```ruby
+class Dog < Animal
+end
+```
+
+The parent and child model can both reindex.
+
+```ruby
+Animal.reindex
+Dog.reindex # equivalent
+```
+
+And to search, use:
+
+```ruby
+Animal.search "*" # all animals
+Dog.search "*"    # just dogs
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.
@@ -454,29 +477,6 @@ Then deploy and reindex:
 
 ```sh
 rake searchkick:reindex CLASS=Product
-```
-
-## Inheritance
-
-Searchkick supports single table inheritance.
-
-```ruby
-class Dog < Animal
-end
-```
-
-The parent and child model can both reindex.
-
-```ruby
-Animal.reindex
-Dog.reindex # equivalent
-```
-
-And to search, use:
-
-```ruby
-Animal.search "*" # all animals
-Dog.search "*"    # just dogs
 ```
 
 ## Reference
