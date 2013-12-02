@@ -599,6 +599,33 @@ end
 
 For convenience, this is set by default in the test environment.
 
+## Testing
+
+The index name is autmatically suffixed differently in each environment, so there's no need to do any extra setup in order to keep . 
+
+The index will need to to be initialised before all the tests run. It also needs cleaning up afterwards, otherwise the database gets wiped but the index persists. This can be a problem after each individual test, but could be a performance headache if you use a catch-all `after :each` hook. Better to be specific by labelling
+
+In spec_helper.rb:
+```ruby
+  require 'rake'
+  MyApp::Application.load_tasks
+
+  config.before :all do
+    Rake::Task['searchkick:reindex:all'].invoke
+  end
+
+  config.after :all do
+    Rake::Task['searchkick:reindex:all'].invoke
+  end
+```
+
+Factory girl create() does not cause the new objectes to be added to the index, so this needs to be done after you have generated your model objects:
+
+```ruby
+  MyClass.searchkick_index.refresh
+```
+
+
 ## Thanks
 
 Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire), Jaroslav Kalistsuk for [zero downtime reindexing](https://gist.github.com/jarosan/3124884), and Alex Leschenko for [Elasticsearch autocomplete](https://github.com/leschenko/elasticsearch_autocomplete).
