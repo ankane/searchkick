@@ -357,7 +357,7 @@ Advanced
 Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
 ```
 
-Ranges [master branch]
+Ranges
 
 ```ruby
 price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
