@@ -1,6 +1,7 @@
 ## 0.3.5 [unreleased]
 
 - Added facet ranges
+- Add all operator
 
 ## 0.3.4
 

@@ -201,8 +201,8 @@ module Searchkick
                     else
                       filters << {not: {term: {field => op_value}}}
                     end
-                  elsif op == :and
-                    filters << {terms: {field => op_value, execution: 'and'}}
+                  elsif op == :all
+                    filters << {terms: {field => op_value, execution: "and"}}
                   else
                     range_query =
                       case op

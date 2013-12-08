@@ -85,9 +85,9 @@ where: {
   expires_at: {gt: Time.now}, # lt, gte, lte also available
   orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
   aisle_id: [25, 30],         # in
-  aisle_id: {and: [1,3]}      # and
   store_id: {not: 2},         # not
   aisle_id: {not: [25, 30]},  # not in
+  user_ids: {all: [1, 3]},    # all elements in array
   or: [
     [{in_stock: true}, {backordered: true}]
   ]

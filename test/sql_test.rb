@@ -64,10 +64,9 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{orders_count: [2, 4]}, {store_id: [1, 2]}]]}
     assert_search "product", ["Product A", "Product D"], where: {or: [[{orders_count: 1}, {created_at: {gte: now - 1}, backordered: true}]]}
-    # array
-    assert_search "product", ["Product A"], where: {user_ids: { and: [1,3]}}
-    assert_search "product", [], where: { where_ids: { and: [1,2,3,4] } }
-    assert_search "product", ["Product A"], where: {user_ids: 2}
+    # all
+    assert_search "product", ["Product A"], where: {user_ids: {all: [1, 3]}}
+    assert_search "product", [], where: {user_ids: {all: [1, 2, 3, 4]}}
   end
 
   def test_where_string
