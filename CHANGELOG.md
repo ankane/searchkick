@@ -1,7 +1,7 @@
 ## 0.3.5
 
 - Added facet ranges
-- Add all operator
+- Added all operator
 
 ## 0.3.4
 
