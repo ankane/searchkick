@@ -58,7 +58,13 @@ module Searchkick
 
           # locations
           (options[:locations] || []).map(&:to_s).each do |field|
-            source[field] = source[field].map(&:to_f).reverse if source[field]
+            if source[field]
+              if source[field].first.is_a?(Array) # array of arrays
+                source[field] = source[field].map{|a| a.map(&:to_f).reverse }
+              else
+                source[field] = source[field].map(&:to_f).reverse
+              end
+            end
           end
 
           # change all BigDecimal values to floats due to

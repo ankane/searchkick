@@ -115,6 +115,14 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "san", ["San Francisco"], where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
   end
 
+  def test_multiple_locations
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}}
+  end
+
   def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}

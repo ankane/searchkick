@@ -100,12 +100,12 @@ class Product
     suggest: [:name, :color],
     conversions: "conversions",
     personalize: "user_ids",
-    locations: ["location"]
+    locations: ["location", "multiple_locations"]
 
   attr_accessor :conversions, :user_ids
 
   def search_data
-    attributes.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude]
+    attributes.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
   end
 end
 
