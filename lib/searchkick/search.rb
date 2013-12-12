@@ -161,6 +161,8 @@ module Searchkick
         proc do |where|
           filters = []
           (where || {}).each do |field, value|
+            field = :_id if field.to_s == "id"
+
             if field == :or
               value.each do |or_clause|
                 filters << {or: or_clause.map{|or_statement| {and: where_filters.call(or_statement)} }}

@@ -11,3 +11,6 @@ notifications:
   email:
     on_success: never
     on_failure: change
+gemfile:
+  - Gemfile
+  - gemfiles/mongoid3.gemfile

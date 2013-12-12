@@ -90,6 +90,8 @@ module Searchkick
 
           cast_big_decimal.call(source)
 
+          # p search_data
+
           source.to_json
         end
 

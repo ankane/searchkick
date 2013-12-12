@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSql < Minitest::Unit::TestCase
+class TestSql < Minitest::Test
 
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
@@ -194,9 +194,12 @@ class TestSql < Minitest::Unit::TestCase
     assert_kind_of Tire::Results::Item, Product.search("product", load: false, include: [:store]).first
   end
 
-  def test_include
-    store_names ["Product A"]
-    assert Product.search("product", include: [:store]).first.association(:store).loaded?
+  # TODO see if Mongoid is loaded
+  if !defined?(Mongoid)
+    def test_include
+      store_names ["Product A"]
+      assert Product.search("product", include: [:store]).first.association(:store).loaded?
+    end
   end
 
 end

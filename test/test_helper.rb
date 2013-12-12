@@ -11,7 +11,7 @@ Tire.configure do
   pretty true
 end
 
-if ENV["MONGOID"]
+if defined?(Mongoid)
   Mongoid.configure do |config|
     config.connect_to "searchkick_test"
   end
@@ -19,6 +19,9 @@ if ENV["MONGOID"]
   class Product
     include Mongoid::Document
     # include Mongoid::Attributes::Dynamic
+
+    field :latitude, type: BigDecimal
+    field :longitude, type: BigDecimal
   end
 
   class Store
@@ -105,7 +108,7 @@ class Product
   attr_accessor :conversions, :user_ids
 
   def search_data
-    attributes.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
+    serializable_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
   end
 end
 
@@ -119,7 +122,7 @@ Product.reindex # run twice for both index paths
 
 Animal.reindex
 
-class MiniTest::Unit::TestCase
+class Minitest::Test
 
   def setup
     Product.destroy_all

@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSynonyms < Minitest::Unit::TestCase
+class TestSynonyms < Minitest::Test
 
   def test_bleach
     store_names ["Clorox Bleach", "Kroger Bleach"]
