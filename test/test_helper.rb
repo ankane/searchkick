@@ -18,8 +18,15 @@ if defined?(Mongoid)
 
   class Product
     include Mongoid::Document
-    # include Mongoid::Attributes::Dynamic
+    include Mongoid::Timestamps
 
+    field :name
+    field :store_id, type: Integer
+    field :in_stock, type: Boolean
+    field :backordered, type: Boolean
+    field :orders_count, type: Integer
+    field :price, type: Integer
+    field :color
     field :latitude, type: BigDecimal
     field :longitude, type: BigDecimal
   end
@@ -30,6 +37,8 @@ if defined?(Mongoid)
 
   class Animal
     include Mongoid::Document
+
+    field :name
   end
 
   class Dog < Animal
@@ -122,7 +131,7 @@ Product.reindex # run twice for both index paths
 
 Animal.reindex
 
-class Minitest::Test
+class Minitest::Unit::TestCase
 
   def setup
     Product.destroy_all

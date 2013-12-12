@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSuggest < Minitest::Test
+class TestSuggest < Minitest::Unit::TestCase
 
   def test_basic
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]

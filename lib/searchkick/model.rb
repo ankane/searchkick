@@ -43,6 +43,9 @@ module Searchkick
           # stringify fields
           source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
 
+          # Mongoid 4 hack
+          source["_id"] = source["_id"].to_s if source["_id"]
+
           options = self.class.searchkick_options
 
           # conversions

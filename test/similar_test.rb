@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSimilar < Minitest::Test
+class TestSimilar < Minitest::Unit::TestCase
 
   def test_similar
     store_names ["Annie's Naturals Organic Shiitake & Sesame Dressing"]

@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSql < Minitest::Test
+class TestSql < Minitest::Unit::TestCase
 
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
@@ -87,7 +87,7 @@ class TestSql < Minitest::Test
   def test_where_id
     store_names ["Product A"]
     product = Product.last
-    assert_search "product", ["Product A"], where: {id: product.id}
+    assert_search "product", ["Product A"], where: {id: product.id.to_s}
   end
 
   def test_near

@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestAutocomplete < Minitest::Test
+class TestAutocomplete < Minitest::Unit::TestCase
 
   def test_autocomplete
     store_names ["Hummus"]

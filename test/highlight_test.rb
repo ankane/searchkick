@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestHighlight < Minitest::Test
+class TestHighlight < Minitest::Unit::TestCase
 
   def test_basic
     store_names ["Two Door Cinema Club"]

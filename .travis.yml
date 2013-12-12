@@ -15,3 +15,4 @@ notifications:
 gemfile:
   - Gemfile
   - gemfiles/mongoid3.gemfile
+  - gemfiles/mongoid4.gemfile
