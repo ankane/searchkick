@@ -9,7 +9,7 @@ module Searchkick
       # TODO deep merge method
       options[:where] ||= {}
       options[:where][:_id] ||= {}
-      options[:where][:_id][:not] = id
+      options[:where][:_id][:not] = id.to_s
       options[:limit] ||= 10
       options[:similar] = true
       self.class.search(like_text, options)
