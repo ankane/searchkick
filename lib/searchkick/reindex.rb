@@ -35,6 +35,8 @@ module Searchkick
         searchkick_import(index) # import after swap
       end
 
+      index.refresh
+
       true
     end
 
