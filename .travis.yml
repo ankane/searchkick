@@ -4,6 +4,7 @@ rvm:
   - 2.0.0
 services:
   - elasticsearch
+  - mongodb
 script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
