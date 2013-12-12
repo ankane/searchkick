@@ -1,3 +1,8 @@
+## 0.4.0
+
+- Added support for Mongoid 4
+- Added support for multiple locations
+
 ## 0.3.5
 
 - Added facet ranges
