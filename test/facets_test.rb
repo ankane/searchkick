@@ -37,4 +37,31 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal 0, facet["ranges"][1]["count"]
     assert_equal 2, facet["ranges"][2]["count"]
   end
+
+  def test_constraints
+    facets = Product.search("Product", where: { in_stock: true },
+                            facets: [:store_id], include_constraints: true).facets
+
+    assert_equal 1, facets['store_id']['terms'].size
+    assert_equal 1, facets['store_id']['terms'][0]['term']
+    assert_equal 1, facets['store_id']['terms'][0]['count']
+  end
+
+  def test_facets_and_basic_constrains_together
+    facets = Product.search("Product", where: { color: 'red' },
+                            facets: {store_id: {where: {in_stock: false}}}, include_constraints: true).facets
+
+    assert_equal 1, facets['store_id']['terms'].size
+    assert_equal 2, facets['store_id']['terms'][0]['term']
+    assert_equal 1, facets['store_id']['terms'][0]['count']
+  end
+
+  def test_facets_without_basic_constrains
+    facets = Product.search("Product", where: { color: 'red' },
+                            facets: {store_id: {where: {in_stock: false}}}, include_constraints: false).facets
+
+    assert_equal 1, facets['store_id']['terms'].size
+    assert_equal 2, facets['store_id']['terms'][0]['term']
+    assert_equal 2, facets['store_id']['terms'][0]['count']
+  end
 end
