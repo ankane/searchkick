@@ -276,10 +276,9 @@ module Searchkick
           # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
           facet_filters = where_filters.call(facet_options[:where])
-          basic_filters = where_filters.call(options[:where])
-
+          
           if facet_filters.any? || options[:include_constraints] == true
-            facet_filters += basic_filters if options[:include_constraints] == true
+            facet_filters += filters if options[:include_constraints] == true
             payload[:facets][field][:facet_filter] = {
               and: {
                 filters: facet_filters

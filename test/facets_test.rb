@@ -5,9 +5,9 @@ class TestFacets < Minitest::Unit::TestCase
   def setup
     super
     store [
-      {name: "Product Show", store_id: 1, in_stock: true, color: "blue", price: 21},
-      {name: "Product Hide", store_id: 2, in_stock: false, color: "green", price: 25},
-      {name: "Product B", store_id: 2, in_stock: false, color: "red", price: 5}
+      {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21},
+      {name: "Product Hide", latitude: 29.4167, longitude: -98.5000, store_id: 2, in_stock: false, color: "green", price: 25},
+      {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5}
     ]
   end
 
@@ -47,6 +47,23 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal 1, facets['store_id']['terms'][0]['count']
   end
 
+  def test_constraints_with_location
+    facets = Product.search("*", where: {location: {near: [37, -122], within: "2000mi"}},
+                            facets: [:store_id], include_constraints: true).facets
+  
+    assert_equal 1, facets['store_id']['terms'].size
+    assert_equal 2, facets['store_id']['terms'][0]['term']
+    assert_equal 2, facets['store_id']['terms'][0]['count']
+  end
+
+  def test_constraints_with_location_and_or_statement
+    facets = Product.search("*", where: {or: [[
+      { location: {near: [37, -122], within: "2000mi"}}, {color: 'blue'}
+    ]]},facets: [:store_id], include_constraints: true).facets
+ 
+    assert_equal 2, facets['store_id']['terms'].size
+  end
+  
   def test_facets_and_basic_constrains_together
     facets = Product.search("Product", where: { color: 'red' },
                             facets: {store_id: {where: {in_stock: false}}}, include_constraints: true).facets
