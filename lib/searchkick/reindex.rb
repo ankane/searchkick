@@ -225,7 +225,7 @@ module Searchkick
       end
 
       mappings = {
-        searchkick_klass.document_type.to_sym => {
+        _default_: {
           properties: mapping,
           # https://gist.github.com/kimchy/2898285
           dynamic_templates: [

@@ -122,7 +122,7 @@ class Product
 end
 
 class Animal
-  searchkick
+  searchkick autocomplete: [:name]
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?

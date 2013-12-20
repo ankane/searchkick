@@ -30,4 +30,16 @@ class TestInheritance < Minitest::Unit::TestCase
     assert_equal 2, Animal.search("bear").size
   end
 
+  def test_child_autocomplete
+    store_names ["Max"], Cat
+    store_names ["Mark"], Dog
+    assert_equal ["Max"], Cat.search("ma", fields: [:name], autocomplete: true).map(&:name)
+  end
+
+  def test_parent_autocomplete
+    store_names ["Max"], Cat
+    store_names ["Mark"], Dog
+    assert_equal ["Mark", "Max"], Animal.search("ma", fields: [:name], autocomplete: true).map(&:name).sort
+  end
+
 end
