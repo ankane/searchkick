@@ -446,7 +446,7 @@ Animal.search "*" # all animals
 Dog.search "*"    # just dogs
 ```
 
-**Note:** The `suggest` option retrieves suggestions for the parent at the moment.
+**Note:** The `suggest` option retrieves suggestions from the parent at the moment.
 
 ```ruby
 Dog.search "airbudd", suggest: true # suggestions for all animals
