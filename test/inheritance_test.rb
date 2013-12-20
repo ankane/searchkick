@@ -38,8 +38,20 @@ class TestInheritance < Minitest::Unit::TestCase
 
   def test_parent_autocomplete
     store_names ["Max"], Cat
-    store_names ["Mark"], Dog
-    assert_equal ["Mark", "Max"], Animal.search("ma", fields: [:name], autocomplete: true).map(&:name).sort
+    store_names ["Bear"], Dog
+    assert_equal ["Bear"], Animal.search("bea", fields: [:name], autocomplete: true).map(&:name).sort
+  end
+
+  # def test_child_suggest
+  #   store_names ["Shark"], Cat
+  #   store_names ["Sharp"], Dog
+  #   assert_equal ["shark"], Cat.search("shar", fields: [:name], suggest: true).suggestions
+  # end
+
+  def test_parent_suggest
+    store_names ["Shark"], Cat
+    store_names ["Tiger"], Dog
+    assert_equal ["tiger"], Animal.search("tige", fields: [:name], suggest: true).suggestions.sort
   end
 
 end
