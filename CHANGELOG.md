@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Fixed issue w/ inheritance mapping
+
 ## 0.4.0
 
 - Added support for Mongoid 4
