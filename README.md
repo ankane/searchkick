@@ -446,6 +446,12 @@ Animal.search "*" # all animals
 Dog.search "*"    # just dogs
 ```
 
+**Note:** The `suggest` option retrieves suggestions for the parent at the moment.
+
+```ruby
+Dog.search "airbudd", suggest: true # suggestions for all animals
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.
