@@ -7,7 +7,8 @@ class TestFacets < Minitest::Unit::TestCase
     store [
       {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21},
       {name: "Product Hide", latitude: 29.4167, longitude: -98.5000, store_id: 2, in_stock: false, color: "green", price: 25},
-      {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5}
+      {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5},
+      {name: "Foo", latitude: 43.9333, longitude: 12.4667, store_id: 3, in_stock: false, color: "yellow", price: 15}
     ]
   end
 
@@ -48,7 +49,7 @@ class TestFacets < Minitest::Unit::TestCase
   end
 
   def test_constraints_with_location
-    facets = Product.search("*", where: {location: {near: [37, -122], within: "2000mi"}},
+    facets = Product.search("Product", where: {location: {near: [37, -122], within: "2000mi"}},
                             facets: [:store_id], include_constraints: true).facets
   
     assert_equal 1, facets['store_id']['terms'].size
@@ -57,7 +58,7 @@ class TestFacets < Minitest::Unit::TestCase
   end
 
   def test_constraints_with_location_and_or_statement
-    facets = Product.search("*", where: {or: [[
+    facets = Product.search("Product", where: {or: [[
       { location: {near: [37, -122], within: "2000mi"}}, {color: 'blue'}
     ]]},facets: [:store_id], include_constraints: true).facets
  
@@ -93,6 +94,16 @@ class TestFacets < Minitest::Unit::TestCase
   def test_do_not_include_current_facets_filter_with_complex_call
     facets = Product.search("Product", where: { store_id: 2, price: {gte: 4 }},
                             facets: [:store_id], include_constraints: true).facets
+
+    assert_equal 2, facets['store_id']['terms'].size
+    assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
+  end
+
+  def test_do_not_include_current_facets_filter_with_complex_call_on_every_position
+    facets = Product.search("*", where: {
+      or: [[ {location: {near: [37, -122], within: "2000mi"}}, {color: 'blue'} ]],
+      price: {gte: 4 }, store_id: 2},
+    facets: [:store_id, :color], include_constraints: true).facets
 
     assert_equal 2, facets['store_id']['terms'].size
     assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
