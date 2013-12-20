@@ -83,6 +83,14 @@ class TestFacets < Minitest::Unit::TestCase
   end
 
   def test_do_not_include_current_facets_filter
+    facets = Product.search("Product", where: { store_id: 2 },
+                            facets: [:store_id], include_constraints: true).facets
+
+    assert_equal 2, facets['store_id']['terms'].size
+    assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
+  end
+
+  def test_do_not_include_current_facets_filter_with_complex_call
     facets = Product.search("Product", where: { store_id: 2, price: {gte: 4 }},
                             facets: [:store_id], include_constraints: true).facets
 
