@@ -2,6 +2,7 @@ require "bundler/setup"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
+require "mocha/setup"
 
 ENV["RACK_ENV"] = "test"
 
@@ -151,16 +152,16 @@ class Minitest::Unit::TestCase
   end
 
   # no order
-  def assert_search(term, expected, options = {})
-    assert_equal expected.sort, Product.search(term, options).map(&:name).sort
+  def assert_search(term, expected, options = {}, klass = Product)
+    assert_equal expected.sort, klass.search(term, options).map(&:name).sort
   end
 
-  def assert_order(term, expected, options = {})
-    assert_equal expected, Product.search(term, options).map(&:name)
+  def assert_order(term, expected, options = {}, klass = Product)
+    assert_equal expected, klass.search(term, options).map(&:name)
   end
 
-  def assert_first(term, expected, options = {})
-    assert_equal expected, Product.search(term, options).map(&:name).first
+  def assert_first(term, expected, options = {}, klass = Product)
+    assert_equal expected, klass.search(term, options).map(&:name).first
   end
 
 end

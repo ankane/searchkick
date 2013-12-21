@@ -172,10 +172,14 @@ Product.search "zucini", misspellings: {distance: 2} # zucchini
 
 ### Indexing
 
-Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
+Control which models are indexed with `#should_index?` and what data is indexed with the `#search_data`. Call `Product.reindex` after changing this method.
 
 ```ruby
 class Product < ActiveRecord::Base
+  def should_index?
+    active
+  end
+
   def search_data
     as_json only: [:name, :active]
     # or equivalently

@@ -18,12 +18,18 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
+        def should_index?
+          true
+        end
+
         def reindex
-          index = self.class.searchkick_index
-          if destroyed?
-            index.remove self
-          else
-            index.store self
+          if should_index?
+            index = self.class.searchkick_index
+            if destroyed?
+              index.remove self
+            else
+              index.store self
+            end
           end
         end
 
