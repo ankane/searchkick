@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 4.7"
   spec.add_development_dependency "activerecord"
   spec.add_development_dependency "pg"
+  spec.add_development_dependency "mocha"
 end
