@@ -136,6 +136,7 @@ class Minitest::Unit::TestCase
 
   def setup
     Product.destroy_all
+    Animal.destroy_all
   end
 
   protected

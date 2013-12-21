@@ -23,4 +23,28 @@ describe "Model#should_index?" do
 
     assert_search 'should', [], {}, Animal
   end
+
+  it 'indexes existing model after the #should_index? switched to true' do
+    subject = Animal.new(name: 'should')
+    subject.stubs(:should_index?).returns(false)
+    subject.save!
+
+    subject.stubs(:should_index?).returns(true)
+    subject.save!
+
+    Animal.searchkick_index.refresh
+    assert_search 'should', ['should'], {}, Animal
+  end
+
+  it 'removes the existing model from index after the #should_index? switched to false' do
+    subject = Animal.new(name: 'should')
+    subject.stubs(:should_index?).returns(true)
+    subject.save!
+
+    subject.stubs(:should_index?).returns(false)
+    subject.save!
+
+    Animal.searchkick_index.refresh
+    assert_search 'should', [], {}, Animal
+  end
 end

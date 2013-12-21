@@ -23,13 +23,11 @@ module Searchkick
         end
 
         def reindex
-          if should_index?
-            index = self.class.searchkick_index
-            if destroyed?
-              index.remove self
-            else
-              index.store self
-            end
+          index = self.class.searchkick_index
+          if destroyed? || !should_index?
+            index.remove self
+          else
+            index.store self
           end
         end
 
