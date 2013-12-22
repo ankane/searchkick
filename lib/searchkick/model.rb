@@ -3,11 +3,13 @@ module Searchkick
 
     def searchkick(options = {})
       class_eval do
-        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass, :searchkick_index
+        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass,
+                     :searchkick_index
 
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
+        class_variable_set :@@searchkick_enabled, false
 
         # set index name
         # TODO support proc
@@ -18,19 +20,39 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
-        def reindex
-          index = self.class.searchkick_index
-          if destroyed?
-            index.remove self
-          else
-            index.store self
+        def self.searchkick_enable!
+          unless class_variable_get(:@@searchkick_enabled)
+            class_variable_set :@@searchkick_enabled, true
+            after_save :reindex
+            after_destroy :reindex
           end
         end
 
+        def self.searchkick_disable!
+          if class_variable_get(:@@searchkick_enabled)
+            class_variable_set :@@searchkick_enabled, false
+            skip_callback :save, :after, :reindex
+            skip_callback :destroy, :after, :reindex
+          end
+        end
+
+        def self.searchkick_enabled?
+          !!class_variable_get(:@@searchkick_enabled) && Searchkick.enabled?
+        end
+
         unless options[:callbacks] == false
-          # TODO ability to temporarily disable
-          after_save :reindex
-          after_destroy :reindex
+          self.searchkick_enable!
+        end
+
+        def reindex
+          if self.class.searchkick_enabled?
+            index = self.class.searchkick_index
+            if destroyed?
+              index.remove self
+            else
+              index.store self
+            end
+          end
         end
 
         def search_data

@@ -1,5 +1,6 @@
 require "tire"
 require "searchkick/version"
+require "searchkick/options"
 require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/search"
