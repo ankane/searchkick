@@ -43,35 +43,33 @@ class TestFacets < Minitest::Unit::TestCase
     facets = Product.search("Product", where: { in_stock: true },
                             facets: [:store_id], include_constraints: true).facets
 
-    assert_equal 1, facets['store_id']['terms'].size
-    assert_equal 1, facets['store_id']['terms'][0]['term']
-    assert_equal 1, facets['store_id']['terms'][0]['count']
+    assert_equal 2, facets['store_id']['terms'].size
+    assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
   end
 
   def test_constraints_with_location
     facets = Product.search("Product", where: {location: {near: [37, -122], within: "2000mi"}},
                             facets: [:store_id], include_constraints: true).facets
-  
-    assert_equal 1, facets['store_id']['terms'].size
-    assert_equal 2, facets['store_id']['terms'][0]['term']
-    assert_equal 2, facets['store_id']['terms'][0]['count']
+
+    assert_equal 2, facets['store_id']['terms'].size
+    assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
   end
 
   def test_constraints_with_location_and_or_statement
     facets = Product.search("Product", where: {or: [[
       { location: {near: [37, -122], within: "2000mi"}}, {color: 'blue'}
     ]]},facets: [:store_id], include_constraints: true).facets
- 
+
     assert_equal 2, facets['store_id']['terms'].size
   end
-  
+
   def test_facets_and_basic_constrains_together
     facets = Product.search("Product", where: { color: 'red' },
                             facets: {store_id: {where: {in_stock: false}}}, include_constraints: true).facets
 
     assert_equal 1, facets['store_id']['terms'].size
     assert_equal 2, facets['store_id']['terms'][0]['term']
-    assert_equal 1, facets['store_id']['terms'][0]['count']
+    assert_equal 2, facets['store_id']['terms'][0]['count']
   end
 
   def test_facets_without_basic_constrains
@@ -105,7 +103,18 @@ class TestFacets < Minitest::Unit::TestCase
       price: {gte: 4 }, store_id: 2},
     facets: [:store_id, :color], include_constraints: true).facets
 
-    assert_equal 2, facets['store_id']['terms'].size
-    assert_equal [1, 2], facets['store_id']['terms'].map{|f| f['term']}.sort
+    assert_equal 3, facets['store_id']['terms'].size
+    assert_equal [1, 2, 3], facets['store_id']['terms'].map{|f| f['term']}.sort
+  end
+
+  def test_should_still_limit_results
+    results = Product.search("*", where: { store_id: 2, price: {gte: 4 }},
+                            facets: [:in_stock, :store_id, :color], include_constraints: false)
+
+    facets = results.facets
+    assert_equal 2, results.size
+    assert_equal ["Product B", "Product Hide"], results.map(&:name).sort
+    assert_equal 3, facets['store_id']['terms'].size
+    assert_equal [1, 2, 3], facets['store_id']['terms'].map{|f| f['term']}.sort
   end
 end

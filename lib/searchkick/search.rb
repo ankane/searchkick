@@ -275,16 +275,10 @@ module Searchkick
           # offset is not possible
           # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
+          facet_options.merge!(options[:where].reject{|k| k == field}) if options[:include_constraints] == true
           facet_filters = where_filters.call(facet_options[:where])
-          filters_dup = filters.dup
-          if filters_dup.select{|h| h.keys.include?(:term)}.present?
-            filters_dup.select{|h| h.keys.include?(:term)}[0][:term].reject!{|k| k == field}
-            filters_dup.select{|h| h.keys.include?(:term)}[0].reject!{|k,v| k == :term if v.empty?}
-            filters_dup.delete_if{|e| e.empty?}
-          end
-          
-          if facet_filters.any? || (filters_dup.any? && options[:include_constraints] == true)
-            facet_filters += filters_dup if options[:include_constraints] == true
+
+          if facet_filters.any?
             payload[:facets][field][:facet_filter] = {
               and: {
                 filters: facet_filters
