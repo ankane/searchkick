@@ -9,7 +9,7 @@ module Searchkick
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_enabled, false
+        class_variable_set :@@searchkick_enabled, true
 
         # set index name
         # TODO support proc
@@ -21,19 +21,11 @@ module Searchkick
         include Searchkick::Similar
 
         def self.searchkick_enable!
-          unless class_variable_get(:@@searchkick_enabled)
-            class_variable_set :@@searchkick_enabled, true
-            after_save :reindex
-            after_destroy :reindex
-          end
+          class_variable_set :@@searchkick_enabled, true
         end
 
         def self.searchkick_disable!
-          if class_variable_get(:@@searchkick_enabled)
-            class_variable_set :@@searchkick_enabled, false
-            skip_callback :save, :after, :reindex
-            skip_callback :destroy, :after, :reindex
-          end
+          class_variable_set :@@searchkick_enabled, false
         end
 
         def self.searchkick_enabled?
@@ -41,7 +33,8 @@ module Searchkick
         end
 
         unless options[:callbacks] == false
-          self.searchkick_enable!
+          after_save :reindex
+          after_destroy :reindex
         end
 
         def reindex
