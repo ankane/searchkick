@@ -1,6 +1,7 @@
 ## 0.4.2 [unreleased]
 
 - Added `should_index?` method to control which records are indexed
+- Added ability to temporarily disable callbacks
 
 ## 0.4.1
 

@@ -537,12 +537,21 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Turn off callbacks
+Turn off callbacks permanently
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick callbacks: false
 end
+```
+
+or temporarily [master branch]
+
+```ruby
+Product.disable_search_callbacks # use Searchkick.disable_callbacks for all models
+ExpensiveProductsTask.execute
+Product.enable_search_callbacks
+Product.reindex
 ```
 
 Eager load associations

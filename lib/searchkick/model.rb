@@ -8,6 +8,7 @@ module Searchkick
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
+        class_variable_set :@@searchkick_callbacks, options[:callbacks] != false
 
         # set index name
         # TODO support proc
@@ -18,23 +19,34 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
+        after_save :reindex
+        after_destroy :reindex
+
+        def self.enable_search_callbacks
+          class_variable_set :@@searchkick_callbacks, true
+        end
+
+        def self.disable_search_callbacks
+          class_variable_set :@@searchkick_callbacks, false
+        end
+
+        def self.search_callbacks?
+          class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
+        end
+
         def should_index?
           true
         end
 
         def reindex
-          index = self.class.searchkick_index
-          if destroyed? or !should_index?
-            index.remove self
-          else
-            index.store self
+          if self.class.search_callbacks?
+            index = self.class.searchkick_index
+            if destroyed? or !should_index?
+              index.remove self
+            else
+              index.store self
+            end
           end
-        end
-
-        unless options[:callbacks] == false
-          # TODO ability to temporarily disable
-          after_save :reindex
-          after_destroy :reindex
         end
 
         def search_data
