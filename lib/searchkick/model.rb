@@ -24,7 +24,7 @@ module Searchkick
 
         def reindex
           index = self.class.searchkick_index
-          if destroyed? || !should_index?
+          if destroyed? or !should_index?
             index.remove self
           else
             index.store self

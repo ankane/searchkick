@@ -172,14 +172,10 @@ Product.search "zucini", misspellings: {distance: 2} # zucchini
 
 ### Indexing
 
-Control which models are indexed with `#should_index?` and what data is indexed with the `#search_data`. Call `Product.reindex` after changing this method.
+Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
 
 ```ruby
 class Product < ActiveRecord::Base
-  def should_index?
-    active
-  end
-
   def search_data
     as_json only: [:name, :active]
     # or equivalently
@@ -196,6 +192,16 @@ Searchkick uses `find_in_batches` to import documents.  To eager load associatio
 ```ruby
 class Product < ActiveRecord::Base
   scope :search_import, includes(:searches)
+end
+```
+
+[master branch] By default, all records are indexed.  To control which records are indexed, use the `should_index?` method.
+
+```ruby
+class Product < ActiveRecord::Base
+  def should_index?
+    active # only index active records
+  end
 end
 ```
 

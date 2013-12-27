@@ -62,7 +62,7 @@ module Searchkick
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
         scope.find_in_batches do |batch|
-          index.import batch.select{ |item| item.should_index? }
+          index.import batch.select{|item| item.should_index? }
         end
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb

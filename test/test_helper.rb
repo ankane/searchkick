@@ -2,7 +2,6 @@ require "bundler/setup"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "mocha/setup"
 
 ENV["RACK_ENV"] = "test"
 
@@ -119,6 +118,10 @@ class Product
 
   def search_data
     serializable_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
+  end
+
+  def should_index?
+    name != "DO NOT INDEX"
   end
 end
 

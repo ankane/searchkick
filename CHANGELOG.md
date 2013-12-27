@@ -1,3 +1,7 @@
+## 0.4.2 [unreleased]
+
+- Added `should_index?` method to control which records are indexed
+
 ## 0.4.1
 
 - Fixed issue w/ inheritance mapping
