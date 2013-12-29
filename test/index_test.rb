@@ -26,4 +26,10 @@ class TestIndex < Minitest::Unit::TestCase
     assert !old_index.exists?
   end
 
+  def test_mapping
+    store_names ["Dollar Tree"], Store
+    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
+  end
+
 end

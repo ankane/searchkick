@@ -2,7 +2,13 @@ module Searchkick
   module Search
 
     def search(term, options = {})
-      term = term.to_s
+      if term.is_a?(Hash)
+        options = term
+        term = nil
+      else
+        term = term.to_s
+      end
+
       fields =
         if options[:fields]
           if options[:autocomplete]
@@ -35,7 +41,9 @@ module Searchkick
 
       all = term == "*"
 
-      if options[:similar]
+      if options[:query]
+        payload = options[:query]
+      elsif options[:similar]
         payload = {
           more_like_this: {
             fields: fields,

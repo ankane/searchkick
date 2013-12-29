@@ -72,6 +72,8 @@ Query like SQL
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
 
+**Note:** If you prefer the Elasticsearch DSL, see the [Advanced section](#advanced)
+
 Search specific fields
 
 ```ruby
@@ -502,6 +504,30 @@ Then deploy and reindex:
 
 ```sh
 rake searchkick:reindex CLASS=Product
+```
+
+## Advanced [master]
+
+Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
+
+Create a custom mapping:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick mappings: {
+    product: {
+      properties: {
+        name: {type: "string", analyzer: "keyword"}
+      }
+    }
+  }
+end
+```
+
+And use the `query` option to search:
+
+```ruby
+Product.search query: {match: {name: "milk"}}
 ```
 
 ## Reference

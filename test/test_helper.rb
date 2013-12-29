@@ -33,6 +33,8 @@ if defined?(Mongoid)
 
   class Store
     include Mongoid::Document
+
+    field :name
   end
 
   class Animal
@@ -73,6 +75,7 @@ else
   end
 
   ActiveRecord::Migration.create_table :stores, :force => true do |t|
+    t.string :name
   end
 
   ActiveRecord::Migration.create_table :animals, :force => true do |t|
@@ -125,6 +128,16 @@ class Product
   end
 end
 
+class Store
+  searchkick mappings: {
+    store: {
+      properties: {
+        name: {type: "string", analyzer: "keyword"}
+      }
+    }
+  }
+end
+
 class Animal
   searchkick autocomplete: [:name], suggest: [:name]
 end
@@ -133,6 +146,7 @@ Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
 
+Store.reindex
 Animal.reindex
 
 class Minitest::Unit::TestCase

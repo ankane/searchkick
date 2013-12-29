@@ -2,6 +2,7 @@
 
 - Added `should_index?` method to control which records are indexed
 - Added ability to temporarily disable callbacks
+- Added custom mappings
 
 ## 0.4.1
 
