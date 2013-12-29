@@ -197,7 +197,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-[master branch] By default, all records are indexed.  To control which records are indexed, use the `should_index?` method.
+By default, all records are indexed.  To control which records are indexed, use the `should_index?` method.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -506,7 +506,7 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
-## Advanced [master]
+## Advanced
 
 Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
 
@@ -571,7 +571,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-or temporarily [master branch]
+or temporarily
 
 ```ruby
 Product.disable_search_callbacks # use Searchkick.disable_callbacks for all models
