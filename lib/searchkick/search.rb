@@ -328,10 +328,9 @@ module Searchkick
 
       tire_options = {load: load, payload: payload, size: per_page, from: offset}
       tire_options[:type] = document_type if self != searchkick_klass
-      search = Tire::Search::Search.new(index_name, tire_options)
       begin
-        response = search.json
-      rescue Tire::Search::SearchRequestFailed => e
+        response = Searchkick.client.search index: index_name, body: payload
+      rescue => e
         status_code = e.message[0..3].to_i
         if status_code == 404
           raise "Index missing - run #{searchkick_klass.name}.reindex"

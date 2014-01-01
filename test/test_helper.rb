@@ -6,10 +6,7 @@ require "minitest/pride"
 ENV["RACK_ENV"] = "test"
 
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
-Tire.configure do
-  logger "elasticsearch.log", :level => "debug"
-  pretty true
-end
+Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
 if defined?(Mongoid)
   Mongoid.configure do |config|

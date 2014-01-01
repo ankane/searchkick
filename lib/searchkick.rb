@@ -1,14 +1,21 @@
-require "tire"
+require "elasticsearch"
 require "searchkick/version"
+require "searchkick/index"
 require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/search"
 require "searchkick/similar"
 require "searchkick/model"
 require "searchkick/tasks"
-require "searchkick/logger" if defined?(Rails)
+# TODO add logger
+# require "searchkick/logger" if defined?(Rails)
 
 module Searchkick
+
+  def self.client
+    @client ||= Elasticsearch::Client.new log: true
+  end
+
   @callbacks = true
 
   def self.enable_callbacks
@@ -24,6 +31,8 @@ module Searchkick
   end
 end
 
+require "active_record" # TODO remove
+
 # TODO find better ActiveModel hook
-ActiveModel::Callbacks.send(:include, Searchkick::Model)
+ActiveModel::Callbacks.send(:include, Searchkick::Model) if defined?(ActiveModel)
 ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)

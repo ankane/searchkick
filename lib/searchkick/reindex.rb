@@ -2,36 +2,29 @@ module Searchkick
   module Reindex
 
     # https://gist.github.com/jarosan/3124884
+    # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex
       alias_name = searchkick_index.name
       new_index = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
-      index = Tire::Index.new(new_index)
+      index = Searchkick::Index.new(new_index)
 
       clean_indices
 
       success = index.create searchkick_index_options
       raise index.response.to_s if !success
 
-      if a = Tire::Alias.find(alias_name)
+      # check if alias exists
+      if Searchkick.client.indices.exists_alias name: alias_name
         searchkick_import(index) # import before swap
 
-        a.indices.each do |i|
-          a.indices.delete i
-        end
-
-        a.indices.add new_index
-        response = a.save
-
-        if response.success?
-          clean_indices
-        else
-          raise response.to_s
-        end
+        # get existing indices to remove
+        old_indices = Searchkick.client.indices.get_alias(name: alias_name).keys
+        actions = old_indices.map{|name| {remove: {index: name, alias: alias_name}} } + [{add: {index: new_index, alias: alias_name}}]
+        Searchkick.client.indices.update_aliases body: {actions: actions}
+        clean_indices
       else
         searchkick_index.delete if searchkick_index.exists?
-        response = Tire::Alias.create(name: alias_name, indices: [new_index])
-        raise response.to_s if !response.success?
-
+        Searchkick.client.indices.update_aliases body: {actions: [{add: {index: new_index, alias: alias_name}}]}
         searchkick_import(index) # import after swap
       end
 
@@ -42,10 +35,10 @@ module Searchkick
 
     # remove old indices that start w/ index_name
     def clean_indices
-      all_indices = JSON.parse(Tire::Configuration.client.get("#{Tire::Configuration.url}/_aliases").body)
+      all_indices = Searchkick.client.indices.get_aliases
       indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(searchkick_index.name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
-        Tire::Index.new(index).delete
+        Searchkick::Index.new(index).delete
       end
       indices
     end

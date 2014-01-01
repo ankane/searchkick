@@ -1,5 +1,5 @@
 module Searchkick
-  class Results < Tire::Results::Collection
+  class Results
 
     def suggestions
       if @response["suggest"]
