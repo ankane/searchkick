@@ -35,6 +35,15 @@ if defined?(Mongoid)
     include Mongoid::Document
 
     field :name
+    field :code
+
+    before_save :set_code
+
+    private
+
+    def set_code
+      self.code = name.gsub(/[aeiou\W]/, '').downcase
+    end
   end
 
   class Animal
@@ -85,6 +94,7 @@ else
 
   ActiveRecord::Migration.create_table :stores, :force => true do |t|
     t.string :name
+    t.string :code
   end
 
   ActiveRecord::Migration.create_table :animals, :force => true do |t|
@@ -96,6 +106,13 @@ else
   end
 
   class Store < ActiveRecord::Base
+    before_save :set_code
+
+    private
+
+    def set_code
+      self.code = name.gsub(/[aeiou\W]/, '').downcase
+    end
   end
 
   class Animal < ActiveRecord::Base
@@ -162,6 +179,7 @@ class Minitest::Unit::TestCase
 
   def setup
     Product.destroy_all
+    Store.destroy_all
     Animal.destroy_all
   end
 
