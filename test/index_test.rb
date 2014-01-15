@@ -32,4 +32,9 @@ class TestIndex < Minitest::Unit::TestCase
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  def test_custom_mapping_does_not_override_defaults
+    store_names ["Dollar Tree"], Store
+    assert_equal ["Dollar Tree"], Store.search("dllrtr").map(&:name)
+  end
+
 end
