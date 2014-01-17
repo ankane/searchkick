@@ -159,7 +159,7 @@ module Searchkick
           settings.merge!(number_of_shards: 1, number_of_replicas: 0)
         end
 
-        settings.merge!(options[:settings] || {})
+        settings.deep_merge!(options[:settings] || {})
 
         # synonyms
         synonyms = options[:synonyms] || []
