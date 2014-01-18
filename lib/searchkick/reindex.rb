@@ -82,7 +82,7 @@ module Searchkick
     def searchkick_index_options
       options = searchkick_options
 
-      if options[:mappings]
+      if options[:mappings] and !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
@@ -253,7 +253,7 @@ module Searchkick
               }
             ]
           }
-        }
+        }.deep_merge(options[:mappings] || {})
       end
 
       {

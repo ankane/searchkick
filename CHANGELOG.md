@@ -1,3 +1,7 @@
+## 0.4.3 [unreleased]
+
+- Added merge_mappings option
+
 ## 0.4.2
 
 - Added `should_index?` method to control which records are indexed
