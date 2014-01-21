@@ -655,6 +655,23 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Asynchronous reindexing
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: false
+
+  # add the callbacks manually
+  after_save :reindex_async
+  after_destroy :reindex_async
+
+  def reindex_async
+    # delayed job
+    delay.reindex
+  end
+end
+```
+
 Reindex all models (Rails only)
 
 ```sh
