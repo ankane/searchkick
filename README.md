@@ -609,6 +609,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Change import batch size [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick batch_size: 200 # defaults to 1000
+end
+```
+
 Reindex all models (Rails only)
 
 ```sh

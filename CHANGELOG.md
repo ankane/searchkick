@@ -1,6 +1,7 @@
 ## 0.4.3 [unreleased]
 
 - Added merge_mappings option
+- Added batch_size option
 
 ## 0.4.2
 

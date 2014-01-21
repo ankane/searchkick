@@ -57,11 +57,13 @@ module Searchkick
     private
 
     def searchkick_import(index)
+      batch_size = searchkick_options[:batch_size] || 1000
+
       # use scope for import
       scope = searchkick_klass
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
-        scope.find_in_batches do |batch|
+        scope.find_in_batches batch_size: batch_size do |batch|
           index.import batch.select{|item| item.should_index? }
         end
       else
@@ -70,7 +72,7 @@ module Searchkick
         items = []
         scope.all.each do |item|
           items << item if item.should_index?
-          if items.length % 1000 == 0
+          if items.length % batch_size == 0
             index.import items
             items = []
           end
