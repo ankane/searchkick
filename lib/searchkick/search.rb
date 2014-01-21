@@ -209,7 +209,11 @@ module Searchkick
                     if op_value.is_a?(Array)
                       filters << {not: {terms: {field => op_value}}}
                     else
-                      filters << {not: {term: {field => op_value}}}
+                      if op_value.nil?
+                        filters << {not: { missing: {"field" => field, existence: true, null_value: true}}}
+                      else
+                        filters << {not: {term: {field => op_value}}}
+                      end
                     end
                   elsif op == :all
                     filters << {terms: {field => op_value, execution: "and"}}

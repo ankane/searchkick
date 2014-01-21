@@ -59,7 +59,16 @@ else
   ActiveRecord::Base.time_zone_aware_attributes = true
 
   # migrations
-  ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "searchkick_test"
+  db_config = {
+    adapter: 'postgresql',
+    database: 'searchkick_test',
+    host: '127.0.0.1'
+  }
+
+  ActiveRecord::Base.establish_connection db_config.merge(database: 'postgres')
+  ActiveRecord::Base.connection.drop_database db_config[:database]
+  ActiveRecord::Base.connection.create_database db_config[:database]
+  ActiveRecord::Base.establish_connection db_config
 
   ActiveRecord::Migration.create_table :products, :force => true do |t|
     t.string :name
@@ -166,7 +175,7 @@ class Minitest::Unit::TestCase
   end
 
   def store_names(names, klass = Product)
-    store names.map{|name| {name: name} }, klass
+    store names.map{|name| {name: name}}, klass
   end
 
   # no order
