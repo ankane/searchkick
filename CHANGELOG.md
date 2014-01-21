@@ -1,7 +1,9 @@
-## 0.4.3 [unreleased]
+## 0.5.0
 
+- Better control over partial matches
 - Added merge_mappings option
 - Added batch_size option
+- Fixed bug with nil where clauses
 
 ## 0.4.2
 
