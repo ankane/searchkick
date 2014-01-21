@@ -128,6 +128,41 @@ module Searchkick
                 type: "custom",
                 tokenizer: "standard",
                 filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
+              },
+              searchkick_suggest_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
+              },
+              searchkick_text_start_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+              },
+              searchkick_text_middle_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+              },
+              searchkick_text_end_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
+              },
+              searchkick_word_start_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+              },
+              searchkick_word_middle_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+              },
+              searchkick_word_end_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
               }
             },
             filter: {
@@ -145,6 +180,16 @@ module Searchkick
               searchkick_suggest_shingle: {
                 type: "shingle",
                 max_shingle_size: 5
+              },
+              searchkick_edge_ngram: {
+                type: "edgeNGram",
+                min_gram: 1,
+                max_gram: 50
+              },
+              searchkick_ngram: {
+                type: "nGram",
+                min_gram: 1,
+                max_gram: 50
               }
             },
             tokenizer: {
@@ -202,10 +247,12 @@ module Searchkick
           }
         end
 
-        # autocomplete and suggest
-        autocomplete = (options[:autocomplete] || []).map(&:to_s)
-        suggest = (options[:suggest] || []).map(&:to_s)
-        (autocomplete + suggest).uniq.each do |field|
+        mapping_options = Hash[
+          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end]
+            .map{|type| [type, (options[type] || []).map(&:to_s)] }
+        ]
+
+        mapping_options.values.flatten.uniq.each do |field|
           field_mapping = {
             type: "multi_field",
             fields: {
@@ -215,12 +262,13 @@ module Searchkick
               # http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_fast_vector_highlighter
             }
           }
-          if autocomplete.include?(field)
-            field_mapping[:fields]["autocomplete"] = {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
+
+          mapping_options.each do |type, fields|
+            if fields.include?(field)
+              field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
+            end
           end
-          if suggest.include?(field)
-            field_mapping[:fields]["suggest"] = {type: "string", index: "analyzed", analyzer: "searchkick_suggest_index"}
-          end
+
           mapping[field] = field_mapping
         end
 

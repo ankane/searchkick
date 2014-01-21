@@ -14,7 +14,10 @@ module Searchkick
           if options[:autocomplete]
             options[:fields].map{|f| "#{f}.autocomplete" }
           else
-            options[:fields].map{|f| "#{f}.analyzed" }
+            options[:fields].map do |value|
+              k, v = value.is_a?(Hash) ? value.to_a.first : [value, :word]
+              "#{k}.#{v == :word ? "analyzed" : v}"
+            end
           end
         else
           if options[:autocomplete]
@@ -67,23 +70,37 @@ module Searchkick
             }
           }
         else
-          shared_options = {
-            fields: fields,
-            query: term,
-            use_dis_max: false,
-            operator: operator
-          }
-          queries = [
-            {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
-            {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
-          ]
-          if options[:misspellings] != false
-            distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
-            queries.concat [
-              {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search")},
-              {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")}
-            ]
+          queries = []
+          fields.each do |field|
+            if field == "_all" or field.end_with?(".analyzed")
+              shared_options = {
+                fields: [field],
+                query: term,
+                use_dis_max: false,
+                operator: operator
+              }
+              queries.concat [
+                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
+                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
+              ]
+              if options[:misspellings] != false
+                distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
+                queries.concat [
+                  {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search")},
+                  {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")}
+                ]
+              end
+            else
+              queries << {
+                multi_match: {
+                  fields: [field],
+                  query: term,
+                  analyzer: "searchkick_autocomplete_search"
+                }
+              }
+            end
           end
+
           payload = {
             dis_max: {
               queries: queries

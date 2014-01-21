@@ -115,7 +115,13 @@ class Product
     suggest: [:name, :color],
     conversions: "conversions",
     personalize: "user_ids",
-    locations: ["location", "multiple_locations"]
+    locations: ["location", "multiple_locations"],
+    text_start: [:name],
+    text_middle: [:name],
+    text_end: [:name],
+    word_start: [:name],
+    word_middle: [:name],
+    word_end: [:name]
 
   attr_accessor :conversions, :user_ids
 

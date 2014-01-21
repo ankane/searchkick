@@ -148,6 +148,32 @@ To change this, use:
 Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
+By default, results must match the entire word - `back` will not match `backpack`. You can change this behavior with:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick word_start: [:name]
+end
+```
+
+And to search:
+
+```ruby
+Product.search "back", fields: [{name: :word_start}]
+```
+
+Available options are:
+
+```ruby
+:word # default
+:word_start
+:word_middle
+:word_end
+:text_start
+:text_middle
+:text_end
+```
+
 ### Synonyms
 
 ```ruby
@@ -293,14 +319,14 @@ First, specify which fields use this feature.  This is necessary since autocompl
 
 ```ruby
 class City < ActiveRecord::Base
-  searchkick autocomplete: ["name"]
+  searchkick text_start: [:name]
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-City.search "san fr", autocomplete: true
+City.search "san fr", fields: [{name: :text_start}]
 ```
 
 Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -314,7 +340,7 @@ First, add a controller action.
 class CitiesController < ApplicationController
 
   def autocomplete
-    render json: City.search(params[:query], autocomplete: true, limit: 10).map(&:name)
+    render json: City.search(params[:query], fields: [{name: :text_start}], limit: 10).map(&:name)
   end
 
 end
