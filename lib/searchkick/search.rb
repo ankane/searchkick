@@ -164,6 +164,17 @@ module Searchkick
         payload[:sort] = order
       end
 
+      term_filters =
+        proc do |field, value|
+          if value.is_a?(Array) # in query
+            {or: value.map{|v| term_filters.call(field, v) }}
+          elsif value.nil?
+            {missing: {"field" => field, existence: true, null_value: true}}
+          else
+            {term: {field => value}}
+          end
+        end
+
       # where
       where_filters =
         proc do |where|
@@ -181,9 +192,7 @@ module Searchkick
                 value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
               end
 
-              if value.is_a?(Array) # in query
-                filters << {terms: {field => value}}
-              elsif value.is_a?(Hash)
+              if value.is_a?(Hash)
                 if value[:near]
                   filters << {
                     geo_distance: {
@@ -206,15 +215,7 @@ module Searchkick
 
                 value.each do |op, op_value|
                   if op == :not # not equal
-                    if op_value.is_a?(Array)
-                      filters << {not: {terms: {field => op_value}}}
-                    else
-                      if op_value.nil?
-                        filters << {not: { missing: {"field" => field, existence: true, null_value: true}}}
-                      else
-                        filters << {not: {term: {field => op_value}}}
-                      end
-                    end
+                    filters << {not: term_filters.call(field, op_value)}
                   elsif op == :all
                     filters << {terms: {field => op_value, execution: "and"}}
                   else
@@ -235,11 +236,7 @@ module Searchkick
                   end
                 end
               else
-                if value.nil?
-                  filters << {missing: {"field" => field, existence: true, null_value: true}}
-                else
-                  filters << {term: {field => value}}
-                end
+                filters << term_filters.call(field, value)
               end
             end
           end

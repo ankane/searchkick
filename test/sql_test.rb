@@ -69,7 +69,9 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", [], where: {user_ids: {all: [1, 2, 3, 4]}}
     # not / exists
     assert_search "product", ["Product C", "Product D"], where: {user_ids: nil}
-    assert_search "product", ["Product A", "Product B"], where: {user_ids: { not: nil}}
+    assert_search "product", ["Product A", "Product B"], where: {user_ids: {not: nil}}
+    assert_search "product", ["Product A", "Product C", "Product D"], where: {user_ids: [3, nil]}
+    assert_search "product", ["Product B"], where: {user_ids: {not: [3, nil]}}
   end
 
   def test_where_string
