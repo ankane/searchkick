@@ -643,6 +643,18 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Reindex conditionally
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: false
+
+  # add the callbacks manually
+  after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
+  after_destroy :reindex
+end
+```
+
 Reindex all models (Rails only)
 
 ```sh
