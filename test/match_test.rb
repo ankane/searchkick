@@ -139,4 +139,9 @@ class TestMatch < Minitest::Unit::TestCase
     assert_search "*", ["Product A", "Product B"]
   end
 
+  def test_to_be_or_not_to_be
+    store_names ["to be or not to be"]
+    assert_search "to be", ["to be or not to be"]
+  end
+
 end

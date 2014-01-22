@@ -77,7 +77,8 @@ module Searchkick
                 fields: [field],
                 query: term,
                 use_dis_max: false,
-                operator: operator
+                operator: operator,
+                cutoff_frequency: 0.001
               }
               queries.concat [
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},

@@ -101,17 +101,17 @@ module Searchkick
                 tokenizer: "standard",
                 # synonym should come last, after stemming and shingle
                 # shingle must come before snowball
-                filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_index_shingle", "snowball"]
               },
               searchkick_search: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "snowball"]
               },
               searchkick_search2: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "snowball"]
               },
               # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
               searchkick_autocomplete_index: {
