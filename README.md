@@ -21,11 +21,13 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord and Mongoid
 
-:zap: Even better with [Searchjoy](http://ankane.github.io/searchjoy/)
-
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
+
+We highly recommend tracking queries and conversions
+
+:zap: [Searchjoy](http://ankane.github.io/searchjoy/) makes it easy
 
 ## Get Started
 
