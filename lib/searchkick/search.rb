@@ -236,6 +236,8 @@ module Searchkick
                     filters << {not: term_filters.call(field, op_value)}
                   elsif op == :all
                     filters << {terms: {field => op_value, execution: "and"}}
+                  elsif op == :any
+                    filters << {terms: {field => op_value, execution: "or"}}
                   else
                     range_query =
                       case op
