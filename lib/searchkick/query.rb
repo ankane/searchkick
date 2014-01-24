@@ -475,27 +475,24 @@ module Searchkick
             end
 
             value.each do |op, op_value|
-              next if [:near, :within, :top_left, :bottom_right].include?(op)
-
               if op == :not # not equal
-                filters << {not: term_filters(field, op_value)}
+                filters << { not: term_filters(field, op_value) }
               elsif op == :all
-                filters << {terms: {field => op_value, execution: "and"}}
-              else
+                filters << { terms: { field => op_value, execution: "and" } }
+              elsif [:gt, :gte, :lt, :lte].include?(op)
                 range_query =
                   case op
                   when :gt
-                    {from: op_value, include_lower: false}
+                    { from: op_value, include_lower: false }
                   when :gte
-                    {from: op_value, include_lower: true}
+                    { from: op_value, include_lower: true }
                   when :lt
-                    {to: op_value, include_upper: false}
+                    { to: op_value, include_upper: false }
                   when :lte
-                    {to: op_value, include_upper: true}
-                  else
-                    raise "Unknown where operator (#{op})"
+                    { to: op_value, include_upper: true }
                   end
-                filters << {range: {field => range_query}}
+
+                filters << { range: { field => range_query } }
               end
             end
           else
