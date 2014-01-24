@@ -610,9 +610,9 @@ end
 or temporarily
 
 ```ruby
-Product.disable_search_callbacks # use Searchkick.disable_callbacks for all models
+Product.disable_search_callbacks # or use Searchkick.disable_callbacks for all models
 ExpensiveProductsTask.execute
-Product.enable_search_callbacks
+Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all models
 Product.reindex
 ```
 
