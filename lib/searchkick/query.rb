@@ -437,9 +437,10 @@ module Searchkick
 
     # transform a set of conditions into where statements for the payload
     def where_filters(conditions)
+      conditions = conditions || {}
       filters = []
 
-      (conditions || {}).each do |field, value|
+      conditions.each do |field, value|
         field = :_id if field.to_s == "id"
 
         if field == :or
@@ -456,8 +457,8 @@ module Searchkick
             if value[:near]
               filters << {
                 geo_distance: {
-                  field => value.delete(:near).map(&:to_f).reverse,
-                  distance: value.delete(:within) || "50mi"
+                  field => value[:near].map(&:to_f).reverse,
+                  distance: value[:within] || "50mi"
                 }
               }
             end
@@ -466,14 +467,16 @@ module Searchkick
               filters << {
                 geo_bounding_box: {
                   field => {
-                    top_left: value.delete(:top_left).map(&:to_f).reverse,
-                    bottom_right: value.delete(:bottom_right).map(&:to_f).reverse
+                    top_left: value[:top_left].map(&:to_f).reverse,
+                    bottom_right: value[:bottom_right].map(&:to_f).reverse
                   }
                 }
               }
             end
 
             value.each do |op, op_value|
+              next if [:near, :within, :top_left, :bottom_right].include?(op)
+
               if op == :not # not equal
                 filters << {not: term_filters(field, op_value)}
               elsif op == :all
@@ -490,7 +493,7 @@ module Searchkick
                   when :lte
                     {to: op_value, include_upper: true}
                   else
-                    raise "Unknown where operator"
+                    raise "Unknown where operator (#{op})"
                   end
                 filters << {range: {field => range_query}}
               end
