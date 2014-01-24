@@ -768,3 +768,11 @@ Everyone is encouraged to help improve this project. Here are a few ways you can
 - Fix bugs and [submit pull requests](https://github.com/ankane/searchkick/pulls)
 - Write, clarify, or fix documentation
 - Suggest or add new features
+
+To get started with development and testing:
+
+1. Clone the repo
+2. Install PostgreSQL and create a database called `searchkick_test` (`psql -d postgres -c "create database searchkick_test"`)
+3. Install Elasticsearch
+4. `bundle`
+5. `rake test`
