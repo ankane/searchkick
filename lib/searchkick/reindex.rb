@@ -51,7 +51,8 @@ module Searchkick
     end
 
     def self.extended(klass)
-      (@descendents ||= []) << klass
+      @descendents ||= []
+      @descendents << klass unless @descendents.include?(klass)
     end
 
     private
