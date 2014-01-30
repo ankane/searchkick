@@ -138,6 +138,15 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
+  def test_order_multiple
+    store [
+      {name: "Product A", color: "blue", store_id: 1},
+      {name: "Product B", color: "red", store_id: 3},
+      {name: "Product C", color: "red", store_id: 2}
+    ]
+    assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
+  end
+
   def test_partial
     store_names ["Honey"]
     assert_search "fresh honey", []
