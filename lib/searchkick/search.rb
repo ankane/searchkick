@@ -179,7 +179,7 @@ module Searchkick
       # order
       if options[:order]
         order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-        payload[:sort] = order
+        payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
       end
 
       term_filters =

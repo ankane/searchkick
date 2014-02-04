@@ -148,6 +148,13 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
+  def test_order_id
+    store_names ["Product A", "Product B"]
+    product_a = Product.where(name: "Product A").first
+    product_b = Product.where(name: "Product B").first
+    assert_order "product", [product_a, product_b].sort_by(&:id).map(&:name), order: {id: :asc}
+  end
+
   def test_order_multiple
     store [
       {name: "Product A", color: "blue", store_id: 1},
