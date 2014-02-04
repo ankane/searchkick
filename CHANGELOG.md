@@ -1,3 +1,8 @@
+## 0.5.1 [unreleased]
+
+- Replaced stop words with common terms query
+- Fixed bug with empty array in where clause
+
 ## 0.5.0
 
 - Better control over partial matches
