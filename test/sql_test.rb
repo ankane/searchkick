@@ -95,6 +95,16 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A"], where: {id: product.id.to_s}
   end
 
+  def test_where_empty
+    store_names ["Product A"]
+    assert_search "product", ["Product A"], where: {}
+  end
+
+  def test_where_empty_array
+    store_names ["Product A"]
+    assert_search "product", [], where: {store_id: []}
+  end
+
   def test_near
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
