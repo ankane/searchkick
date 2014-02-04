@@ -126,7 +126,7 @@ class Product
   attr_accessor :conversions, :user_ids
 
   def search_data
-    serializable_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
+    serializable_hash.except("id").merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
   end
 
   def should_index?
@@ -159,6 +159,7 @@ class Minitest::Unit::TestCase
 
   def setup
     Product.destroy_all
+    Store.destroy_all
     Animal.destroy_all
   end
 
