@@ -1,6 +1,7 @@
 ## 0.5.1 [unreleased]
 
 - Replaced stop words with common terms query
+- Added language option
 - Fixed bug with empty array in where clause
 
 ## 0.5.0

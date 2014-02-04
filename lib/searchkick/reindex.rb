@@ -94,24 +94,24 @@ module Searchkick
               searchkick_keyword: {
                 type: "custom",
                 tokenizer: "keyword",
-                filter: ["lowercase", "snowball"]
+                filter: ["lowercase", "searchkick_stemmer"]
               },
               default_index: {
                 type: "custom",
                 tokenizer: "standard",
                 # synonym should come last, after stemming and shingle
-                # shingle must come before snowball
-                filter: ["standard", "lowercase", "asciifolding", "searchkick_index_shingle", "snowball"]
+                # shingle must come before searchkick_stemmer
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
               },
               searchkick_search: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
               },
               searchkick_search2: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
               },
               # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
               searchkick_autocomplete_index: {
@@ -190,6 +190,10 @@ module Searchkick
                 type: "nGram",
                 min_gram: 1,
                 max_gram: 50
+              },
+              searchkick_stemmer: {
+                type: "snowball",
+                language: options[:language] || "English"
               }
             },
             tokenizer: {

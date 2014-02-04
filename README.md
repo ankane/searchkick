@@ -176,6 +176,18 @@ Available options are:
 :text_end
 ```
 
+### Language [master]
+
+Searchkick defaults to English for stemming.  To change this, use:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick language: "German"
+end
+```
+
+[See the list of languages](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/analysis-snowball-tokenfilter.html)
+
 ### Synonyms
 
 ```ruby
