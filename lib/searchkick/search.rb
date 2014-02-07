@@ -267,6 +267,19 @@ module Searchkick
 
       # filters
       filters = where_filters.call(options[:where])
+
+      # has_child filter
+      if value = options[:has_child]
+        filters << {
+          has_child: {
+            type: value.delete(:type),
+            filter: {
+              and: where_filters.call(value[:where])
+            }
+          }
+        }
+      end
+
       if filters.any?
         payload[:filter] = {
           and: filters
