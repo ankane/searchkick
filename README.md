@@ -233,7 +233,7 @@ Searchkick uses `find_in_batches` to import documents.  To eager load associatio
 
 ```ruby
 class Product < ActiveRecord::Base
-  scope :search_import, includes(:searches)
+  scope :search_import, -> { includes(:searches) }
 end
 ```
 
