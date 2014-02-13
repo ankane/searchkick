@@ -659,8 +659,6 @@ end
 
 Asynchronous reindexing
 
-**Note:** Use `after_commit` for ActiveRecord and `after_save` and `after_destroy` for Mongoid
-
 ```ruby
 class Product < ActiveRecord::Base
   searchkick callbacks: false
