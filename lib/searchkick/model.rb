@@ -19,8 +19,8 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
-        after_save :reindex
-        after_destroy :reindex
+        after_save :reindex, if: proc { self.class.search_callbacks? }
+        after_destroy :reindex, if: proc { self.class.search_callbacks? }
 
         def self.enable_search_callbacks
           class_variable_set :@@searchkick_callbacks, true
@@ -39,13 +39,11 @@ module Searchkick
         end
 
         def reindex
-          if self.class.search_callbacks?
-            index = self.class.searchkick_index
-            if destroyed? or !should_index?
-              index.remove self
-            else
-              index.store self
-            end
+          index = self.class.searchkick_index
+          if destroyed? or !should_index?
+            index.remove self
+          else
+            index.store self
           end
         end
 
