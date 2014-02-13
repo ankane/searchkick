@@ -683,7 +683,7 @@ end
 
 Reindex conditionally
 
-**Note:** Use with caution - (transaction rollbacks can cause data inconstencies)[https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks] with this feature
+**Note:** Use with caution - [transaction rollbacks can cause data inconstencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks) with this feature
 
 ```ruby
 class Product < ActiveRecord::Base
