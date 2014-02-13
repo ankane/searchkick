@@ -1,8 +1,10 @@
-## 0.5.1 [unreleased]
+## 0.5.1
 
 - Replaced stop words with common terms query
 - Added language option
 - Fixed bug with empty array in where clause
+- Fixed bug with MongoDB integer _id
+- Fixed reindex bug when callbacks disabled
 
 ## 0.5.0
 

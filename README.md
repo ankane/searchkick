@@ -176,7 +176,7 @@ Available options are:
 :text_end
 ```
 
-### Language [master]
+### Language
 
 Searchkick defaults to English for stemming.  To change this, use:
 
