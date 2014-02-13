@@ -1,3 +1,7 @@
+## 0.5.3 [unreleased]
+
+- Added personalize option
+
 ## 0.5.2
 
 - Use after_commit hook for ActiveRecord to prevent data inconsistencies
