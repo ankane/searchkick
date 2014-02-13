@@ -57,4 +57,14 @@ class TestBoost < Minitest::Unit::TestCase
     assert_first "tomato", "Tomato B", user_id: 2
   end
 
+  def test_personalize
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", user_ids: [1, 2, 3]},
+      {name: "Tomato C"},
+      {name: "Tomato D"}
+    ]
+    assert_first "tomato", "Tomato B", personalize: {user_ids: 2}
+  end
+
 end

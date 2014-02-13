@@ -159,6 +159,15 @@ module Searchkick
         }
       end
 
+      if options[:personalize]
+        custom_filters << {
+          filter: {
+            term: options[:personalize]
+          },
+          boost: 100
+        }
+      end
+
       if custom_filters.any?
         payload = {
           custom_filters_score: {
