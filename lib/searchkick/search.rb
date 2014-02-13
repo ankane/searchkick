@@ -224,30 +224,29 @@ module Searchkick
               end
 
               if value.is_a?(Hash)
-                if value[:near]
-                  filters << {
-                    geo_distance: {
-                      field => value.delete(:near).map(&:to_f).reverse,
-                      distance: value.delete(:within) || "50mi"
-                    }
-                  }
-                end
-
-                if value[:top_left]
-                  filters << {
-                    geo_bounding_box: {
-                      field => {
-                        top_left: value.delete(:top_left).map(&:to_f).reverse,
-                        bottom_right: value.delete(:bottom_right).map(&:to_f).reverse
+                value.each do |op, op_value|
+                  case op
+                  when :within, :bottom_right
+                    # do nothing
+                  when :near
+                    filters << {
+                      geo_distance: {
+                        field => op_value.map(&:to_f).reverse,
+                        distance: value[:within] || "50mi"
                       }
                     }
-                  }
-                end
-
-                value.each do |op, op_value|
-                  if op == :not # not equal
+                  when :top_left
+                    filters << {
+                      geo_bounding_box: {
+                        field => {
+                          top_left: op_value.map(&:to_f).reverse,
+                          bottom_right: value[:bottom_right].map(&:to_f).reverse
+                        }
+                      }
+                    }
+                  when :not # not equal
                     filters << {not: term_filters.call(field, op_value)}
-                  elsif op == :all
+                  when :all
                     filters << {terms: {field => op_value, execution: "and"}}
                   else
                     range_query =
