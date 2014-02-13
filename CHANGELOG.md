@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Use after_commit hook for ActiveRecord to prevent data inconsistencies
+
 ## 0.5.1
 
 - Replaced stop words with common terms query
