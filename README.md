@@ -747,11 +747,14 @@ For convenience, this is set by default in the test environment.
 
 Thanks to Karel Minarik for [Tire](https://github.com/karmi/tire), Jaroslav Kalistsuk for [zero downtime reindexing](https://gist.github.com/jarosan/3124884), and Alex Leschenko for [Elasticsearch autocomplete](https://github.com/leschenko/elasticsearch_autocomplete).
 
-## TODO
+## Roadmap
 
-- Generate autocomplete predictions from past search queries
-- Automatic failover
-- Make Searchkick work with any language
+- Search multiple fields for different terms
+- Search across models
+- Search nested objects
+- Add section on testing
+- Much finer customization
+- More transparency into generated queries (for advanced use)
 
 ## History
 
