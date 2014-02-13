@@ -657,7 +657,33 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Asynchronous reindexing
+
+**Note:** Use `after_commit` for ActiveRecord and `after_save` and `after_destroy` for Mongoid
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: false
+
+  # add the callbacks manually
+
+  # ActiveRecord - one callback
+  after_commit :reindex_async
+
+  # Mongoid - two callbacks
+  after_save :reindex_async
+  after_destroy :reindex_async
+
+  def reindex_async
+    # delayed job
+    delay.reindex
+  end
+end
+```
+
 Reindex conditionally
+
+**Note:** Use with caution - (transaction rollbacks can cause data inconstencies)[https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks] with this feature
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -666,23 +692,6 @@ class Product < ActiveRecord::Base
   # add the callbacks manually
   after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
   after_destroy :reindex
-end
-```
-
-Asynchronous reindexing
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-
-  # add the callbacks manually
-  after_save :reindex_async
-  after_destroy :reindex_async
-
-  def reindex_async
-    # delayed job
-    delay.reindex
-  end
 end
 ```
 

@@ -32,4 +32,17 @@ class TestIndex < Minitest::Unit::TestCase
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  if defined?(ActiveRecord)
+
+    def test_transaction
+      Product.transaction do
+        store_names ["Product A"]
+        raise ActiveRecord::Rollback
+      end
+
+      assert_search "product", []
+    end
+
+  end
+
 end
