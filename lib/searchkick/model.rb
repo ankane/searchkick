@@ -60,7 +60,9 @@ module Searchkick
           source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
 
           # Mongoid 4 hack
-          source["_id"] = source["_id"].to_s if source["_id"]
+          if defined?(BSON::ObjectId) and source["_id"].is_a?(BSON::ObjectId)
+            source["_id"] = source["_id"].to_s
+          end
 
           options = self.class.searchkick_options
 
