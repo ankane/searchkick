@@ -280,6 +280,18 @@ module Searchkick
         }
       end
 
+      # has_parent filter
+      if value = options[:has_parent]
+        filters << {
+          has_parent: {
+            type: value.delete(:type),
+            filter: {
+              and: where_filters.call(value[:where])
+            }
+          }
+        }
+      end
+
       if filters.any?
         payload[:filter] = {
           and: filters
