@@ -358,7 +358,9 @@ module Searchkick
       payload[:fields] = [] if load
 
       tire_options = {load: load, payload: payload, size: per_page, from: offset}
-      tire_options[:type] = handle_types(options[:types])
+      if options[:type] or self != searchkick_klass
+        tire_options[:type] = [options[:type] || self].flatten.map(&:document_type)
+      end
       search = Tire::Search::Search.new(index_name, tire_options)
       begin
         response = search.json
@@ -384,12 +386,6 @@ module Searchkick
 
       Searchkick::Results.new(response, search.options.merge(term: term))
     end
-
-    private
-      def handle_types(types)
-        return types.map(&:document_type) if types
-        document_type if self != searchkick_klass
-      end
 
   end
 end
