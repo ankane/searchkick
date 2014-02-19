@@ -1,7 +1,7 @@
 module Searchkick
   module Search
 
-    def search_and_kick(term, options = {})
+    def searchkick(term, options = {})
       if term.is_a?(Hash)
         options = term
         term = nil
