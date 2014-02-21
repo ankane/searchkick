@@ -105,6 +105,17 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", [], where: {store_id: []}
   end
 
+  # http://elasticsearch-users.115913.n3.nabble.com/Numeric-range-quey-or-filter-in-an-array-field-possible-or-not-td4042967.html
+  # https://gist.github.com/jprante/7099463
+  def test_where_range_array
+    store [
+      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23.6]},
+      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 8.9, 9.1, 9.4]},
+      {name: "Product C", user_ids: [101, 230, 150, 200]}
+    ]
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 23.9}}
+  end
+
   def test_near
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
