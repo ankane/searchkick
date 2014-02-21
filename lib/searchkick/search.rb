@@ -262,7 +262,11 @@ module Searchkick
                       else
                         raise "Unknown where operator"
                       end
-                    filters << {range: {field => range_query}}
+                    if existing = filters.find { |f| f[:range] && f[:range].keys.include?(field) }
+                      existing[:range][field].merge!(range_query)
+                    else
+                      filters << {range: {field => range_query}}
+                    end
                   end
                 end
               else
