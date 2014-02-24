@@ -125,6 +125,11 @@ module Searchkick
                 tokenizer: "keyword",
                 filter: ["lowercase", "asciifolding"]
               },
+              searchkick_word_search: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding"]
+              },
               searchkick_suggest_index: {
                 type: "custom",
                 tokenizer: "standard",

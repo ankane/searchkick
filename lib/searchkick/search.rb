@@ -92,11 +92,12 @@ module Searchkick
                 ]
               end
             else
+              analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
               queries << {
                 multi_match: {
                   fields: [field],
                   query: term,
-                  analyzer: "searchkick_autocomplete_search"
+                  analyzer: analyzer
                 }
               }
             end
