@@ -117,6 +117,14 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 23.9}}
   end
 
+  def test_where_range_array_again
+    store [
+      {name: "Product A", user_ids: [19, 32, 42]},
+      {name: "Product B", user_ids: [13, 40, 52]}
+    ]
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 26, lt: 36}}
+  end
+
   def test_near
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
