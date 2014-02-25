@@ -1,6 +1,6 @@
-## 0.5.3 [unreleased]
+## 0.5.3
 
-- Added personalize option
+- Fixed bug w/ word_* queries
 
 ## 0.5.2
 
