@@ -308,9 +308,24 @@ module Searchkick
       !!options[:order]
     end
 
+    def add_underscore_to_id_keys(hash)
+      Hash[ hash.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
+    end
+
     def apply_order(payload)
-      order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
+      order = if options[:order].is_a?(Enumerable)
+        options[:order]
+      else
+        {options[:order] => :asc}
+      end
+
+      order = if order.is_a?(Array)
+        order.map { |hash| add_underscore_to_id_keys(hash) }
+      else
+        add_underscore_to_id_keys(order)
+      end
+
+      payload[:sort] = order
     end
 
     def apply_where_filters(payload)
