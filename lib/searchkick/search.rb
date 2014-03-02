@@ -363,7 +363,7 @@ module Searchkick
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      tire_options = {load: load, payload: payload, size: per_page, from: offset}
+      tire_options = {load: load, payload: payload, size: per_page, from: offset, model_name: searchkick_klass.model_name}
       if options[:type] or self != searchkick_klass
         tire_options[:type] = [options[:type] || self].flatten.map(&:document_type)
       end

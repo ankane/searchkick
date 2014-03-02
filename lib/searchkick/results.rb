@@ -23,5 +23,10 @@ module Searchkick
     def __find_records_by_ids(klass, ids)
       @options[:load] === true ? klass.find(ids) : klass.includes(@options[:load][:include]).find(ids)
     end
+
+    def model_name
+      @options[:model_name]
+    end
+
   end
 end
