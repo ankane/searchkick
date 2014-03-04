@@ -147,7 +147,7 @@ Product.search "fresh honey" # fresh AND honey
 To change this, use:
 
 ```ruby
-Product.search "fresh honey", operator: "or" # fresh OR honey
+Product.search "fresh honey", partial: true # fresh OR honey
 ```
 
 By default, results must match the entire word - `back` will not match `backpack`. You can change this behavior with:
