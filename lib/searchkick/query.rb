@@ -50,7 +50,7 @@ module Searchkick
           end
         end
 
-      operator = options[:partial] ? "or" : "and"
+      operator = options[:operator] || (options[:partial] ? "or" : "and")
 
       # model and eagar loading
       load = options[:load].nil? ? true : options[:load]

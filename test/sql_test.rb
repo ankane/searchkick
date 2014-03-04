@@ -190,6 +190,12 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "fresh honey", ["Honey"], partial: true
   end
 
+  def test_operator
+    store_names ["Honey"]
+    assert_search "fresh honey", []
+    assert_search "fresh honey", ["Honey"], operator: "or"
+  end
+
   def test_misspellings
     store_names ["abc", "abd", "aee"]
     assert_search "abc", ["abc"], misspellings: false
