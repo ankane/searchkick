@@ -326,7 +326,7 @@ module Searchkick
         response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
       end
 
-      Searchkick::Results.new(response, search.options.merge(term: term))
+      Searchkick::Results.new(response, search.options.merge(term: term, model_name: searchkick_klass.model_name))
     end
 
     private
