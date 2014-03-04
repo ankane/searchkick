@@ -1,6 +1,7 @@
 module Searchkick
   class Query
     attr_reader :klass, :term, :options
+    attr_accessor :body
 
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
@@ -13,25 +14,7 @@ module Searchkick
       @klass = klass
       @term = term
       @options = options
-    end
 
-    def searchkick_index
-      klass.searchkick_index
-    end
-
-    def searchkick_options
-      klass.searchkick_options
-    end
-
-    def searchkick_klass
-      klass.searchkick_klass
-    end
-
-    def document_type
-      klass.document_type
-    end
-
-    def results
       fields =
         if options[:fields]
           if options[:autocomplete]
@@ -299,13 +282,36 @@ module Searchkick
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      tire_options = {load: load, payload: payload, size: per_page, from: offset}
+      tire_options = {load: load, size: per_page, from: offset}
       if options[:type] or klass != searchkick_klass
         tire_options[:type] = [options[:type] || klass].flatten.map(&:document_type)
       end
-      search = Tire::Search::Search.new(index_name, tire_options)
+
+      @search = Tire::Search::Search.new(index_name, tire_options)
+      @body = payload
+      @facet_limits = facet_limits
+    end
+
+    def searchkick_index
+      klass.searchkick_index
+    end
+
+    def searchkick_options
+      klass.searchkick_options
+    end
+
+    def searchkick_klass
+      klass.searchkick_klass
+    end
+
+    def document_type
+      klass.document_type
+    end
+
+    def execute
+      @search.options[:payload] = body
       begin
-        response = search.json
+        response = @search.json
       rescue Tire::Search::SearchRequestFailed => e
         status_code = e.message[0..3].to_i
         if status_code == 404
@@ -319,14 +325,14 @@ module Searchkick
 
       # apply facet limit in client due to
       # https://github.com/elasticsearch/elasticsearch/issues/1305
-      facet_limits.each do |field, limit|
+      @facet_limits.each do |field, limit|
         field = field.to_s
         facet = response["facets"][field]
         response["facets"][field]["terms"] = facet["terms"].first(limit)
         response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
       end
 
-      Searchkick::Results.new(response, search.options.merge(term: term, model_name: searchkick_klass.model_name))
+      Searchkick::Results.new(response, @search.options.merge(term: term, model_name: searchkick_klass.model_name))
     end
 
     private
