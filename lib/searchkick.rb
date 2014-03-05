@@ -1,3 +1,4 @@
+require "active_model"
 require "elasticsearch/model"
 require "searchkick/version"
 require "searchkick/index"
@@ -32,8 +33,5 @@ module Searchkick
   end
 end
 
-require "active_record" # TODO remove
-
 # TODO find better ActiveModel hook
-ActiveModel::Callbacks.send(:include, Searchkick::Model) if defined?(ActiveModel)
-ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)
+ActiveModel::Callbacks.send(:include, Searchkick::Model)
