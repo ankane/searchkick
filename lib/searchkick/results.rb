@@ -2,6 +2,8 @@ module Searchkick
   class Results < Elasticsearch::Model::Response::Response
     attr_writer :response
 
+    delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :records
+
     def suggestions
       if @response["suggest"]
         @response["suggest"].values.flat_map{|v| v.first["options"] }.sort_by{|o| -o["score"] }.map{|o| o["text"] }.uniq
