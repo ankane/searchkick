@@ -284,7 +284,7 @@ module Searchkick
 
       tire_options = {load: load, size: per_page, from: offset}
       if options[:type] or klass != searchkick_klass
-        tire_options[:type] = [options[:type] || klass].flatten.map(&:document_type)
+        @type = [options[:type] || klass].flatten.map(&:document_type)
       end
 
       @body = payload
@@ -308,7 +308,12 @@ module Searchkick
     end
 
     def execute
-      response = Searchkick.client.search(index: searchkick_index.name, body: body)
+      params = {
+        index: searchkick_index.name,
+        body: body
+      }
+      params.merge!(type: @type) if @type
+      response = Searchkick.client.search(params)
       # search = Elasticsearch::Model::Searching::SearchRequest.new(searchkick_klass, body, index: searchkick_index.name)
       # begin
       # rescue => e # TODO rescue type
