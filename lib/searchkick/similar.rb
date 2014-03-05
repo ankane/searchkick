@@ -3,7 +3,7 @@ module Searchkick
 
     def similar(options = {})
       like_text = self.class.searchkick_index.retrieve(document_type, id).to_hash
-        .keep_if{|k,v| k[0] != "_" and (!options[:fields] or options[:fields].map(&:to_sym).include?(k)) }
+        .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
 
       # TODO deep merge method

@@ -49,5 +49,12 @@ module Searchkick
       end
     end
 
+    def retrieve(document_type, id)
+      Searchkick.client.get_source(
+        index: name,
+        type: document_type,
+        id: id
+      )
+    end
   end
 end
