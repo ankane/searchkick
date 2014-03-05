@@ -1,4 +1,4 @@
-require "elasticsearch"
+require "elasticsearch/model"
 require "searchkick/version"
 require "searchkick/index"
 require "searchkick/reindex"
@@ -13,7 +13,7 @@ require "searchkick/tasks"
 module Searchkick
 
   def self.client
-    @client ||= Elasticsearch::Client.new log: true
+    @client ||= Elasticsearch::Client.new(log: true)
   end
 
   @callbacks = true

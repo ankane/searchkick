@@ -1,5 +1,5 @@
 module Searchkick
-  class Results
+  class Results < Elasticsearch::Model::Response::Results
 
     def suggestions
       if @response["suggest"]
