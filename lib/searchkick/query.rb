@@ -352,6 +352,10 @@ module Searchkick
             value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
           end
 
+          if value.is_a?(Array)
+            value = {in: value}
+          end
+
           if value.is_a?(Hash)
             value.each do |op, op_value|
               case op
@@ -377,6 +381,8 @@ module Searchkick
                 filters << {not: term_filters(field, op_value)}
               when :all
                 filters << {terms: {field => op_value, execution: "and"}}
+              when :in
+                filters << term_filters(field, op_value)
               else
                 range_query =
                   case op
