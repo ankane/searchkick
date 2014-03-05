@@ -23,8 +23,7 @@ module Searchkick
     end
 
     def store(record)
-      p record.as_indexed_json
-      client.index(
+      Searchkick.client.index(
         index: name,
         type: record.document_type,
         id: record.id,
@@ -33,7 +32,7 @@ module Searchkick
     end
 
     def remove(record)
-      client.delete(
+      Searchkick.client.delete(
         index: name,
         type: record.document_type,
         id: record.id

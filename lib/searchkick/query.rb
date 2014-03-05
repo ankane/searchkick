@@ -334,7 +334,7 @@ module Searchkick
       # Searchkick::Results.new(searchkick_klass, search) #, merge(term: term, model_name: searchkick_klass.model_name))
       results = Searchkick::Results.new(searchkick_klass, nil)
       results.response = response
-      results
+      results.records
     end
 
     private
