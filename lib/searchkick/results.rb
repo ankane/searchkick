@@ -1,6 +1,7 @@
 module Searchkick
   class Results < Elasticsearch::Model::Response::Response
     attr_writer :response
+    attr_accessor :current_page, :per_page
 
     delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :records
 
@@ -26,13 +27,16 @@ module Searchkick
       response["facets"]
     end
 
-    # fixes deprecation warning
-    def __find_records_by_ids(klass, ids)
-      @options[:load] === true ? klass.find(ids) : klass.includes(@options[:load][:include]).find(ids)
+    def model_name
+      klass.model_name
     end
 
-    def model_name
-      @options[:model_name]
+    def total_count
+      response["hits"]["total"]
+    end
+
+    def total_pages
+      (total_count / per_page.to_f).ceil
     end
 
   end

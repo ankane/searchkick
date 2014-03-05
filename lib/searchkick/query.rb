@@ -289,6 +289,8 @@ module Searchkick
 
       @body = payload
       @facet_limits = facet_limits
+      @page = page
+      @per_page = per_page
     end
 
     def searchkick_index
@@ -313,19 +315,19 @@ module Searchkick
         body: body
       }
       params.merge!(type: @type) if @type
-      response = Searchkick.client.search(params)
-      # search = Elasticsearch::Model::Searching::SearchRequest.new(searchkick_klass, body, index: searchkick_index.name)
-      # begin
-      # rescue => e # TODO rescue type
-      #   status_code = e.message[0..3].to_i
-      #   if status_code == 404
-      #     raise "Index missing - run #{searchkick_klass.name}.reindex"
-      #   elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]"))
-      #     raise "Upgrade Elasticsearch to 0.90.0 or greater"
-      #   else
-      #     raise e
-      #   end
-      # end
+      begin
+        response = Searchkick.client.search(params)
+      rescue => e # TODO rescue type
+        # status_code = e.message[0..3].to_i
+        # if status_code == 404
+        #   raise "Index missing - run #{searchkick_klass.name}.reindex"
+        # elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]"))
+        #   raise "Upgrade Elasticsearch to 0.90.0 or greater"
+        # else
+        #   raise e
+        # end
+        raise e
+      end
 
       # apply facet limit in client due to
       # https://github.com/elasticsearch/elasticsearch/issues/1305
@@ -336,9 +338,10 @@ module Searchkick
         response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
       end
 
-      # Searchkick::Results.new(searchkick_klass, search) #, merge(term: term, model_name: searchkick_klass.model_name))
       results = Searchkick::Results.new(searchkick_klass, nil)
       results.response = response
+      results.current_page = @page
+      results.per_page = @per_page
       results
     end
 
