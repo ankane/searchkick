@@ -22,10 +22,22 @@ module Searchkick
       Searchkick.client.indices.refresh index: name
     end
 
-    def store(model)
+    def store(record)
+      p record.as_indexed_json
+      client.index(
+        index: name,
+        type: record.document_type,
+        id: record.id,
+        body: record.as_indexed_json
+      )
     end
 
-    def remove(model)
+    def remove(record)
+      client.delete(
+        index: name,
+        type: record.document_type,
+        id: record.id
+      )
     end
 
   end

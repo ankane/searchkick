@@ -55,7 +55,7 @@ module Searchkick
           respond_to?(:to_hash) ? to_hash : serializable_hash
         end
 
-        def to_indexed_json
+        def as_indexed_json
           source = search_data
 
           # stringify fields
@@ -115,7 +115,7 @@ module Searchkick
 
           # p search_data
 
-          source.to_json
+          source.as_json
         end
 
         # TODO remove

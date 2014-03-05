@@ -1,5 +1,6 @@
 module Searchkick
-  class Results < Elasticsearch::Model::Response::Results
+  class Results < Elasticsearch::Model::Response::Response
+    attr_writer :response
 
     def suggestions
       if @response["suggest"]
