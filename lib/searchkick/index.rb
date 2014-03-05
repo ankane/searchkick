@@ -39,5 +39,15 @@ module Searchkick
       )
     end
 
+    def import(records)
+      if records.any?
+        Searchkick.client.bulk(
+          index: name,
+          type: records.first.document_type,
+          body: records.map{|r| {index: {_id: r.id, data: r.as_indexed_json}} }
+        )
+      end
+    end
+
   end
 end
