@@ -59,9 +59,9 @@ else
   ActiveRecord::Base.time_zone_aware_attributes = true
 
   # migrations
-  ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "searchkick_test"
+  ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-  ActiveRecord::Migration.create_table :products, :force => true do |t|
+  ActiveRecord::Migration.create_table :products do |t|
     t.string :name
     t.integer :store_id
     t.boolean :in_stock
@@ -74,11 +74,11 @@ else
     t.timestamps
   end
 
-  ActiveRecord::Migration.create_table :stores, :force => true do |t|
+  ActiveRecord::Migration.create_table :stores do |t|
     t.string :name
   end
 
-  ActiveRecord::Migration.create_table :animals, :force => true do |t|
+  ActiveRecord::Migration.create_table :animals do |t|
     t.string :name
     t.string :type
   end
