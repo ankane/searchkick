@@ -19,8 +19,12 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
-        after_save :reindex
-        after_destroy :reindex
+        if respond_to?(:after_commit)
+          after_commit :reindex, if: proc{ self.class.search_callbacks? }
+        else
+          after_save :reindex, if: proc{ self.class.search_callbacks? }
+          after_destroy :reindex, if: proc{ self.class.search_callbacks? }
+        end
 
         def self.enable_search_callbacks
           class_variable_set :@@searchkick_callbacks, true
@@ -39,13 +43,11 @@ module Searchkick
         end
 
         def reindex
-          if self.class.search_callbacks?
-            index = self.class.searchkick_index
-            if destroyed? or !should_index?
-              index.remove self
-            else
-              index.store self
-            end
+          index = self.class.searchkick_index
+          if destroyed? or !should_index?
+            index.remove self
+          else
+            index.store self
           end
         end
 
@@ -60,7 +62,9 @@ module Searchkick
           source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
 
           # Mongoid 4 hack
-          source["_id"] = source["_id"].to_s if source["_id"]
+          if defined?(BSON::ObjectId) and source["_id"].is_a?(BSON::ObjectId)
+            source["_id"] = source["_id"].to_s
+          end
 
           options = self.class.searchkick_options
 

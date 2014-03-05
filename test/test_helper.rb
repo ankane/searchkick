@@ -56,9 +56,9 @@ else
   ActiveRecord::Base.time_zone_aware_attributes = true
 
   # migrations
-  ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "searchkick_test"
+  ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-  ActiveRecord::Migration.create_table :products, :force => true do |t|
+  ActiveRecord::Migration.create_table :products do |t|
     t.string :name
     t.integer :store_id
     t.boolean :in_stock
@@ -71,11 +71,11 @@ else
     t.timestamps
   end
 
-  ActiveRecord::Migration.create_table :stores, :force => true do |t|
+  ActiveRecord::Migration.create_table :stores do |t|
     t.string :name
   end
 
-  ActiveRecord::Migration.create_table :animals, :force => true do |t|
+  ActiveRecord::Migration.create_table :animals do |t|
     t.string :name
     t.string :type
   end
@@ -112,12 +112,18 @@ class Product
     suggest: [:name, :color],
     conversions: "conversions",
     personalize: "user_ids",
-    locations: ["location", "multiple_locations"]
+    locations: ["location", "multiple_locations"],
+    text_start: [:name],
+    text_middle: [:name],
+    text_end: [:name],
+    word_start: [:name],
+    word_middle: [:name],
+    word_end: [:name]
 
   attr_accessor :conversions, :user_ids
 
   def search_data
-    serializable_hash.merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
+    serializable_hash.except("id").merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
   end
 
   def should_index?
@@ -150,6 +156,7 @@ class Minitest::Unit::TestCase
 
   def setup
     Product.destroy_all
+    Store.destroy_all
     Animal.destroy_all
   end
 

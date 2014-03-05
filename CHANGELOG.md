@@ -1,3 +1,26 @@
+## 0.5.3
+
+- Fixed bug w/ word_* queries
+
+## 0.5.2
+
+- Use after_commit hook for ActiveRecord to prevent data inconsistencies
+
+## 0.5.1
+
+- Replaced stop words with common terms query
+- Added language option
+- Fixed bug with empty array in where clause
+- Fixed bug with MongoDB integer _id
+- Fixed reindex bug when callbacks disabled
+
+## 0.5.0
+
+- Better control over partial matches
+- Added merge_mappings option
+- Added batch_size option
+- Fixed bug with nil where clauses
+
 ## 0.4.2
 
 - Added `should_index?` method to control which records are indexed

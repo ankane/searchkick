@@ -25,6 +25,19 @@ class TestInheritance < Minitest::Unit::TestCase
     assert_equal 2, Animal.search("bear").size
   end
 
+  def test_force_one_type
+    store_names ["Green Bear"], Dog
+    store_names ["Blue Bear"], Cat
+    assert_equal ["Blue Bear"], Animal.search("bear", type: [Cat]).map(&:name)
+  end
+
+  def test_force_multiple_types
+    store_names ["Green Bear"], Dog
+    store_names ["Blue Bear"], Cat
+    store_names ["Red Bear"], Animal
+    assert_equal ["Green Bear", "Blue Bear"], Animal.search("bear", type: [Dog, Cat]).map(&:name)
+  end
+
   def test_child_autocomplete
     store_names ["Max"], Cat
     store_names ["Mark"], Dog

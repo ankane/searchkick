@@ -40,7 +40,7 @@ class TestSql < Minitest::Unit::TestCase
     store [
       {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4, user_ids: [1, 2, 3]},
       {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, orders_count: 3, user_ids: [1]},
-      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2},
+      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2, user_ids: [1, 3]},
       {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1},
     ]
     assert_search "product", ["Product A", "Product B"], where: {in_stock: true}
@@ -60,13 +60,21 @@ class TestSql < Minitest::Unit::TestCase
     assert_search "product", ["Product A", "Product B"], where: {store_id: [1, 2]}
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
+    assert_search "product", ["Product A"], where: {user_ids: {lte: 2, gte: 2}}
     # or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{orders_count: [2, 4]}, {store_id: [1, 2]}]]}
     assert_search "product", ["Product A", "Product D"], where: {or: [[{orders_count: 1}, {created_at: {gte: now - 1}, backordered: true}]]}
     # all
-    assert_search "product", ["Product A"], where: {user_ids: {all: [1, 3]}}
+    assert_search "product", ["Product A", "Product C"], where: {user_ids: {all: [1, 3]}}
     assert_search "product", [], where: {user_ids: {all: [1, 2, 3, 4]}}
+    # any / nested terms
+    assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1,3]}}
+    # not / exists
+    assert_search "product", ["Product D"], where: {user_ids: nil}
+    assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
+    assert_search "product", ["Product A", "Product C", "Product D"], where: {user_ids: [3, nil]}
+    assert_search "product", ["Product B"], where: {user_ids: {not: [3, nil]}}
   end
 
   def test_where_string
@@ -88,6 +96,35 @@ class TestSql < Minitest::Unit::TestCase
     store_names ["Product A"]
     product = Product.last
     assert_search "product", ["Product A"], where: {id: product.id.to_s}
+  end
+
+  def test_where_empty
+    store_names ["Product A"]
+    assert_search "product", ["Product A"], where: {}
+  end
+
+  def test_where_empty_array
+    store_names ["Product A"]
+    assert_search "product", [], where: {store_id: []}
+  end
+
+  # http://elasticsearch-users.115913.n3.nabble.com/Numeric-range-quey-or-filter-in-an-array-field-possible-or-not-td4042967.html
+  # https://gist.github.com/jprante/7099463
+  def test_where_range_array
+    store [
+      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23.6]},
+      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 8.9, 9.1, 9.4]},
+      {name: "Product C", user_ids: [101, 230, 150, 200]}
+    ]
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 23.9}}
+  end
+
+  def test_where_range_array_again
+    store [
+      {name: "Product A", user_ids: [19, 32, 42]},
+      {name: "Product B", user_ids: [13, 40, 52]}
+    ]
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 26, lt: 36}}
   end
 
   def test_near
@@ -133,10 +170,32 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
+  def test_order_id
+    store_names ["Product A", "Product B"]
+    product_a = Product.where(name: "Product A").first
+    product_b = Product.where(name: "Product B").first
+    assert_order "product", [product_a, product_b].sort_by(&:id).map(&:name), order: {id: :asc}
+  end
+
+  def test_order_multiple
+    store [
+      {name: "Product A", color: "blue", store_id: 1},
+      {name: "Product B", color: "red", store_id: 3},
+      {name: "Product C", color: "red", store_id: 2}
+    ]
+    assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
+  end
+
   def test_partial
     store_names ["Honey"]
     assert_search "fresh honey", []
     assert_search "fresh honey", ["Honey"], partial: true
+  end
+
+  def test_operator
+    store_names ["Honey"]
+    assert_search "fresh honey", []
+    assert_search "fresh honey", ["Honey"], operator: "or"
   end
 
   def test_misspellings

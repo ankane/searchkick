@@ -44,17 +44,20 @@ module Searchkick
     end
 
     def self.extended(klass)
-      (@descendents ||= []) << klass
+      @descendents ||= []
+      @descendents << klass unless @descendents.include?(klass)
     end
 
     private
 
     def searchkick_import(index)
+      batch_size = searchkick_options[:batch_size] || 1000
+
       # use scope for import
       scope = searchkick_klass
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
-        scope.find_in_batches do |batch|
+        scope.find_in_batches batch_size: batch_size do |batch|
           index.import batch.select{|item| item.should_index? }
         end
       else
@@ -63,7 +66,7 @@ module Searchkick
         items = []
         scope.all.each do |item|
           items << item if item.should_index?
-          if items.length % 1000 == 0
+          if items.length % batch_size == 0
             index.import items
             items = []
           end
@@ -75,7 +78,7 @@ module Searchkick
     def searchkick_index_options
       options = searchkick_options
 
-      if options[:mappings]
+      if options[:mappings] and !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
@@ -85,24 +88,24 @@ module Searchkick
               searchkick_keyword: {
                 type: "custom",
                 tokenizer: "keyword",
-                filter: ["lowercase", "snowball"]
+                filter: ["lowercase", "searchkick_stemmer"]
               },
               default_index: {
                 type: "custom",
                 tokenizer: "standard",
                 # synonym should come last, after stemming and shingle
-                # shingle must come before snowball
-                filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_index_shingle", "snowball"]
+                # shingle must come before searchkick_stemmer
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
               },
               searchkick_search: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "stop", "searchkick_search_shingle", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
               },
               searchkick_search2: {
                 type: "custom",
                 tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "stop", "snowball"]
+                filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
               },
               # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
               searchkick_autocomplete_index: {
@@ -115,10 +118,50 @@ module Searchkick
                 tokenizer: "keyword",
                 filter: ["lowercase", "asciifolding"]
               },
+              searchkick_word_search: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding"]
+              },
               searchkick_suggest_index: {
                 type: "custom",
                 tokenizer: "standard",
                 filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
+              },
+              searchkick_suggest_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
+              },
+              searchkick_text_start_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+              },
+              searchkick_text_middle_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+              },
+              searchkick_text_end_index: {
+                type: "custom",
+                tokenizer: "keyword",
+                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
+              },
+              searchkick_word_start_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+              },
+              searchkick_word_middle_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+              },
+              searchkick_word_end_index: {
+                type: "custom",
+                tokenizer: "standard",
+                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
               }
             },
             filter: {
@@ -136,6 +179,20 @@ module Searchkick
               searchkick_suggest_shingle: {
                 type: "shingle",
                 max_shingle_size: 5
+              },
+              searchkick_edge_ngram: {
+                type: "edgeNGram",
+                min_gram: 1,
+                max_gram: 50
+              },
+              searchkick_ngram: {
+                type: "nGram",
+                min_gram: 1,
+                max_gram: 50
+              },
+              searchkick_stemmer: {
+                type: "snowball",
+                language: options[:language] || "English"
               }
             },
             tokenizer: {
@@ -152,7 +209,7 @@ module Searchkick
           settings.merge!(number_of_shards: 1, number_of_replicas: 0)
         end
 
-        settings.merge!(options[:settings] || {})
+        settings.deep_merge!(options[:settings] || {})
 
         # synonyms
         synonyms = options[:synonyms] || []
@@ -193,10 +250,12 @@ module Searchkick
           }
         end
 
-        # autocomplete and suggest
-        autocomplete = (options[:autocomplete] || []).map(&:to_s)
-        suggest = (options[:suggest] || []).map(&:to_s)
-        (autocomplete + suggest).uniq.each do |field|
+        mapping_options = Hash[
+          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end]
+            .map{|type| [type, (options[type] || []).map(&:to_s)] }
+        ]
+
+        mapping_options.values.flatten.uniq.each do |field|
           field_mapping = {
             type: "multi_field",
             fields: {
@@ -206,12 +265,13 @@ module Searchkick
               # http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_fast_vector_highlighter
             }
           }
-          if autocomplete.include?(field)
-            field_mapping[:fields]["autocomplete"] = {type: "string", index: "analyzed", analyzer: "searchkick_autocomplete_index"}
+
+          mapping_options.each do |type, fields|
+            if fields.include?(field)
+              field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
+            end
           end
-          if suggest.include?(field)
-            field_mapping[:fields]["suggest"] = {type: "string", index: "analyzed", analyzer: "searchkick_suggest_index"}
-          end
+
           mapping[field] = field_mapping
         end
 
@@ -246,7 +306,7 @@ module Searchkick
               }
             ]
           }
-        }
+        }.deep_merge(options[:mappings] || {})
       end
 
       {
