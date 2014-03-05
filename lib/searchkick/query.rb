@@ -322,14 +322,14 @@ module Searchkick
       #   end
       # end
 
-      # # apply facet limit in client due to
-      # # https://github.com/elasticsearch/elasticsearch/issues/1305
-      # @facet_limits.each do |field, limit|
-      #   field = field.to_s
-      #   facet = response["facets"][field]
-      #   response["facets"][field]["terms"] = facet["terms"].first(limit)
-      #   response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
-      # end
+      # apply facet limit in client due to
+      # https://github.com/elasticsearch/elasticsearch/issues/1305
+      @facet_limits.each do |field, limit|
+        field = field.to_s
+        facet = response["facets"][field]
+        response["facets"][field]["terms"] = facet["terms"].first(limit)
+        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
+      end
 
       # Searchkick::Results.new(searchkick_klass, search) #, merge(term: term, model_name: searchkick_klass.model_name))
       results = Searchkick::Results.new(searchkick_klass, nil)
