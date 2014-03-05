@@ -5,15 +5,15 @@ module Searchkick
     delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :records
 
     def suggestions
-      if @response["suggest"]
-        @response["suggest"].values.flat_map{|v| v.first["options"] }.sort_by{|o| -o["score"] }.map{|o| o["text"] }.uniq
+      if response["suggest"]
+        response["suggest"].values.flat_map{|v| v.first["options"] }.sort_by{|o| -o["score"] }.map{|o| o["text"] }.uniq
       else
         raise "Pass `suggest: true` to the search method for suggestions"
       end
     end
 
     def with_details
-      each_with_hit.map do |model, hit|
+      records.each_with_hit.map do |model, hit|
         details = {}
         if hit["highlight"]
           details[:highlight] = Hash[ hit["highlight"].map{|k, v| [k.sub(/\.analyzed\z/, "").to_sym, v.first] } ]
