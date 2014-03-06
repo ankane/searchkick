@@ -337,14 +337,13 @@ module Searchkick
         response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
       end
 
-      results = Searchkick::Results.new(searchkick_klass, nil)
-      results.response = response
-      results.current_page = @page
-      results.per_page = @per_page
-      results.options = {
+      opts = {
         load: @load,
         includes: options[:include] || options[:includes]
       }
+      results = Searchkick::Results.new(searchkick_klass, response, opts)
+      results.current_page = @page
+      results.per_page = @per_page
       results
     end
 

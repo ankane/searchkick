@@ -1,5 +1,5 @@
 require "active_model"
-require "elasticsearch/model"
+require "elasticsearch"
 require "searchkick/version"
 require "searchkick/index"
 require "searchkick/reindex"

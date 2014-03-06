@@ -1,16 +1,39 @@
 module Searchkick
-  class Results < Elasticsearch::Model::Response::Response
-    attr_writer :response
-    attr_accessor :current_page, :per_page, :options
+  class Results
+    include Enumerable
+    extend Forwardable
 
-    delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :results_or_records
+    attr_reader :klass, :response, :options
+    attr_accessor :current_page, :per_page
+
+    def_delegators :results_or_records, :each, :empty?, :size, :slice, :[], :to_ary
+
+    def initialize(klass, response, options = {})
+      @klass = klass
+      @response = response
+      @options = options
+    end
 
     def results_or_records
-      options[:load] ? records.to_a : results.to_a
+      options[:load] ? records : results
+    end
+
+    def results
+      results = @response["hits"]["hits"]
     end
 
     def records
-      options[:includes] ? super.includes(options[:includes]) : super
+      @records ||= begin
+        hits = results
+        hit_ids = hits.map{|hit| hit["_id"] }
+        records = klass
+        if options[:includes]
+          records = records.includes(options[:includes])
+        end
+        records = records.find(hit_ids)
+        hit_ids = hit_ids.map(&:to_s)
+        records.sort_by{|r| hit_ids.index(r.id.to_s)  }
+      end
     end
 
     def suggestions
@@ -21,8 +44,12 @@ module Searchkick
       end
     end
 
+    def each_with_hit(&block)
+      records.zip(results).each(&block)
+    end
+
     def with_details
-      records.each_with_hit.map do |model, hit|
+      each_with_hit.map do |model, hit|
         details = {}
         if hit["highlight"]
           details[:highlight] = Hash[ hit["highlight"].map{|k, v| [k.sub(/\.analyzed\z/, "").to_sym, v.first] } ]
