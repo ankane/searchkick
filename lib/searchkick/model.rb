@@ -45,7 +45,11 @@ module Searchkick
         def reindex
           index = self.class.searchkick_index
           if destroyed? or !should_index?
-            index.remove self
+            begin
+              index.remove self
+            rescue Elasticsearch::Transport::Transport::Errors::NotFound
+              # do nothing
+            end
           else
             index.store self
           end
