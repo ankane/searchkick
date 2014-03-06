@@ -1,5 +1,6 @@
 module Searchkick
   class Results < Tire::Results::Collection
+    attr_reader :response
 
     def suggestions
       if @response["suggest"]

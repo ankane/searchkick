@@ -589,6 +589,12 @@ query.body[:query] = {match_all: {}}
 products = query.execute
 ```
 
+View the response with:
+
+```ruby
+products.response
+```
+
 ## Reference
 
 Searchkick requires Elasticsearch `0.90.0` or higher.
