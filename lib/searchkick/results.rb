@@ -6,7 +6,7 @@ module Searchkick
     delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :results_or_records
 
     def results_or_records
-      options[:load] ? records : results
+      options[:load] ? records.to_a : results.to_a
     end
 
     def records

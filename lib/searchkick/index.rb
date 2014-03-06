@@ -44,7 +44,7 @@ module Searchkick
         Searchkick.client.bulk(
           index: name,
           type: records.first.document_type,
-          body: records.map{|r| {index: {_id: r.id, data: r.as_indexed_json}} }
+          body: records.map{|r| data = r.as_indexed_json; {index: {_id: data["_id"] || data["id"] || r.id, data: data}} }
         )
       end
     end

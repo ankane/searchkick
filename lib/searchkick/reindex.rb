@@ -13,7 +13,7 @@ module Searchkick
       index.create searchkick_index_options
 
       # check if alias exists
-      if Searchkick.client.indices.exists_alias name: alias_name
+      if Searchkick.client.indices.exists_alias(name: alias_name)
         searchkick_import(index) # import before swap
 
         # get existing indices to remove
@@ -65,7 +65,7 @@ module Searchkick
         items = []
         scope.all.each do |item|
           items << item if item.should_index?
-          if items.length % batch_size == 0
+          if items.length == batch_size
             index.import items
             items = []
           end
