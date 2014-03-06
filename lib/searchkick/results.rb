@@ -1,9 +1,17 @@
 module Searchkick
   class Results < Elasticsearch::Model::Response::Response
     attr_writer :response
-    attr_accessor :current_page, :per_page
+    attr_accessor :current_page, :per_page, :options
 
-    delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :records
+    delegate :each, :empty?, :size, :slice, :[], :to_ary, to: :results_or_records
+
+    def results_or_records
+      options[:load] ? records : results
+    end
+
+    def records
+      options[:includes] ? super.includes(options[:includes]) : super
+    end
 
     def suggestions
       if response["suggest"]

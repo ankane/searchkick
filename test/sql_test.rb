@@ -243,22 +243,22 @@ class TestSql < Minitest::Unit::TestCase
     assert_kind_of Product, Product.search("product").first
   end
 
-  # def test_load_false
-  #   store_names ["Product A"]
-  #   assert_kind_of Elasticsearch::Model::Response::Result, Product.search("product", load: false).first
-  # end
+  def test_load_false
+    store_names ["Product A"]
+    assert_kind_of Elasticsearch::Model::Response::Result, Product.search("product", load: false).first
+  end
 
-  # def test_load_false_with_include
-  #   store_names ["Product A"]
-  #   assert_kind_of Elasticsearch::Model::Response::Result, Product.search("product", load: false, include: [:store]).first
-  # end
+  def test_load_false_with_include
+    store_names ["Product A"]
+    assert_kind_of Elasticsearch::Model::Response::Result, Product.search("product", load: false, include: [:store]).first
+  end
 
   # TODO see if Mongoid is loaded
-  # if !defined?(Mongoid)
-  #   def test_include
-  #     store_names ["Product A"]
-  #     assert Product.search("product", include: [:store]).first.association(:store).loaded?
-  #   end
-  # end
+  if !defined?(Mongoid)
+    def test_include
+      store_names ["Product A"]
+      assert Product.search("product", include: [:store]).first.association(:store).loaded?
+    end
+  end
 
 end

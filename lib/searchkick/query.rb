@@ -35,10 +35,6 @@ module Searchkick
 
       operator = options[:operator] || (options[:partial] ? "or" : "and")
 
-      # model and eagar loading
-      load = options[:load].nil? ? true : options[:load]
-      load = (options[:include] ? {include: options[:include]} : true) if load
-
       # pagination
       page = [options[:page].to_i, 1].max
       per_page = (options[:limit] || options[:per_page] || 100000).to_i
@@ -278,11 +274,13 @@ module Searchkick
         end
       end
 
+      # model and eagar loading
+      load = options[:load].nil? ? true : options[:load]
+
       # An empty array will cause only the _id and _type for each hit to be returned
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      tire_options = {load: load, size: per_page, from: offset}
       if options[:type] or klass != searchkick_klass
         @type = [options[:type] || klass].flatten.map(&:document_type)
       end
@@ -291,6 +289,7 @@ module Searchkick
       @facet_limits = facet_limits
       @page = page
       @per_page = per_page
+      @load = load
     end
 
     def searchkick_index
@@ -342,6 +341,10 @@ module Searchkick
       results.response = response
       results.current_page = @page
       results.per_page = @per_page
+      results.options = {
+        load: @load,
+        includes: options[:include] || options[:includes]
+      }
       results
     end
 
