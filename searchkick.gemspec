@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activemodel"
   spec.add_dependency "elasticsearch"
+  spec.add_dependency "patron" # persistent http connections for performance
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"

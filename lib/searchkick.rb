@@ -1,4 +1,5 @@
 require "active_model"
+require "patron"
 require "elasticsearch"
 require "searchkick/version"
 require "searchkick/index"
