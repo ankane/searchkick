@@ -26,6 +26,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 2, products.per_page
     assert_equal 3, products.total_pages
     assert_equal 5, products.total_count
+    assert_equal 2, products.limit_value
+    assert_equal 4, products.offset_value
   end
 
   def test_pagination_nil_page
