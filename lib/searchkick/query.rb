@@ -313,7 +313,7 @@ module Searchkick
       begin
         response = @search.json
       rescue Tire::Search::SearchRequestFailed => e
-        status_code = e.message[0..3].to_i
+        status_code = e.message[1..3].to_i
         if status_code == 404
           raise "Index missing - run #{searchkick_klass.name}.reindex"
         elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]"))
