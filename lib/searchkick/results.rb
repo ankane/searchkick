@@ -4,7 +4,6 @@ module Searchkick
     extend Forwardable
 
     attr_reader :klass, :response, :options
-    attr_accessor :current_page, :per_page
 
     def_delegators :results, :each, :empty?, :size, :slice, :[], :to_ary
 
@@ -63,6 +62,14 @@ module Searchkick
 
     def total_count
       response["hits"]["total"]
+    end
+
+    def current_page
+      options[:page]
+    end
+
+    def per_page
+      options[:per_page]
     end
 
     def total_pages

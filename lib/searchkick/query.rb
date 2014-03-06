@@ -338,13 +338,12 @@ module Searchkick
       end
 
       opts = {
+        page: @page,
+        per_page: @per_page,
         load: @load,
         includes: options[:include] || options[:includes]
       }
-      results = Searchkick::Results.new(searchkick_klass, response, opts)
-      results.current_page = @page
-      results.per_page = @per_page
-      results
+      Searchkick::Results.new(searchkick_klass, response, opts)
     end
 
     private
