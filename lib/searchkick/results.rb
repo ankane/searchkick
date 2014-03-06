@@ -47,5 +47,13 @@ module Searchkick
       (total_count / per_page.to_f).ceil
     end
 
+    def limit_value
+      per_page
+    end
+
+    def offset_value
+      current_page * per_page
+    end
+
   end
 end
