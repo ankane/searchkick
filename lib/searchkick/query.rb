@@ -317,15 +317,14 @@ module Searchkick
       begin
         response = Searchkick.client.search(params)
       rescue => e # TODO rescue type
-        # status_code = e.message[0..3].to_i
-        # if status_code == 404
-        #   raise "Index missing - run #{searchkick_klass.name}.reindex"
-        # elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]"))
-        #   raise "Upgrade Elasticsearch to 0.90.0 or greater"
-        # else
-        #   raise e
-        # end
-        raise e
+        status_code = e.message[1..3].to_i
+        if status_code == 404
+          raise "Index missing - run #{searchkick_klass.name}.reindex"
+        elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]") or e.message.include?("[match] query does not support [cutoff_frequency]]"))
+          raise "Upgrade Elasticsearch to 0.90.0 or greater"
+        else
+          raise e
+        end
       end
 
       # apply facet limit in client due to
