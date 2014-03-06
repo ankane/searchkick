@@ -6,7 +6,7 @@ module Searchkick
     attr_reader :klass, :response, :options
     attr_accessor :current_page, :per_page
 
-    def_delegators :results_or_records, :each, :empty?, :size, :slice, :[], :to_ary
+    def_delegators :results, :each, :empty?, :size, :slice, :[], :to_ary
 
     def initialize(klass, response, options = {})
       @klass = klass
@@ -14,25 +14,20 @@ module Searchkick
       @options = options
     end
 
-    def results_or_records
-      options[:load] ? records : results
-    end
-
     def results
-      results = @response["hits"]["hits"]
-    end
-
-    def records
-      @records ||= begin
-        hits = results
-        hit_ids = hits.map{|hit| hit["_id"] }
-        records = klass
-        if options[:includes]
-          records = records.includes(options[:includes])
+      @results ||= begin
+        if options[:load]
+          hit_ids = hits.map{|hit| hit["_id"] }
+          records = klass
+          if options[:includes]
+            records = records.includes(options[:includes])
+          end
+          records = records.find(hit_ids)
+          hit_ids = hit_ids.map(&:to_s)
+          records.sort_by{|r| hit_ids.index(r.id.to_s)  }
+        else
+          hits
         end
-        records = records.find(hit_ids)
-        hit_ids = hit_ids.map(&:to_s)
-        records.sort_by{|r| hit_ids.index(r.id.to_s)  }
       end
     end
 
@@ -45,7 +40,7 @@ module Searchkick
     end
 
     def each_with_hit(&block)
-      records.zip(results).each(&block)
+      results.zip(hits).each(&block)
     end
 
     def with_details
@@ -80,6 +75,12 @@ module Searchkick
 
     def offset_value
       current_page * per_page
+    end
+
+    protected
+
+    def hits
+      @response["hits"]["hits"]
     end
 
   end
