@@ -24,6 +24,7 @@ Plus:
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
+[![Inline docs](http://inch-pages.github.io/github/ankane/searchkick.png)](http://inch-pages.github.io/github/ankane/searchkick)
 
 We highly recommend tracking queries and conversions
 
