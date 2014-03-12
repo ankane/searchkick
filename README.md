@@ -416,6 +416,14 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", facets: {price: {ranges: price_ranges}}
 ```
 
+With basic constrains
+
+* `include_constraints` - if set to true will use constrains from basic query inside facets
+
+```ruby
+Product.search('*', where: { color: 'red' }, facets: {store_id: {where: {in_stock: false}}}, include_constraints: true)
+```
+
 ### Highlight
 
 Highlight the search query in the results.
