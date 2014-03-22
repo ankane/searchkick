@@ -1,3 +1,9 @@
+## 0.6.0
+
+- Moved to elasticsearch-ruby
+- Added support for modifying the query and viewing the response
+- Added support for page_entries_info method
+
 ## 0.5.3
 
 - Fixed bug w/ word_* queries

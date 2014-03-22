@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Searchkick::VERSION
   spec.authors       = ["Andrew Kane"]
   spec.email         = ["andrew@chartkick.com"]
-  spec.description   = %q{Search made easy}
-  spec.summary       = %q{Search made easy}
+  spec.description   = %q{Intelligent search made easy}
+  spec.summary       = %q{Searchkick learns what your users are looking for. As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.}
   spec.homepage      = "https://github.com/ankane/searchkick"
   spec.license       = "MIT"
 
