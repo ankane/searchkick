@@ -250,6 +250,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_kind_of Hash, Product.search("product", load: false).first
   end
 
+  def test_load_false_methods
+    store_names ["Product A"]
+    assert_equal "Product A", Product.search("product", load: false).first.name
+  end
+
   def test_load_false_with_include
     store_names ["Product A"]
     assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first

@@ -1,6 +1,7 @@
 require "active_model"
 require "patron"
 require "elasticsearch"
+require "hashie"
 require "searchkick/version"
 require "searchkick/index"
 require "searchkick/reindex"
