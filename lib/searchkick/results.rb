@@ -63,6 +63,7 @@ module Searchkick
     def total_count
       response["hits"]["total"]
     end
+    alias_method :total_entries, :total_count
 
     def current_page
       options[:page]
@@ -71,13 +72,10 @@ module Searchkick
     def per_page
       options[:per_page]
     end
+    alias_method :limit_value, :per_page
 
     def total_pages
       (total_count / per_page.to_f).ceil
-    end
-
-    def limit_value
-      per_page
     end
 
     def offset_value
