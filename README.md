@@ -744,7 +744,7 @@ rake searchkick:reindex:all
 
 4. Once it finishes, replace search calls w/ searchkick calls
 
-## Upgrading
+## Note about 0.6.0
 
 If running Searchkick `0.6.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.6.1` to fix an issue that causes downtime when reindexing.
 
