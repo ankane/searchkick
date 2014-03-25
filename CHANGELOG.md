@@ -1,3 +1,9 @@
+## 0.6.1
+
+- Fixed huge issue w/ zero-downtime reindexing on 0.90 and elasticsearch-ruby 1.0
+- Restore load: false behavior
+- Restore total_entries method
+
 ## 0.6.0
 
 - Moved to elasticsearch-ruby
