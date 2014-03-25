@@ -50,11 +50,11 @@ module Searchkick
     end
 
     def retrieve(document_type, id)
-      client.get_source(
+      client.get(
         index: name,
         type: document_type,
         id: id
-      )
+      )["_source"]
     end
 
     protected
