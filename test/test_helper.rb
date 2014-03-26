@@ -143,7 +143,7 @@ class Store
 end
 
 class Animal
-  searchkick autocomplete: [:name], suggest: [:name]
+  searchkick autocomplete: [:name], suggest: [:name], index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?

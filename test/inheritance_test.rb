@@ -10,7 +10,7 @@ class TestInheritance < Minitest::Unit::TestCase
   end
 
   def test_child_index_name
-    assert_equal "animals_test", Dog.searchkick_index.name
+    assert_equal "animals-#{Date.today.year}", Dog.searchkick_index.name
   end
 
   def test_child_search
