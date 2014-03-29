@@ -39,7 +39,6 @@ module Searchkick
       page = [options[:page].to_i, 1].max
       per_page = (options[:limit] || options[:per_page] || 100000).to_i
       offset = options[:offset] || (page - 1) * per_page
-      index_name = options[:index_name] || searchkick_index.name
 
       conversions_field = searchkick_options[:conversions]
       personalize_field = searchkick_options[:personalize]
@@ -310,7 +309,7 @@ module Searchkick
 
     def execute
       params = {
-        index: searchkick_index.name,
+        index: options[:index_name] || searchkick_index.name,
         body: body
       }
       params.merge!(type: @type) if @type
