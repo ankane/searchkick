@@ -281,7 +281,7 @@ module Searchkick
       payload[:fields] = [] if load
 
       if options[:type] or klass != searchkick_klass
-        @type = [options[:type] || klass].flatten.map(&:document_type)
+        @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
       end
 
       @body = payload
@@ -301,10 +301,6 @@ module Searchkick
 
     def searchkick_klass
       klass.searchkick_klass
-    end
-
-    def document_type
-      klass.document_type
     end
 
     def execute

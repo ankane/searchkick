@@ -2,7 +2,7 @@ module Searchkick
   module Similar
 
     def similar(options = {})
-      like_text = self.class.searchkick_index.retrieve(document_type, id).to_hash
+      like_text = self.class.searchkick_index.retrieve(self).to_hash
         .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
 
