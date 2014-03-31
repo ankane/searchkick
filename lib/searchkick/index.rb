@@ -125,7 +125,7 @@ module Searchkick
           obj[k] = cast_big_decimal(v)
         end
       when Enumerable
-        obj.map! do |v|
+        obj.map do |v|
           cast_big_decimal(v)
         end
       else
