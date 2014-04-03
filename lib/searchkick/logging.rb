@@ -37,7 +37,6 @@ module Searchkick
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
       type = payload[:query][:type]
 
-      # TODO escape
       debug "  #{color(name, YELLOW, true)}  curl http://localhost:9200/#{CGI.escape(payload[:query][:index])}#{type ? "/#{type.map{|t| CGI.escape(t) }.join(",")}" : ""}/_search?pretty -d '#{payload[:query][:body].to_json}'"
     end
   end
