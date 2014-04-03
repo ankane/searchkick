@@ -46,11 +46,21 @@ module Searchkick
   module ControllerRuntime
     extend ActiveSupport::Concern
 
+    attr_internal :searchkick_runtime
+
+    def cleanup_view_runtime
+      searchkick_rt_before_render = Searchkick::LogSubscriber.reset_runtime
+      runtime = super
+      searchkick_rt_after_render = Searchkick::LogSubscriber.reset_runtime
+      self.searchkick_runtime = searchkick_rt_before_render + searchkick_rt_after_render
+      runtime - searchkick_rt_after_render
+    end
+
     protected
 
     def append_info_to_payload(payload)
       super
-      payload[:searchkick_runtime] = Searchkick::LogSubscriber.runtime
+      payload[:searchkick_runtime] = (searchkick_runtime || 0) + Searchkick::LogSubscriber.reset_runtime
     end
 
     module ClassMethods
