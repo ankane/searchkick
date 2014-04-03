@@ -303,12 +303,16 @@ module Searchkick
       klass.searchkick_klass
     end
 
-    def execute
+    def params
       params = {
         index: options[:index_name] || searchkick_index.name,
         body: body
       }
       params.merge!(type: @type) if @type
+      params
+    end
+
+    def execute
       begin
         response = Searchkick.client.search(params)
       rescue => e # TODO rescue type

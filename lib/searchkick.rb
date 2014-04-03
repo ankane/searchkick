@@ -11,8 +11,7 @@ require "searchkick/search"
 require "searchkick/similar"
 require "searchkick/model"
 require "searchkick/tasks"
-# TODO add logger
-# require "searchkick/logger" if defined?(Rails)
+require "searchkick/logging" if defined?(Rails)
 
 module Searchkick
 
