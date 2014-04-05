@@ -2,6 +2,8 @@ module Searchkick
   module Model
 
     def searchkick(options = {})
+      raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
+
       class_eval do
         cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
 
