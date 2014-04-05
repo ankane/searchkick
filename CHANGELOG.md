@@ -1,3 +1,9 @@
+## 0.6.2
+
+- Added logging
+- Fixed index_name option
+- Added ability to use proc as the index name
+
 ## 0.6.1
 
 - Fixed huge issue w/ zero-downtime reindexing on 0.90 and elasticsearch-ruby 1.0
