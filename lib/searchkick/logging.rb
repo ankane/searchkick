@@ -15,6 +15,7 @@ module Searchkick
     alias_method_chain :execute, :instrumentation
   end
 
+  # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/log_subscriber.rb
   class LogSubscriber < ActiveSupport::LogSubscriber
     def self.runtime=(value)
       Thread.current[:searchkick_runtime] = value
@@ -43,10 +44,21 @@ module Searchkick
     end
   end
 
+  # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/railties/controller_runtime.rb
   module ControllerRuntime
     extend ActiveSupport::Concern
 
+    protected
+
     attr_internal :searchkick_runtime
+
+    def process_action(action, *args)
+      # We also need to reset the runtime before each action
+      # because of queries in middleware or in cases we are streaming
+      # and it won't be cleaned up by the method below.
+      Searchkick::LogSubscriber.reset_runtime
+      super
+    end
 
     def cleanup_view_runtime
       searchkick_rt_before_render = Searchkick::LogSubscriber.reset_runtime
@@ -55,8 +67,6 @@ module Searchkick
       self.searchkick_runtime = searchkick_rt_before_render + searchkick_rt_after_render
       runtime - searchkick_rt_after_render
     end
-
-    protected
 
     def append_info_to_payload(payload)
       super
