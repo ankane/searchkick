@@ -446,7 +446,7 @@ Find similar items.
 
 ```ruby
 product = Product.first
-product.similar(fields: ["name"])
+product.similar(fields: ["name"], page: params[:page], per_page: 20)
 ```
 
 ### Geospatial Searches
