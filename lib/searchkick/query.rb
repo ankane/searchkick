@@ -284,11 +284,15 @@ module Searchkick
         @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
       end
 
+      # Return score for each hit in the set of results.
+      score = options[:score].nil? ? false: options[:score]
+
       @body = payload
       @facet_limits = facet_limits
       @page = page
       @per_page = per_page
       @load = load
+      @score = score
     end
 
     def searchkick_index
@@ -339,7 +343,8 @@ module Searchkick
         page: @page,
         per_page: @per_page,
         load: @load,
-        includes: options[:include] || options[:includes]
+        includes: options[:include] || options[:includes],
+        score: @score
       }
       Searchkick::Results.new(searchkick_klass, response, opts)
     end
