@@ -1,3 +1,8 @@
+## 0.6.3
+
+- Removed patron since no support for Windows
+- Added error if `searchkick` is called multiple times
+
 ## 0.6.2
 
 - Added logging
