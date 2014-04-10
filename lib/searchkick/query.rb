@@ -121,13 +121,16 @@ module Searchkick
                   path: conversions_field,
                   score_mode: "total",
                   query: {
-                    custom_score: {
+                    function_score: {
+                      boost_mode: "replace",
                       query: {
                         match: {
                           query: term
                         }
                       },
-                      script: "doc['count'].value"
+                      script_score: {
+                        script: "doc['count'].value"
+                      }
                     }
                   }
                 }
@@ -146,7 +149,9 @@ module Searchkick
               field: options[:boost]
             }
           },
-          script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
+          script_score: {
+            script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
+          }
         }
       end
 
@@ -157,7 +162,7 @@ module Searchkick
               personalize_field => options[:user_id]
             }
           },
-          boost: 100
+          boost_factor: 100
         }
       end
 
@@ -166,16 +171,16 @@ module Searchkick
           filter: {
             term: options[:personalize]
           },
-          boost: 100
+          boost_factor: 100
         }
       end
 
       if custom_filters.any?
         payload = {
-          custom_filters_score: {
+          function_score: {
+            functions: custom_filters,
             query: payload,
-            filters: custom_filters,
-            score_mode: "total"
+            score_mode: "sum"
           }
         }
       end
