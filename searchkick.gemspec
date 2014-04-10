@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "activemodel"
-  spec.add_dependency "elasticsearch", "~> 0.4.11"
+  spec.add_dependency "elasticsearch", ">= 1.0.0"
   spec.add_dependency "hashie"
 
   spec.add_development_dependency "bundler", "~> 1.3"

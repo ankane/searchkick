@@ -78,9 +78,9 @@ module Searchkick
                 fields: [field],
                 query: term,
                 use_dis_max: false,
-                operator: operator,
-                cutoff_frequency: 0.001
+                operator: operator
               }
+              shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
               queries.concat [
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
