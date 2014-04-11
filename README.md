@@ -595,7 +595,7 @@ products = query.execute
 
 ## Reference
 
-Searchkick requires Elasticsearch `0.90.0` or higher.
+Searchkick requires Elasticsearch `0.90.4` or higher.
 
 Reindex one record
 

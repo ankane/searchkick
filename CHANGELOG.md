@@ -1,3 +1,8 @@
+## 0.7.0
+
+- Added support for Elasticsearch 1.1
+- Dropped support for Elasticsearch below 0.90.4 (unfortunate side effect of above)
+
 ## 0.6.3
 
 - Removed patron since no support for Windows
