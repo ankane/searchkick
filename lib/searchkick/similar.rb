@@ -12,7 +12,7 @@ module Searchkick
       options[:where][:_id][:not] = id.to_s
       options[:limit] ||= 10
       options[:similar] = true
-      self.class.search(like_text, options)
+      self.class.send(Searchkick.search_method_name, like_text, options)
     end
 
   end
