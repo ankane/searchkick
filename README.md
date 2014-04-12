@@ -746,7 +746,7 @@ rake searchkick:reindex:all
 
 ## Note about 0.6.0 and 0.7.0
 
-If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.7.1` to fix an issue that causes downtime when reindexing.
+If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.6.1` or `0.7.1` to fix an issue that causes downtime when reindexing.
 
 ## Elasticsearch Gotchas
 
