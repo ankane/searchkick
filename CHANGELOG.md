@@ -1,3 +1,7 @@
+## 0.7.1
+
+- Fixed huge issue w/ zero-downtime reindexing on 0.90
+
 ## 0.7.0
 
 - Added support for Elasticsearch 1.1
