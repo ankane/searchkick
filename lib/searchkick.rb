@@ -1,5 +1,8 @@
-require "tire"
+require "active_model"
+require "elasticsearch"
+require "hashie"
 require "searchkick/version"
+require "searchkick/index"
 require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/query"
@@ -7,9 +10,14 @@ require "searchkick/search"
 require "searchkick/similar"
 require "searchkick/model"
 require "searchkick/tasks"
-require "searchkick/logger" if defined?(Rails)
+require "searchkick/logging" if defined?(Rails)
 
 module Searchkick
+
+  def self.client
+    @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
+  end
+
   @callbacks = true
 
   def self.enable_callbacks

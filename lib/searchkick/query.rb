@@ -35,15 +35,10 @@ module Searchkick
 
       operator = options[:operator] || (options[:partial] ? "or" : "and")
 
-      # model and eagar loading
-      load = options[:load].nil? ? true : options[:load]
-      load = (options[:include] ? {include: options[:include]} : true) if load
-
       # pagination
       page = [options[:page].to_i, 1].max
       per_page = (options[:limit] || options[:per_page] || 100000).to_i
       offset = options[:offset] || (page - 1) * per_page
-      index_name = options[:index_name] || searchkick_index.name
 
       conversions_field = searchkick_options[:conversions]
       personalize_field = searchkick_options[:personalize]
@@ -83,9 +78,9 @@ module Searchkick
                 fields: [field],
                 query: term,
                 use_dis_max: false,
-                operator: operator,
-                cutoff_frequency: 0.001
+                operator: operator
               }
+              shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
               queries.concat [
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
@@ -126,13 +121,16 @@ module Searchkick
                   path: conversions_field,
                   score_mode: "total",
                   query: {
-                    custom_score: {
+                    function_score: {
+                      boost_mode: "replace",
                       query: {
                         match: {
                           query: term
                         }
                       },
-                      script: "doc['count'].value"
+                      script_score: {
+                        script: "doc['count'].value"
+                      }
                     }
                   }
                 }
@@ -151,7 +149,9 @@ module Searchkick
               field: options[:boost]
             }
           },
-          script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
+          script_score: {
+            script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
+          }
         }
       end
 
@@ -162,7 +162,7 @@ module Searchkick
               personalize_field => options[:user_id]
             }
           },
-          boost: 100
+          boost_factor: 100
         }
       end
 
@@ -171,16 +171,16 @@ module Searchkick
           filter: {
             term: options[:personalize]
           },
-          boost: 100
+          boost_factor: 100
         }
       end
 
       if custom_filters.any?
         payload = {
-          custom_filters_score: {
+          function_score: {
+            functions: custom_filters,
             query: payload,
-            filters: custom_filters,
-            score_mode: "total"
+            score_mode: "sum"
           }
         }
       end
@@ -279,18 +279,22 @@ module Searchkick
         end
       end
 
+      # model and eagar loading
+      load = options[:load].nil? ? true : options[:load]
+
       # An empty array will cause only the _id and _type for each hit to be returned
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
 
-      tire_options = {load: load, size: per_page, from: offset}
       if options[:type] or klass != searchkick_klass
-        tire_options[:type] = [options[:type] || klass].flatten.map(&:document_type)
+        @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
       end
 
-      @search = Tire::Search::Search.new(index_name, tire_options)
       @body = payload
       @facet_limits = facet_limits
+      @page = page
+      @per_page = per_page
+      @load = load
     end
 
     def searchkick_index
@@ -305,20 +309,30 @@ module Searchkick
       klass.searchkick_klass
     end
 
-    def document_type
-      klass.document_type
+    def params
+      params = {
+        index: options[:index_name] || searchkick_index.name,
+        body: body
+      }
+      params.merge!(type: @type) if @type
+      params
     end
 
     def execute
-      @search.options[:payload] = body
       begin
-        response = @search.json
-      rescue Tire::Search::SearchRequestFailed => e
+        response = Searchkick.client.search(params)
+      rescue => e # TODO rescue type
         status_code = e.message[1..3].to_i
         if status_code == 404
           raise "Index missing - run #{searchkick_klass.name}.reindex"
-        elsif status_code == 500 and (e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or e.message.include?("No query registered for [multi_match]"))
-          raise "Upgrade Elasticsearch to 0.90.0 or greater"
+        elsif status_code == 500 and (
+            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or
+            e.message.include?("No query registered for [multi_match]") or
+            e.message.include?("[match] query does not support [cutoff_frequency]]") or
+            e.message.include?("No query registered for [function_score]]")
+          )
+
+          raise "This version of Searchkick requires Elasticsearch 0.90.4 or greater"
         else
           raise e
         end
@@ -333,7 +347,13 @@ module Searchkick
         response["facets"][field]["other"] = facet["total"] - facet["terms"].sum{|term| term["count"] }
       end
 
-      Searchkick::Results.new(response, @search.options.merge(term: term, model_name: searchkick_klass.model_name))
+      opts = {
+        page: @page,
+        per_page: @per_page,
+        load: @load,
+        includes: options[:include] || options[:includes]
+      }
+      Searchkick::Results.new(searchkick_klass, response, opts)
     end
 
     private

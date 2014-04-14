@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Searchkick::VERSION
   spec.authors       = ["Andrew Kane"]
   spec.email         = ["andrew@chartkick.com"]
-  spec.description   = %q{Search made easy}
-  spec.summary       = %q{Search made easy}
+  spec.description   = %q{Intelligent search made easy}
+  spec.summary       = %q{Searchkick learns what your users are looking for. As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.}
   spec.homepage      = "https://github.com/ankane/searchkick"
   spec.license       = "MIT"
 
@@ -18,8 +18,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "tire"
-  spec.add_dependency "tire-contrib"
+  spec.add_dependency "activemodel"
+  spec.add_dependency "elasticsearch", "~> 0.4.11"
+  spec.add_dependency "hashie"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"

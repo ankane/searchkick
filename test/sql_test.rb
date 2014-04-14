@@ -26,6 +26,9 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 2, products.per_page
     assert_equal 3, products.total_pages
     assert_equal 5, products.total_count
+    assert_equal 5, products.total_entries
+    assert_equal 2, products.limit_value
+    assert_equal 4, products.offset_value
   end
 
   def test_pagination_nil_page
@@ -245,12 +248,17 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_load_false
     store_names ["Product A"]
-    assert_kind_of Tire::Results::Item, Product.search("product", load: false).first
+    assert_kind_of Hash, Product.search("product", load: false).first
+  end
+
+  def test_load_false_methods
+    store_names ["Product A"]
+    assert_equal "Product A", Product.search("product", load: false).first.name
   end
 
   def test_load_false_with_include
     store_names ["Product A"]
-    assert_kind_of Tire::Results::Item, Product.search("product", load: false, include: [:store]).first
+    assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first
   end
 
   # TODO see if Mongoid is loaded
