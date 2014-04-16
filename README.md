@@ -597,8 +597,6 @@ products = query.execute
 
 ## Reference
 
-Searchkick requires Elasticsearch `0.90.4` or higher.
-
 Reindex one record
 
 ```ruby
