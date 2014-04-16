@@ -43,6 +43,8 @@ Add this line to your application’s Gemfile:
 gem "searchkick"
 ```
 
+For Elasticsearch 0.90, use version `0.6.3`.
+
 Add searchkick to models you want to search.
 
 ```ruby
