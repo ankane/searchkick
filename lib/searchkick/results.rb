@@ -30,6 +30,12 @@ module Searchkick
             results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
+          if options[:scopes]
+            options[:scopes].map do |scope|
+              records = records.send(scope)
+            end
+          end
+
           # sort
           hits.map do |hit|
             results[hit["_type"]][hit["_id"].to_s]

@@ -97,7 +97,9 @@ module Searchkick
           includes: options[:include] || options[:includes],
           json: !options[:json].nil?,
           match_suffix: @match_suffix,
-          highlighted_fields: @highlighted_fields || []
+          highlighted_fields: @highlighted_fields || [],
+          includes: options[:include] || options[:includes],
+          scopes: [options[:scope] || options[:scopes]].flatten
         }
         Searchkick::Results.new(searchkick_klass, response, opts)
       end
@@ -575,6 +577,8 @@ module Searchkick
       @per_page = per_page
       @padding = padding
       @load = load
+      @includes = options[:include] || options[:includes]
+      @scopes = [options[:scope] || options[:scopes]].flatten
     end
 
     def where_filters(where)
