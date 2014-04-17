@@ -36,6 +36,16 @@ module Searchkick
             end
           end
 
+          if options[:unscope]
+            options[:unscope].map do |scoping|
+              if scoping.kind_of? Array
+                records = records.unscope(Hash[*scoping])
+              else
+                records = records.unscope(scoping)
+              end
+            end
+          end
+
           # sort
           hits.map do |hit|
             results[hit["_type"]][hit["_id"].to_s]
