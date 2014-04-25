@@ -24,8 +24,10 @@ module Searchkick
           records = records.find(hit_ids)
           hit_ids = hit_ids.map(&:to_s)
           records.sort_by{|r| hit_ids.index(r.id.to_s)  }
+        elsif options[:score]
+          hits.map{ |hit| Hashie::Mash.new(hit["_source"]).merge(score: hit['_score']) }
         else
-          hits.map{|hit| Hashie::Mash.new(hit["_source"]) }
+          hits.map{ |hit| Hashie::Mash.new(hit["_source"]) }
         end
       end
     end
