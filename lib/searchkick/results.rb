@@ -90,14 +90,12 @@ module Searchkick
       current_page < total_pages ? (current_page + 1) : nil
     end
 
-    # First page of the collection ?
     def first_page?
-      current_page == 1
+      previous_page.nil?
     end
 
-    # Last page of the collection?
     def last_page?
-      current_page >= total_pages
+      next_page.nil?
     end
 
     protected

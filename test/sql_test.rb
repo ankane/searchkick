@@ -29,6 +29,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 5, products.total_entries
     assert_equal 2, products.limit_value
     assert_equal 4, products.offset_value
+    assert !products.first_page?
+    assert !products.last_page?
   end
 
   def test_pagination_nil_page
@@ -36,6 +38,7 @@ class TestSql < Minitest::Unit::TestCase
     products = Product.search("product", order: {name: :asc}, page: nil, per_page: 2)
     assert_equal ["Product A", "Product B"], products.map(&:name)
     assert_equal 1, products.current_page
+    assert products.first_page?
   end
 
   def test_where
