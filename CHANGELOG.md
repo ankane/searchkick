@@ -1,3 +1,10 @@
+## 0.7.2 [unreleased]
+
+- Added smart facets
+- Added more fields to `load: false` result
+- Fixed logging for multi-index searches
+- Added `first_page?` and `last_page?` for improved Kaminari support
+
 ## 0.7.1
 
 - Fixed huge issue w/ zero-downtime reindexing on 0.90
