@@ -1,4 +1,4 @@
-## 0.7.2 [unreleased]
+## 0.7.2
 
 - Added smart facets
 - Added more fields to `load: false` result

@@ -412,7 +412,7 @@ Product.search "wingtips", where: {color: "brandy"}, facets: [:size]
 # facets *not* filtered by color :(
 ```
 
-Change this behavior with: [master]
+Change this with:
 
 ```ruby
 Product.search "wingtips", where: {color: "brandy"}, facets: [:size], smart_facets: true
