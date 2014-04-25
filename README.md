@@ -421,7 +421,13 @@ Product.search "wingtips", where: {color: "brandy"}, facets: [:size], smart_face
 or set `where` conditions for each facet separately:
 
 ```ruby
-Product.search "2% Milk", facets: {store_id: {where: {in_stock: true}, limit: 10}}
+Product.search "wingtips", facets: {size: {where: {color: "brandy"}}}
+```
+
+Limit
+
+```ruby
+Product.search "2% Milk", facets: {store_id: {limit: 10}}
 ```
 
 Ranges
