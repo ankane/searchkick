@@ -56,6 +56,11 @@ class TestSuggest < Minitest::Unit::TestCase
     assert_suggest "shar", "shark", fields: [:name, :unknown]
   end
 
+  def test_fields_word_start
+    store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
+    assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{name: :word_start}]
+  end
+
   protected
 
   def assert_suggest(term, expected, options = {})

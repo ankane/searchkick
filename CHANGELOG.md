@@ -1,3 +1,7 @@
+## 0.7.3 [unreleased]
+
+- Fixed suggestions for partial matches
+
 ## 0.7.2
 
 - Added smart facets

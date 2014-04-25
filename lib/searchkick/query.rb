@@ -254,8 +254,12 @@ module Searchkick
       # suggestions
       if options[:suggest]
         suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
+
         # intersection
-        suggest_fields = suggest_fields & options[:fields].map(&:to_s) if options[:fields]
+        if options[:fields]
+          suggest_fields = suggest_fields & options[:fields].map{|v| (v.is_a?(Hash) ? v.keys.first : v).to_s }
+        end
+
         if suggest_fields.any?
           payload[:suggest] = {text: term}
           suggest_fields.each do |field|
