@@ -29,6 +29,7 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 5, products.total_entries
     assert_equal 2, products.limit_value
     assert_equal 4, products.offset_value
+    assert_equal 4, products.offset
     assert !products.first_page?
     assert !products.last_page?
   end

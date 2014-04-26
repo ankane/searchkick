@@ -85,6 +85,7 @@ module Searchkick
     def offset_value
       current_page * per_page
     end
+    alias_method :offset, :offset_value
 
     def previous_page
       current_page > 1 ? (current_page - 1) : nil
