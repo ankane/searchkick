@@ -34,6 +34,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 4, products.offset
     assert !products.first_page?
     assert !products.last_page?
+    assert !products.empty?
+    assert products.any?
   end
 
   def test_pagination_nil_page
