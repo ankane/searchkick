@@ -1,6 +1,7 @@
 ## 0.7.3 [unreleased]
 
 - Fixed suggestions for partial matches
+- Added `offset` and `length` for improved pagination
 
 ## 0.7.2
 

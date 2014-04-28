@@ -24,6 +24,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal ["Product C", "Product D"], products.map(&:name)
     assert_equal 2, products.current_page
     assert_equal 2, products.per_page
+    assert_equal 2, products.size
+    assert_equal 2, products.length
     assert_equal 3, products.total_pages
     assert_equal 5, products.total_count
     assert_equal 5, products.total_entries
