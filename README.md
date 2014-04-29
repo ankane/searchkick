@@ -331,6 +331,8 @@ Autocomplete predicts what a user will type, making the search experience faster
 
 ![Autocomplete](http://ankane.github.io/searchkick/autocomplete.png)
 
+**Note:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there.
+
 First, specify which fields use this feature.  This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
 
 ```ruby
@@ -345,7 +347,7 @@ Reindex and search with:
 City.search "san fr", fields: [{name: :text_start}]
 ```
 
-Typically, you want to use a Javascript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
+Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
 
 #### Here’s how to make it work with Rails
 
@@ -362,7 +364,7 @@ class CitiesController < ApplicationController
 end
 ```
 
-Then add the search box and Javascript code to a view.
+Then add the search box and JavaScript code to a view.
 
 ```html
 <input type="text" id="query" name="query" />
