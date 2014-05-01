@@ -1,5 +1,6 @@
 ## 0.7.3 [unreleased]
 
+- Fixed multi-index searches
 - Fixed suggestions for partial matches
 - Added `offset` and `length` for improved pagination
 

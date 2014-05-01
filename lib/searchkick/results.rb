@@ -16,14 +16,21 @@ module Searchkick
     def results
       @results ||= begin
         if options[:load]
-          hit_ids = hits.map{|hit| hit["_id"] }
-          records = klass
-          if options[:includes]
-            records = records.includes(options[:includes])
+          # results can have different types
+          results = {}
+
+          hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
+            records = type.camelize.constantize
+            if options[:includes]
+              records = records.includes(options[:includes])
+            end
+            results[type] = records.find(grouped_hits.map{|hit| hit["_id"] })
           end
-          records = records.find(hit_ids)
-          hit_ids = hit_ids.map(&:to_s)
-          records.sort_by{|r| hit_ids.index(r.id.to_s)  }
+
+          # sort
+          hits.map do |hit|
+            results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+          end
         else
           hits.map do |hit|
             result = hit.except("_source").merge(hit["_source"])
