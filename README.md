@@ -21,15 +21,15 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord and Mongoid
 
-:tangerine: Battle-tested at [Instacart](https://www.instacart.com)
-
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
+
+:tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
 
 We highly recommend tracking queries and conversions
 
-:zap: [Searchjoy](http://ankane.github.io/searchjoy/) makes it easy
+:zap: [Searchjoy](https://github.com/ankane/searchjoy) makes it easy
 
 ## Get Started
 
