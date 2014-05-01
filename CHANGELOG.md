@@ -1,4 +1,4 @@
-## 0.7.3 [unreleased]
+## 0.7.3
 
 - Fixed multi-index searches
 - Fixed suggestions for partial matches
