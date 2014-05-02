@@ -20,9 +20,10 @@ class TestSql < Minitest::Unit::TestCase
 
   def test_pagination
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
-    products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2)
-    assert_equal ["Product C", "Product D"], products.map(&:name)
+    products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2, padding: 1)
+    assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal 2, products.current_page
+    assert_equal 1, products.padding
     assert_equal 2, products.per_page
     assert_equal 2, products.size
     assert_equal 2, products.length
@@ -30,8 +31,8 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 5, products.total_count
     assert_equal 5, products.total_entries
     assert_equal 2, products.limit_value
-    assert_equal 4, products.offset_value
-    assert_equal 4, products.offset
+    assert_equal 5, products.offset_value
+    assert_equal 5, products.offset
     assert !products.first_page?
     assert !products.last_page?
     assert !products.empty?
