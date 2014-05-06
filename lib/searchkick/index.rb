@@ -40,6 +40,16 @@ module Searchkick
     end
 
     def import(records)
+      if records.first.respond_to?(:type)
+        records.group_by { |item| item.type }.each_pair do |type, items|
+          client_import items.select { |item| item.should_index? }
+        end
+      else
+        client_import records
+      end
+    end
+
+    def client_import(records)
       if records.any?
         client.bulk(
           index: name,
