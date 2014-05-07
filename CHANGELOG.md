@@ -1,3 +1,7 @@
+## 0.7.4
+
+- Fixed reindex with inheritance
+
 ## 0.7.3
 
 - Fixed multi-index searches
