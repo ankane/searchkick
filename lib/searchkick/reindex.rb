@@ -127,11 +127,6 @@ module Searchkick
                 tokenizer: "standard",
                 filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
               },
-              searchkick_suggest_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
-              },
               searchkick_text_start_index: {
                 type: "custom",
                 tokenizer: "keyword",
