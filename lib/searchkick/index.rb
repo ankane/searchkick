@@ -40,11 +40,11 @@ module Searchkick
     end
 
     def import(records)
-      if records.any?
+      records.group_by{|r| document_type(r) }.each do |type, batch|
         client.bulk(
           index: name,
-          type: document_type(records.first),
-          body: records.map{|r| data = search_data(r); {index: {_id: data["_id"] || data["id"] || r.id, data: data}} }
+          type: type,
+          body: batch.map{|r| data = search_data(r); {index: {_id: data["_id"] || data["id"] || r.id, data: data}} }
         )
       end
     end
