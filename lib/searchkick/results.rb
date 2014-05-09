@@ -88,6 +88,7 @@ module Searchkick
     def total_pages
       (total_count / per_page.to_f).ceil
     end
+    alias_method :num_pages, :total_pages
 
     def offset_value
       current_page * per_page
