@@ -79,12 +79,7 @@ module Searchkick
       source = record.search_data
 
       # stringify fields
-      source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}
-
-      # Mongoid 4 hack
-      if defined?(BSON::ObjectId) and source["_id"].is_a?(BSON::ObjectId)
-        source["_id"] = source["_id"].to_s
-      end
+      source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("id", "_id")
 
       options = record.class.searchkick_options
 
