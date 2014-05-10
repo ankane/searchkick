@@ -35,6 +35,12 @@ class TestIndex < Minitest::Unit::TestCase
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  def test_record_not_found
+    store_names ["Product A", "Product B"]
+    Product.where(name: "Product A").delete_all
+    assert_search "product", ["Product B"]
+  end
+
   if defined?(ActiveRecord)
 
     def test_transaction
