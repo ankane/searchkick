@@ -323,24 +323,7 @@ module Searchkick
     end
 
     def execute
-      begin
-        response = Searchkick.client.search(params)
-      rescue => e # TODO rescue type
-        status_code = e.message[1..3].to_i
-        if status_code == 404
-          raise "Index missing - run #{searchkick_klass.name}.reindex"
-        elsif status_code == 500 and (
-            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or
-            e.message.include?("No query registered for [multi_match]") or
-            e.message.include?("[match] query does not support [cutoff_frequency]]") or
-            e.message.include?("No query registered for [function_score]]")
-          )
-
-          raise "This version of Searchkick requires Elasticsearch 0.90.4 or greater"
-        else
-          raise e
-        end
-      end
+      response = perform(params)
 
       # apply facet limit in client due to
       # https://github.com/elasticsearch/elasticsearch/issues/1305
@@ -361,6 +344,20 @@ module Searchkick
     end
 
     private
+
+    def perform(params)
+      Searchkick.client.search(params)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      raise Searchkick::Errors::MissingIndexError.new(searchkick_klass.name, e)
+    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+      raise Searchkick::Errors::InvalidQueryError.new(e)
+    rescue Elasticsearch::Transport::Transport::Error => e
+      if Searchkick::Errors::DeprecatedVersionError::MESSAGES.include?(e.message)
+        raise Searchkick::Errors::DeprecatedVersionError.new(e)
+      else
+        raise Searchkick::Errors::SearchFailedError.new(e)
+      end
+    end
 
     def where_filters(where)
       filters = []
