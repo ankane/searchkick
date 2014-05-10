@@ -26,7 +26,7 @@ module Searchkick
       client.index(
         index: name,
         type: document_type(record),
-        id: record.id,
+        id: search_id(record),
         body: search_data(record)
       )
     end
@@ -35,7 +35,7 @@ module Searchkick
       client.delete(
         index: name,
         type: document_type(record),
-        id: record.id
+        id: search_id(record)
       )
     end
 
@@ -44,7 +44,7 @@ module Searchkick
         client.bulk(
           index: name,
           type: type,
-          body: batch.map{|r| data = search_data(r); {index: {_id: data["_id"] || data["id"] || r.id, data: data}} }
+          body: batch.map{|r| data = search_data(r); {index: {_id: search_id(r), data: data}} }
         )
       end
     end
@@ -69,6 +69,10 @@ module Searchkick
 
     def document_type(record)
       klass_document_type(record.class)
+    end
+
+    def search_id(record)
+      record.id.is_a?(Numeric) ? record.id : record.id.to_s
     end
 
     def search_data(record)
