@@ -15,6 +15,7 @@ require "searchkick/logging" if defined?(Rails)
 module Searchkick
   class MissingIndexError < StandardError; end
   class UnsupportedVersionError < StandardError; end
+  class InvalidQueryError < StandardError; end
 
   def self.client
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])

@@ -337,6 +337,8 @@ module Searchkick
           )
 
           raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 0.90.4 or greater"
+        elsif status_code == 400
+          raise InvalidQueryError, e.message
         else
           raise e
         end
