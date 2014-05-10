@@ -338,7 +338,11 @@ module Searchkick
 
           raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 0.90.4 or greater"
         elsif status_code == 400
-          raise InvalidQueryError, e.message
+          if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+            raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"
+          else
+            raise InvalidQueryError, e.message
+          end
         else
           raise e
         end

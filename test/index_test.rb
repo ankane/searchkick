@@ -41,6 +41,14 @@ class TestIndex < Minitest::Unit::TestCase
     assert_search "product", ["Product B"]
   end
 
+  def test_bad_mapping
+    Product.searchkick_index.delete
+    store_names ["Product A"]
+    assert_raises(Searchkick::InvalidQueryError){ Product.search "test" }
+  ensure
+    Product.reindex
+  end
+
   def test_missing_index
     assert_raises(Searchkick::MissingIndexError){ Product.search "test", index_name: "not_found" }
   end
