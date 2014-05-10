@@ -1,6 +1,7 @@
 ## 0.7.5 [unreleased]
 
 - Do not throw errors when index becomes out of sync with database
+- Added custom exception types
 
 ## 0.7.4
 
