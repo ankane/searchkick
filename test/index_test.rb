@@ -41,6 +41,10 @@ class TestIndex < Minitest::Unit::TestCase
     assert_search "product", ["Product B"]
   end
 
+  def test_missing_index
+    assert_raises(Searchkick::MissingIndexError){ Product.search "test", index_name: "not_found" }
+  end
+
   if defined?(ActiveRecord)
 
     def test_transaction
