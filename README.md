@@ -353,7 +353,7 @@ Typically, you want to use a JavaScript library like [typeahead.js](http://twitt
 
 #### Here’s how to make it work with Rails
 
-First, add a controller action.
+First, add a route and controller action.
 
 ```ruby
 # app/controllers/cities_controller.rb
