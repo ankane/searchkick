@@ -85,6 +85,10 @@ module Searchkick
       options[:page]
     end
 
+    def padding
+      options[:padding]
+    end
+
     def per_page
       options[:per_page]
     end
@@ -96,7 +100,7 @@ module Searchkick
     alias_method :num_pages, :total_pages
 
     def offset_value
-      current_page * per_page
+      padding + current_page * per_page
     end
     alias_method :offset, :offset_value
 
