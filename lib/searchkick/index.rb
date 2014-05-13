@@ -71,6 +71,16 @@ module Searchkick
       klass_document_type(record.class)
     end
 
+    def document_type(record)
+      klass = record.class
+
+      if klass.respond_to?(:document_type) && klass.document_type
+        klass = klass.document_type
+      end
+
+      klass_document_type(klass)
+    end
+
     def search_id(record)
       record.id.is_a?(Numeric) ? record.id : record.id.to_s
     end
