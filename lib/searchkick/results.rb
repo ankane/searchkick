@@ -90,13 +90,17 @@ module Searchkick
     end
     alias_method :limit_value, :per_page
 
+    def padding
+      options[:padding]
+    end
+
     def total_pages
       (total_count / per_page.to_f).ceil
     end
     alias_method :num_pages, :total_pages
 
     def offset_value
-      (current_page - 1) * per_page
+      (current_page - 1) * per_page + padding
     end
     alias_method :offset, :offset_value
 
