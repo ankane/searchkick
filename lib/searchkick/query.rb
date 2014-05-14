@@ -226,6 +226,14 @@ module Searchkick
                 field.to_sym => facet_options[:ranges]
               }
             }
+          elsif facet_options[:stats]
+            payload[:facets][field] = {
+              terms_stats: {
+                key_field: field,
+                value_script: 'doc.score',
+                size: facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+              }
+            }
           else
             payload[:facets][field] = {
               terms: {
