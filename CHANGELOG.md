@@ -1,3 +1,7 @@
+## 0.7.6 [unreleased]
+
+- Added `padding` option
+
 ## 0.7.5
 
 - Do not throw errors when index becomes out of sync with database

@@ -38,7 +38,8 @@ module Searchkick
       # pagination
       page = [options[:page].to_i, 1].max
       per_page = (options[:limit] || options[:per_page] || 100000).to_i
-      offset = options[:offset] || (page - 1) * per_page
+      padding = [options[:padding].to_i, 0].max
+      offset = options[:offset] || (page - 1) * per_page + padding
 
       conversions_field = searchkick_options[:conversions]
       personalize_field = searchkick_options[:personalize]
@@ -298,6 +299,7 @@ module Searchkick
       @facet_limits = facet_limits
       @page = page
       @per_page = per_page
+      @padding = padding
       @load = load
     end
 
@@ -360,6 +362,7 @@ module Searchkick
       opts = {
         page: @page,
         per_page: @per_page,
+        padding: @padding,
         load: @load,
         includes: options[:include] || options[:includes]
       }
