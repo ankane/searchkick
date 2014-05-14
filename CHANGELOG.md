@@ -1,4 +1,4 @@
-## 0.7.5 [unreleased]
+## 0.7.5
 
 - Do not throw errors when index becomes out of sync with database
 - Added custom exception types
