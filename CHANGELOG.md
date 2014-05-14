@@ -2,6 +2,7 @@
 
 - Do not throw errors when index becomes out of sync with database
 - Added custom exception types
+- Fixed `offset` and `offset_value`
 
 ## 0.7.4
 

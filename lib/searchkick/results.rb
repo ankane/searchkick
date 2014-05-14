@@ -96,7 +96,7 @@ module Searchkick
     alias_method :num_pages, :total_pages
 
     def offset_value
-      current_page * per_page
+      (current_page - 1) * per_page
     end
     alias_method :offset, :offset_value
 
