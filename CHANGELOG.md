@@ -1,5 +1,6 @@
 ## 0.7.6 [unreleased]
 
+- Treat `id` and `_id` differently
 - Added `padding` option
 
 ## 0.7.5

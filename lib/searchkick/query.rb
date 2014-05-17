@@ -195,8 +195,7 @@ module Searchkick
 
       # order
       if options[:order]
-        order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-        payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
+        payload[:sort] = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
       end
 
       # filters
@@ -383,8 +382,6 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
-        field = :_id if field.to_s == "id"
-
         if field == :or
           value.each do |or_clause|
             filters << {or: or_clause.map{|or_statement| {and: where_filters(or_statement)} }}

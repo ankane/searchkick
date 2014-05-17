@@ -39,7 +39,7 @@ module Searchkick
         else
           hits.map do |hit|
             result = hit.except("_source").merge(hit["_source"])
-            result["id"] = result["_id"]
+            result["id"] ||= result["_id"] # needed for legacy reasons
             Hashie::Mash.new(result)
           end
         end

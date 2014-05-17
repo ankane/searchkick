@@ -83,7 +83,8 @@ module Searchkick
       source = record.search_data
 
       # stringify fields
-      source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("id", "_id")
+      source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("_id")
+      source["id"] ||= search_id(record)
 
       options = record.class.searchkick_options
 
