@@ -58,7 +58,11 @@ module Searchkick
     end
 
     def klass_document_type(klass)
-      klass.model_name.to_s.underscore
+      if klass.respond_to?(:document_type)
+        klass.document_type
+      else
+        klass.model_name.to_s.underscore
+      end
     end
 
     protected
