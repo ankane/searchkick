@@ -198,6 +198,10 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
   end
 
+  def test_order_ignore_unmapped
+    assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}, conversions: false
+  end
+
   def test_partial
     store_names ["Honey"]
     assert_search "fresh honey", []

@@ -108,6 +108,8 @@ Order
 order: {_score: :desc} # most relevant first - default
 ```
 
+[All of these sort options are supported](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html)
+
 Limit / offset
 
 ```ruby
