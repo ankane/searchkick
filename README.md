@@ -443,6 +443,14 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", facets: {price: {ranges: price_ranges}}
 ```
 
+
+#### Stats
+If stats is enabled the facets returned will in addition to the term and a count contain `max`, `min`, `mean` and `total` fields for the score in each facet. This is very useful if you want to be able to sort facets on relevance rather than count.
+
+```ruby
+Product.search "*", facets: {store_id: { stats: true }}
+```
+
 ### Highlight
 
 Highlight the search query in the results.
