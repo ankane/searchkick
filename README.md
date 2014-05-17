@@ -443,6 +443,12 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", facets: {price: {ranges: price_ranges}}
 ```
 
+Use the `stats` option to get to max, min, mean, and total scores for each facet
+
+```ruby
+Product.search "*", facets: {store_id: {stats: true}}
+```
+
 ### Highlight
 
 Highlight the search query in the results.

@@ -219,6 +219,7 @@ module Searchkick
         facets.each do |field, facet_options|
           # ask for extra facets due to
           # https://github.com/elasticsearch/elasticsearch/issues/1305
+          size = facet_options[:limit] ? facet_options[:limit] + 150 : 100000
 
           if facet_options[:ranges]
             payload[:facets][field] = {
@@ -226,11 +227,19 @@ module Searchkick
                 field.to_sym => facet_options[:ranges]
               }
             }
+          elsif facet_options[:stats]
+            payload[:facets][field] = {
+              terms_stats: {
+                key_field: field,
+                value_script: "doc.score",
+                size: size
+              }
+            }
           else
             payload[:facets][field] = {
               terms: {
                 field: field,
-                size: facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+                size: size
               }
             }
           end

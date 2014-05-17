@@ -59,6 +59,13 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal ({1 => 1, 2 => 1}), store_facet(where: {store_id: 2, price: {gt: 5}}, facets: [:store_id], smart_facets: true)
   end
 
+  def test_stats_facets
+    options = {where: {store_id: 2}, facets: {store_id: {stats: true}}}
+    facets = Product.search("Product", options).facets["store_id"]["terms"]
+    expected_facets_keys = %w[term count total_count min max total mean]
+    assert_equal expected_facets_keys, facets.first.keys
+  end
+
   protected
 
   def store_facet(options)
