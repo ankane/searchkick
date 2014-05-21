@@ -1,4 +1,4 @@
-## 0.7.6 [unreleased]
+## 0.7.6
 
 - Added `stats` option to facets
 - Added `padding` option
