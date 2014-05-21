@@ -86,7 +86,6 @@ module Searchkick
       # stringify fields
       # remove _id since search_id is used instead
       source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("_id")
-      source["id"] ||= search_id(record)
 
       # conversions
       conversions_field = options[:conversions]

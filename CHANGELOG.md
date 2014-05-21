@@ -1,6 +1,5 @@
-## 0.8.0 [unreleased]
+## 0.7.6 [unreleased]
 
-- Treat `id` and `_id` differently
 - Added `stats` option to facets
 - Added `padding` option
 
