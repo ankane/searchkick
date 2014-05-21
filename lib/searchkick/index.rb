@@ -44,7 +44,7 @@ module Searchkick
         client.bulk(
           index: name,
           type: type,
-          body: batch.map{|r| data = search_data(r); {index: {_id: search_id(r), data: data}} }
+          body: batch.map{|r| {index: {_id: search_id(r), data: search_data(r)}} }
         )
       end
     end
@@ -81,12 +81,12 @@ module Searchkick
 
     def search_data(record)
       source = record.search_data
+      options = record.class.searchkick_options
 
       # stringify fields
+      # remove _id since search_id is used instead
       source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("_id")
       source["id"] ||= search_id(record)
-
-      options = record.class.searchkick_options
 
       # conversions
       conversions_field = options[:conversions]
@@ -111,8 +111,6 @@ module Searchkick
       end
 
       cast_big_decimal(source)
-
-      # p search_data
 
       source.as_json
     end
