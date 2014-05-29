@@ -1,3 +1,7 @@
+## 0.7.7 [unreleased]
+
+- Added support for automatic failover
+
 ## 0.7.6
 
 - Added `stats` option to facets

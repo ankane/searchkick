@@ -580,6 +580,16 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
+### Automatic Failover [master]
+
+Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
+
+```ruby
+Searchkick.client = Elasticsearch::Client.new(hosts: ["localhost:9200", "localhost:9201"], retry_on_failure: true)
+```
+
+See the [elasticsearch-transport](https://github.com/elasticsearch/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
+
 ## Advanced
 
 Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?

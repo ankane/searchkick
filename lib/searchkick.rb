@@ -21,6 +21,10 @@ module Searchkick
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
   end
 
+  def self.client=(client)
+    @client ||= client
+  end
+
   @callbacks = true
 
   def self.enable_callbacks
