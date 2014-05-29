@@ -22,7 +22,7 @@ module Searchkick
   end
 
   def self.client=(client)
-    @client ||= client
+    @client = client
   end
 
   @callbacks = true
