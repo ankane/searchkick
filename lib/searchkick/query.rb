@@ -296,6 +296,14 @@ module Searchkick
       # model and eagar loading
       load = options[:load].nil? ? true : options[:load]
 
+      # Other options
+      other_valid_options = %w[search_type routing scroll timeout]
+
+      other_valid_options.each do |option|
+        name = option.to_sym
+        payload[name] = options[name] if options[name]
+      end
+
       # An empty array will cause only the _id and _type for each hit to be returned
       # http://www.elasticsearch.org/guide/reference/api/search/fields/
       payload[:fields] = [] if load
