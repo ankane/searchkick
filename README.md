@@ -45,7 +45,7 @@ Add this line to your application’s Gemfile:
 gem "searchkick"
 ```
 
-For Elasticsearch 0.90, use version `0.6.3`.
+For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -443,7 +443,7 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", facets: {price: {ranges: price_ranges}}
 ```
 
-Use the `stats` option to get to max, min, mean, and total scores for each facet [master]
+Use the `stats` option to get to max, min, mean, and total scores for each facet
 
 ```ruby
 Product.search "*", facets: {store_id: {stats: true}}
