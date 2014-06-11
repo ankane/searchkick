@@ -164,7 +164,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-And to search:
+And to search (after you reindex):
 
 ```ruby
 Product.search "back", fields: [{name: :word_start}]
