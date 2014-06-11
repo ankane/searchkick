@@ -281,7 +281,7 @@ end
 
 You do **not** need to clean up the search queries.  Searchkick automatically treats `apple` and `APPLES` the same.
 
-Next, add conversions to the index.  You must specify the conversions field as of version `0.2.0`.
+Next, add conversions to the index.
 
 ```ruby
 class Product < ActiveRecord::Base
