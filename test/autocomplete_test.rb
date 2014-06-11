@@ -52,4 +52,9 @@ class TestAutocomplete < Minitest::Unit::TestCase
     assert_search "rld men ego", ["Where in the World is Carmen San Diego"], fields: [{name: :word_end}]
   end
 
+  def test_word_start_multiple_words
+    store_names ["Dark Grey", "Dark Blue"]
+    assert_search "dark grey", ["Dark Grey"], fields: [{name: :word_start}]
+  end
+
 end

@@ -74,13 +74,13 @@ module Searchkick
         else
           queries = []
           fields.each do |field|
+            shared_options = {
+              fields: [field],
+              query: term,
+              use_dis_max: false,
+              operator: operator
+            }
             if field == "_all" or field.end_with?(".analyzed")
-              shared_options = {
-                fields: [field],
-                query: term,
-                use_dis_max: false,
-                operator: operator
-              }
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
               queries.concat [
                 {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
@@ -95,13 +95,7 @@ module Searchkick
               end
             else
               analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
-              queries << {
-                multi_match: {
-                  fields: [field],
-                  query: term,
-                  analyzer: analyzer
-                }
-              }
+              queries << {multi_match: shared_options.merge(analyzer: analyzer)}
             end
           end
 
