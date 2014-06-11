@@ -484,8 +484,6 @@ product.similar(fields: ["name"])
 
 ### Geospatial Searches
 
-**Note:** Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
-
 ```ruby
 class City < ActiveRecord::Base
   searchkick locations: ["location"]
@@ -785,9 +783,19 @@ rake searchkick:reindex:all
 
 4. Once it finishes, replace search calls w/ searchkick calls
 
-## Note about 0.6.0 and 0.7.0
+## Upgrading
+
+View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
+
+Important notes are listed below.
+
+### 0.6.0 and 0.7.0
 
 If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.6.1` or `0.7.1` to fix an issue that causes downtime when reindexing.
+
+### 0.3.0
+
+Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
 
 ## Elasticsearch Gotchas
 
@@ -815,10 +823,6 @@ Thanks to Karel Minarik for [Elasticsearch Ruby](https://github.com/elasticsearc
 - Add section on testing
 - Much finer customization
 - More transparency into generated queries (for advanced use)
-
-## History
-
-View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md)
 
 ## Contributing
 
