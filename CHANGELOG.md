@@ -1,7 +1,7 @@
 ## 0.7.7
 
 - Added support for automatic failover
-- Fixed default operator for partial queries
+- Fixed `operator` option (and default) for partial matches
 
 ## 0.7.6
 
