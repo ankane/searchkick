@@ -580,7 +580,7 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
-### Automatic Failover [master]
+### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
 

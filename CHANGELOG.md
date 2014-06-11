@@ -1,6 +1,7 @@
-## 0.7.7 [unreleased]
+## 0.7.7
 
 - Added support for automatic failover
+- Fixed default operator for partial queries
 
 ## 0.7.6
 
