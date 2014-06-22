@@ -128,13 +128,13 @@ Boost by the value of a field
 
 ```ruby
 boost_by: [:orders_count] # give popular documents a little boost
-boost_by: {orders_count: {factor: 10}}
+boost_by: {orders_count: {factor: 10}} # default factor is 1
 ```
 
 Boost matching documents
 
 ```ruby
-boost_where: {user_id: 1}
+boost_where: {user_id: 1} # default factor is 1000
 boost_where: {user_id: {value: 1, factor: 100}}
 ```
 
