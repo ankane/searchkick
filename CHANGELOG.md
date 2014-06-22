@@ -1,3 +1,7 @@
+## 0.7.8
+
+- Added `select` option for `load: false`
+
 ## 0.7.7
 
 - Added support for automatic failover

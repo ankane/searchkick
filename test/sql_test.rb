@@ -274,6 +274,13 @@ class TestSql < Minitest::Unit::TestCase
     assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first
   end
 
+  # select
+
+  def test_select
+    store [{name: "Product A", store_id: 1}]
+    assert_equal %w[id name store_id], Product.search("product", load: false, select: [:name, :store_id]).first.keys.reject{|k| k.start_with?("_") }.sort
+  end
+
   # TODO see if Mongoid is loaded
   if !defined?(Mongoid)
     def test_include
