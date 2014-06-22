@@ -137,36 +137,45 @@ module Searchkick
 
       custom_filters = []
 
+      boost_by = options[:boost_by] || {}
+      if boost_by.is_a?(Array)
+        boost_by = Hash[ boost_by.map{|f| [f, {factor: 1}] } ]
+      end
       if options[:boost]
+        boost_by[options[:boost]] = {factor: 1}
+      end
+
+      boost_by.each do |field, value|
         custom_filters << {
           filter: {
             exists: {
-              field: options[:boost]
+              field: field
             }
           },
           script_score: {
-            script: "log(doc['#{options[:boost]}'].value + 2.718281828)"
+            script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"
           }
         }
       end
 
+      boost_where = options[:boost_where] || {}
       if options[:user_id] and personalize_field
-        custom_filters << {
-          filter: {
-            term: {
-              personalize_field => options[:user_id]
-            }
-          },
-          boost_factor: 100
-        }
+        boost_where[personalize_field] = options[:user_id]
       end
-
       if options[:personalize]
+        boost_where.merge!(options[:personalize])
+      end
+      boost_where.each do |field, value|
+        if value.is_a?(Hash)
+          value, factor = value[:value], value[:factor]
+        else
+          factor = 1000
+        end
         custom_filters << {
           filter: {
-            term: options[:personalize]
+            term: {field => value}
           },
-          boost_factor: 100
+          boost_factor: factor
         }
       end
 

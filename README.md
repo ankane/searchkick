@@ -116,10 +116,20 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
-Boost by a field
+### Boosting
+
+Boost by the value of a field
 
 ```ruby
-boost: "orders_count" # give popular documents a little boost
+boost_by: [:orders_count] # give popular documents a little boost
+boost_by: {orders_count: {factor: 10}}
+```
+
+Boost matching documents
+
+```ruby
+boost_where: {user_id: 1}
+boost_where: {user_id: {value: 1, factor: 100}}
 ```
 
 ### Get Everything
@@ -311,22 +321,21 @@ Order results differently for each user.  For example, show a user’s previousl
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick personalize: "user_ids"
 
   def search_data
     {
       name: name,
       user_ids: orders.pluck(:user_id) # boost this product for these users
-      # [4, 8, 15, 16, 23, 42]
     }
   end
+
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-Product.search "milk", user_id: 8
+Product.search "milk", boost_where: {user_id: 8}
 ```
 
 ### Autocomplete

@@ -67,4 +67,25 @@ class TestBoost < Minitest::Unit::TestCase
     assert_first "tomato", "Tomato B", personalize: {user_ids: 2}
   end
 
+  def test_boost_by
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", orders_count: 10},
+      {name: "Tomato C", orders_count: 100}
+    ]
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: [:orders_count]
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
+  end
+
+  def test_boost_where
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", user_ids: [1, 2, 3]},
+      {name: "Tomato C"},
+      {name: "Tomato D"}
+    ]
+    assert_first "tomato", "Tomato B", boost_where: {user_ids: 2}
+    assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
+  end
+
 end
