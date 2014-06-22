@@ -1,4 +1,4 @@
-## 0.7.8
+## 0.7.8 [unreleased]
 
 - Added `select` option for `load: false`
 
