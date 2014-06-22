@@ -1,4 +1,4 @@
-## 0.7.8 [unreleased]
+## 0.7.8
 
 - Added `boost_by` and `boost_where` options
 - Added ability to boost fields - `name^10`
