@@ -1,6 +1,7 @@
 ## 0.7.8 [unreleased]
 
 - Added `boost_by` and `boost_where` options
+- Added ability to boost fields - `name^10`
 - Added `select` option for `load: false`
 
 ## 0.7.7

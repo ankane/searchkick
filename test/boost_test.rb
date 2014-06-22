@@ -67,6 +67,22 @@ class TestBoost < Minitest::Unit::TestCase
     assert_first "tomato", "Tomato B", personalize: {user_ids: 2}
   end
 
+  def test_boost_fields
+    store [
+      {name: "Red", color: "White"},
+      {name: "White", color: "Red Red Red"}
+    ]
+    assert_order "red", ["Red", "White"], fields: ["name^10", "color"]
+  end
+
+  def test_boost_fields_word_start
+    store [
+      {name: "Red", color: "White"},
+      {name: "White", color: "Red Red Red"}
+    ]
+    assert_order "red", ["Red", "White"], fields: [{"name^10" => :word_start}, "color"]
+  end
+
   def test_boost_by
     store [
       {name: "Tomato A"},

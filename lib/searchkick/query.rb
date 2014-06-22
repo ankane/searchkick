@@ -15,6 +15,7 @@ module Searchkick
       @term = term
       @options = options
 
+      boost_fields = {}
       fields =
         if options[:fields]
           if options[:autocomplete]
@@ -22,7 +23,10 @@ module Searchkick
           else
             options[:fields].map do |value|
               k, v = value.is_a?(Hash) ? value.to_a.first : [value, :word]
-              "#{k}.#{v == :word ? "analyzed" : v}"
+              k2, boost = k.split("^", 2)
+              field = "#{k2}.#{v == :word ? "analyzed" : v}"
+              boost_fields[field] = boost.to_i if boost
+              field
             end
           end
         else
@@ -74,17 +78,19 @@ module Searchkick
         else
           queries = []
           fields.each do |field|
+            factor = boost_fields[field] || 1
             shared_options = {
               fields: [field],
               query: term,
               use_dis_max: false,
-              operator: operator
+              operator: operator,
+              boost: factor
             }
             if field == "_all" or field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
               queries.concat [
-                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search")},
-                {multi_match: shared_options.merge(boost: 10, analyzer: "searchkick_search2")}
+                {multi_match: shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search")},
+                {multi_match: shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")}
               ]
               if options[:misspellings] != false
                 distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1

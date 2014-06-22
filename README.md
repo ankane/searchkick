@@ -118,6 +118,12 @@ limit: 20, offset: 40
 
 ### Boosting
 
+Boost important fields
+
+```ruby
+fields: ["title^10", "description"]
+```
+
 Boost by the value of a field
 
 ```ruby
@@ -190,6 +196,12 @@ Available options are:
 :text_start
 :text_middle
 :text_end
+```
+
+To boost fields, use:
+
+```ruby
+fields: [{"name^2" => :word_start}] # better interface on the way
 ```
 
 ### Language
