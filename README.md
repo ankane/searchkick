@@ -347,7 +347,7 @@ end
 Reindex and search with:
 
 ```ruby
-Product.search "milk", boost_where: {ordered_ids: current_user.id}
+Product.search "milk", boost_where: {orderer_ids: current_user.id}
 ```
 
 ### Autocomplete
