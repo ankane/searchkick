@@ -337,7 +337,7 @@ class Product < ActiveRecord::Base
   def search_data
     {
       name: name,
-      user_ids: orders.pluck(:user_id) # boost this product for these users
+      orderer_ids: orders.pluck(:user_id) # boost this product for these users
     }
   end
 
@@ -347,7 +347,7 @@ end
 Reindex and search with:
 
 ```ruby
-Product.search "milk", boost_where: {user_ids: current_user.id}
+Product.search "milk", boost_where: {ordered_ids: current_user.id}
 ```
 
 ### Autocomplete
