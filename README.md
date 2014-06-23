@@ -138,6 +138,8 @@ boost_where: {user_id: 1} # default factor is 1000
 boost_where: {user_id: {value: 1, factor: 100}}
 ```
 
+[Conversions](#keep-getting-better) are also a great way to boost.
+
 ### Get Everything
 
 Use a `*` for the query.
