@@ -70,6 +70,8 @@ products.each do |product|
 end
 ```
 
+Searchkick supports the complete [Elasticsearch Search API](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
+
 ### Queries
 
 Query like SQL
@@ -77,8 +79,6 @@ Query like SQL
 ```ruby
 Product.search "2% Milk", where: {in_stock: true}, limit: 10, offset: 50
 ```
-
-**Note:** If you prefer the Elasticsearch DSL, see the [Advanced section](#advanced)
 
 Search specific fields
 
