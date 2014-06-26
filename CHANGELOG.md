@@ -3,6 +3,7 @@
 - Added `tokens` method
 - Added `json` option
 - Added exact matches
+- Added `prev_page` for Kaminari pagination
 
 ## 0.7.8
 
