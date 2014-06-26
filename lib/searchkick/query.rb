@@ -78,33 +78,37 @@ module Searchkick
         else
           queries = []
           fields.each do |field|
+            qs = []
+
             factor = boost_fields[field] || 1
             shared_options = {
-              fields: [field],
               query: term,
-              use_dis_max: false,
               operator: operator,
               boost: factor
             }
+
             if field == "_all" or field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-              queries.concat [
-                {multi_match: shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search")},
-                {multi_match: shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")}
+              qs.concat [
+                shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
+                shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
               ]
               if options[:misspellings] != false
                 distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
-                queries.concat [
-                  {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search")},
-                  {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")}
+                qs.concat [
+                  shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search"),
+                  shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")
                 ]
               end
             elsif field.end_with?(".exact")
-              queries << {multi_match: shared_options.merge(fields: [field.split(".")[0..-2].join(".")], analyzer: "keyword")}
+              f = field.split(".")[0..-2].join(".")
+              queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
             else
               analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
-              queries << {multi_match: shared_options.merge(analyzer: analyzer)}
+              qs << shared_options.merge(analyzer: analyzer)
             end
+
+            queries.concat(qs.map{|q| {match: {field => q}} })
           end
 
           payload = {
