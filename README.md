@@ -571,13 +571,13 @@ To see how Elasticsearch tokenizes your queries, use:
 
 ```ruby
 Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "default_index")
-# => ["dish", "dishwash", "washer", "washersoap", "soap"]
+# ["dish", "dishwash", "washer", "washersoap", "soap"]
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search")
-# => ["dishwashersoap"]
+# ["dishwashersoap"]
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search2")
-# => ["dishwash", "soap"]
+# ["dishwash", "soap"]
 ```
 
 See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
