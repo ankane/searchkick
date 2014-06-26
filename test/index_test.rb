@@ -35,6 +35,12 @@ class TestIndex < Minitest::Unit::TestCase
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  def test_json
+    store_names ["Dollar Tree"], Store
+    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search(json: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
+  end
+
   def test_tokens
     assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree")
   end

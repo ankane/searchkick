@@ -19,4 +19,23 @@ class TestHighlight < Minitest::Unit::TestCase
     assert_equal "<em>Cinema</em> Orange", highlight[:color]
   end
 
+  def test_json
+    store_names ["Two Door Cinema Club"]
+    json = {
+      query: {
+        match: {
+          _all: "cinema"
+        }
+      },
+      highlight: {
+        pre_tags: ["<strong>"],
+        post_tags: ["</strong>"],
+        fields: {
+          "name.analyzed" => {}
+        }
+      }
+    }
+    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(json: json).response["hits"]["hits"].first["highlight"]["name.analyzed"].first
+  end
+
 end

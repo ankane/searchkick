@@ -45,282 +45,286 @@ module Searchkick
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
 
+      # model and eagar loading
+      load = options[:load].nil? ? true : options[:load]
+
       conversions_field = searchkick_options[:conversions]
       personalize_field = searchkick_options[:personalize]
 
       all = term == "*"
+      facet_limits = {}
 
-      if options[:query]
-        payload = options[:query]
-      elsif options[:similar]
-        payload = {
-          more_like_this: {
-            fields: fields,
-            like_text: term,
-            min_doc_freq: 1,
-            min_term_freq: 1,
-            analyzer: "searchkick_search2"
-          }
-        }
-      elsif all
-        payload = {
-          match_all: {}
-        }
+      if options[:json]
+        payload = options[:json]
       else
-        if options[:autocomplete]
+        if options[:query]
+          payload = options[:query]
+        elsif options[:similar]
           payload = {
-            multi_match: {
+            more_like_this: {
               fields: fields,
-              query: term,
-              analyzer: "searchkick_autocomplete_search"
+              like_text: term,
+              min_doc_freq: 1,
+              min_term_freq: 1,
+              analyzer: "searchkick_search2"
             }
+          }
+        elsif all
+          payload = {
+            match_all: {}
           }
         else
-          queries = []
-          fields.each do |field|
-            qs = []
-
-            factor = boost_fields[field] || 1
-            shared_options = {
-              query: term,
-              operator: operator,
-              boost: factor
+          if options[:autocomplete]
+            payload = {
+              multi_match: {
+                fields: fields,
+                query: term,
+                analyzer: "searchkick_autocomplete_search"
+              }
             }
+          else
+            queries = []
+            fields.each do |field|
+              qs = []
 
-            if field == "_all" or field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-              qs.concat [
-                shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
-                shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
-              ]
-              if options[:misspellings] != false
-                distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
+              factor = boost_fields[field] || 1
+              shared_options = {
+                query: term,
+                operator: operator,
+                boost: factor
+              }
+
+              if field == "_all" or field.end_with?(".analyzed")
+                shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
                 qs.concat [
-                  shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search"),
-                  shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")
+                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
+                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
                 ]
+                if options[:misspellings] != false
+                  distance = (options[:misspellings].is_a?(Hash) && options[:misspellings][:distance]) || 1
+                  qs.concat [
+                    shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search"),
+                    shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")
+                  ]
+                end
+              elsif field.end_with?(".exact")
+                f = field.split(".")[0..-2].join(".")
+                queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
+              else
+                analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
+                qs << shared_options.merge(analyzer: analyzer)
               end
-            elsif field.end_with?(".exact")
-              f = field.split(".")[0..-2].join(".")
-              queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
-            else
-              analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
-              qs << shared_options.merge(analyzer: analyzer)
+
+              queries.concat(qs.map{|q| {match: {field => q}} })
             end
 
-            queries.concat(qs.map{|q| {match: {field => q}} })
+            payload = {
+              dis_max: {
+                queries: queries
+              }
+            }
           end
 
-          payload = {
-            dis_max: {
-              queries: queries
-            }
-          }
-        end
-
-        if conversions_field and options[:conversions] != false
-          # wrap payload in a bool query
-          payload = {
-            bool: {
-              must: payload,
-              should: {
-                nested: {
-                  path: conversions_field,
-                  score_mode: "total",
-                  query: {
-                    function_score: {
-                      boost_mode: "replace",
-                      query: {
-                        match: {
-                          query: term
+          if conversions_field and options[:conversions] != false
+            # wrap payload in a bool query
+            payload = {
+              bool: {
+                must: payload,
+                should: {
+                  nested: {
+                    path: conversions_field,
+                    score_mode: "total",
+                    query: {
+                      function_score: {
+                        boost_mode: "replace",
+                        query: {
+                          match: {
+                            query: term
+                          }
+                        },
+                        script_score: {
+                          script: "doc['count'].value"
                         }
-                      },
-                      script_score: {
-                        script: "doc['count'].value"
                       }
                     }
                   }
                 }
               }
             }
-          }
-        end
-      end
-
-      custom_filters = []
-
-      boost_by = options[:boost_by] || {}
-      if boost_by.is_a?(Array)
-        boost_by = Hash[ boost_by.map{|f| [f, {factor: 1}] } ]
-      end
-      if options[:boost]
-        boost_by[options[:boost]] = {factor: 1}
-      end
-
-      boost_by.each do |field, value|
-        custom_filters << {
-          filter: {
-            exists: {
-              field: field
-            }
-          },
-          script_score: {
-            script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"
-          }
-        }
-      end
-
-      boost_where = options[:boost_where] || {}
-      if options[:user_id] and personalize_field
-        boost_where[personalize_field] = options[:user_id]
-      end
-      if options[:personalize]
-        boost_where.merge!(options[:personalize])
-      end
-      boost_where.each do |field, value|
-        if value.is_a?(Hash)
-          value, factor = value[:value], value[:factor]
-        else
-          factor = 1000
-        end
-        custom_filters << {
-          filter: {
-            term: {field => value}
-          },
-          boost_factor: factor
-        }
-      end
-
-      if custom_filters.any?
-        payload = {
-          function_score: {
-            functions: custom_filters,
-            query: payload,
-            score_mode: "sum"
-          }
-        }
-      end
-
-      payload = {
-        query: payload,
-        size: per_page,
-        from: offset
-      }
-      payload[:explain] = options[:explain] if options[:explain]
-
-      # order
-      if options[:order]
-        order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-        payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
-      end
-
-      # filters
-      filters = where_filters(options[:where])
-      if filters.any?
-        payload[:filter] = {
-          and: filters
-        }
-      end
-
-      # facets
-      facet_limits = {}
-      if options[:facets]
-        facets = options[:facets] || {}
-        if facets.is_a?(Array) # convert to more advanced syntax
-          facets = Hash[ facets.map{|f| [f, {}] } ]
+          end
         end
 
-        payload[:facets] = {}
-        facets.each do |field, facet_options|
-          # ask for extra facets due to
-          # https://github.com/elasticsearch/elasticsearch/issues/1305
-          size = facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+        custom_filters = []
 
-          if facet_options[:ranges]
-            payload[:facets][field] = {
-              range: {
-                field.to_sym => facet_options[:ranges]
+        boost_by = options[:boost_by] || {}
+        if boost_by.is_a?(Array)
+          boost_by = Hash[ boost_by.map{|f| [f, {factor: 1}] } ]
+        end
+        if options[:boost]
+          boost_by[options[:boost]] = {factor: 1}
+        end
+
+        boost_by.each do |field, value|
+          custom_filters << {
+            filter: {
+              exists: {
+                field: field
               }
+            },
+            script_score: {
+              script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"
             }
-          elsif facet_options[:stats]
-            payload[:facets][field] = {
-              terms_stats: {
-                key_field: field,
-                value_script: "doc.score",
-                size: size
-              }
-            }
+          }
+        end
+
+        boost_where = options[:boost_where] || {}
+        if options[:user_id] and personalize_field
+          boost_where[personalize_field] = options[:user_id]
+        end
+        if options[:personalize]
+          boost_where.merge!(options[:personalize])
+        end
+        boost_where.each do |field, value|
+          if value.is_a?(Hash)
+            value, factor = value[:value], value[:factor]
           else
-            payload[:facets][field] = {
-              terms: {
-                field: field,
-                size: size
-              }
-            }
+            factor = 1000
           end
-
-          facet_limits[field] = facet_options[:limit] if facet_options[:limit]
-
-          # offset is not possible
-          # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
-
-          facet_options.deep_merge!(where: options[:where].reject{|k| k == field}) if options[:smart_facets] == true
-          facet_filters = where_filters(facet_options[:where])
-          if facet_filters.any?
-            payload[:facets][field][:facet_filter] = {
-              and: {
-                filters: facet_filters
-              }
-            }
-          end
-        end
-      end
-
-      # suggestions
-      if options[:suggest]
-        suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
-
-        # intersection
-        if options[:fields]
-          suggest_fields = suggest_fields & options[:fields].map{|v| (v.is_a?(Hash) ? v.keys.first : v).to_s }
+          custom_filters << {
+            filter: {
+              term: {field => value}
+            },
+            boost_factor: factor
+          }
         end
 
-        if suggest_fields.any?
-          payload[:suggest] = {text: term}
-          suggest_fields.each do |field|
-            payload[:suggest][field] = {
-              phrase: {
-                field: "#{field}.suggest"
-              }
+        if custom_filters.any?
+          payload = {
+            function_score: {
+              functions: custom_filters,
+              query: payload,
+              score_mode: "sum"
             }
-          end
+          }
         end
-      end
 
-      # highlight
-      if options[:highlight]
-        payload[:highlight] = {
-          fields: Hash[ fields.map{|f| [f, {}] } ]
+        payload = {
+          query: payload,
+          size: per_page,
+          from: offset
         }
-        if options[:highlight].is_a?(Hash) and tag = options[:highlight][:tag]
-          payload[:highlight][:pre_tags] = [tag]
-          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+        payload[:explain] = options[:explain] if options[:explain]
+
+        # order
+        if options[:order]
+          order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
+          payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
         end
-      end
 
-      # model and eagar loading
-      load = options[:load].nil? ? true : options[:load]
+        # filters
+        filters = where_filters(options[:where])
+        if filters.any?
+          payload[:filter] = {
+            and: filters
+          }
+        end
 
-      # An empty array will cause only the _id and _type for each hit to be returned
-      # http://www.elasticsearch.org/guide/reference/api/search/fields/
-      if load
-        payload[:fields] = []
-      elsif options[:select]
-        payload[:fields] = options[:select]
-      end
+        # facets
+        if options[:facets]
+          facets = options[:facets] || {}
+          if facets.is_a?(Array) # convert to more advanced syntax
+            facets = Hash[ facets.map{|f| [f, {}] } ]
+          end
 
-      if options[:type] or klass != searchkick_klass
-        @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
+          payload[:facets] = {}
+          facets.each do |field, facet_options|
+            # ask for extra facets due to
+            # https://github.com/elasticsearch/elasticsearch/issues/1305
+            size = facet_options[:limit] ? facet_options[:limit] + 150 : 100000
+
+            if facet_options[:ranges]
+              payload[:facets][field] = {
+                range: {
+                  field.to_sym => facet_options[:ranges]
+                }
+              }
+            elsif facet_options[:stats]
+              payload[:facets][field] = {
+                terms_stats: {
+                  key_field: field,
+                  value_script: "doc.score",
+                  size: size
+                }
+              }
+            else
+              payload[:facets][field] = {
+                terms: {
+                  field: field,
+                  size: size
+                }
+              }
+            end
+
+            facet_limits[field] = facet_options[:limit] if facet_options[:limit]
+
+            # offset is not possible
+            # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
+
+            facet_options.deep_merge!(where: options[:where].reject{|k| k == field}) if options[:smart_facets] == true
+            facet_filters = where_filters(facet_options[:where])
+            if facet_filters.any?
+              payload[:facets][field][:facet_filter] = {
+                and: {
+                  filters: facet_filters
+                }
+              }
+            end
+          end
+        end
+
+        # suggestions
+        if options[:suggest]
+          suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
+
+          # intersection
+          if options[:fields]
+            suggest_fields = suggest_fields & options[:fields].map{|v| (v.is_a?(Hash) ? v.keys.first : v).to_s }
+          end
+
+          if suggest_fields.any?
+            payload[:suggest] = {text: term}
+            suggest_fields.each do |field|
+              payload[:suggest][field] = {
+                phrase: {
+                  field: "#{field}.suggest"
+                }
+              }
+            end
+          end
+        end
+
+        # highlight
+        if options[:highlight]
+          payload[:highlight] = {
+            fields: Hash[ fields.map{|f| [f, {}] } ]
+          }
+          if options[:highlight].is_a?(Hash) and tag = options[:highlight][:tag]
+            payload[:highlight][:pre_tags] = [tag]
+            payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+          end
+        end
+
+        # An empty array will cause only the _id and _type for each hit to be returned
+        # http://www.elasticsearch.org/guide/reference/api/search/fields/
+        if load
+          payload[:fields] = []
+        elsif options[:select]
+          payload[:fields] = options[:select]
+        end
+
+        if options[:type] or klass != searchkick_klass
+          @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
+        end
       end
 
       @body = payload
