@@ -35,7 +35,7 @@ class TestHighlight < Minitest::Unit::TestCase
         }
       }
     }
-    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(json: json).with_details.first[1][:highlight]["name.analyzed"]
+    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(json: json).with_details.first[1][:highlight][:"name.analyzed"]
   end
 
 end
