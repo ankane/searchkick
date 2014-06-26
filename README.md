@@ -580,6 +580,16 @@ Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search2
 # ["dishwash", "soap"] - match!!
 ```
 
+Partial matches
+
+```ruby
+Product.searchkick_index.tokens("San Diego", analyzer: "searchkick_word_start_index")
+# ["s", "sa", "san", "d", "di", "die", "dieg", "diego"]
+
+Product.searchkick_index.tokens("dieg", analyzer: "searchkick_word_search")
+# ["dieg"] - match!!
+```
+
 See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
 
 ## Deployment
