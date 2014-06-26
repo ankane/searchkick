@@ -396,7 +396,8 @@ module Searchkick
         per_page: @per_page,
         padding: @padding,
         load: @load,
-        includes: options[:include] || options[:includes]
+        includes: options[:include] || options[:includes],
+        json: !options[:json].nil?
       }
       Searchkick::Results.new(searchkick_klass, response, opts)
     end
