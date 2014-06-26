@@ -204,13 +204,18 @@ Available options are:
 :text_start
 :text_middle
 :text_end
-:exact # [master]
 ```
 
 To boost fields, use:
 
 ```ruby
 fields: [{"name^2" => :word_start}] # better interface on the way
+```
+
+### Exact Matches [master]
+
+```ruby
+User.search "hi@searchkick.org", fields: [{email: :exact}]
 ```
 
 ### Language
