@@ -65,6 +65,10 @@ module Searchkick
       end
     end
 
+    def tokens(text, options = {})
+      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map{|t| t["token"] }
+    end
+
     protected
 
     def client

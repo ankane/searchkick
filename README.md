@@ -565,6 +565,16 @@ Animal.search "*", type: [Dog, Cat] # just cats and dogs
 Dog.search "airbudd", suggest: true # suggestions for all animals
 ```
 
+## Debugging Queries [master]
+
+To see how Elasticsearch tokenizes your queries, use:
+
+```ruby
+Product.searchkick_index.tokens("this is a test", analyzer: "default_index")
+```
+
+See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.

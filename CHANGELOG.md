@@ -1,3 +1,7 @@
+## 0.7.9 [unreleased]
+
+- Added `tokens` method
+
 ## 0.7.8
 
 - Added `boost_by` and `boost_where` options

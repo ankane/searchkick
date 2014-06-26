@@ -35,6 +35,14 @@ class TestIndex < Minitest::Unit::TestCase
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  def test_tokens
+    assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree")
+  end
+
+  def test_tokens_analyzer
+    assert_equal ["dollar", "tree"], Product.searchkick_index.tokens("Dollar Tree", analyzer: "searchkick_search2")
+  end
+
   def test_record_not_found
     store_names ["Product A", "Product B"]
     Product.where(name: "Product A").delete_all
