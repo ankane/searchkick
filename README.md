@@ -567,7 +567,7 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 
 ## Debugging Queries [master]
 
-To see how Elasticsearch tokenizes your queries, use:
+See how Elasticsearch tokenizes your queries with:
 
 ```ruby
 Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "default_index")
