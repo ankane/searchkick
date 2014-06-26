@@ -574,10 +574,10 @@ Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "default_index")
 # ["dish", "dishwash", "washer", "washersoap", "soap"]
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search")
-# ["dishwashersoap"]
+# ["dishwashersoap"] - no match
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search2")
-# ["dishwash", "soap"]
+# ["dishwash", "soap"] - match!!
 ```
 
 See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
