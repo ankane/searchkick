@@ -99,16 +99,10 @@ module Searchkick
                   {multi_match: shared_options.merge(fuzziness: distance, max_expansions: 3, analyzer: "searchkick_search2")}
                 ]
               end
+            elsif field.end_with?(".exact")
+              queries << {multi_match: shared_options.merge(fields: [field.split(".")[0..-2].join(".")], analyzer: "keyword")}
             else
-              analyzer =
-                case field
-                when /\.word_(start|middle|end)\z/
-                  "searchkick_word_search"
-                when /\.text_(start|middle|end)\z/
-                  "searchkick_autocomplete_search"
-                else
-                  "keyword"
-                end
+              analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
               queries << {multi_match: shared_options.merge(analyzer: analyzer)}
             end
           end
