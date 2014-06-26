@@ -33,6 +33,9 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal 2, products.limit_value
     assert_equal 3, products.offset_value
     assert_equal 3, products.offset
+    assert_equal 3, products.next_page
+    assert_equal 1, products.previous_page
+    assert_equal 1, products.prev_page
     assert !products.first_page?
     assert !products.last_page?
     assert !products.empty?
