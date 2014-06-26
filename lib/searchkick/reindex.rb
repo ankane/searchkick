@@ -156,6 +156,9 @@ module Searchkick
                 type: "custom",
                 tokenizer: "standard",
                 filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
+              },
+              searchkick_exact_index: {
+                type: "keyword"
               }
             },
             filter: {
@@ -245,7 +248,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end]
+          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :exact]
             .map{|type| [type, (options[type] || []).map(&:to_s)] }
         ]
 

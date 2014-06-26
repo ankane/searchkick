@@ -204,6 +204,7 @@ Available options are:
 :text_start
 :text_middle
 :text_end
+:exact # [master]
 ```
 
 To boost fields, use:

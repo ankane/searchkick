@@ -1,6 +1,7 @@
 ## 0.7.9 [unreleased]
 
 - Added `tokens` method
+- Added exact matches
 
 ## 0.7.8
 

@@ -100,7 +100,15 @@ module Searchkick
                 ]
               end
             else
-              analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
+              analyzer =
+                case field
+                when /\.word_(start|middle|end)\z/
+                  "searchkick_word_search"
+                when /\.text_(start|middle|end)\z/
+                  "searchkick_autocomplete_search"
+                else
+                  "keyword"
+                end
               queries << {multi_match: shared_options.merge(analyzer: analyzer)}
             end
           end

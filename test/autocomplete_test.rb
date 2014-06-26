@@ -57,4 +57,11 @@ class TestAutocomplete < Minitest::Unit::TestCase
     assert_search "dark grey", ["Dark Grey"], fields: [{name: :word_start}]
   end
 
+  # TODO find a better place
+
+  def test_exact
+    store_names ["hi@example.org"]
+    assert_search "hi@example.org", ["hi@example.org"], fields: [{name: :exact}]
+  end
+
 end
