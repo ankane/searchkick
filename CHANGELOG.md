@@ -4,6 +4,7 @@
 - Added `json` option
 - Added exact matches
 - Added `prev_page` for Kaminari pagination
+- Added `import` option to reindex
 
 ## 0.7.8
 
