@@ -1,3 +1,5 @@
+require "forwardable"
+
 module Searchkick
   class Results
     include Enumerable
