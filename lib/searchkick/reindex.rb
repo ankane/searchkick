@@ -3,7 +3,9 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex
+    def reindex(options = { import: true })
+      skip_import = options.key?(:import) && !options[:import]
+
       alias_name = searchkick_index.name
       new_name = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
       index = Searchkick::Index.new(new_name)
@@ -14,7 +16,8 @@ module Searchkick
 
       # check if alias exists
       if Searchkick.client.indices.exists_alias(name: alias_name)
-        searchkick_import(index) # import before swap
+        # import before swap
+        searchkick_import(index) unless skip_import
 
         # get existing indices to remove
         old_indices = Searchkick.client.indices.get_alias(name: alias_name).keys
@@ -24,7 +27,9 @@ module Searchkick
       else
         searchkick_index.delete if searchkick_index.exists?
         Searchkick.client.indices.update_aliases body: {actions: [{add: {index: new_name, alias: alias_name}}]}
-        searchkick_import(index) # import after swap
+
+        # import after swap
+        searchkick_import(index) unless skip_import
       end
 
       index.refresh
