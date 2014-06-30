@@ -3,7 +3,9 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex(skip_import = false)
+    def reindex(options = { import: true })
+      skip_import = options.key?(:import) && !options[:import]
+
       alias_name = searchkick_index.name
       new_name = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
       index = Searchkick::Index.new(new_name)
