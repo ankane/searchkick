@@ -1,4 +1,4 @@
-## 0.7.9 [unreleased]
+## 0.7.9
 
 - Added `tokens` method
 - Added `json` option

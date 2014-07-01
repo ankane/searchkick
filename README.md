@@ -212,7 +212,7 @@ To boost fields, use:
 fields: [{"name^2" => :word_start}] # better interface on the way
 ```
 
-### Exact Matches [master]
+### Exact Matches
 
 ```ruby
 User.search "hi@searchkick.org", fields: [{email: :exact}]
@@ -571,7 +571,7 @@ Animal.search "*", type: [Dog, Cat] # just cats and dogs
 Dog.search "airbudd", suggest: true # suggestions for all animals
 ```
 
-## Debugging Queries [master]
+## Debugging Queries
 
 See how Elasticsearch tokenizes your queries with:
 
