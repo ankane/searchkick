@@ -161,9 +161,18 @@ Plays nicely with kaminari and will_paginate.
 ```ruby
 # controller
 @products = Product.search "milk", page: params[:page], per_page: 20
+```
 
-# view
+View with kaminari
+
+```erb
 <%= paginate @products %>
+```
+
+View with will_paginate
+
+```erb
+<%= will_paginate @products %>
 ```
 
 ### Partial Matches
