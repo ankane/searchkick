@@ -161,12 +161,17 @@ Plays nicely with kaminari and will_paginate.
 ```ruby
 # controller
 @products = Product.search "milk", page: params[:page], per_page: 20
+```
 
-# view (using kaminari)
+View with kaminari
+
+```erb
 <%= paginate @products %>
 ```
 
-# view (using will_paginate)
+View with will_paginate
+
+```erb
 <%= will_paginate @products %>
 ```
 
