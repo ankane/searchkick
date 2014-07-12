@@ -224,7 +224,7 @@ fields: [{"name^2" => :word_start}] # better interface on the way
 ### Exact Matches
 
 ```ruby
-User.search "hi@searchkick.org", fields: [{email: :exact}]
+User.search "hi@searchkick.org", fields: [{email: :exact}, :name]
 ```
 
 ### Language
