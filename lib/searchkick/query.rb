@@ -6,7 +6,7 @@ module Searchkick
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
         options = term
-        term = nil
+        term = "*"
       else
         term = term.to_s
       end
