@@ -649,6 +649,16 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
+### Performance
+
+For the best performance, add [Patron](https://github.com/toland/patron) to your Gemfile.
+
+```ruby
+gem 'patron'
+```
+
+**Note:** Patron is not available for Windows.
+
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
