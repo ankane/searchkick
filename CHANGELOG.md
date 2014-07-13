@@ -1,7 +1,3 @@
-## 0.8.1 [unreleased]
-
-- Fixed select return type
-
 ## 0.8.0
 
 - Added support for Elasticsearch 1.2
