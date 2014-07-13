@@ -283,7 +283,7 @@ class TestSql < Minitest::Unit::TestCase
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
     assert_equal %w[id name store_id], result.keys.reject{|k| k.start_with?("_") }.sort
-    assert_equal ["Product A"], result.name
+    assert_equal "Product A", result.name
   end
 
   # TODO see if Mongoid is loaded

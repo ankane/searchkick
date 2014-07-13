@@ -44,7 +44,7 @@ module Searchkick
               if hit["_source"]
                 hit.except("_source").merge(hit["_source"])
               else
-                hit.except("fields").merge(hit["fields"])
+                hit.except("fields").merge(Hash[ hit["fields"].map{|k, v| [k, v.first] } ])
               end
             result["id"] ||= result["_id"] # needed for legacy reasons
             Hashie::Mash.new(result)
