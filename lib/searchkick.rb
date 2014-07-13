@@ -25,6 +25,10 @@ module Searchkick
     @client = client
   end
 
+  def self.server_version
+    @server_version ||= client.info["version"]["number"]
+  end
+
   @callbacks = true
 
   def self.enable_callbacks

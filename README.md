@@ -45,12 +45,6 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 1.2, use:
-
-```ruby
-gem 'searchkick', github: 'ankane/searchkick', branch: 'elasticsearch-1.2'
-```
-
 For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.

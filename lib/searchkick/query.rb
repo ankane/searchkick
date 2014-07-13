@@ -15,6 +15,8 @@ module Searchkick
       @term = term
       @options = options
 
+      below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2")
+
       boost_fields = {}
       fields =
         if options[:fields]
@@ -127,6 +129,13 @@ module Searchkick
 
           if conversions_field and options[:conversions] != false
             # wrap payload in a bool query
+            script_score =
+              if below12
+                {script_score: {script: "doc['count'].value"}}
+              else
+                {field_value_factor: {field: "count"}}
+              end
+
             payload = {
               bool: {
                 must: payload,
@@ -141,11 +150,8 @@ module Searchkick
                           match: {
                             query: term
                           }
-                        },
-                        script_score: {
-                          script: "doc['count'].value"
                         }
-                      }
+                      }.merge(script_score)
                     }
                   }
                 }
@@ -165,16 +171,20 @@ module Searchkick
         end
 
         boost_by.each do |field, value|
+          script_score =
+            if below12
+              {script_score: {script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"}}
+            else
+              {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: "ln2p"}}
+            end
+
           custom_filters << {
             filter: {
               exists: {
                 field: field
               }
-            },
-            script_score: {
-              script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"
             }
-          }
+          }.merge(script_score)
         end
 
         boost_where = options[:boost_where] || {}
@@ -370,7 +380,7 @@ module Searchkick
             e.message.include?("No query registered for [function_score]]")
           )
 
-          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 0.90.4 or greater"
+          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
         elsif status_code == 400
           if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
             raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"

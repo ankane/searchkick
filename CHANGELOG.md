@@ -1,3 +1,7 @@
+## 0.8.0
+
+- Added support for Elasticsearch 1.2
+
 ## 0.7.9
 
 - Added `tokens` method
