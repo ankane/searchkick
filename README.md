@@ -828,7 +828,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Reindex all models (Rails only)
+Reindex all models - Rails only
 
 ```sh
 rake searchkick:reindex:all
