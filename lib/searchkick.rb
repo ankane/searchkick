@@ -6,7 +6,6 @@ require "searchkick/index"
 require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/query"
-require "searchkick/search"
 require "searchkick/similar"
 require "searchkick/model"
 require "searchkick/tasks"
@@ -16,6 +15,14 @@ module Searchkick
   class MissingIndexError < StandardError; end
   class UnsupportedVersionError < StandardError; end
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
+
+  def self.search_method_name=(_search_method_name)
+    @search_method_name ||= _search_method_name
+  end
+
+  def self.search_method_name
+    @search_method_name || :search
+  end
 
   def self.client
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
