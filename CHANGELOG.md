@@ -1,3 +1,7 @@
+## 0.8.1 [unreleased]
+
+- Added `search_method_name` option
+
 ## 0.8.0
 
 - Added support for Elasticsearch 1.2
