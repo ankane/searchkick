@@ -757,7 +757,7 @@ Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all mod
 Product.reindex
 ```
 
-Change the #search method name in `config/initializers/searchkick.rb`
+Change the search method name in `config/initializers/searchkick.rb` [master]
 
 ```ruby
 Searchkick.search_method_name = :lookup

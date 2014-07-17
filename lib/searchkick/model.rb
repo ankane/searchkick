@@ -19,7 +19,7 @@ module Searchkick
           Searchkick::Index.new(index)
         end
 
-        define_singleton_method(Searchkick.search_method_name) do |term, options={}|
+        define_singleton_method(Searchkick.search_method_name) do |term = nil, options={}|
           query = Searchkick::Query.new(self, term, options)
           if options[:execute] == false
             query

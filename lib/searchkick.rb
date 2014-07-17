@@ -16,13 +16,10 @@ module Searchkick
   class UnsupportedVersionError < StandardError; end
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
 
-  def self.search_method_name=(_search_method_name)
-    @search_method_name ||= _search_method_name
+  class << self
+    attr_accessor :search_method_name
   end
-
-  def self.search_method_name
-    @search_method_name || :search
-  end
+  self.search_method_name = :search
 
   def self.client
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
