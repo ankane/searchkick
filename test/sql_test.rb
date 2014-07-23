@@ -292,6 +292,12 @@ class TestSql < Minitest::Unit::TestCase
     assert_equal [1, 2], result.user_ids
   end
 
+  def test_nested_object
+    aisle = {"id" => 1, "name" => "Frozen"}
+    store [{name: "Product A", aisle: aisle}]
+    assert_equal aisle, Product.search("product", load: false).first.aisle.to_hash
+  end
+
   # TODO see if Mongoid is loaded
   if !defined?(Mongoid)
     def test_include

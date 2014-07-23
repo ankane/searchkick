@@ -121,10 +121,16 @@ class Product
     word_middle: [:name],
     word_end: [:name]
 
-  attr_accessor :conversions, :user_ids
+  attr_accessor :conversions, :user_ids, :aisle
 
   def search_data
-    serializable_hash.except("id").merge conversions: conversions, user_ids: user_ids, location: [latitude, longitude], multiple_locations: [[latitude, longitude], [0, 0]]
+    serializable_hash.except("id").merge(
+      conversions: conversions,
+      user_ids: user_ids,
+      location: [latitude, longitude],
+      multiple_locations: [[latitude, longitude], [0, 0]],
+      aisle: aisle
+    )
   end
 
   def should_index?
