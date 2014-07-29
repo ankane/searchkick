@@ -205,6 +205,11 @@ class TestSql < Minitest::Unit::TestCase
     assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}, conversions: false
   end
 
+  def test_order_array
+    store [{name: "San Francisco", latitude: 37.7833, longitude: -122.4167}]
+    assert_order "francisco", ["San Francisco"], order: [{_geo_distance: {location: "0,0"}}], conversions: false
+  end
+
   def test_partial
     store_names ["Honey"]
     assert_search "fresh honey", []

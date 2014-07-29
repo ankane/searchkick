@@ -228,7 +228,8 @@ module Searchkick
         # order
         if options[:order]
           order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-          payload[:sort] = Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
+          # TODO id transformation for arrays
+          payload[:sort] = order.is_a?(Array) ? order : Hash[ order.map{|k, v| [k.to_s == "id" ? :_id : k, v] } ]
         end
 
         # filters
