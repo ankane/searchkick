@@ -5,8 +5,8 @@ class TestFacets < Minitest::Unit::TestCase
   def setup
     super
     store [
-      {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21},
-      {name: "Product Hide", latitude: 29.4167, longitude: -98.5000, store_id: 2, in_stock: false, color: "green", price: 25},
+      {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21, created_at: 2.days.ago},
+      {name: "Product Hide", latitude: 29.4167, longitude: -98.5000, store_id: 2, in_stock: false, color: "green", price: 25, created_at: 2.days.from_now},
       {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5},
       {name: "Foo", latitude: 43.9333, longitude: 12.4667, store_id: 3, in_stock: false, color: "yellow", price: 15}
     ]
@@ -37,6 +37,15 @@ class TestFacets < Minitest::Unit::TestCase
     assert_equal 1, facet["ranges"][0]["count"]
     assert_equal 0, facet["ranges"][1]["count"]
     assert_equal 2, facet["ranges"][2]["count"]
+  end
+
+  def test_ranges_dates
+    ranges = [{to: 1.day.ago}, {from: 1.day.ago, to: 1.day.from_now}, {from: 1.day.from_now}]
+    facet = Product.search("Product", facets: {created_at: {ranges: ranges}}).facets["created_at"]
+
+    assert_equal 1, facet["ranges"][0]["count"]
+    assert_equal 1, facet["ranges"][1]["count"]
+    assert_equal 1, facet["ranges"][2]["count"]
   end
 
   def test_where_no_smart_facets
