@@ -1,6 +1,7 @@
 ## 0.8.1 [unreleased]
 
 - Added `search_method_name` option
+- Fixed `order` for array of hashes
 
 ## 0.8.0
 
