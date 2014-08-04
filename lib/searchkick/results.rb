@@ -15,6 +15,9 @@ module Searchkick
       @options = options
     end
 
+    def searchkick_options
+      klass.searchkick_options
+    end
     def results
       @results ||= begin
         if options[:load]
@@ -27,7 +30,7 @@ module Searchkick
               records = records.includes(options[:includes])
             end
             results[type] =
-              if options[:primary_key]
+              if searchkick_options[:primary_key]
                 records.where(options[:primary_key] => grouped_hits_map {|hit| hit["_id"]}).to_a
               elsif records.respond_to?(:primary_key)
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
