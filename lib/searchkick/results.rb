@@ -15,27 +15,22 @@ module Searchkick
       @options = options
     end
 
-    def searchkick_options
-      klass.searchkick_options
-    end
-
     def results
-      puts "Where are we"
       @results ||= begin
         if options[:load]
           # results can have different types
           results = {}
 
+          puts "Options are #{options}"
           hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
               records = records.includes(options[:includes])
             end
-            puts searchkick_options
+            binding.pry
             results[type] =
-              if searchkick_options[:primary_key]
-                puts "Finding by primary_key #{searchkick_options[:primary_key]}"
-                records.where(options[:primary_key] => grouped_hits_map {|hit| hit["_id"]}).to_a
+              if options.has_key?(:primary_key)
+                records.where(options[:primary_key] => grouped_hits.map{|hit| hit["_id"] }).to_a
               elsif records.respond_to?(:primary_key)
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
               else
@@ -44,8 +39,13 @@ module Searchkick
           end
 
           # sort
+          puts "Options are #{options}"
           hits.map do |hit|
-            results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+            if options.has_key?(:primary_key)
+              results[hit["_type"]].find{|r| r.send(options[:primary_key]).to_s == hit["_id"].to_s }
+            else
+              results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+            end
           end.compact
         else
           puts "We are not in load"
