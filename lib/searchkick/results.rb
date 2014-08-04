@@ -29,8 +29,10 @@ module Searchkick
             if options[:includes]
               records = records.includes(options[:includes])
             end
+            puts searchkick_options
             results[type] =
               if searchkick_options[:primary_key]
+                puts "Finding by primary_key #{searchkick_options[:primary_key]}"
                 records.where(options[:primary_key] => grouped_hits_map {|hit| hit["_id"]}).to_a
               elsif records.respond_to?(:primary_key)
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
