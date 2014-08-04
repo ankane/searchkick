@@ -18,7 +18,9 @@ module Searchkick
     def searchkick_options
       klass.searchkick_options
     end
+
     def results
+      puts "Where are we"
       @results ||= begin
         if options[:load]
           # results can have different types
@@ -46,6 +48,7 @@ module Searchkick
             results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
           end.compact
         else
+          puts "We are not in load"
           hits.map do |hit|
             result =
               if hit["_source"]
