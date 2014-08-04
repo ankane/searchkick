@@ -27,7 +27,9 @@ module Searchkick
               records = records.includes(options[:includes])
             end
             results[type] =
-              if records.respond_to?(:primary_key)
+              if options[:primary_key]
+                records.where(options[:primary_key] => grouped_hits_map {|hit| hit["_id"]}).to_a
+              elsif records.respond_to?(:primary_key)
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
               else
                 records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
