@@ -651,6 +651,8 @@ For the best performance, add [Patron](https://github.com/toland/patron) to your
 gem 'patron'
 ```
 
+Searchkick will automatically use it.
+
 **Note:** Patron is not available for Windows.
 
 ### Automatic Failover
