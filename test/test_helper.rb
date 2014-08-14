@@ -23,7 +23,7 @@ if defined?(Mongoid)
     module BSON
       class ObjectId
         def <=>(other)
-          self.eql?(other) ? 0 : self.generation_time <=> other.generation_time
+          self.data <=> other.data
         end
       end
     end
