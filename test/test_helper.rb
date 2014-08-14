@@ -10,8 +10,31 @@ File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
 if defined?(Mongoid)
+
+  # Helpers to determine version of mongoid.
+  module Mongoid
+    def self.mongoid2?
+      ::Mongoid.const_defined? :Contexts # deprecated in Mongoid 3.x
+    end
+  end
+
+  # Mongoid2 uses BSON gem. We need to re-define <=> in order for TestSql.test_order_id to pass.
+  if defined?(BSON) && defined?(BSON::ObjectId)
+    module BSON
+      class ObjectId
+        def <=>(other)
+          self.eql?(other) ? 0 : self.generation_time <=> other.generation_time
+        end
+      end
+    end
+  end
+
   Mongoid.configure do |config|
-    config.connect_to "searchkick_test"
+    if Mongoid.mongoid2?
+      config.master = Mongo::Connection.new.db("searchkick_test")
+    else
+      config.connect_to "searchkick_test"
+    end
   end
 
   class Product
