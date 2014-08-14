@@ -19,7 +19,7 @@ if defined?(Mongoid)
   end
 
   # Mongoid2 uses BSON gem. We need to re-define <=> in order for TestSql.test_order_id to pass.
-  if defined?(BSON) && defined?(BSON::ObjectId)
+  if Mongoid.mongoid2? && defined?(BSON) && defined?(BSON::ObjectId)
     module BSON
       class ObjectId
         def <=>(other)
