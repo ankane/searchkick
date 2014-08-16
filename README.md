@@ -303,7 +303,43 @@ end
 #### No need to reindex
 
 - App starts
-- Records are inserted, updated or deleted (syncs automatically)
+
+### Stay Synced
+
+There are three strategies for keeping the index synced with your database.
+
+1. Immediately (default)
+
+  Anytime a record is inserted, updated, or deleted
+
+2. Asynchronously
+
+  Use background jobs for better performance
+
+  ```ruby
+  class Product < ActiveRecord::Base
+    searchkick callbacks: false
+
+    def reindex_async
+      delay.reindex # delayed job
+    end
+
+    after_commit :reindex_async
+    # or for Mongoid
+    # after_save :reindex_async
+    # after_destroy :reindex_async
+  end
+  ```
+
+3. Manually
+
+  Turn off automatic syncing
+
+  ```ruby
+  class Product < ActiveRecord::Base
+    searchkick callbacks: false
+  end
+  ```
 
 ### Keep Getting Better
 
@@ -742,15 +778,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Turn off callbacks permanently
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-end
-```
-
-or temporarily
+Turn off callbacks temporarily
 
 ```ruby
 Product.disable_search_callbacks # or use Searchkick.disable_callbacks for all models
@@ -791,28 +819,6 @@ Change import batch size
 ```ruby
 class Product < ActiveRecord::Base
   searchkick batch_size: 200 # defaults to 1000
-end
-```
-
-Asynchronous reindexing
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-
-  # add the callbacks manually
-
-  # ActiveRecord - one callback
-  after_commit :reindex_async
-
-  # Mongoid - two callbacks
-  after_save :reindex_async
-  after_destroy :reindex_async
-
-  def reindex_async
-    # delayed job
-    delay.reindex
-  end
 end
 ```
 
