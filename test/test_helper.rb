@@ -11,15 +11,12 @@ Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
 if defined?(Mongoid)
 
-  # Helpers to determine version of mongoid.
-  module Mongoid
-    def self.mongoid2?
-      ::Mongoid.const_defined? :Contexts # deprecated in Mongoid 3.x
-    end
+  def mongoid2?
+    Mongoid::VERSION.starts_with?("2.")
   end
 
-  # Mongoid2 uses BSON gem. We need to re-define <=> in order for TestSql.test_order_id to pass.
-  if Mongoid.mongoid2? && defined?(BSON) && defined?(BSON::ObjectId)
+  if mongoid2?
+    # enable comparison of BSON::ObjectIds
     module BSON
       class ObjectId
         def <=>(other)
@@ -30,7 +27,7 @@ if defined?(Mongoid)
   end
 
   Mongoid.configure do |config|
-    if Mongoid.mongoid2?
+    if mongoid2?
       config.master = Mongo::Connection.new.db("searchkick_test")
     else
       config.connect_to "searchkick_test"
