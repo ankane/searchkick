@@ -34,7 +34,7 @@ module Searchkick
 
         if callbacks == :async
           def reindex_async
-            Searchkick::ReindexJob.new(self.class.name, id)
+            Delayed::Job.enqueue Searchkick::ReindexJob.new(self.class.name, id)
           end
         end
 
