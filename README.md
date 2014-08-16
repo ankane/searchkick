@@ -308,11 +308,11 @@ end
 
 There are three strategies for keeping the index synced with your database.
 
-1. Immediately (default)
+1. Immediate (default)
 
   Anytime a record is inserted, updated, or deleted
 
-2. Asynchronously
+2. Asynchronous
 
   Use background jobs for better performance
 
@@ -331,7 +331,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-3. Manually
+3. Manual
 
   Turn off automatic syncing
 
