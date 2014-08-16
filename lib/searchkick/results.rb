@@ -27,9 +27,14 @@ module Searchkick
               records = records.includes(options[:includes])
             end
             results[type] =
-              if records.respond_to?(:primary_key)
+              if records.respond_to?(:primary_key) and records.primary_key
+                # ActiveRecord
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
+              elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
+                # Mongoid 2
+                records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
               else
+                # Mongoid 3+
                 records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
               end
           end
