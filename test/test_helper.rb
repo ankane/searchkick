@@ -6,6 +6,8 @@ require "logger"
 
 ENV["RACK_ENV"] = "test"
 
+Minitest::Test = Minitest::Test unless defined?(Minitest::Test)
+
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
@@ -179,7 +181,7 @@ Product.reindex # run twice for both index paths
 Store.reindex
 Animal.reindex
 
-class Minitest::Unit::TestCase
+class Minitest::Test
 
   def setup
     Product.destroy_all

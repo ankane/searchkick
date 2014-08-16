@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestShouldIndex < Minitest::Unit::TestCase
+class TestShouldIndex < Minitest::Test
 
   def test_basic
     store_names ["INDEX", "DO NOT INDEX"]

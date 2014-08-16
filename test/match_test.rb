@@ -2,7 +2,7 @@
 
 require_relative "test_helper"
 
-class TestMatch < Minitest::Unit::TestCase
+class TestMatch < Minitest::Test
 
   # exact
 

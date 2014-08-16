@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSql < Minitest::Unit::TestCase
+class TestSql < Minitest::Test
 
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]

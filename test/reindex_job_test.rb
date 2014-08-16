@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestReindexJob < Minitest::Unit::TestCase
+class TestReindexJob < Minitest::Test
 
   def setup
     super
