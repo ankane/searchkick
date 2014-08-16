@@ -1,7 +1,8 @@
-## 0.8.1 [unreleased]
+## 0.8.1
 
 - Added `search_method_name` option
 - Fixed `order` for array of hashes
+- Added support for Mongoid 2
 
 ## 0.8.0
 
