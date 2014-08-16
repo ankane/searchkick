@@ -312,24 +312,17 @@ There are three strategies for keeping the index synced with your database.
 
   Anytime a record is inserted, updated, or deleted
 
-2. Asynchronous
+2. Asynchronous [master]
 
   Use background jobs for better performance
 
   ```ruby
   class Product < ActiveRecord::Base
-    searchkick callbacks: false
-
-    def reindex_async
-      delay.reindex # delayed job
-    end
-
-    after_commit :reindex_async
-    # or for Mongoid
-    # after_save :reindex_async
-    # after_destroy :reindex_async
+    searchkick callbacks: :async
   end
   ```
+
+  Supports [Delayed Job](https://github.com/collectiveidea/delayed_job) only at the moment
 
 3. Manual
 
@@ -819,6 +812,23 @@ Change import batch size
 ```ruby
 class Product < ActiveRecord::Base
   searchkick batch_size: 200 # defaults to 1000
+end
+```
+
+Reindex asynchronously
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: false
+
+  def reindex_async
+    # custom code to reindex
+  end
+
+  after_commit :reindex_async
+  # or for Mongoid
+  # after_save :reindex_async
+  # after_destroy :reindex_async
 end
 ```
 

@@ -1,3 +1,7 @@
+## 0.8.2 [unreleased]
+
+- Added `async` to `callbacks` option
+
 ## 0.8.1
 
 - Added `search_method_name` option

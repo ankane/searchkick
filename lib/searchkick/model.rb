@@ -7,10 +7,12 @@ module Searchkick
       class_eval do
         cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
 
+        callbacks = options.has_key?(:callbacks) ? options[:callbacks] : true
+
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_callbacks, options[:callbacks] != false
+        class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
 
         def self.searchkick_index
@@ -30,11 +32,20 @@ module Searchkick
         extend Searchkick::Reindex
         include Searchkick::Similar
 
-        if respond_to?(:after_commit)
-          after_commit :reindex, if: proc{ self.class.search_callbacks? }
-        else
-          after_save :reindex, if: proc{ self.class.search_callbacks? }
-          after_destroy :reindex, if: proc{ self.class.search_callbacks? }
+        if callbacks == :async
+          def reindex_async
+            Searchkick::ReindexJob.new(self.class.name, id)
+          end
+        end
+
+        if callbacks
+          callback_name = callbacks == :async ? :reindex_async : :reindex
+          if respond_to?(:after_commit)
+            after_commit callback_name, if: proc{ self.class.search_callbacks? }
+          else
+            after_save callback_name, if: proc{ self.class.search_callbacks? }
+            after_destroy callback_name, if: proc{ self.class.search_callbacks? }
+          end
         end
 
         def self.enable_search_callbacks

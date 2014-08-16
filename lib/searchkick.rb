@@ -7,6 +7,7 @@ require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/query"
 require "searchkick/similar"
+require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/logging" if defined?(Rails)
