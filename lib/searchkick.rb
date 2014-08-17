@@ -18,9 +18,11 @@ module Searchkick
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
 
   class << self
+    attr_accessor :callbacks
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
   end
+  self.callbacks = true
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
 
@@ -36,18 +38,16 @@ module Searchkick
     @server_version ||= client.info["version"]["number"]
   end
 
-  @callbacks = true
-
   def self.enable_callbacks
-    @callbacks = true
+    self.callbacks = true
   end
 
   def self.disable_callbacks
-    @callbacks = false
+    self.callbacks = false
   end
 
   def self.callbacks?
-    @callbacks
+    callbacks
   end
 end
 
