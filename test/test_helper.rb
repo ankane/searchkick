@@ -171,7 +171,11 @@ class Store
 end
 
 class Animal
-  searchkick autocomplete: [:name], suggest: [:name], index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+  searchkick \
+    autocomplete: [:name],
+    suggest: [:name],
+    index_name: -> { "#{self.name.tableize}-#{Date.today.year}" },
+    wordnet: true
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?

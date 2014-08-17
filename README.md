@@ -243,6 +243,27 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+### WordNet [master]
+
+Prepopulate English synonyms with the [WordNet database](http://en.wikipedia.org/wiki/WordNet).
+
+Download [WordNet 3.0](http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz) to each Elasticsearch server and move `wn_s.pl` to the `/var/lib` directory.
+
+```sh
+cd /tmp
+curl -o wordnet.tar.gz http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz
+tar -zxvf wordnet.tar.gz
+mv prolog/wn_s.pl /var/lib
+```
+
+Tell each model to use it:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick wordnet: true
+end
+```
+
 ### Misspellings
 
 By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one. To turn off this feature, use:

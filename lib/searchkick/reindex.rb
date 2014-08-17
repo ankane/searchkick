@@ -230,6 +230,17 @@ module Searchkick
           settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
         end
 
+        if options[:wordnet]
+          settings[:analysis][:filter][:searchkick_wordnet] = {
+            type: "synonym",
+            format: "wordnet",
+            synonyms_path: Searchkick.wordnet_path
+          }
+
+          settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_wordnet")
+          settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_wordnet"
+        end
+
         if options[:special_characters] == false
           settings[:analysis][:analyzer].each do |analyzer, analyzer_settings|
             analyzer_settings[:filter].reject!{|f| f == "asciifolding" }

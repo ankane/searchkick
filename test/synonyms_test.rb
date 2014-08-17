@@ -42,4 +42,9 @@ class TestSynonyms < Minitest::Test
     assert_search "scallions", ["Green Onions"]
   end
 
+  def test_wordnet
+    store_names ["Creature", "Beast", "Dragon"], Animal
+    assert_search "animal", ["Creature", "Beast"], {}, Animal
+  end
+
 end

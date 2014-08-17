@@ -1,6 +1,7 @@
 ## 0.8.2 [unreleased]
 
 - Added `async` to `callbacks` option
+- Added `wordnet` option
 
 ## 0.8.1
 

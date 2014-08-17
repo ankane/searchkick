@@ -19,8 +19,10 @@ module Searchkick
 
   class << self
     attr_accessor :search_method_name
+    attr_accessor :wordnet_path
   end
   self.search_method_name = :search
+  self.wordnet_path = "/var/lib/wn_s.pl"
 
   def self.client
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
