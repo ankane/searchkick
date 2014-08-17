@@ -275,7 +275,7 @@ Product.search "zuchini", misspellings: false # no zucchini
 You can also change the edit distance with:
 
 ```ruby
-Product.search "zucini", misspellings: {distance: 2} # zucchini
+Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
 ### Indexing

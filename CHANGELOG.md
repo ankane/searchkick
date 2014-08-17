@@ -2,6 +2,8 @@
 
 - Added `async` to `callbacks` option
 - Added `wordnet` option
+- Added `edit_distance` option to eventually replace `distance` option
+- Catch misspelling of `misspellings` option
 
 ## 0.8.1
 
