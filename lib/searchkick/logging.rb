@@ -20,7 +20,7 @@ module Searchkick
         name: "#{record.searchkick_klass.name} Store",
         id: search_id(record)
       }
-      ActiveSupport::Notifications.instrument("store.searchkick", event) do
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
         store_without_instrumentation(record)
       end
     end
@@ -31,7 +31,7 @@ module Searchkick
         name: "#{record.searchkick_klass.name} Remove",
         id: search_id(record)
       }
-      ActiveSupport::Notifications.instrument("remove.searchkick", event) do
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
         remove_without_instrumentation(record)
       end
     end
@@ -42,7 +42,7 @@ module Searchkick
         name: "#{records.first.searchkick_klass.name} Import",
         count: records.size
       }
-      ActiveSupport::Notifications.instrument("import.searchkick", event) do
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
         import_without_instrumentation(records)
       end
     end
@@ -78,7 +78,7 @@ module Searchkick
       debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map{|t| CGI.escape(t) }.join(",")}" : ""}/_search?pretty -d '#{payload[:query][:body].to_json}'"
     end
 
-    def store(event)
+    def request(event)
       self.class.runtime += event.duration
       return unless logger.debug?
 
@@ -87,8 +87,6 @@ module Searchkick
 
       debug "  #{color(name, YELLOW, true)}  #{payload.except(:name).to_json}"
     end
-    alias_method :remove, :store
-    alias_method :import, :store
   end
 
   # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/railties/controller_runtime.rb
