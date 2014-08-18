@@ -243,7 +243,7 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
-### WordNet [master]
+### WordNet
 
 Prepopulate English synonyms with the [WordNet database](http://en.wikipedia.org/wiki/WordNet).
 
@@ -333,7 +333,7 @@ There are three strategies for keeping the index synced with your database.
 
   Anytime a record is inserted, updated, or deleted
 
-2. Asynchronous [master]
+2. Asynchronous
 
   Use background jobs for better performance
 
