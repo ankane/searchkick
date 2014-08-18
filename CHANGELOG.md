@@ -4,6 +4,7 @@
 - Added `wordnet` option
 - Added `edit_distance` option to eventually replace `distance` option
 - Catch misspelling of `misspellings` option
+- Improved logging
 
 ## 0.8.1
 
