@@ -68,6 +68,11 @@ if defined?(Mongoid)
 
   class Cat < Animal
   end
+
+  class Actor
+    include Mongoid::Document
+    field :first_name, :last_name
+  end
 else
   require "active_record"
 
@@ -103,6 +108,11 @@ else
     t.string :type
   end
 
+  ActiveRecord::Migration.create_table :actors do |t|
+    t.string :first_name
+    t.string :last_name
+  end
+
   class Product < ActiveRecord::Base
   end
 
@@ -116,6 +126,9 @@ else
   end
 
   class Cat < Animal
+  end
+
+  class Actor < ActiveRecord::Base
   end
 end
 
@@ -178,12 +191,19 @@ class Animal
     # wordnet: true
 end
 
+class Actor
+  searchkick \
+    autocomplete: [:first_name, :last_name],
+    index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+end
+
 Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
 
 Store.reindex
 Animal.reindex
+Actor.reindex
 
 class Minitest::Test
 
@@ -191,6 +211,7 @@ class Minitest::Test
     Product.destroy_all
     Store.destroy_all
     Animal.destroy_all
+    Actor.destroy_all
   end
 
   protected

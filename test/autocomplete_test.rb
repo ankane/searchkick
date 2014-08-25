@@ -17,6 +17,12 @@ class TestAutocomplete < Minitest::Test
     assert_search "hum", ["Hummus"], autocomplete: true, fields: [:name]
   end
 
+  def test_autocomplete_multiple_fields
+    data = [{first_name: "Robert", last_name: "Redford"}, {first_name: "Robert", last_name: 'Mitchum'}]
+    store data, Actor
+    assert_search "mit", data.last, autocomplete: true, fields: [:first_name, :last_name], operator: 'or'
+  end
+
   def test_text_start
     store_names ["Where in the World is Carmen San Diego"]
     assert_search "where in the world is", ["Where in the World is Carmen San Diego"], fields: [{name: :text_start}]
