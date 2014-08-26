@@ -20,7 +20,7 @@ class TestAutocomplete < Minitest::Test
   def test_autocomplete_multiple_fields
     data = [{first_name: "Robert", last_name: "Redford"}, {first_name: "Robert", last_name: 'Mitchum'}]
     store data, Actor
-    assert_search "mit", data.last, autocomplete: true, fields: [:first_name, :last_name], operator: 'or'
+    assert_search "mit", ["Robert Mitchum"], {autocomplete: true, fields: [:first_name, :last_name], operator: 'or'}, Actor
   end
 
   def test_text_start

@@ -195,6 +195,10 @@ class Actor
   searchkick \
     autocomplete: [:first_name, :last_name],
     index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+
+  def name
+    "#{first_name} #{last_name}"
+  end
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
