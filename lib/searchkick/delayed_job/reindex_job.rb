@@ -1,5 +1,6 @@
-module Searchkick
+module Searchkick::DelayedJob
   class ReindexJob
+    attr_reader :klass, :id
 
     def initialize(klass, id)
       @klass = klass
@@ -7,13 +8,13 @@ module Searchkick
     end
 
     def perform
-      model = @klass.constantize
-      record = model.find(@id) rescue nil # TODO fix lazy coding
+      model = klass.constantize
+      record = model.find(id) rescue nil # TODO fix lazy coding
       index = model.searchkick_index
       if !record or !record.should_index?
         # hacky
         record ||= model.new
-        record.id = @id
+        record.id = id
         begin
           index.remove record
         rescue Elasticsearch::Transport::Transport::Errors::NotFound

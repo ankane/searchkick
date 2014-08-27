@@ -7,7 +7,6 @@ require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/query"
 require "searchkick/similar"
-require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/logging" if defined?(Rails)
@@ -21,10 +20,16 @@ module Searchkick
     attr_accessor :callbacks
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
+    attr_accessor :reindex_job
+    attr_accessor :backend
   end
   self.callbacks = true
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
+
+  def self.enqueue(klass, id)
+    backend.enqueue klass, id
+  end
 
   def self.client
     @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
