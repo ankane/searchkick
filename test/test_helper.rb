@@ -141,7 +141,8 @@ class Product
     text_end: [:name],
     word_start: [:name],
     word_middle: [:name],
-    word_end: [:name]
+    word_end: [:name],
+    highlight: [:name]
 
   attr_accessor :conversions, :user_ids, :aisle
 

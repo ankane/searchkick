@@ -539,6 +539,14 @@ Product.search "*", facets: {store_id: {stats: true}}
 
 ### Highlight
 
+Specify which fields to index with highlighting. [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick highlight: [:name]
+end
+```
+
 Highlight the search query in the results.
 
 ```ruby

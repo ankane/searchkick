@@ -261,7 +261,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end]
+          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
             .map{|type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -276,10 +276,14 @@ module Searchkick
             }
           }
 
-          mapping_options.each do |type, fields|
+          mapping_options.except(:highlight).each do |type, fields|
             if fields.include?(field)
               field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
             end
+          end
+
+          if mapping_options[:highlight].include?(field)
+            field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
           end
 
           mapping[field] = field_mapping
