@@ -24,6 +24,11 @@ class TestHighlight < Minitest::Test
     assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", fields: [:name], highlight: true).with_details.first[1][:highlight][:name]
   end
 
+  def test_multiple_words_in_color
+    store [{name: "Two Door Cinema Club", color: "red color red"}]
+    assert_equal "<em>red</em> color <em>red</em>", Product.search("red", fields: [:color], highlight: true).with_details.first[1][:highlight][:color]
+  end
+
   def test_json
     store_names ["Two Door Cinema Club"]
     json = {
