@@ -343,7 +343,16 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  Supports [Delayed Job](https://github.com/collectiveidea/delayed_job) only at the moment
+  Supports everything supported by rails/activejob:
+  [Backburner](https://github.com/nesquena/backburner)
+  [Delayed Job](https://github.com/collectiveidea/delayed_job)
+  [Qu](https://github.com/bkeepers/qu)
+  [Que](https://github.com/chanks/que)
+  [QueueClassic](https://github.com/ryandotsmith/queue_classic)
+  [Resque 1.x](https://github.com/resque/resque)
+  [Sidekiq](Sidekiq)
+  [Sneakers](https://github.com/jondot/sneakers)
+  [Sucker Punch](https://github.com/brandonhilkert/sucker_punch)
 
 3. Manual
 
@@ -841,23 +850,6 @@ Change import batch size
 ```ruby
 class Product < ActiveRecord::Base
   searchkick batch_size: 200 # defaults to 1000
-end
-```
-
-Reindex asynchronously
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-
-  def reindex_async
-    # custom code to reindex
-  end
-
-  after_commit :reindex_async
-  # or for Mongoid
-  # after_save :reindex_async
-  # after_destroy :reindex_async
 end
 ```
 

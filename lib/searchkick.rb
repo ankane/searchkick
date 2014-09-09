@@ -1,3 +1,4 @@
+require "active_job"
 require "active_model"
 require "elasticsearch"
 require "hashie"
