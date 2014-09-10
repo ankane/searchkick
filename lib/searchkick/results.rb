@@ -88,6 +88,10 @@ module Searchkick
       klass.model_name
     end
 
+    def entry_name
+      model_name.human.downcase
+    end
+
     def total_count
       response["hits"]["total"]
     end
