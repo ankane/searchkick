@@ -22,6 +22,7 @@ class TestSql < Minitest::Test
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2, padding: 1)
     assert_equal ["Product D", "Product E"], products.map(&:name)
+    assert_equal "product", products.entry_name
     assert_equal 2, products.current_page
     assert_equal 1, products.padding
     assert_equal 2, products.per_page
