@@ -1,19 +1,15 @@
 module Searchkick
-  class ReindexJob
+  class ReindexJob < ActiveJob::Base
+    queue_as :search_kick
 
-    def initialize(klass, id)
-      @klass = klass
-      @id = id
-    end
-
-    def perform
-      model = @klass.constantize
-      record = model.find(@id) rescue nil # TODO fix lazy coding
+    def perform(klass, id)
+      model = klass.constantize
+      record = model.find(id) rescue nil # TODO fix lazy coding
       index = model.searchkick_index
       if !record or !record.should_index?
         # hacky
         record ||= model.new
-        record.id = @id
+        record.id = id
         begin
           index.remove record
         rescue Elasticsearch::Transport::Transport::Errors::NotFound

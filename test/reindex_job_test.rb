@@ -15,7 +15,7 @@ class TestReindexJob < Minitest::Test
     product = Product.create!(name: "Boom")
     Product.searchkick_index.refresh
     assert_search "*", []
-    Searchkick::ReindexJob.new("Product", product.id).perform
+    Searchkick::ReindexJob.enqueue("Product", product.id)
     Product.searchkick_index.refresh
     assert_search "*", ["Boom"]
   end
@@ -25,7 +25,7 @@ class TestReindexJob < Minitest::Test
     Product.reindex
     assert_search "*", ["Boom"]
     product.destroy
-    Searchkick::ReindexJob.new("Product", product.id).perform
+    Searchkick::ReindexJob.enqueue("Product", product.id)
     Product.searchkick_index.refresh
     assert_search "*", []
   end
