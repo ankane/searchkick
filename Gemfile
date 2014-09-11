@@ -5,5 +5,6 @@ gemspec
 
 gem "sqlite3"
 gem "activerecord", ">= 3.1"
+gem 'backburner'
 # gem "activerecord", "~> 3.2.0"
 # gem "activerecord", "~> 3.1.0"
