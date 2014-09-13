@@ -1,9 +1,10 @@
 module Searchkick
   class Index
-    attr_reader :name
+    attr_reader :name, :default_document_type
 
-    def initialize(name)
+    def initialize(name, default_document_type)
       @name = name
+      @default_document_type = default_document_type
     end
 
     def create(options = {})
