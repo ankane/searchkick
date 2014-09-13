@@ -17,7 +17,7 @@ module Searchkick
       # check if alias exists
       if Searchkick.client.indices.exists_alias(name: alias_name)
         # import before swap
-        searchkick_import(index) unless skip_import
+        searchkick_import(index: index) unless skip_import
 
         # get existing indices to remove
         old_indices = Searchkick.client.indices.get_alias(name: alias_name).keys
@@ -29,7 +29,7 @@ module Searchkick
         Searchkick.client.indices.update_aliases body: {actions: [{add: {index: new_name, alias: alias_name}}]}
 
         # import after swap
-        searchkick_import(index) unless skip_import
+        searchkick_import(index: index) unless skip_import
       end
 
       index.refresh
@@ -52,9 +52,8 @@ module Searchkick
       @descendents << klass unless @descendents.include?(klass)
     end
 
-    private
-
-    def searchkick_import(index)
+    def searchkick_import(options = {})
+      index = options[:index] || searchkick_index
       batch_size = searchkick_options[:batch_size] || 1000
 
       # use scope for import
