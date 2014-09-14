@@ -809,6 +809,12 @@ Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all mod
 Product.reindex
 ```
 
+Change timeout [master]
+
+```ruby
+Searchkick.timeout = 5 # defaults to 10
+```
+
 Change the search method name in `config/initializers/searchkick.rb`
 
 ```ruby

@@ -1,3 +1,7 @@
+## 0.8.3 [unreleased]
+
+- Added `timeout` setting
+
 ## 0.8.2
 
 - Added `async` to `callbacks` option

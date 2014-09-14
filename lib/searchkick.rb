@@ -21,13 +21,19 @@ module Searchkick
     attr_accessor :callbacks
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
+    attr_accessor :timeout
   end
   self.callbacks = true
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
+  self.timeout = 10
 
   def self.client
-    @client ||= Elasticsearch::Client.new(url: ENV["ELASTICSEARCH_URL"])
+    @client ||=
+      Elasticsearch::Client.new(
+        url: ENV["ELASTICSEARCH_URL"],
+        transport_options: {request: {timeout: timeout}}
+      )
   end
 
   def self.client=(client)
