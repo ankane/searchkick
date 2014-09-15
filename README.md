@@ -343,7 +343,11 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  Supports [Delayed Job](https://github.com/collectiveidea/delayed_job) only at the moment
+  Requires [Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
+
+  ```ruby
+  gem 'activejob_backport'
+  ```
 
 3. Manual
 
