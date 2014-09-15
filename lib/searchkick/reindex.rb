@@ -8,7 +8,7 @@ module Searchkick
 
       alias_name = searchkick_index.name
       new_name = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
-      index = Searchkick::Index.new(new_name, name)
+      index = Searchkick::Index.new(new_name)
 
       clean_indices
 
@@ -42,7 +42,7 @@ module Searchkick
       all_indices = Searchkick.client.indices.get_aliases
       indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(searchkick_index.name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
-        Searchkick::Index.new(index, name).delete
+        Searchkick::Index.new(index).delete
       end
       indices
     end

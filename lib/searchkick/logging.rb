@@ -39,7 +39,7 @@ module Searchkick
 
     def import_with_instrumentation(records)
       event = {
-        name: "#{records.any? ? records.first.searchkick_klass.name : default_document_type} Import",
+        name: "#{records.first.searchkick_klass.name} Import",
         count: records.size
       }
       ActiveSupport::Notifications.instrument("request.searchkick", event) do
