@@ -3,6 +3,7 @@ require_relative "test_helper"
 class TestReindexV2Job < Minitest::Test
 
   def setup
+    skip if !defined?(ActiveJob)
     super
     Searchkick.disable_callbacks
   end
@@ -12,8 +13,6 @@ class TestReindexV2Job < Minitest::Test
   end
 
   def test_create
-    skip if !defined?(ActiveJob)
-
     product = Product.create!(name: "Boom")
     Product.searchkick_index.refresh
     assert_search "*", []
@@ -23,8 +22,6 @@ class TestReindexV2Job < Minitest::Test
   end
 
   def test_destroy
-    skip if !defined?(ActiveJob)
-
     product = Product.create!(name: "Boom")
     Product.reindex
     assert_search "*", ["Boom"]
