@@ -38,6 +38,7 @@ module Searchkick
     alias_method_chain :remove, :instrumentation
 
     def import_with_instrumentation(records)
+      return unless records.any?
       event = {
         name: "#{records.first.searchkick_klass.name} Import",
         count: records.size
