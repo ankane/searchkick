@@ -18,7 +18,7 @@ begin
 rescue LoadError
   # do nothing
 end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob::Base)
+require "searchkick/reindex_v2_job" if defined?(ActiveJob)
 
 module Searchkick
   class MissingIndexError < StandardError; end
