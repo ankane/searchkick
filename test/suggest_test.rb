@@ -23,7 +23,8 @@ class TestSuggest < Minitest::Test
 
   def test_multiple_fields
     store [
-      {name: "Shark", color: "Sharp"}
+      {name: "Shark", color: "Sharp"},
+      {name: "Shark", color: "Sharp"},
     ]
     assert_suggest_all "shar", ["shark", "sharp"]
   end
