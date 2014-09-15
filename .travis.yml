@@ -1,7 +1,6 @@
 language: ruby
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 2.1
 services:
   - elasticsearch
   - mongodb
@@ -16,6 +15,9 @@ notifications:
     on_failure: change
 gemfile:
   - Gemfile
+  - gemfiles/activerecord40.gemfile
+  - gemfiles/activerecord32.gemfile
+  - gemfiles/activerecord31.gemfile
   - gemfiles/mongoid2.gemfile
   - gemfiles/mongoid3.gemfile
   - gemfiles/mongoid4.gemfile
