@@ -53,6 +53,8 @@ class TestIndex < Minitest::Test
     store_names ["Product A", "Product B"]
     Product.where(name: "Product A").delete_all
     assert_search "product", ["Product B"]
+  ensure
+    Product.reindex
   end
 
   def test_bad_mapping
