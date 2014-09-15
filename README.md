@@ -343,11 +343,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  Requires [Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
-
-  ```ruby
-  gem 'activejob_backport'
-  ```
+  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
 
 3. Manual
 
