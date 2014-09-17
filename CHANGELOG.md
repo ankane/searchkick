@@ -1,6 +1,7 @@
 ## 0.8.3 [unreleased]
 
 - Added `timeout` setting
+- Fixed import with no records
 
 ## 0.8.2
 
