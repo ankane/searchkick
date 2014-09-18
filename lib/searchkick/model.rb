@@ -33,7 +33,11 @@ module Searchkick
         include Searchkick::Similar
 
         def reindex_async
-          Delayed::Job.enqueue Searchkick::ReindexJob.new(self.class.name, id)
+          if Searchkick.is_resque_enable?
+            ::Resque.enqueue(Searchkick::Resque::ReindexJob, self.class.name, id)
+          else
+            ::Delayed::Job.enqueue Searchkick::DelayedJob::ReindexJob.new(self.class.name, id)
+          end
         end
 
         if callbacks
