@@ -539,7 +539,7 @@ Product.search "*", facets: {store_id: {stats: true}}
 
 ### Highlight
 
-Specify which fields to index with highlighting. [master]
+Specify which fields to index with highlighting.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -809,7 +809,7 @@ Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all mod
 Product.reindex
 ```
 
-Change timeout [master]
+Change timeout
 
 ```ruby
 Searchkick.timeout = 5 # defaults to 10

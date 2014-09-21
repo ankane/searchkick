@@ -1,4 +1,4 @@
-## 0.8.3 [unreleased]
+## 0.8.3
 
 - Added support for ActiveJob
 - Added `timeout` setting
