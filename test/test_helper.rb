@@ -13,6 +13,8 @@ Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
 I18n.config.enforce_available_locales = true
 
+ActiveJob::Base.logger = nil if defined?(ActiveJob)
+
 if defined?(Mongoid)
 
   def mongoid2?

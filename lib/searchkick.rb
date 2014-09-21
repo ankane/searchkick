@@ -12,6 +12,14 @@ require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/logging" if defined?(Rails)
 
+# background jobs
+begin
+  require "active_job"
+rescue LoadError
+  # do nothing
+end
+require "searchkick/reindex_v2_job" if defined?(ActiveJob)
+
 module Searchkick
   class MissingIndexError < StandardError; end
   class UnsupportedVersionError < StandardError; end

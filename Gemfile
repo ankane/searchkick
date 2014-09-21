@@ -5,3 +5,4 @@ gemspec
 
 gem "sqlite3"
 gem "activerecord", "~> 4.1.0"
+gem "activejob_backport"

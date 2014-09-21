@@ -343,7 +343,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  Supports [Delayed Job](https://github.com/collectiveidea/delayed_job) only at the moment
+  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
 
 3. Manual
 
