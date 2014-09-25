@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSynonyms < Minitest::Unit::TestCase
+class TestSynonyms < Minitest::Test
 
   def test_bleach
     store_names ["Clorox Bleach", "Kroger Bleach"]
@@ -41,5 +41,10 @@ class TestSynonyms < Minitest::Unit::TestCase
     store_names ["Green Onions", "Yellow Onions"]
     assert_search "scallions", ["Green Onions"]
   end
+
+  # def test_wordnet
+  #   store_names ["Creature", "Beast", "Dragon"], Animal
+  #   assert_search "animal", ["Creature", "Beast"], {}, Animal
+  # end
 
 end

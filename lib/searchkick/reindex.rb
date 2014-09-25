@@ -17,7 +17,7 @@ module Searchkick
       # check if alias exists
       if Searchkick.client.indices.exists_alias(name: alias_name)
         # import before swap
-        searchkick_import(index) unless skip_import
+        searchkick_import(index: index) unless skip_import
 
         # get existing indices to remove
         old_indices = Searchkick.client.indices.get_alias(name: alias_name).keys
@@ -29,7 +29,7 @@ module Searchkick
         Searchkick.client.indices.update_aliases body: {actions: [{add: {index: new_name, alias: alias_name}}]}
 
         # import after swap
-        searchkick_import(index) unless skip_import
+        searchkick_import(index: index) unless skip_import
       end
 
       index.refresh
@@ -52,9 +52,8 @@ module Searchkick
       @descendents << klass unless @descendents.include?(klass)
     end
 
-    private
-
-    def searchkick_import(index)
+    def searchkick_import(options = {})
+      index = options[:index] || searchkick_index
       batch_size = searchkick_options[:batch_size] || 1000
 
       # use scope for import
@@ -230,6 +229,17 @@ module Searchkick
           settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
         end
 
+        if options[:wordnet]
+          settings[:analysis][:filter][:searchkick_wordnet] = {
+            type: "synonym",
+            format: "wordnet",
+            synonyms_path: Searchkick.wordnet_path
+          }
+
+          settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_wordnet")
+          settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_wordnet"
+        end
+
         if options[:special_characters] == false
           settings[:analysis][:analyzer].each do |analyzer, analyzer_settings|
             analyzer_settings[:filter].reject!{|f| f == "asciifolding" }
@@ -250,7 +260,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end]
+          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
             .map{|type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -265,10 +275,14 @@ module Searchkick
             }
           }
 
-          mapping_options.each do |type, fields|
+          mapping_options.except(:highlight).each do |type, fields|
             if fields.include?(field)
               field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
             end
+          end
+
+          if mapping_options[:highlight].include?(field)
+            field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
           end
 
           mapping[field] = field_mapping

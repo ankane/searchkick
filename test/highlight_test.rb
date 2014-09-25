@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestHighlight < Minitest::Unit::TestCase
+class TestHighlight < Minitest::Test
 
   def test_basic
     store_names ["Two Door Cinema Club"]
@@ -17,6 +17,11 @@ class TestHighlight < Minitest::Unit::TestCase
     highlight = Product.search("cinema", fields: [:name, :color], highlight: true).with_details.first[1][:highlight]
     assert_equal "Two Door <em>Cinema</em> Club", highlight[:name]
     assert_equal "<em>Cinema</em> Orange", highlight[:color]
+  end
+
+  def test_multiple_words
+    store_names ["Hello World Hello"]
+    assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", fields: [:name], highlight: true).with_details.first[1][:highlight][:name]
   end
 
   def test_json

@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestIndex < Minitest::Unit::TestCase
+class TestIndex < Minitest::Test
 
   def test_clean_indices
     old_index = Searchkick::Index.new("products_test_20130801000000000")
@@ -53,6 +53,8 @@ class TestIndex < Minitest::Unit::TestCase
     store_names ["Product A", "Product B"]
     Product.where(name: "Product A").delete_all
     assert_search "product", ["Product B"]
+  ensure
+    Product.reindex
   end
 
   def test_bad_mapping

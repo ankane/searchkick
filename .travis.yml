@@ -1,10 +1,11 @@
 language: ruby
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 2.1
 services:
   - elasticsearch
   - mongodb
+before_install:
+  - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.deb && sudo dpkg -i elasticsearch-1.3.2.deb && sudo service elasticsearch restart
 script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
@@ -14,5 +15,9 @@ notifications:
     on_failure: change
 gemfile:
   - Gemfile
+  - gemfiles/activerecord40.gemfile
+  - gemfiles/activerecord32.gemfile
+  - gemfiles/activerecord31.gemfile
+  - gemfiles/mongoid2.gemfile
   - gemfiles/mongoid3.gemfile
   - gemfiles/mongoid4.gemfile

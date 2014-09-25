@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestFacets < Minitest::Unit::TestCase
+class TestFacets < Minitest::Test
 
   def setup
     super

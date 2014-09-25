@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestSuggest < Minitest::Unit::TestCase
+class TestSuggest < Minitest::Test
 
   def test_basic
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
@@ -23,7 +23,8 @@ class TestSuggest < Minitest::Unit::TestCase
 
   def test_multiple_fields
     store [
-      {name: "Shark", color: "Sharp"}
+      {name: "Shark", color: "Sharp"},
+      {name: "Shark", color: "Sharp"},
     ]
     assert_suggest_all "shar", ["shark", "sharp"]
   end

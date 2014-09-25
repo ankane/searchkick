@@ -1,7 +1,22 @@
-## 0.8.1 [unreleased]
+## 0.8.3
+
+- Added support for ActiveJob
+- Added `timeout` setting
+- Fixed import with no records
+
+## 0.8.2
+
+- Added `async` to `callbacks` option
+- Added `wordnet` option
+- Added `edit_distance` option to eventually replace `distance` option
+- Catch misspelling of `misspellings` option
+- Improved logging
+
+## 0.8.1
 
 - Added `search_method_name` option
 - Fixed `order` for array of hashes
+- Added support for Mongoid 2
 
 ## 0.8.0
 

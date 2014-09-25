@@ -6,12 +6,38 @@ require "logger"
 
 ENV["RACK_ENV"] = "test"
 
+Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
+
 File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
+I18n.config.enforce_available_locales = true
+
+ActiveJob::Base.logger = nil if defined?(ActiveJob)
+
 if defined?(Mongoid)
+
+  def mongoid2?
+    Mongoid::VERSION.starts_with?("2.")
+  end
+
+  if mongoid2?
+    # enable comparison of BSON::ObjectIds
+    module BSON
+      class ObjectId
+        def <=>(other)
+          self.data <=> other.data
+        end
+      end
+    end
+  end
+
   Mongoid.configure do |config|
-    config.connect_to "searchkick_test"
+    if mongoid2?
+      config.master = Mongo::Connection.new.db("searchkick_test")
+    else
+      config.connect_to "searchkick_test"
+    end
   end
 
   class Product
@@ -119,7 +145,8 @@ class Product
     text_end: [:name],
     word_start: [:name],
     word_middle: [:name],
-    word_end: [:name]
+    word_end: [:name],
+    highlight: [:name]
 
   attr_accessor :conversions, :user_ids, :aisle
 
@@ -149,7 +176,11 @@ class Store
 end
 
 class Animal
-  searchkick autocomplete: [:name], suggest: [:name], index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+  searchkick \
+    autocomplete: [:name],
+    suggest: [:name],
+    index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+    # wordnet: true
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
@@ -159,7 +190,7 @@ Product.reindex # run twice for both index paths
 Store.reindex
 Animal.reindex
 
-class Minitest::Unit::TestCase
+class Minitest::Test
 
   def setup
     Product.destroy_all

@@ -11,8 +11,44 @@ module Searchkick
         execute_without_instrumentation
       end
     end
-
     alias_method_chain :execute, :instrumentation
+  end
+
+  class Index
+    def store_with_instrumentation(record)
+      event = {
+        name: "#{record.searchkick_klass.name} Store",
+        id: search_id(record)
+      }
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
+        store_without_instrumentation(record)
+      end
+    end
+    alias_method_chain :store, :instrumentation
+
+    def remove_with_instrumentation(record)
+      event = {
+        name: "#{record.searchkick_klass.name} Remove",
+        id: search_id(record)
+      }
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
+        remove_without_instrumentation(record)
+      end
+    end
+    alias_method_chain :remove, :instrumentation
+
+    def import_with_instrumentation(records)
+      if records.any?
+        event = {
+          name: "#{records.first.searchkick_klass.name} Import",
+          count: records.size
+        }
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          import_without_instrumentation(records)
+        end
+      end
+    end
+    alias_method_chain :import, :instrumentation
   end
 
   # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/log_subscriber.rb
@@ -42,6 +78,16 @@ module Searchkick
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map{|t| CGI.escape(t) }.join(",")}" : ""}/_search?pretty -d '#{payload[:query][:body].to_json}'"
+    end
+
+    def request(event)
+      self.class.runtime += event.duration
+      return unless logger.debug?
+
+      payload = event.payload
+      name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
+
+      debug "  #{color(name, YELLOW, true)}  #{payload.except(:name).to_json}"
     end
   end
 

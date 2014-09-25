@@ -243,6 +243,27 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+### WordNet
+
+Prepopulate English synonyms with the [WordNet database](http://en.wikipedia.org/wiki/WordNet).
+
+Download [WordNet 3.0](http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz) to each Elasticsearch server and move `wn_s.pl` to the `/var/lib` directory.
+
+```sh
+cd /tmp
+curl -o wordnet.tar.gz http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz
+tar -zxvf wordnet.tar.gz
+mv prolog/wn_s.pl /var/lib
+```
+
+Tell each model to use it:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick wordnet: true
+end
+```
+
 ### Misspellings
 
 By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one. To turn off this feature, use:
@@ -254,7 +275,7 @@ Product.search "zuchini", misspellings: false # no zucchini
 You can also change the edit distance with:
 
 ```ruby
-Product.search "zucini", misspellings: {distance: 2} # zucchini
+Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
 ### Indexing
@@ -303,7 +324,36 @@ end
 #### No need to reindex
 
 - App starts
-- Records are inserted, updated or deleted (syncs automatically)
+
+### Stay Synced
+
+There are three strategies for keeping the index synced with your database.
+
+1. Immediate (default)
+
+  Anytime a record is inserted, updated, or deleted
+
+2. Asynchronous
+
+  Use background jobs for better performance
+
+  ```ruby
+  class Product < ActiveRecord::Base
+    searchkick callbacks: :async
+  end
+  ```
+
+  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
+
+3. Manual
+
+  Turn off automatic syncing
+
+  ```ruby
+  class Product < ActiveRecord::Base
+    searchkick callbacks: false
+  end
+  ```
 
 ### Keep Getting Better
 
@@ -489,6 +539,14 @@ Product.search "*", facets: {store_id: {stats: true}}
 
 ### Highlight
 
+Specify which fields to index with highlighting.
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick highlight: [:name]
+end
+```
+
 Highlight the search query in the results.
 
 ```ruby
@@ -651,6 +709,8 @@ For the best performance, add [Patron](https://github.com/toland/patron) to your
 gem 'patron'
 ```
 
+Searchkick will automatically use it.
+
 **Note:** Patron is not available for Windows.
 
 ### Automatic Failover
@@ -740,15 +800,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Turn off callbacks permanently
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-end
-```
-
-or temporarily
+Turn off callbacks temporarily
 
 ```ruby
 Product.disable_search_callbacks # or use Searchkick.disable_callbacks for all models
@@ -757,7 +809,13 @@ Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all mod
 Product.reindex
 ```
 
-Change the search method name in `config/initializers/searchkick.rb` [master]
+Change timeout
+
+```ruby
+Searchkick.timeout = 5 # defaults to 10
+```
+
+Change the search method name in `config/initializers/searchkick.rb`
 
 ```ruby
 Searchkick.search_method_name = :lookup
@@ -792,25 +850,20 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Asynchronous reindexing
+Reindex asynchronously
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick callbacks: false
 
-  # add the callbacks manually
-
-  # ActiveRecord - one callback
-  after_commit :reindex_async
-
-  # Mongoid - two callbacks
-  after_save :reindex_async
-  after_destroy :reindex_async
-
   def reindex_async
-    # delayed job
-    delay.reindex
+    # custom code to reindex
   end
+
+  after_commit :reindex_async
+  # or for Mongoid
+  # after_save :reindex_async
+  # after_destroy :reindex_async
 end
 ```
 
