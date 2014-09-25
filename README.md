@@ -723,6 +723,18 @@ Searchkick.client = Elasticsearch::Client.new(hosts: ["localhost:9200", "localho
 
 See [elasticsearch-transport](https://github.com/elasticsearch/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
 
+### Lograge
+
+Add the following to `config/environments/production.rb`:
+
+```ruby
+config.lograge.custom_options = lambda do |event|
+  options = {}
+  options[:search] = event.payload[:searchkick_runtime] if event.payload[:searchkick_runtime].to_f > 0
+  options
+end
+```
+
 ## Advanced
 
 Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
