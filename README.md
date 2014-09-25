@@ -735,7 +735,7 @@ config.lograge.custom_options = lambda do |event|
 end
 ```
 
-See [Production Rails](https://github.com/ankane/production_rails) for other tips.
+See [Production Rails](https://github.com/ankane/production_rails) for other good practices.
 
 ## Advanced
 
