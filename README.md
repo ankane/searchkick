@@ -735,6 +735,8 @@ config.lograge.custom_options = lambda do |event|
 end
 ```
 
+See [Production Rails](https://github.com/ankane/production_rails) for other tips.
+
 ## Advanced
 
 Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
