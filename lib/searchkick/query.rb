@@ -421,15 +421,17 @@ module Searchkick
               payload[:facets][field] = {
                 terms_stats: {
                   key_field: field,
-                  value_script: below14? ? "doc.score" : "_score",
-                  size: size
+                  value_script: "doc.score",
+                  size: size,
+                  all_terms: facet_options[:all_terms] || false
                 }
               }
             else
               payload[:facets][field] = {
                 terms: {
                   field: facet_options[:field] || field,
-                  size: size
+                  size: size,
+                  all_terms: facet_options[:all_terms] || false
                 }
               }
             end
