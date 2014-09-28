@@ -268,7 +268,8 @@ module Searchkick
                 terms_stats: {
                   key_field: field,
                   value_script: "doc.score",
-                  size: size
+                  size: size,
+                  all_terms: facet_options[:all_terms] || false
                 }
               }
             else
@@ -276,6 +277,8 @@ module Searchkick
                 terms: {
                   field: field,
                   size: size
+                  size: size,
+                  all_terms: facet_options[:all_terms] || false
                 }
               }
             end

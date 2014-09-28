@@ -75,6 +75,17 @@ class TestFacets < Minitest::Test
     assert_equal expected_facets_keys, facets.first.keys
   end
 
+  # all_terms
+   def test_all_term_default_to_false
+    query = Product.search({ query: { name: "milk"}, facets: {name: {}} }, execute: false)
+    assert_equal false, query.body[:facets][:name][:terms][:all_terms]
+  end
+
+  def test_use_all_terms_option
+    query = Product.search({ query: { name: "milk"}, facets: {name: {all_terms: true}} }, execute: false)
+    assert_equal true, query.body[:facets][:name][:terms][:all_terms]
+  end
+
   protected
 
   def store_facet(options)
