@@ -93,6 +93,12 @@ class FacetsTest < Minitest::Test
     assert_equal true, query.body[:facets][:name][:terms][:all_terms]
   end
 
+  # field
+   def test_can_specify_field_for_facet
+    query = Product.search({ query: { name: "milk"}, facets: {name: { field: "name.id"}} }, execute: false)
+    assert_equal "name.id", query.body[:facets][:name][:terms][:field]
+  end
+
   protected
 
   def store_facet(options, facet_key = "store_id")

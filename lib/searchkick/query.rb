@@ -420,7 +420,7 @@ module Searchkick
             elsif facet_options[:stats]
               payload[:facets][field] = {
                 terms_stats: {
-                  key_field: field,
+                  key_field: facet_options[:field] || field,
                   value_script: "doc.score",
                   size: size,
                   all_terms: facet_options[:all_terms] || false
