@@ -202,6 +202,15 @@ class TestSql < Minitest::Test
     assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
   end
 
+  def test_order_multiple_with_id
+    store [
+      {name: "Product A", color: "red"},
+      {name: "Product B", color: "blue"},
+      {name: "Product C", color: "green"}
+    ]
+    assert_order "product", ["Product B", "Product C", "Product A"], order: [:color, {id: :desc}]
+  end
+
   def test_order_ignore_unmapped
     assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}, conversions: false
   end
