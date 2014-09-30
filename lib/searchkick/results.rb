@@ -100,6 +100,7 @@ module Searchkick
     def current_page
       options[:page]
     end
+    alias_method :page, :current_page
 
     def per_page
       options[:per_page]

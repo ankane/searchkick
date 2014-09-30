@@ -24,6 +24,7 @@ class TestSql < Minitest::Test
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page
+    assert_equal 2, products.page    
     assert_equal 1, products.padding
     assert_equal 2, products.per_page
     assert_equal 2, products.size
