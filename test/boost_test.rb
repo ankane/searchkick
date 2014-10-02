@@ -102,6 +102,7 @@ class TestBoost < Minitest::Test
     ]
     assert_first "tomato", "Tomato B", boost_where: {user_ids: 2}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
+    assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: [3, 4, 5], factor: 10, query: :terms}}
   end
 
 end
