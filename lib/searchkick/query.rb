@@ -219,6 +219,18 @@ module Searchkick
           }
         end
 
+        # Modify the query scoring with custom functions
+        if options[:function_score]
+          fs = options[:function_score]
+          payload = {
+            function_score: {
+              functions: fs[:functions],
+              query: payload,
+              score_mode: (fs[:score_mode] || :multiply)
+            }
+          }
+        end
+
         payload = {
           query: payload,
           size: per_page,
