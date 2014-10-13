@@ -219,14 +219,29 @@ module Searchkick
           }
         end
 
-        # Modify the query scoring with custom functions
-        if options[:function_score]
-          fs = options[:function_score]
+        # Modify the query scoring by proximity to a geo point
+        if options[:proximity_factor]
+          proximity_factor = { function: :gauss, score_mode: :multiply, scale: "5mi" }.merge(options[:proximity_factor])
+          (proximity_factor[:field] and proximity_factor[:origin]) or raise ArgumentError, "query() option :proximity_factor must contain at least :field and :origin"
+
+          field = proximity_factor[:field]
+          function = proximity_factor[:function]
+          function_params = proximity_factor.select { |k,v| [:origin, :scale, :offset, :decay].include? k }
+          # Conform to GeoJSON convention of [longitude, latitude]
+          function_params[:origin] = function_params[:origin].reverse
+          score_mode = proximity_factor[:score_mode]
+
           payload = {
             function_score: {
-              functions: fs[:functions],
+              functions: [
+                {
+                  function => {
+                    field => function_params
+                  }
+                }
+              ],
               query: payload,
-              score_mode: (fs[:score_mode] || :multiply)
+              score_mode: score_mode
             }
           }
         end
