@@ -10,7 +10,7 @@ module Searchkick
         callbacks = options.has_key?(:callbacks) ? options[:callbacks] : true
 
         class_variable_set :@@searchkick_options, options.dup
-        class_variable_set :@@searchkick_env, ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
+        class_variable_set :@@searchkick_env, ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
