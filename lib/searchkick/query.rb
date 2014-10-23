@@ -411,6 +411,7 @@ module Searchkick
         includes: options[:include] || options[:includes],
         json: !options[:json].nil?
       }
+      opts.merge!({primary_key: searchkick_options[:primary_key]}) if searchkick_options.has_key?(:primary_key)
       Searchkick::Results.new(searchkick_klass, response, opts)
     end
 

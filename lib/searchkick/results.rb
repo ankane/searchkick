@@ -27,7 +27,9 @@ module Searchkick
               records = records.includes(options[:includes])
             end
             results[type] =
-              if records.respond_to?(:primary_key) and records.primary_key
+              if options.has_key?(:primary_key)
+                records.where(options[:primary_key] => grouped_hits.map{|hit| hit["_id"] }).to_a
+              elsif records.respond_to?(:primary_key) and records.primary_key
                 # ActiveRecord
                 records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
               elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
@@ -41,7 +43,11 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+            if options.has_key?(:primary_key)
+              results[hit["_type"]].find{|r| r.send(options[:primary_key]).to_s == hit["_id"].to_s }
+            else
+              results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+            end
           end.compact
         else
           hits.map do |hit|
