@@ -7,7 +7,7 @@ module Searchkick
       skip_import = options[:import] == false
 
       alias_name = searchkick_index.name
-      new_name = alias_name + "_" + Time.now.strftime("%Y%m%d%H%M%S%L")
+      new_name = "#{alias_name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}"
       index = Searchkick::Index.new(new_name)
 
       clean_indices
