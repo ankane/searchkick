@@ -616,6 +616,20 @@ Bounded by a box
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
 ```
 
+### Boost By Distance [master]
+
+Boost results by distance - closer results are boosted more
+
+```ruby
+City.search "san", boost_by_distance: {field: :location, origin: [37, -122]}
+```
+
+Also supports [additional options](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
+
+```ruby
+City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
+```
+
 ## Inheritance
 
 Searchkick supports single table inheritance.

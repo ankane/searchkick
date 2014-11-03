@@ -209,6 +209,21 @@ module Searchkick
           }
         end
 
+        boost_by_distance = options[:boost_by_distance]
+        if boost_by_distance
+          boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
+          if !boost_by_distance[:field] or !boost_by_distance[:origin]
+            raise ArgumentError, "boost_by_distance requires :field and :origin"
+          end
+          function_params = boost_by_distance.select{|k,v| [:origin, :scale, :offset, :decay].include?(k) }
+          function_params[:origin] = function_params[:origin].reverse
+          custom_filters << {
+            boost_by_distance[:function] => {
+              boost_by_distance[:field] => function_params
+            }
+          }
+        end
+
         if custom_filters.any?
           payload = {
             function_score: {

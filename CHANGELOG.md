@@ -1,5 +1,6 @@
 ## 0.8.4 [unreleased]
 
+- Added `boost_by_distance`
 - More flexible highlight options
 
 ## 0.8.3
