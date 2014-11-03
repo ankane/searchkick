@@ -320,9 +320,20 @@ module Searchkick
           payload[:highlight] = {
             fields: Hash[ fields.map{|f| [f, {}] } ]
           }
-          if options[:highlight].is_a?(Hash) and tag = options[:highlight][:tag]
-            payload[:highlight][:pre_tags] = [tag]
-            payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+
+          if options[:highlight].is_a?(Hash)
+            if tag = options[:highlight][:tag]
+              payload[:highlight][:pre_tags] = [tag]
+              payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+            end
+
+            if highlight_fields = options[:highlight][:fields]
+              payload[:highlight][:fields] = {}
+
+              highlight_fields.each do |name, opts|
+                payload[:highlight][:fields]["#{name}.analyzed"] = opts || {}
+              end
+            end
           end
         end
 
