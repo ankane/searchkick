@@ -327,7 +327,8 @@ module Searchkick
               payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
             end
 
-            if highlight_fields = options[:highlight][:fields]
+            highlight_fields = options[:highlight][:fields]
+            if highlight_fields
               payload[:highlight][:fields] = {}
 
               highlight_fields.each do |name, opts|

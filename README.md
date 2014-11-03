@@ -553,7 +553,7 @@ Highlight the search query in the results.
 bands = Band.search "cinema", fields: [:name], highlight: true
 ```
 
-**Note:** The `fields` option is required, unless highlight options are given (see below).
+**Note:** The `fields` option is required, unless highlight options are given - see below.
 
 View the highlighted fields with:
 
@@ -569,21 +569,19 @@ To change the tag, use:
 Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
 ```
 
-To highlight and search different fields, use:
+To highlight and search different fields, use: [master]
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: { fields: [:description] }
+Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
 ```
 
-Additional options, including fragment size, can be specified for each field:
+Additional options, including fragment size, can be specified for each field: [master]
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: { fields: { name: { fragment_size: 200 } } }
+Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
 ```
 
 You can find available highlight options in the [Elasticsearch reference](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
-
-
 
 ### Similar Items
 

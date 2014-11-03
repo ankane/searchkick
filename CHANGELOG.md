@@ -1,3 +1,7 @@
+## 0.8.4 [unreleased]
+
+- More flexible highlight options
+
 ## 0.8.3
 
 - Added support for ActiveJob
