@@ -616,6 +616,17 @@ Bounded by a box
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
 ```
 
+Modify search score by proximity to a point:
+
+```ruby
+City.search "san", proximity_factor: { field: :location, origin: [37, -122] } # field and origin mandatory
+City.search "san", proximity_factor: { field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5 } # at 30mi, decrease score by 50%
+```
+
+The difference between where with a geo_point and proximity_factor is that the former is a hard cutoff that simply includes or excludes results but has no impact on the order of results, whereas the latter smoothly modifies the search score so that the results with the best match for the query text and the distance are returned.
+
+See [more details on modifying the score by proximity](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions).
+
 ## Inheritance
 
 Searchkick supports single table inheritance.
