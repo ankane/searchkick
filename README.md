@@ -124,7 +124,7 @@ Boost important fields
 fields: ["title^10", "description"]
 ```
 
-Boost by the value of a field
+Boost by the value of a field (field must be numeric)
 
 ```ruby
 boost_by: [:orders_count] # give popular documents a little boost
