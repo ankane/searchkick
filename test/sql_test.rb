@@ -261,15 +261,6 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product"], where: {latitude: {gt: 99}}
   end
 
-  def test_proximity
-    store [
-      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
-      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
-      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
-    ]
-    assert_order "san", ["San Francisco", "San Antonio", "San Marino"], proximity_factor: {field: :location, origin: [37, -122]}
-  end
-
   # load
 
   def test_load_default

@@ -209,39 +209,27 @@ module Searchkick
           }
         end
 
+        boost_by_distance = options[:boost_by_distance]
+        if boost_by_distance
+          boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
+          if !boost_by_distance[:field] or !boost_by_distance[:origin]
+            raise ArgumentError, "boost_by_distance requires :field and :origin"
+          end
+          function_params = boost_by_distance.select{|k,v| [:origin, :scale, :offset, :decay].include?(k) }
+          function_params[:origin] = function_params[:origin].reverse
+          custom_filters << {
+            boost_by_distance[:function] => {
+              boost_by_distance[:field] => function_params
+            }
+          }
+        end
+
         if custom_filters.any?
           payload = {
             function_score: {
               functions: custom_filters,
               query: payload,
               score_mode: "sum"
-            }
-          }
-        end
-
-        # Modify the query scoring by proximity to a geo point
-        if options[:proximity_factor]
-          proximity_factor = { function: :gauss, score_mode: :multiply, scale: "5mi" }.merge(options[:proximity_factor])
-          (proximity_factor[:field] and proximity_factor[:origin]) or raise ArgumentError, "query() option :proximity_factor must contain at least :field and :origin"
-
-          field = proximity_factor[:field]
-          function = proximity_factor[:function]
-          function_params = proximity_factor.select { |k,v| [:origin, :scale, :offset, :decay].include? k }
-          # Conform to GeoJSON convention of [longitude, latitude]
-          function_params[:origin] = function_params[:origin].reverse
-          score_mode = proximity_factor[:score_mode]
-
-          payload = {
-            function_score: {
-              functions: [
-                {
-                  function => {
-                    field => function_params
-                  }
-                }
-              ],
-              query: payload,
-              score_mode: score_mode
             }
           }
         end
