@@ -142,16 +142,10 @@ module Searchkick
       elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
         # Mongoid 2
         records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
-      elsif records.respond_to?(:queryable)
+      else
         # Mongoid 3+
         records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
-      else
-        custom_query(records, grouped_hits)
       end
-    end
-
-    def custom_query(records, grouped_hits)
-      raise 'Query method for records is unknown'
     end
   end
 end
