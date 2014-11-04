@@ -26,17 +26,7 @@ module Searchkick
             if options[:includes]
               records = records.includes(options[:includes])
             end
-            results[type] =
-              if records.respond_to?(:primary_key) and records.primary_key
-                # ActiveRecord
-                records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
-              elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
-                # Mongoid 2
-                records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
-              else
-                # Mongoid 3+
-                records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
-              end
+            results[type] = results_query(records, grouped_hits)
           end
 
           # sort
@@ -143,5 +133,21 @@ module Searchkick
       @response["hits"]["hits"]
     end
 
+    private
+
+    def results_query(records, grouped_hits)
+      if records.respond_to?(:primary_key) and records.primary_key
+        # ActiveRecord
+        records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
+        # Mongoid 2
+        records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:queryable)
+        # Mongoid 3+
+        records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+      else
+        raise "Not sure how to load records"
+      end
+    end
   end
 end
