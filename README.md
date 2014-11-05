@@ -744,10 +744,6 @@ require "typhoeus/adapters/faraday"
 Ethon.logger = Logger.new("/dev/null")
 ```
 
-Searchkick will automatically use it.
-
-**Note:** Patron is not available for Windows.
-
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
