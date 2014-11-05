@@ -744,6 +744,8 @@ require "typhoeus/adapters/faraday"
 Ethon.logger = Logger.new("/dev/null")
 ```
 
+**Note:** Typhoeus is not available for Windows.
+
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
