@@ -731,10 +731,16 @@ rake searchkick:reindex CLASS=Product
 
 ### Performance
 
-For the best performance, add [Patron](https://github.com/toland/patron) to your Gemfile.
+For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
 
 ```ruby
-gem 'patron'
+gem 'typhoeus'
+```
+
+And create an initializer with:
+
+```ruby
+require 'typhoeus/adapters/faraday'
 ```
 
 Searchkick will automatically use it.
