@@ -740,7 +740,8 @@ gem 'typhoeus'
 And create an initializer with:
 
 ```ruby
-require 'typhoeus/adapters/faraday'
+require "typhoeus/adapters/faraday"
+Ethon.logger = Logger.new("/dev/null")
 ```
 
 Searchkick will automatically use it.
