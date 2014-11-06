@@ -2,6 +2,7 @@
 
 - Added `boost_by_distance`
 - More flexible highlight options
+- Better `env` logic
 
 ## 0.8.3
 
