@@ -569,13 +569,13 @@ To change the tag, use:
 Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
 ```
 
-To highlight and search different fields, use: [master]
+To highlight and search different fields, use:
 
 ```ruby
 Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
 ```
 
-Additional options, including fragment size, can be specified for each field: [master]
+Additional options, including fragment size, can be specified for each field:
 
 ```ruby
 Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
@@ -616,7 +616,7 @@ Bounded by a box
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
 ```
 
-### Boost By Distance [master]
+### Boost By Distance
 
 Boost results by distance - closer results are boosted more
 
