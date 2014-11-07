@@ -328,7 +328,7 @@ module Searchkick
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # http://www.elasticsearch.org/guide/reference/api/search/fields/
-        if load and not options[:include_search_data]
+        if load
           payload[:fields] = []
         elsif options[:select]
           payload[:fields] = options[:select]
@@ -408,7 +408,6 @@ module Searchkick
         per_page: @per_page,
         padding: @padding,
         load: @load,
-        include_search_data: options[:include_search_data] || false,
         includes: options[:include] || options[:includes],
         json: !options[:json].nil?
       }

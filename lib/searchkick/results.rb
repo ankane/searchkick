@@ -41,12 +41,19 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            result = results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
-            result.response_search_data = build_hashie_result hit if options[:include_search_data] and result
-            result
+            results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
           end.compact
         else
-          hits.map { |hit| build_hashie_result hit }
+          hits.map do |hit|
+            result =
+              if hit["_source"]
+                hit.except("_source").merge(hit["_source"])
+              else
+                hit.except("fields").merge(hit["fields"])
+              end
+            result["id"] ||= result["_id"] # needed for legacy reasons
+            Hashie::Mash.new(result)
+          end
         end
       end
     end
@@ -134,17 +141,6 @@ module Searchkick
 
     def hits
       @response["hits"]["hits"]
-    end
-
-    def build_hashie_result hit
-      result =
-        if hit["_source"]
-          hit.except("_source").merge(hit["_source"])
-        else
-          hit.except("fields").merge(hit["fields"])
-        end
-      result["id"] ||= result["_id"] # needed for legacy reasons
-      Hashie::Mash.new(result)
     end
 
   end

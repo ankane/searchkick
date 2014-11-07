@@ -7,8 +7,6 @@ module Searchkick
       class_eval do
         cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
 
-        attr_accessor :response_search_data
-
         callbacks = options.has_key?(:callbacks) ? options[:callbacks] : true
 
         class_variable_set :@@searchkick_options, options.dup
