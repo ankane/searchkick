@@ -355,10 +355,10 @@ module Searchkick
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # http://www.elasticsearch.org/guide/reference/api/search/fields/
-        if load
+        if options[:select]
+          payload[:fields] = options[:select] unless options[:select].respond_to?(:to_sym) and options[:select].to_sym == :all
+        elsif load
           payload[:fields] = []
-        elsif options[:select]
-          payload[:fields] = options[:select]
         end
 
         if options[:type] or klass != searchkick_klass
