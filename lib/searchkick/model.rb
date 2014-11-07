@@ -5,15 +5,14 @@ module Searchkick
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 
       class_eval do
-        cattr_reader :searchkick_options, :searchkick_env, :searchkick_klass
+        cattr_reader :searchkick_options, :searchkick_klass
 
         callbacks = options.has_key?(:callbacks) ? options[:callbacks] : true
 
         class_variable_set :@@searchkick_options, options.dup
-        class_variable_set :@@searchkick_env, ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
         class_variable_set :@@searchkick_klass, self
         class_variable_set :@@searchkick_callbacks, callbacks
-        class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, searchkick_env].compact.join("_")
+        class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
 
         def self.searchkick_index
           index = class_variable_get :@@searchkick_index

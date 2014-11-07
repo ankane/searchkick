@@ -124,7 +124,7 @@ Boost important fields
 fields: ["title^10", "description"]
 ```
 
-Boost by the value of a field
+Boost by the value of a field (field must be numeric)
 
 ```ruby
 boost_by: [:orders_count] # give popular documents a little boost
@@ -553,7 +553,7 @@ Highlight the search query in the results.
 bands = Band.search "cinema", fields: [:name], highlight: true
 ```
 
-**Note:** The `fields` option is required.
+**Note:** The `fields` option is required, unless highlight options are given - see below.
 
 View the highlighted fields with:
 
@@ -568,6 +568,20 @@ To change the tag, use:
 ```ruby
 Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
 ```
+
+To highlight and search different fields, use:
+
+```ruby
+Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
+```
+
+Additional options, including fragment size, can be specified for each field:
+
+```ruby
+Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
+```
+
+You can find available highlight options in the [Elasticsearch reference](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
 
 ### Similar Items
 
@@ -600,6 +614,20 @@ Bounded by a box
 
 ```ruby
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
+```
+
+### Boost By Distance
+
+Boost results by distance - closer results are boosted more
+
+```ruby
+City.search "san", boost_by_distance: {field: :location, origin: [37, -122]}
+```
+
+Also supports [additional options](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
+
+```ruby
+City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
 ```
 
 ## Inheritance
@@ -703,15 +731,20 @@ rake searchkick:reindex CLASS=Product
 
 ### Performance
 
-For the best performance, add [Patron](https://github.com/toland/patron) to your Gemfile.
+For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
 
 ```ruby
-gem 'patron'
+gem 'typhoeus'
 ```
 
-Searchkick will automatically use it.
+And create an initializer with:
 
-**Note:** Patron is not available for Windows.
+```ruby
+require "typhoeus/adapters/faraday"
+Ethon.logger = Logger.new("/dev/null")
+```
+
+**Note:** Typhoeus is not available for Windows.
 
 ### Automatic Failover
 

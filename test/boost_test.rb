@@ -104,4 +104,13 @@ class TestBoost < Minitest::Test
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
   end
 
+  def test_boost_by_distance
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: [37, -122], scale: "1000mi"}
+  end
+
 end
