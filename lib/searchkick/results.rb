@@ -127,8 +127,6 @@ module Searchkick
       next_page.nil?
     end
 
-    protected
-
     def hits
       @response["hits"]["hits"]
     end
