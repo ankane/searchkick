@@ -298,6 +298,13 @@ class TestSql < Minitest::Test
     assert_equal [1, 2], result.user_ids
   end
 
+  def test_select_all
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", select: true).send(:hits).first
+    assert_equal hit["_source"]["name"], "Product A"
+    assert_equal hit["_source"]["user_ids"], [1, 2]
+  end
+
   def test_nested_object
     aisle = {"id" => 1, "name" => "Frozen"}
     store [{name: "Product A", aisle: aisle}]

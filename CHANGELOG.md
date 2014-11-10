@@ -1,6 +1,7 @@
 ## 0.8.5 [unreleased]
 
 - Added `unsearchable` option
+- Added `select: true` option
 
 ## 0.8.4
 
