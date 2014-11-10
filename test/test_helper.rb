@@ -53,6 +53,7 @@ if defined?(Mongoid)
     field :color
     field :latitude, type: BigDecimal
     field :longitude, type: BigDecimal
+    field :description
   end
 
   class Store
