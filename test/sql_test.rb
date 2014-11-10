@@ -300,7 +300,7 @@ class TestSql < Minitest::Test
 
   def test_select_all
     store [{name: "Product A", user_ids: [1, 2]}]
-    hit = Product.search("product", select: :all).__send__(:hits).first
+    hit = Product.search("product", select: true).send(:hits).first
     assert_equal hit["_source"]["name"], "Product A"
     assert_equal hit["_source"]["user_ids"], [1, 2]
   end
