@@ -897,6 +897,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Make fields unsearchable but include in the source [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick unsearchable: [:color]
+end
+```
+
 Reindex asynchronously
 
 ```ruby
