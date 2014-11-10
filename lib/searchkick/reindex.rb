@@ -288,9 +288,16 @@ module Searchkick
           mapping[field] = field_mapping
         end
 
-        (options[:locations] || []).each do |field|
+        (options[:locations] || []).map(&:to_s).each do |field|
           mapping[field] = {
             type: "geo_point"
+          }
+        end
+
+        (options[:unsearchable] || []).map(&:to_s).each do |field|
+          mapping[field] = {
+            type: "string",
+            index: "no"
           }
         end
 

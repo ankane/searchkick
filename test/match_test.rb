@@ -153,4 +153,11 @@ class TestMatch < Minitest::Test
     assert_search "to be", ["to be or not to be"]
   end
 
+  def test_unsearchable
+    store [
+      {name: "Unsearchable", description: "Almond"}
+    ]
+    assert_search "almond", []
+  end
+
 end

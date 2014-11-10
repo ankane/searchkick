@@ -95,6 +95,7 @@ else
     t.string :color
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
+    t.text :description
     t.timestamps
   end
 
@@ -146,7 +147,8 @@ class Product
     word_start: [:name],
     word_middle: [:name],
     word_end: [:name],
-    highlight: [:name]
+    highlight: [:name],
+    unsearchable: [:description]
 
   attr_accessor :conversions, :user_ids, :aisle
 

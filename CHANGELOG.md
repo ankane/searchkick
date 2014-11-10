@@ -1,3 +1,7 @@
+## 0.8.5 [unreleased]
+
+- Added `unsearchable` option
+
 ## 0.8.4
 
 - Added `boost_by_distance`
