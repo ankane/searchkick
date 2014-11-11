@@ -1,4 +1,4 @@
-## 0.8.5 [unreleased]
+## 0.8.5
 
 - Added support for Elasticsearch 1.4
 - Added `unsearchable` option

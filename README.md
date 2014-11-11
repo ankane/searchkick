@@ -902,7 +902,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Make fields unsearchable but include in the source [master]
+Make fields unsearchable but include in the source
 
 ```ruby
 class Product < ActiveRecord::Base
