@@ -57,6 +57,7 @@ module Searchkick
       all = term == "*"
       facet_limits = {}
 
+      options[:json] ||= options[:body]
       if options[:json]
         payload = options[:json]
       else

@@ -3,6 +3,7 @@
 - Added support for Elasticsearch 1.4
 - Added `unsearchable` option
 - Added `select: true` option
+- Added `body` option
 
 ## 0.8.4
 
