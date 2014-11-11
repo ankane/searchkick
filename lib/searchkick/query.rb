@@ -16,6 +16,7 @@ module Searchkick
       @options = options
 
       below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2")
+      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4")
 
       boost_fields = {}
       fields =
@@ -279,7 +280,7 @@ module Searchkick
               payload[:facets][field] = {
                 terms_stats: {
                   key_field: field,
-                  value_script: "doc.score",
+                  value_script: below14 ? "doc.score" : "_score",
                   size: size
                 }
               }

@@ -1,5 +1,6 @@
 ## 0.8.5 [unreleased]
 
+- Added support for Elasticsearch 1.4
 - Added `unsearchable` option
 - Added `select: true` option
 

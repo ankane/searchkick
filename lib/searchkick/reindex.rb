@@ -40,7 +40,7 @@ module Searchkick
     # remove old indices that start w/ index_name
     def clean_indices
       all_indices = Searchkick.client.indices.get_aliases
-      indices = all_indices.select{|k, v| v["aliases"].empty? && k =~ /\A#{Regexp.escape(searchkick_index.name)}_\d{14,17}\z/ }.keys
+      indices = all_indices.select{|k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(searchkick_index.name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
         Searchkick::Index.new(index).delete
       end
