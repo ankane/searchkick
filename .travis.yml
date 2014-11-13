@@ -6,6 +6,12 @@ services:
   - mongodb
 before_install:
   - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.deb && sudo dpkg -i elasticsearch-1.3.2.deb && sudo service elasticsearch restart
+  - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+  - wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+  - sudo apt-get update -q
+  - sudo apt-get install rethinkdb
+  - sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
+  - sudo service rethinkdb restart
 script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
@@ -21,3 +27,4 @@ gemfile:
   - gemfiles/mongoid2.gemfile
   - gemfiles/mongoid3.gemfile
   - gemfiles/mongoid4.gemfile
+  - gemfiles/nobrainer.gemfile

@@ -73,6 +73,55 @@ if defined?(Mongoid)
 
   class Cat < Animal
   end
+elsif defined?(NoBrainer)
+  #
+  # Aliasing create bang.
+  #
+  module NoBrainer::Document::Persistance
+    extend ActiveSupport::Concern
+
+    module ClassMethods
+      alias :create! :create
+    end
+  end
+
+  NoBrainer.configure do |config|
+    config.rethinkdb_url = 'rethinkdb://localhost/searchkick_test'
+  end
+
+  class Product
+    include NoBrainer::Document
+    include NoBrainer::Document::Timestamps
+
+    field :name,         type: String
+    field :store_id,     type: Integer
+    field :in_stock,     type: Boolean
+    field :backordered,  type: Boolean
+    field :orders_count, type: Integer
+    field :price,        type: Integer
+    field :color,        type: String
+    field :latitude
+    field :longitude
+    field :description,  type: String
+  end
+
+  class Store
+    include NoBrainer::Document
+
+    field :name, type: String
+  end
+
+  class Animal
+    include NoBrainer::Document
+
+    field :name, type: String
+  end
+
+  class Dog < Animal
+  end
+
+  class Cat < Animal
+  end
 else
   require "active_record"
 
