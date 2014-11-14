@@ -24,7 +24,7 @@ module Searchkick
           hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
-              if records.respond_to?(:preload)
+              if defined?(NoBrainer::Document) and records < NoBrainer::Document
                 records = records.preload(options[:includes])
               else
                 records = records.includes(options[:includes])
