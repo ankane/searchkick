@@ -1,3 +1,7 @@
+## 0.8.6 [unreleased]
+
+- Added support for NoBrainer
+
 ## 0.8.5
 
 - Added support for Elasticsearch 1.4
