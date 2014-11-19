@@ -24,7 +24,11 @@ module Searchkick
           hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
-              records = records.includes(options[:includes])
+              if defined?(NoBrainer::Document) and records < NoBrainer::Document
+                records = records.preload(options[:includes])
+              else
+                records = records.includes(options[:includes])
+              end
             end
             results[type] = results_query(records, grouped_hits)
           end
@@ -143,6 +147,9 @@ module Searchkick
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
         records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:unscoped) and records.all.respond_to?(:preload)
+        # Nobrainer
+        records.unscoped.where(:id.in => grouped_hits.map{|hit| hit["_id"] }).to_a
       else
         raise "Not sure how to load records"
       end

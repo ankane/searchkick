@@ -6,6 +6,7 @@ services:
   - mongodb
 before_install:
   - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.deb && sudo dpkg -i elasticsearch-1.3.2.deb && sudo service elasticsearch restart
+  - script ./test/nobrainer.sh
 script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
@@ -21,3 +22,7 @@ gemfile:
   - gemfiles/mongoid2.gemfile
   - gemfiles/mongoid3.gemfile
   - gemfiles/mongoid4.gemfile
+matrix:
+  include:
+    - gemfile: gemfiles/nobrainer.gemfile
+      env: NOBRAINER=true
