@@ -134,8 +134,8 @@ boost_by: {orders_count: {factor: 10}} # default factor is 1
 Boost matching documents
 
 ```ruby
-boost_where: {user_id: 1} # default factor is 1000
-boost_where: {user_id: {value: 1, factor: 100}}
+boost_where: {user_id: 1}
+boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
 ```
 
 [Conversions](#keep-getting-better) are also a great way to boost.
@@ -828,6 +828,8 @@ Reindex one record
 ```ruby
 product = Product.find 10
 product.reindex
+# or to reindex in the background
+product.reindex_async
 ```
 
 Remove old indices
@@ -902,28 +904,17 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Create index without importing
+
+```ruby
+Product.reindex(import: false)
+```
+
 Make fields unsearchable but include in the source
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick unsearchable: [:color]
-end
-```
-
-Reindex asynchronously
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: false
-
-  def reindex_async
-    # custom code to reindex
-  end
-
-  after_commit :reindex_async
-  # or for Mongoid
-  # after_save :reindex_async
-  # after_destroy :reindex_async
 end
 ```
 
