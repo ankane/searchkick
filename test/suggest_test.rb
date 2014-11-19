@@ -18,6 +18,7 @@ class TestSuggest < Minitest::Test
   end
 
   def test_without_option
+    store_names ["hi"] # needed to prevent ElasticsearchException - seed 668
     assert_raises(RuntimeError){ Product.search("hi").suggestions }
   end
 
