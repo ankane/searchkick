@@ -1020,6 +1020,9 @@ Everyone is encouraged to help improve this project. Here are a few ways you can
 
 To get started with development and testing:
 
-1. Clone the repo
-2. `bundle`
-3. `rake test`
+```sh
+git clone https://github.com/ankane/searchkick.git
+cd searchkick
+bundle install
+rake test
+```
