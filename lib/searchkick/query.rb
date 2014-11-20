@@ -16,6 +16,7 @@ module Searchkick
       @options = options
 
       below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2")
+      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4")
 
       boost_fields = {}
       fields =
@@ -56,6 +57,7 @@ module Searchkick
       all = term == "*"
       facet_limits = {}
 
+      options[:json] ||= options[:body]
       if options[:json]
         payload = options[:json]
       else
@@ -209,6 +211,21 @@ module Searchkick
           }
         end
 
+        boost_by_distance = options[:boost_by_distance]
+        if boost_by_distance
+          boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
+          if !boost_by_distance[:field] or !boost_by_distance[:origin]
+            raise ArgumentError, "boost_by_distance requires :field and :origin"
+          end
+          function_params = boost_by_distance.select{|k,v| [:origin, :scale, :offset, :decay].include?(k) }
+          function_params[:origin] = function_params[:origin].reverse
+          custom_filters << {
+            boost_by_distance[:function] => {
+              boost_by_distance[:field] => function_params
+            }
+          }
+        end
+
         if custom_filters.any?
           payload = {
             function_score: {
@@ -264,7 +281,7 @@ module Searchkick
               payload[:facets][field] = {
                 terms_stats: {
                   key_field: field,
-                  value_script: "doc.score",
+                  value_script: below14 ? "doc.score" : "_score",
                   size: size
                 }
               }
@@ -320,18 +337,30 @@ module Searchkick
           payload[:highlight] = {
             fields: Hash[ fields.map{|f| [f, {}] } ]
           }
-          if options[:highlight].is_a?(Hash) and tag = options[:highlight][:tag]
-            payload[:highlight][:pre_tags] = [tag]
-            payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+
+          if options[:highlight].is_a?(Hash)
+            if tag = options[:highlight][:tag]
+              payload[:highlight][:pre_tags] = [tag]
+              payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+            end
+
+            highlight_fields = options[:highlight][:fields]
+            if highlight_fields
+              payload[:highlight][:fields] = {}
+
+              highlight_fields.each do |name, opts|
+                payload[:highlight][:fields]["#{name}.analyzed"] = opts || {}
+              end
+            end
           end
         end
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # http://www.elasticsearch.org/guide/reference/api/search/fields/
-        if load
+        if options[:select]
+          payload[:fields] = options[:select] if options[:select] != true
+        elsif load
           payload[:fields] = []
-        elsif options[:select]
-          payload[:fields] = options[:select]
         end
 
         if options[:type] or klass != searchkick_klass

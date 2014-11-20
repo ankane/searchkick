@@ -41,6 +41,21 @@ class TestIndex < Minitest::Test
     assert_equal ["Dollar Tree"], Store.search(json: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
   end
 
+  def test_body
+    store_names ["Dollar Tree"], Store
+    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
+  end
+
+  def test_block
+    store_names ["Dollar Tree"]
+    products =
+      Product.search "boom" do |body|
+        body[:query] = {match_all: {}}
+      end
+    assert_equal ["Dollar Tree"], products.map(&:name)
+  end
+
   def test_tokens
     assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree")
   end

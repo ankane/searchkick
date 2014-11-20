@@ -24,19 +24,13 @@ module Searchkick
           hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
-              records = records.includes(options[:includes])
-            end
-            results[type] =
-              if records.respond_to?(:primary_key) and records.primary_key
-                # ActiveRecord
-                records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
-              elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
-                # Mongoid 2
-                records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+              if defined?(NoBrainer::Document) and records < NoBrainer::Document
+                records = records.preload(options[:includes])
               else
-                # Mongoid 3+
-                records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+                records = records.includes(options[:includes])
               end
+            end
+            results[type] = results_query(records, grouped_hits)
           end
 
           # sort
@@ -137,11 +131,28 @@ module Searchkick
       next_page.nil?
     end
 
-    protected
-
     def hits
       @response["hits"]["hits"]
     end
 
+    private
+
+    def results_query(records, grouped_hits)
+      if records.respond_to?(:primary_key) and records.primary_key
+        # ActiveRecord
+        records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
+        # Mongoid 2
+        records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:queryable)
+        # Mongoid 3+
+        records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+      elsif records.respond_to?(:unscoped) and records.all.respond_to?(:preload)
+        # Nobrainer
+        records.unscoped.where(:id.in => grouped_hits.map{|hit| hit["_id"] }).to_a
+      else
+        raise "Not sure how to load records"
+      end
+    end
   end
 end

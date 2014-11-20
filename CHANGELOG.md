@@ -1,3 +1,20 @@
+## 0.8.6 [unreleased]
+
+- Added support for NoBrainer
+
+## 0.8.5
+
+- Added support for Elasticsearch 1.4
+- Added `unsearchable` option
+- Added `select: true` option
+- Added `body` option
+
+## 0.8.4
+
+- Added `boost_by_distance`
+- More flexible highlight options
+- Better `env` logic
+
 ## 0.8.3
 
 - Added support for ActiveJob

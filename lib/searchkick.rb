@@ -63,6 +63,10 @@ module Searchkick
   def self.callbacks?
     callbacks
   end
+
+  def self.env
+    @env ||= ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
+  end
 end
 
 # TODO find better ActiveModel hook

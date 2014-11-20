@@ -19,6 +19,18 @@ class TestHighlight < Minitest::Test
     assert_equal "<em>Cinema</em> Orange", highlight[:color]
   end
 
+  def test_fields
+    store [{name: "Two Door Cinema Club", color: "Cinema Orange"}]
+    highlight = Product.search("cinema", fields: [:name, :color], highlight: {fields: [:name]}).with_details.first[1][:highlight]
+    assert_equal "Two Door <em>Cinema</em> Club", highlight[:name]
+    assert_equal nil, highlight[:color]
+  end
+
+  def test_field_options
+    store_names ["Two Door Cinema Club are a Northern Irish indie rock band"]
+    assert_equal "Two Door <em>Cinema</em> Club are", Product.search("cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 20}}}).with_details.first[1][:highlight][:name]
+  end
+
   def test_multiple_words
     store_names ["Hello World Hello"]
     assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", fields: [:name], highlight: true).with_details.first[1][:highlight][:name]
