@@ -1,6 +1,7 @@
 ## 0.8.6 [unreleased]
 
 - Added support for NoBrainer
+- Added `stem_conversions: false` option
 
 ## 0.8.5
 
