@@ -27,34 +27,6 @@ module Searchkick
       client.indices.exists_alias name: name
     end
 
-    def search_model(searchkick_klass, term = nil, options = {}, &block)
-      query = Searchkick::Query.new(searchkick_klass, term, options)
-      if block
-        block.call(query.body)
-      end
-      if options[:execute] == false
-        query
-      else
-        query.execute
-      end
-    end
-
-    def similar_record(record, options = {})
-      like_text = retrieve(record).to_hash
-        .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
-        .values.compact.join(" ")
-
-      # TODO deep merge method
-      options[:where] ||= {}
-      options[:where][:_id] ||= {}
-      options[:where][:_id][:not] = record.id.to_s
-      options[:limit] ||= 10
-      options[:similar] = true
-
-      # TODO use index class instead of record class
-      search_model(record.class, like_text, options)
-    end
-
     def swap(new_name)
       old_indices =
         begin
@@ -65,6 +37,8 @@ module Searchkick
       actions = old_indices.map{|old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
       client.indices.update_aliases body: {actions: actions}
     end
+
+    # record based
 
     def store(record)
       client.index(
@@ -121,16 +95,42 @@ module Searchkick
       end
     end
 
-    def klass_document_type(klass)
-      if klass.respond_to?(:document_type)
-        klass.document_type
+    def similar_record(record, options = {})
+      like_text = retrieve(record).to_hash
+        .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
+        .values.compact.join(" ")
+
+      # TODO deep merge method
+      options[:where] ||= {}
+      options[:where][:_id] ||= {}
+      options[:where][:_id][:not] = record.id.to_s
+      options[:limit] ||= 10
+      options[:similar] = true
+
+      # TODO use index class instead of record class
+      search_model(record.class, like_text, options)
+    end
+
+    # search
+
+    def search_model(searchkick_klass, term = nil, options = {}, &block)
+      query = Searchkick::Query.new(searchkick_klass, term, options)
+      if block
+        block.call(query.body)
+      end
+      if options[:execute] == false
+        query
       else
-        klass.model_name.to_s.underscore
+        query.execute
       end
     end
 
-    def tokens(text, options = {})
-      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map{|t| t["token"] }
+    # reindex
+
+    def create_index
+      index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
+      index.create(index_options)
+      index
     end
 
     # remove old indices that start w/ index_name
@@ -141,12 +141,6 @@ module Searchkick
         Searchkick::Index.new(index).delete
       end
       indices
-    end
-
-    def create_index
-      index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
-      index.create(index_options)
-      index
     end
 
     # https://gist.github.com/jarosan/3124884
@@ -458,6 +452,20 @@ module Searchkick
         settings: settings,
         mappings: mappings
       }
+    end
+
+    # other
+
+    def tokens(text, options = {})
+      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map{|t| t["token"] }
+    end
+
+    def klass_document_type(klass)
+      if klass.respond_to?(:document_type)
+        klass.document_type
+      else
+        klass.model_name.to_s.underscore
+      end
     end
 
     protected
