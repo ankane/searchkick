@@ -22,6 +22,21 @@ module Searchkick
       client.indices.refresh index: name
     end
 
+    def alias_exists?
+      client.indices.exists_alias name: name
+    end
+
+    def swap(new_name)
+      old_indices =
+        begin
+          client.indices.get_alias(name: name).keys
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          []
+        end
+      actions = old_indices.map{|old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
+      client.indices.update_aliases body: {actions: actions}
+    end
+
     def store(record)
       client.index(
         index: name,

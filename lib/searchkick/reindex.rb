@@ -6,27 +6,21 @@ module Searchkick
     def reindex(options = {})
       skip_import = options[:import] == false
 
-      alias_name = searchkick_index.name
-      new_name = "#{alias_name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}"
-      index = Searchkick::Index.new(new_name)
-
       clean_indices
 
-      index.create searchkick_index_options
+      index = searchkick_create_index
 
       # check if alias exists
-      if Searchkick.client.indices.exists_alias(name: alias_name)
+      if searchkick_index.alias_exists?
         # import before swap
         searchkick_import(index: index) unless skip_import
 
         # get existing indices to remove
-        old_indices = Searchkick.client.indices.get_alias(name: alias_name).keys
-        actions = old_indices.map{|name| {remove: {index: name, alias: alias_name}} } + [{add: {index: new_name, alias: alias_name}}]
-        Searchkick.client.indices.update_aliases body: {actions: actions}
+        searchkick_index.swap(index.name)
         clean_indices
       else
         searchkick_index.delete if searchkick_index.exists?
-        Searchkick.client.indices.update_aliases body: {actions: [{add: {index: new_name, alias: alias_name}}]}
+        searchkick_index.swap(index.name)
 
         # import after swap
         searchkick_import(index: index) unless skip_import
@@ -76,6 +70,12 @@ module Searchkick
         end
         index.import items
       end
+    end
+
+    def searchkick_create_index
+      index = Searchkick::Index.new("#{searchkick_index.name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}")
+      index.create searchkick_index_options
+      index
     end
 
     def searchkick_index_options
