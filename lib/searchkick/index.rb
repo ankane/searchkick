@@ -73,6 +73,18 @@ module Searchkick
       )["_source"]
     end
 
+    def reindex(record)
+      if record.destroyed? or !record.should_index?
+        begin
+          remove(record)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          # do nothing
+        end
+      else
+        store(record)
+      end
+    end
+
     def klass_document_type(klass)
       if klass.respond_to?(:document_type)
         klass.document_type
@@ -96,9 +108,33 @@ module Searchkick
     end
 
     def create_index
-      index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}")
+      index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
+    end
+
+    def import_scope(scope)
+      batch_size = @options[:batch_size] || 1000
+
+      # use scope for import
+      scope = scope.search_import if scope.respond_to?(:search_import)
+      if scope.respond_to?(:find_in_batches)
+        scope.find_in_batches batch_size: batch_size do |batch|
+          import batch.select{|item| item.should_index? }
+        end
+      else
+        # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
+        # use cursor for Mongoid
+        items = []
+        scope.all.each do |item|
+          items << item if item.should_index?
+          if items.length == batch_size
+            index.import items
+            items = []
+          end
+        end
+        import items
+      end
     end
 
     def index_options

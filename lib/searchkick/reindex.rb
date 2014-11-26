@@ -1,6 +1,11 @@
 module Searchkick
   module Reindex
 
+    def self.extended(klass)
+      @descendents ||= []
+      @descendents << klass unless @descendents.include?(klass)
+    end
+
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex(options = {})
@@ -35,35 +40,9 @@ module Searchkick
       searchkick_index.clean_indices
     end
 
-    def self.extended(klass)
-      @descendents ||= []
-      @descendents << klass unless @descendents.include?(klass)
-    end
-
     def searchkick_import(options = {})
       index = options[:index] || searchkick_index
-      batch_size = searchkick_options[:batch_size] || 1000
-
-      # use scope for import
-      scope = searchkick_klass
-      scope = scope.search_import if scope.respond_to?(:search_import)
-      if scope.respond_to?(:find_in_batches)
-        scope.find_in_batches batch_size: batch_size do |batch|
-          index.import batch.select{|item| item.should_index? }
-        end
-      else
-        # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
-        # use cursor for Mongoid
-        items = []
-        scope.all.each do |item|
-          items << item if item.should_index?
-          if items.length == batch_size
-            index.import items
-            items = []
-          end
-        end
-        index.import items
-      end
+      index.import_scope(searchkick_klass)
     end
 
     def searchkick_create_index
