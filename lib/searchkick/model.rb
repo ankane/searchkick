@@ -17,7 +17,7 @@ module Searchkick
         def self.searchkick_index
           index = class_variable_get :@@searchkick_index
           index = index.call if index.respond_to? :call
-          Searchkick::Index.new(index)
+          Searchkick::Index.new(index, class_variable_get(:@@searchkick_options))
         end
 
         define_singleton_method(Searchkick.search_method_name) do |term = nil, options={}, &block|
