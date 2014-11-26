@@ -27,6 +27,34 @@ module Searchkick
       client.indices.exists_alias name: name
     end
 
+    def search_model(searchkick_klass, term = nil, options = {}, &block)
+      query = Searchkick::Query.new(searchkick_klass, term, options)
+      if block
+        block.call(query.body)
+      end
+      if options[:execute] == false
+        query
+      else
+        query.execute
+      end
+    end
+
+    def similar_record(record, options = {})
+      like_text = retrieve(record).to_hash
+        .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
+        .values.compact.join(" ")
+
+      # TODO deep merge method
+      options[:where] ||= {}
+      options[:where][:_id] ||= {}
+      options[:where][:_id][:not] = record.id.to_s
+      options[:limit] ||= 10
+      options[:similar] = true
+
+      # TODO use index class instead of record class
+      search_model(record.class, like_text, options)
+    end
+
     def swap(new_name)
       old_indices =
         begin

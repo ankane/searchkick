@@ -3,10 +3,8 @@ require "elasticsearch"
 require "hashie"
 require "searchkick/version"
 require "searchkick/index"
-require "searchkick/reindex"
 require "searchkick/results"
 require "searchkick/query"
-require "searchkick/similar"
 require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
@@ -30,11 +28,13 @@ module Searchkick
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
     attr_accessor :timeout
+    attr_accessor :models
   end
   self.callbacks = true
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
   self.timeout = 10
+  self.models = []
 
   def self.client
     @client ||=
