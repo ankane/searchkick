@@ -1,4 +1,6 @@
 module Searchkick
+  module Reindex; end # legacy for Searchjoy
+
   module Model
 
     def searchkick(options = {})
@@ -19,13 +21,14 @@ module Searchkick
         define_singleton_method(Searchkick.search_method_name) do |term = nil, options={}, &block|
           searchkick_index.search_model(self, term, options, &block)
         end
+        extend Searchkick::Reindex # legacy for Searchjoy
 
         class << self
 
           def searchkick_index
             index = class_variable_get :@@searchkick_index
             index = index.call if index.respond_to? :call
-            Searchkick::Index.new(index, class_variable_get(:@@searchkick_options))
+            Searchkick::Index.new(index, searchkick_options)
           end
 
           def enable_search_callbacks
