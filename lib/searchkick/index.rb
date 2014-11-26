@@ -73,7 +73,7 @@ module Searchkick
       )["_source"]
     end
 
-    def reindex(record)
+    def reindex_record(record)
       if record.destroyed? or !record.should_index?
         begin
           remove(record)
@@ -82,6 +82,14 @@ module Searchkick
         end
       else
         store(record)
+      end
+    end
+
+    def reindex_record_async(record)
+      if defined?(Searchkick::ReindexV2Job)
+          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+      else
+        Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
       end
     end
 
@@ -111,6 +119,36 @@ module Searchkick
       index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
+    end
+
+    # https://gist.github.com/jarosan/3124884
+    # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+    def reindex_scope(scope, options = {})
+      skip_import = options[:import] == false
+
+      clean_indices
+
+      index = create_index
+
+      # check if alias exists
+      if alias_exists?
+        # import before swap
+        index.import_scope(scope) unless skip_import
+
+        # get existing indices to remove
+        swap(index.name)
+        clean_indices
+      else
+        delete if exists?
+        swap(index.name)
+
+        # import after swap
+        index.import_scope(scope) unless skip_import
+      end
+
+      index.refresh
+
+      true
     end
 
     def import_scope(scope)

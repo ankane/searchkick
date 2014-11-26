@@ -35,11 +35,7 @@ module Searchkick
         include Searchkick::Similar
 
         def reindex_async
-          if defined?(Searchkick::ReindexV2Job)
-            Searchkick::ReindexV2Job.perform_later(self.class.name, id.to_s)
-          else
-            Delayed::Job.enqueue Searchkick::ReindexJob.new(self.class.name, id.to_s)
-          end
+          self.class.searchkick_index.reindex_record_async(self)
         end
 
         if callbacks
@@ -69,7 +65,7 @@ module Searchkick
         end
 
         def reindex
-          self.class.searchkick_index.reindex(self)
+          self.class.searchkick_index.reindex_record(self)
         end
 
         def search_data
