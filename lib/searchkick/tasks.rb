@@ -22,7 +22,7 @@ namespace :searchkick do
       desc "reindex all models"
       task :all => :environment do
         Rails.application.eager_load!
-        (Searchkick::Reindex.instance_variable_get(:@descendents) || []).each do |model|
+        Searchkick.models.each do |model|
           puts "Reindexing #{model.name}..."
           model.reindex
         end

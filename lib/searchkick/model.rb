@@ -1,8 +1,12 @@
 module Searchkick
+  module Reindex; end # legacy for Searchjoy
+
   module Model
 
     def searchkick(options = {})
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
+
+      Searchkick.models << self
 
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
@@ -14,32 +18,51 @@ module Searchkick
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
 
-        def self.searchkick_index
-          index = class_variable_get :@@searchkick_index
-          index = index.call if index.respond_to? :call
-          Searchkick::Index.new(index)
-        end
-
         define_singleton_method(Searchkick.search_method_name) do |term = nil, options={}, &block|
-          query = Searchkick::Query.new(self, term, options)
-          if block
-            block.call(query.body)
-          end
-          if options[:execute] == false
-            query
-          else
-            query.execute
-          end
+          searchkick_index.search_model(self, term, options, &block)
         end
-        extend Searchkick::Reindex
-        include Searchkick::Similar
+        extend Searchkick::Reindex # legacy for Searchjoy
 
-        def reindex_async
-          if defined?(Searchkick::ReindexV2Job)
-            Searchkick::ReindexV2Job.perform_later(self.class.name, id.to_s)
-          else
-            Delayed::Job.enqueue Searchkick::ReindexJob.new(self.class.name, id.to_s)
+        class << self
+
+          def searchkick_index
+            index = class_variable_get :@@searchkick_index
+            index = index.call if index.respond_to? :call
+            Searchkick::Index.new(index, searchkick_options)
           end
+
+          def enable_search_callbacks
+            class_variable_set :@@searchkick_callbacks, true
+          end
+
+          def disable_search_callbacks
+            class_variable_set :@@searchkick_callbacks, false
+          end
+
+          def search_callbacks?
+            class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
+          end
+
+          def reindex(options = {})
+            searchkick_index.reindex_scope(searchkick_klass, options)
+          end
+
+          def clean_indices
+            searchkick_index.clean_indices
+          end
+
+          def searchkick_import(options = {})
+            (options[:index] || searchkick_index).import_scope(searchkick_klass)
+          end
+
+          def searchkick_create_index
+            searchkick_index.create_index
+          end
+
+          def searchkick_index_options
+            searchkick_index.index_options
+          end
+
         end
 
         if callbacks
@@ -52,37 +75,24 @@ module Searchkick
           end
         end
 
-        def self.enable_search_callbacks
-          class_variable_set :@@searchkick_callbacks, true
-        end
-
-        def self.disable_search_callbacks
-          class_variable_set :@@searchkick_callbacks, false
-        end
-
-        def self.search_callbacks?
-          class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
-        end
-
-        def should_index?
-          true
-        end
-
         def reindex
-          index = self.class.searchkick_index
-          if destroyed? or !should_index?
-            begin
-              index.remove self
-            rescue Elasticsearch::Transport::Transport::Errors::NotFound
-              # do nothing
-            end
-          else
-            index.store self
-          end
+          self.class.searchkick_index.reindex_record(self)
+        end
+
+        def reindex_async
+          self.class.searchkick_index.reindex_record_async(self)
+        end
+
+        def similar(options = {})
+          self.class.searchkick_index.similar_record(self, options)
         end
 
         def search_data
           respond_to?(:to_hash) ? to_hash : serializable_hash
+        end
+
+        def should_index?
+          true
         end
 
       end
