@@ -2,6 +2,7 @@
 
 - Added support for NoBrainer
 - Added `stem_conversions: false` option
+- Fixed suggestions with partial match boost
 
 ## 0.8.5
 

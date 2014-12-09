@@ -58,9 +58,14 @@ class TestSuggest < Minitest::Test
     assert_suggest "shar", "shark", fields: [:name, :unknown]
   end
 
-  def test_fields_word_start
+  def test_fields_partial_match
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
     assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{name: :word_start}]
+  end
+
+  def test_fields_partial_match_boost
+    store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
+    assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{"name^2" => :word_start}]
   end
 
   protected
