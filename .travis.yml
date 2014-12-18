@@ -25,3 +25,4 @@ matrix:
   include:
     - gemfile: gemfiles/nobrainer.gemfile
       env: NOBRAINER=true
+sudo: false
