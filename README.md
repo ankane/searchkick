@@ -832,6 +832,25 @@ product.reindex
 product.reindex_async
 ```
 
+Reindex more than one record without recreating the index
+
+```ruby
+# do this ...
+some_company.products.each { |p| p.reindex }
+# or this ...
+Product.searchkick_index.import(some_company.products)
+# don't do the following as it will recreate the index with some_company's products only
+some_company.products.reindex
+```
+
+Reindex large set of records in batches
+
+```ruby
+Product.where("id > 100000").find_in_batches do |batch|
+  Product.searchkick_index.import(batch)
+end
+```
+
 Remove old indices
 
 ```ruby
