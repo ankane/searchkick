@@ -97,11 +97,12 @@ class TestBoost < Minitest::Test
     store [
       {name: "Tomato A"},
       {name: "Tomato B", user_ids: [1, 2, 3]},
-      {name: "Tomato C"},
+      {name: "Tomato C" ,user_ids: [4, 5]},
       {name: "Tomato D"}
     ]
     assert_first "tomato", "Tomato B", boost_where: {user_ids: 2}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
+    assert_first "tomato", "Tomato C", boost_where: {user_ids: [{value: 2, factor: 10}, {value: 4, factor: 20}]}
   end
 
   def test_boost_by_distance

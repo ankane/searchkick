@@ -198,17 +198,18 @@ module Searchkick
           boost_where.merge!(options[:personalize])
         end
         boost_where.each do |field, value|
-          if value.is_a?(Hash)
+          if value.is_a?(Array)
+            value.each do |value_factor|
+              value, factor = value_factor[:value], value_factor[:factor]
+              custom_filters << custom_filter(field, value, factor)
+            end
+          elsif value.is_a?(Hash)
             value, factor = value[:value], value[:factor]
+            custom_filters << custom_filter(field, value, factor)
           else
             factor = 1000
+            custom_filters << custom_filter(field, value, factor)
           end
-          custom_filters << {
-            filter: {
-              term: {field => value}
-            },
-            boost_factor: factor
-          }
         end
 
         boost_by_distance = options[:boost_by_distance]
@@ -533,6 +534,15 @@ module Searchkick
       else
         {term: {field => value}}
       end
+    end
+
+    def custom_filter(field, value, factor)
+      {
+          filter: {
+              term: {field => value}
+          },
+          boost_factor: factor
+      }
     end
 
   end

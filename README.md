@@ -136,6 +136,7 @@ Boost matching documents
 ```ruby
 boost_where: {user_id: 1}
 boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
+boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
 [Conversions](#keep-getting-better) are also a great way to boost.
