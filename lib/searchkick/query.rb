@@ -198,14 +198,16 @@ module Searchkick
           boost_where.merge!(options[:personalize])
         end
         boost_where.each do |field, value|
+          factor = 1000
+          score_query = :term
           if value.is_a?(Hash)
-            value, factor = value[:value], value[:factor]
-          else
-            factor = 1000
+            factor = value[:factor].to_f if value[:factor]
+            score_query = value[:query] if value[:query]
+            value = value[:value]
           end
           custom_filters << {
             filter: {
-              term: {field => value}
+              score_query => {field => value}
             },
             boost_factor: factor
           }
