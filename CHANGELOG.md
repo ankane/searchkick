@@ -3,6 +3,7 @@
 - Added support for NoBrainer
 - Added `stem_conversions: false` option
 - Fixed suggestions with partial match boost
+- Added support for multiple `boost_where` values on the same field
 
 ## 0.8.5
 
