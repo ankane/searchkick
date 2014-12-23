@@ -538,10 +538,10 @@ module Searchkick
 
     def custom_filter(field, value, factor)
       {
-          filter: {
-              term: {field => value}
-          },
-          boost_factor: factor
+        filter: {
+          term: {field => value}
+        },
+        boost_factor: factor
       }
     end
 
