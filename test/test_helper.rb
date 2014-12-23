@@ -125,6 +125,8 @@ else
   # migrations
   ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
+  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+
   ActiveRecord::Migration.create_table :products do |t|
     t.string :name
     t.integer :store_id
@@ -136,7 +138,7 @@ else
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
     t.text :description
-    t.timestamps
+    t.timestamps null: true
   end
 
   ActiveRecord::Migration.create_table :stores do |t|
