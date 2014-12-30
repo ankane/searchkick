@@ -356,6 +356,22 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
+#### Associations
+
+Data is **not** automatically synced when an association is updated.  If this is desired, add a callback to reindex:
+
+```ruby
+class Image < ActiveRecord::Base
+  belongs_to :product
+
+  after_commit :reindex_product
+
+  def reindex_product
+    product.reindex
+  end
+end
+```
+
 ### Keep Getting Better
 
 Searchkick uses conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
