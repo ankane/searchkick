@@ -367,7 +367,7 @@ class Image < ActiveRecord::Base
   after_commit :reindex_product
 
   def reindex_product
-    product.reindex
+    product.reindex # or reindex_async
   end
 end
 ```
