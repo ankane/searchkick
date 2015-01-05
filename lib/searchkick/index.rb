@@ -512,6 +512,15 @@ module Searchkick
         end
       end
 
+      # converts string of coordinates to array
+      # prevents error if coordinates doesn't exist
+      source.each do |field, value|
+        if value.is_a?(Hash) && value.key?(:coordinates)
+          source[field][:coordinates] = JSON.parse(value[:coordinates]) if value[:coordinates].is_a?(String)
+          source[field] = nil if value[:coordinates].nil?
+        end
+      end
+
       cast_big_decimal(source)
 
       source.as_json
