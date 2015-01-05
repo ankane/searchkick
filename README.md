@@ -657,7 +657,13 @@ class City < ActiveRecord::Base
 end
 ```
 
-Your coordinates can be presented either as a string (searchkick will convert them into array) or as an array.
+Your coordinates can be presented either as a string (searchkick will convert them into array) or as an array. For example:
+
+```ruby
+  ...
+  field: { type: "polygon", coordinates: "[[[77.0,64.0],[38.0,30.0],[118.0,25.0],[77.0,64.0]]]" }
+  ...
+```
 
 You can find available geoshape mapping options in the [Elasticsearch reference](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-shape-type.html#geo-shape-mapping-options).
 
