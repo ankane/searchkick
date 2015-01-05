@@ -702,7 +702,7 @@ Product.searchkick_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
+See the [complete list of analyzers](lib/searchkick/index.rb#L209).
 
 ## Deployment
 
