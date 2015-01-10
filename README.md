@@ -838,6 +838,43 @@ products =
   end
 ```
 
+### GeoShape Mapping and Search
+
+Create a geoshape mapping:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick mappings: {
+    product: {
+      properties: {
+        boundingbox: {
+          type: 'geo_shape',
+          tree: "quadtree",
+          precision: "1km"
+        }
+      }
+    }
+  }
+end
+```
+
+Assign search data for geoshape:
+
+```ruby
+def search_data
+  {
+    boundingbox: {
+      type: "envelope",
+      coordinates: [[12.9859801, 47.85431], [13.1268799, 47.75131]]
+    },
+  }
+end
+```
+
+Search shapes (boundingboxs) that imbeds a specified point (location):
+
+Product.search "*", where: { boundingbox: { geo_shape: [latitude, longitude] } }
+
 ## Reference
 
 Reindex one record
