@@ -212,12 +212,15 @@ class Product
 end
 
 class Store
-  searchkick mappings: {
-    store: {
-      properties: {
-        name: {type: "string", analyzer: "keyword"}
+  searchkick \
+    routing: :name,
+    merge_mappings: true,
+    mappings: {
+      store: {
+        properties: {
+          name: {type: "string", analyzer: "keyword"},
+        }
       }
-    }
   }
 end
 

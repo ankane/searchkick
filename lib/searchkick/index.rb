@@ -423,9 +423,15 @@ module Searchkick
           }
         end
 
+        routing = {}
+        if options[:routing]
+          routing = {required: true, path: options[:routing].to_s}
+        end
+
         mappings = {
           _default_: {
             properties: mapping,
+            _routing: routing,
             # https://gist.github.com/kimchy/2898285
             dynamic_templates: [
               {

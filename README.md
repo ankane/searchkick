@@ -647,6 +647,22 @@ Also supports [additional options](http://www.elasticsearch.org/guide/en/elastic
 City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
 ```
 
+### Routing
+
+Searchkick supports elasticsearch's routing feature.
+
+```ruby
+class Contact < ActiveRecord::Base
+  searchkick routing: :user_id
+end
+```
+
+Reindex and search with:
+
+```ruby
+Contact.search "John", routing: current_user.id
+```
+
 ## Inheritance
 
 Searchkick supports single table inheritance.
