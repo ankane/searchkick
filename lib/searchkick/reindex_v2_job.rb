@@ -10,7 +10,7 @@ module Searchkick
         begin
           index.remove(model.new(id: id))
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
+          # do nothing.
         end
       end
     end
