@@ -77,23 +77,23 @@ module Searchkick
 
         def reindex
           self.class.searchkick_index.reindex_record(self)
-        end
+        end unless method_defined?(:reindex)
 
         def reindex_async
           self.class.searchkick_index.reindex_record_async(self)
-        end
+        end unless method_defined?(:reindex_async)
 
         def similar(options = {})
           self.class.searchkick_index.similar_record(self, options)
-        end
+        end unless method_defined?(:similar)
 
         def search_data
           respond_to?(:to_hash) ? to_hash : serializable_hash
-        end
+        end unless method_defined?(:search_data)
 
         def should_index?
           true
-        end
+        end unless method_defined?(:should_index?)
 
       end
     end
