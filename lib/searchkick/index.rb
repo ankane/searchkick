@@ -137,42 +137,33 @@ module Searchkick
     end
 
     # remove old indices that start w/ index_name
-    def clean_indices
+    def clean_indices(retain = false)
       all_indices = client.indices.get_aliases
-      indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
-      indices.each do |index|
+      indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys.sort.reverse!
+      deleteable = case retain
+                   when :previous
+                     indices[1..-1]
+                   when true
+                     []
+                   else
+                     indices
+                   end
+      deleteable.each do |index|
         Searchkick::Index.new(index).delete
       end
-      indices
     end
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex_scope(scope, options = {})
-      skip_import = options[:import] == false
-
-      clean_indices
-
       index = create_index
 
-      # check if alias exists
-      if alias_exists?
-        # import before swap
-        index.import_scope(scope) unless skip_import
-
-        # get existing indices to remove
-        swap(index.name)
-        clean_indices
-      else
-        delete if exists?
-        swap(index.name)
-
-        # import after swap
-        index.import_scope(scope) unless skip_import
-      end
+      delete if !alias_exists? && exists?
+      index.import_scope(scope) unless options[:import] == false
+      swap(index.name)
+      clean_indices(options[:retain])
 
       index.refresh
-
       true
     end
 

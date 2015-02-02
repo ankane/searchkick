@@ -20,6 +20,28 @@ class TestIndex < Minitest::Test
     assert !old_index.exists?
   end
 
+  def test_clean_indicies_retain_previous
+    oldest_index = Searchkick::Index.new("products_test_20130801000000000")
+    middle_index = Searchkick::Index.new("products_test_20130801000000001")
+    newest_index = Searchkick::Index.new("products_test_20130801000000002")
+
+    oldest_index.delete if oldest_index.exists?
+    middle_index.delete if middle_index.exists?
+    newest_index.delete if newest_index.exists?
+
+    # create indexes
+    oldest_index.create
+    middle_index.create
+    newest_index.create
+
+    Product.clean_indices(:previous)
+
+    assert Product.searchkick_index.exists?
+    assert newest.exists?
+    assert !middle.exists?
+    assert !oldest.exists?
+  end
+
   def test_clean_indices_old_format
     old_index = Searchkick::Index.new("products_test_20130801000000")
     old_index.create
