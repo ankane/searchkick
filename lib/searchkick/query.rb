@@ -455,6 +455,8 @@ module Searchkick
           value.each do |or_clause|
             filters << {or: or_clause.map{|or_statement| {and: where_filters(or_statement)} }}
           end
+        elsif field == :not
+          filters << {not: {and: where_filters(value)}}
         else
           # expand ranges
           if value.is_a?(Range)

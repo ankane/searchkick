@@ -65,6 +65,7 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
     assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
     assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
+    assert_search "product", ["Product C", "Product D"], where: {not: {created_at: {gte: now - 1}}}
     # integer
     assert_search "product", ["Product A"], where: {store_id: {lt: 2}}
     assert_search "product", ["Product A", "Product B"], where: {store_id: {lte: 2}}
@@ -76,6 +77,7 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product A", "Product B"], where: {store_id: [1, 2]}
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
+    assert_search "product", ["Product C", "Product D"], where: {not: {store_id: [1, 2]}}
     assert_search "product", ["Product A"], where: {user_ids: {lte: 2, gte: 2}}
     # or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
@@ -91,6 +93,7 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
     assert_search "product", ["Product A", "Product C", "Product D"], where: {user_ids: [3, nil]}
     assert_search "product", ["Product B"], where: {user_ids: {not: [3, nil]}}
+    assert_search "product", ["Product B", "Product D"], where: {not: {user_ids: 3}}
   end
 
   def test_where_string
