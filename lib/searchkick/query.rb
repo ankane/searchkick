@@ -28,7 +28,7 @@ module Searchkick
               k, v = value.is_a?(Hash) ? value.to_a.first : [value, :word]
               k2, boost = k.to_s.split("^", 2)
               field = "#{k2}.#{v == :word ? "analyzed" : v}"
-              boost_fields[field] = boost.to_i if boost
+              boost_fields[field] = boost.to_f if boost
               field
             end
           end
