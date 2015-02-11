@@ -195,7 +195,7 @@ module Searchkick
           boost_where[personalize_field] = options[:user_id]
         end
         if options[:personalize]
-          boost_where.merge!(options[:personalize])
+          boost_where = boost_where.merge(options[:personalize])
         end
         boost_where.each do |field, value|
           if value.is_a?(Array)
