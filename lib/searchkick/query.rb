@@ -198,7 +198,7 @@ module Searchkick
           boost_where = boost_where.merge(options[:personalize])
         end
         boost_where.each do |field, value|
-          if value.is_a?(Array)
+          if value.is_a?(Array) and value.first.is_a?(Hash)
             value.each do |value_factor|
               value, factor = value_factor[:value], value_factor[:factor]
               custom_filters << custom_filter(field, value, factor)
@@ -538,9 +538,7 @@ module Searchkick
 
     def custom_filter(field, value, factor)
       {
-        filter: {
-          term: {field => value}
-        },
+        filter: term_filters(field, value),
         boost_factor: factor
       }
     end

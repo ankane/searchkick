@@ -4,6 +4,7 @@
 - Added `stem_conversions: false` option
 - Fixed suggestions with partial match boost
 - Added support for multiple `boost_where` values on the same field
+- Added support for array of values for `boost_where`
 
 ## 0.8.5
 
