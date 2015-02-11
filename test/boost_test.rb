@@ -75,6 +75,14 @@ class TestBoost < Minitest::Test
     assert_order "red", ["Red", "White"], fields: ["name^10", "color"]
   end
 
+  def test_boost_fields_decimal
+    store [
+      {name: "Red", color: "White"},
+      {name: "White", color: "Red Red Red"}
+    ]
+    assert_order "red", ["Red", "White"], fields: ["name^10.5", "color"]
+  end
+
   def test_boost_fields_word_start
     store [
       {name: "Red", color: "White"},
