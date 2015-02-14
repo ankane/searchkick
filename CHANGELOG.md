@@ -1,3 +1,7 @@
+## 0.8.7
+
+- Fixed MongoDB import
+
 ## 0.8.6
 
 - Added support for NoBrainer
