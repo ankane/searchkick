@@ -1,6 +1,6 @@
 ## 0.8.7
 
-- Fixed MongoDB import
+- Fixed Mongoid import
 
 ## 0.8.6
 
