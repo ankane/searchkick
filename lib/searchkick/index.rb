@@ -189,7 +189,7 @@ module Searchkick
         scope.all.each do |item|
           items << item if item.should_index?
           if items.length == batch_size
-            index.import items
+            import items
             items = []
           end
         end
