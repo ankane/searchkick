@@ -974,6 +974,34 @@ Reindex all models - Rails only
 rake searchkick:reindex:all
 ```
 
+## Large Data Sets
+
+For large data sets, check out [Keeping Elasticsearch in Sync](https://www.found.no/foundation/keeping-elasticsearch-in-sync/).  Searchkick will make this easy in the future.
+
+## Testing
+
+This section could use some love.
+
+### RSpec
+
+```ruby
+describe Product do
+  it "searches" do
+    Product.reindex
+    Product.searchkick_index.refresh # don't forget this
+    # test goes here...
+  end
+end
+```
+
+### Factory Girl
+
+```ruby
+product = FactoryGirl.create(:product)
+product.reindex # don't forget this
+Product.searchkick_index.refresh # or this
+```
+
 ## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
