@@ -1066,11 +1066,12 @@ Thanks to Karel Minarik for [Elasticsearch Ruby](https://github.com/elasticsearc
 
 ## Roadmap
 
+- More features for large data sets
+- Improve section on testing
 - Semantic search features
 - Search multiple fields for different terms
 - Search across models
 - Search nested objects
-- Add section on testing
 - Much finer customization
 
 ## Contributing
