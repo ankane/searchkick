@@ -76,7 +76,7 @@ module Searchkick
     end
 
     def reindex_record(record)
-      if record.destroyed? or !record.should_index?
+      if record.destroyed? || !record.should_index?
         begin
           remove(record)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
@@ -200,7 +200,7 @@ module Searchkick
     def index_options
       options = @options
 
-      if options[:mappings] and !options[:merge_mappings]
+      if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
@@ -492,7 +492,7 @@ module Searchkick
 
       # conversions
       conversions_field = options[:conversions]
-      if conversions_field and source[conversions_field]
+      if conversions_field && source[conversions_field]
         source[conversions_field] = source[conversions_field].map{|k, v| {query: k, count: v} }
       end
 

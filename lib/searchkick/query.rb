@@ -98,7 +98,7 @@ module Searchkick
                 boost: factor
               }
 
-              if field == "_all" or field.end_with?(".analyzed")
+              if field == "_all" || field.end_with?(".analyzed")
                 shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
                 qs.concat [
                   shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
@@ -130,7 +130,7 @@ module Searchkick
             }
           end
 
-          if conversions_field and options[:conversions] != false
+          if conversions_field && options[:conversions] != false
             # wrap payload in a bool query
             script_score =
               if below12
@@ -191,14 +191,14 @@ module Searchkick
         end
 
         boost_where = options[:boost_where] || {}
-        if options[:user_id] and personalize_field
+        if options[:user_id] && personalize_field
           boost_where[personalize_field] = options[:user_id]
         end
         if options[:personalize]
           boost_where = boost_where.merge(options[:personalize])
         end
         boost_where.each do |field, value|
-          if value.is_a?(Array) and value.first.is_a?(Hash)
+          if value.is_a?(Array) && value.first.is_a?(Hash)
             value.each do |value_factor|
               value, factor = value_factor[:value], value_factor[:factor]
               custom_filters << custom_filter(field, value, factor)
@@ -215,7 +215,7 @@ module Searchkick
         boost_by_distance = options[:boost_by_distance]
         if boost_by_distance
           boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
-          if !boost_by_distance[:field] or !boost_by_distance[:origin]
+          if !boost_by_distance[:field] || !boost_by_distance[:origin]
             raise ArgumentError, "boost_by_distance requires :field and :origin"
           end
           function_params = boost_by_distance.select{|k,v| [:origin, :scale, :offset, :decay].include?(k) }
@@ -364,7 +364,7 @@ module Searchkick
           payload[:fields] = []
         end
 
-        if options[:type] or klass != searchkick_klass
+        if options[:type] || klass != searchkick_klass
           @type = [options[:type] || klass].flatten.map{|v| searchkick_index.klass_document_type(v) }
         end
       end
@@ -405,10 +405,10 @@ module Searchkick
         status_code = e.message[1..3].to_i
         if status_code == 404
           raise MissingIndexError, "Index missing - run #{searchkick_klass.name}.reindex"
-        elsif status_code == 500 and (
-            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") or
-            e.message.include?("No query registered for [multi_match]") or
-            e.message.include?("[match] query does not support [cutoff_frequency]]") or
+        elsif status_code == 500 && (
+            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
+            e.message.include?("No query registered for [multi_match]") ||
+            e.message.include?("[match] query does not support [cutoff_frequency]]") ||
             e.message.include?("No query registered for [function_score]]")
           )
 

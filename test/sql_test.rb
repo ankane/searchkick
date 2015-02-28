@@ -312,7 +312,7 @@ class TestSql < Minitest::Test
   end
 
   # TODO see if Mongoid is loaded
-  unless defined?(Mongoid) or defined?(NoBrainer)
+  unless defined?(Mongoid) || defined?(NoBrainer)
     def test_include
       store_names ["Product A"]
       assert Product.search("product", include: [:store]).first.association(:store).loaded?

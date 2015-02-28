@@ -24,7 +24,7 @@ module Searchkick
           hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
-              if defined?(NoBrainer::Document) and records < NoBrainer::Document
+              if defined?(NoBrainer::Document) && records < NoBrainer::Document
                 records = records.preload(options[:includes])
               else
                 records = records.includes(options[:includes])
@@ -138,16 +138,16 @@ module Searchkick
     private
 
     def results_query(records, grouped_hits)
-      if records.respond_to?(:primary_key) and records.primary_key
+      if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
         records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
-      elsif records.respond_to?(:all) and records.all.respond_to?(:for_ids)
+      elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
         records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
         records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
-      elsif records.respond_to?(:unscoped) and records.all.respond_to?(:preload)
+      elsif records.respond_to?(:unscoped) && records.all.respond_to?(:preload)
         # Nobrainer
         records.unscoped.where(:id.in => grouped_hits.map{|hit| hit["_id"] }).to_a
       else
