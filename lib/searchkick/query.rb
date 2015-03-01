@@ -524,10 +524,10 @@ module Searchkick
 
     def term_filters(field, value)
       if value.is_a?(Array) # in query
-        if value.any?
+        if value.any?(&:nil?)
           {or: value.map{|v| term_filters(field, v) }}
         else
-          {terms: {field => value}} # match nothing
+          {in: {field => value}}
         end
       elsif value.nil?
         {missing: {"field" => field, existence: true, null_value: true}}
