@@ -79,7 +79,7 @@ class TestFacets < Minitest::Test
   protected
 
   def store_facet(options)
-    Hash[ Product.search("Product", options).facets["store_id"]["terms"].map{|v| [v["term"], v["count"]] } ]
+    Hash[Product.search("Product", options).facets["store_id"]["terms"].map { |v| [v["term"], v["count"]] }]
   end
 
 end

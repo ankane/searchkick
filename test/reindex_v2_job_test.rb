@@ -3,7 +3,7 @@ require_relative "test_helper"
 class TestReindexV2Job < Minitest::Test
 
   def setup
-    skip if !defined?(ActiveJob)
+    skip unless defined?(ActiveJob)
     super
     Searchkick.disable_callbacks
   end

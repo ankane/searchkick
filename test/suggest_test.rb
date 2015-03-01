@@ -19,13 +19,13 @@ class TestSuggest < Minitest::Test
 
   def test_without_option
     store_names ["hi"] # needed to prevent ElasticsearchException - seed 668
-    assert_raises(RuntimeError){ Product.search("hi").suggestions }
+    assert_raises(RuntimeError) { Product.search("hi").suggestions }
   end
 
   def test_multiple_fields
     store [
       {name: "Shark", color: "Sharp"},
-      {name: "Shark", color: "Sharp"},
+      {name: "Shark", color: "Sharp"}
     ]
     assert_suggest_all "shar", ["shark", "sharp"]
   end

@@ -8,7 +8,7 @@ class TestSql < Minitest::Test
   end
 
   def test_no_limit
-    names = 20.times.map{|i| "Product #{i}" }
+    names = 20.times.map { |i| "Product #{i}" }
     store_names names
     assert_search "product", names
   end
@@ -57,7 +57,7 @@ class TestSql < Minitest::Test
       {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4, user_ids: [1, 2, 3]},
       {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, orders_count: 3, user_ids: [1]},
       {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2, user_ids: [1, 3]},
-      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1},
+      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1}
     ]
     assert_search "product", ["Product A", "Product B"], where: {in_stock: true}
     # date
@@ -85,7 +85,7 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product A", "Product C"], where: {user_ids: {all: [1, 3]}}
     assert_search "product", [], where: {user_ids: {all: [1, 2, 3, 4]}}
     # any / nested terms
-    assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1,3]}}
+    assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1, 3]}}
     # not / exists
     assert_search "product", ["Product D"], where: {user_ids: nil}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
@@ -288,7 +288,7 @@ class TestSql < Minitest::Test
   def test_select
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
-    assert_equal %w[id name store_id], result.keys.reject{|k| k.start_with?("_") }.sort
+    assert_equal %w[id name store_id], result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal ["Product A"], result.name # this is not great
   end
 

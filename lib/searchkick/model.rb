@@ -11,14 +11,14 @@ module Searchkick
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
 
-        callbacks = options.has_key?(:callbacks) ? options[:callbacks] : true
+        callbacks = options.key?(:callbacks) ? options[:callbacks] : true
 
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
 
-        define_singleton_method(Searchkick.search_method_name) do |term = nil, options={}, &block|
+        define_singleton_method(Searchkick.search_method_name) do |term = nil, options = {}, &block|
           searchkick_index.search_model(self, term, options, &block)
         end
         extend Searchkick::Reindex # legacy for Searchjoy
@@ -68,10 +68,10 @@ module Searchkick
         if callbacks
           callback_name = callbacks == :async ? :reindex_async : :reindex
           if respond_to?(:after_commit)
-            after_commit callback_name, if: proc{ self.class.search_callbacks? }
+            after_commit callback_name, if: proc { self.class.search_callbacks? }
           else
-            after_save callback_name, if: proc{ self.class.search_callbacks? }
-            after_destroy callback_name, if: proc{ self.class.search_callbacks? }
+            after_save callback_name, if: proc { self.class.search_callbacks? }
+            after_destroy callback_name, if: proc { self.class.search_callbacks? }
           end
         end
 

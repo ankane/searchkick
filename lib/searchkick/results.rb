@@ -21,7 +21,7 @@ module Searchkick
           # results can have different types
           results = {}
 
-          hits.group_by{|hit, i| hit["_type"] }.each do |type, grouped_hits|
+          hits.group_by { |hit, i| hit["_type"] }.each do |type, grouped_hits|
             records = type.camelize.constantize
             if options[:includes]
               if defined?(NoBrainer::Document) && records < NoBrainer::Document
@@ -35,7 +35,7 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]].find{|r| r.id.to_s == hit["_id"].to_s }
+            results[hit["_type"]].find { |r| r.id.to_s == hit["_id"].to_s }
           end.compact
         else
           hits.map do |hit|
@@ -54,7 +54,7 @@ module Searchkick
 
     def suggestions
       if response["suggest"]
-        response["suggest"].values.flat_map{|v| v.first["options"] }.sort_by{|o| -o["score"] }.map{|o| o["text"] }.uniq
+        response["suggest"].values.flat_map { |v| v.first["options"] }.sort_by { |o| -o["score"] }.map { |o| o["text"] }.uniq
       else
         raise "Pass `suggest: true` to the search method for suggestions"
       end
@@ -68,7 +68,7 @@ module Searchkick
       each_with_hit.map do |model, hit|
         details = {}
         if hit["highlight"]
-          details[:highlight] = Hash[ hit["highlight"].map{|k, v| [(options[:json] ? k : k.sub(/\.analyzed\z/, "")).to_sym, v.first] } ]
+          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.analyzed\z/, "")).to_sym, v.first] }]
         end
         [model, details]
       end
@@ -140,16 +140,16 @@ module Searchkick
     def results_query(records, grouped_hits)
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
-        records.where(records.primary_key => grouped_hits.map{|hit| hit["_id"] }).to_a
+        records.where(records.primary_key => grouped_hits.map { |hit| hit["_id"] }).to_a
       elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
-        records.all.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+        records.all.for_ids(grouped_hits.map { |hit| hit["_id"] }).to_a
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
-        records.queryable.for_ids(grouped_hits.map{|hit| hit["_id"] }).to_a
+        records.queryable.for_ids(grouped_hits.map { |hit| hit["_id"] }).to_a
       elsif records.respond_to?(:unscoped) && records.all.respond_to?(:preload)
         # Nobrainer
-        records.unscoped.where(:id.in => grouped_hits.map{|hit| hit["_id"] }).to_a
+        records.unscoped.where(:id.in => grouped_hits.map { |hit| hit["_id"] }).to_a
       else
         raise "Not sure how to load records"
       end

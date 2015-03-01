@@ -34,7 +34,7 @@ module Searchkick
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           []
         end
-      actions = old_indices.map{|old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
+      actions = old_indices.map { |old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
       client.indices.update_aliases body: {actions: actions}
     end
 
@@ -58,11 +58,11 @@ module Searchkick
     end
 
     def import(records)
-      records.group_by{|r| document_type(r) }.each do |type, batch|
+      records.group_by { |r| document_type(r) }.each do |type, batch|
         client.bulk(
           index: name,
           type: type,
-          body: batch.map{|r| {index: {_id: search_id(r), data: search_data(r)}} }
+          body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
         )
       end
     end
@@ -89,7 +89,7 @@ module Searchkick
 
     def reindex_record_async(record)
       if defined?(Searchkick::ReindexV2Job)
-          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+        Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
       else
         Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
       end
@@ -97,7 +97,7 @@ module Searchkick
 
     def similar_record(record, options = {})
       like_text = retrieve(record).to_hash
-        .keep_if{|k,v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
+        .keep_if { |k, v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
 
       # TODO deep merge method
@@ -136,7 +136,7 @@ module Searchkick
     # remove old indices that start w/ index_name
     def clean_indices
       all_indices = client.indices.get_aliases
-      indices = all_indices.select{|k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
+      indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
         Searchkick::Index.new(index).delete
       end
@@ -180,7 +180,7 @@ module Searchkick
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
         scope.find_in_batches batch_size: batch_size do |batch|
-          import batch.select{|item| item.should_index? }
+          import batch.select(&:should_index?)
         end
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
@@ -333,7 +333,7 @@ module Searchkick
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
-            synonyms: synonyms.select{|s| s.size > 1 }.map{|s| s.join(",") }
+            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.join(",") }
           }
           # choosing a place for the synonym filter when stemming is not easy
           # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
@@ -361,7 +361,7 @@ module Searchkick
 
         if options[:special_characters] == false
           settings[:analysis][:analyzer].each do |analyzer, analyzer_settings|
-            analyzer_settings[:filter].reject!{|f| f == "asciifolding" }
+            analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
           end
         end
 
@@ -380,7 +380,7 @@ module Searchkick
 
         mapping_options = Hash[
           [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
-            .map{|type| [type, (options[type] || []).map(&:to_s)] }
+            .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
         mapping_options.values.flatten.uniq.each do |field|
@@ -457,7 +457,7 @@ module Searchkick
     # other
 
     def tokens(text, options = {})
-      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map{|t| t["token"] }
+      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map { |t| t["token"] }
     end
 
     def klass_document_type(klass)
@@ -488,24 +488,24 @@ module Searchkick
 
       # stringify fields
       # remove _id since search_id is used instead
-      source = source.inject({}){|memo,(k,v)| memo[k.to_s] = v; memo}.except("_id")
+      source = source.inject({}) { |memo, (k, v)| memo[k.to_s] = v; memo }.except("_id")
 
       # conversions
       conversions_field = options[:conversions]
       if conversions_field && source[conversions_field]
-        source[conversions_field] = source[conversions_field].map{|k, v| {query: k, count: v} }
+        source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
       end
 
       # hack to prevent generator field doesn't exist error
       (options[:suggest] || []).map(&:to_s).each do |field|
-        source[field] = nil if !source[field]
+        source[field] = nil unless source[field]
       end
 
       # locations
       (options[:locations] || []).map(&:to_s).each do |field|
         if source[field]
           if source[field].first.is_a?(Array) # array of arrays
-            source[field] = source[field].map{|a| a.map(&:to_f).reverse }
+            source[field] = source[field].map { |a| a.map(&:to_f).reverse }
           else
             source[field] = source[field].map(&:to_f).reverse
           end
