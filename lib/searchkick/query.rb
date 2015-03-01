@@ -525,7 +525,7 @@ module Searchkick
     def term_filters(field, value)
       if value.is_a?(Array) # in query
         if value.any?(&:nil?)
-          {or: value.map{|v| term_filters(field, v) }}
+          {or: [term_filters(field, nil), term_filters(field, value.compact)]}
         else
           {in: {field => value}}
         end
