@@ -74,7 +74,7 @@ module Searchkick
       client.get(
         index: name,
         type: document_type(record),
-        id: record.id
+        id: search_id(record)
       )["_source"]
     end
 
