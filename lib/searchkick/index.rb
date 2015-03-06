@@ -50,11 +50,14 @@ module Searchkick
     end
 
     def remove(record)
-      client.delete(
-        index: name,
-        type: document_type(record),
-        id: search_id(record)
-      )
+      id = search_id(record)
+      unless id.blank?
+        client.delete(
+          index: name,
+          type: document_type(record),
+          id: id
+        )
+      end
     end
 
     def import(records)

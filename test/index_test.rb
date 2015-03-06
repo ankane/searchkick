@@ -80,6 +80,14 @@ class TestIndex < Minitest::Test
     Product.reindex
   end
 
+  def test_remove_blank_id
+    store_names ["Product A"]
+    Product.searchkick_index.remove(Product.new)
+    assert_search "product", ["Product A"]
+  ensure
+    Product.reindex
+  end
+
   def test_missing_index
     assert_raises(Searchkick::MissingIndexError) { Product.search "test", index_name: "not_found" }
   end
