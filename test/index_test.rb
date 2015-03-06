@@ -82,7 +82,7 @@ class TestIndex < Minitest::Test
 
   def test_remove_blank_id
     store_names ["Product A"]
-    Product.searchkick_index.remove(Product.new)
+    Product.searchkick_index.remove(OpenStruct.new)
     assert_search "product", ["Product A"]
   ensure
     Product.reindex
