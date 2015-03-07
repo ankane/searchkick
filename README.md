@@ -820,7 +820,7 @@ end
 And use the `body` option to search:
 
 ```ruby
-products = Product.search body: {match: {name: "milk"}}
+products = Product.search query: {match: {name: "milk"}}
 ```
 
 View the response with:
