@@ -531,6 +531,8 @@ module Searchkick
         end
       elsif value.nil?
         {missing: {"field" => field, existence: true, null_value: true}}
+      elsif value.is_a?(Regexp)
+        {regexp: {field => {value: value.source}}}
       else
         {term: {field => value}}
       end

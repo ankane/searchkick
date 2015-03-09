@@ -93,6 +93,11 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product B"], where: {user_ids: {not: [3, nil]}}
   end
 
+  def test_regexp
+    store_names ["Product A"]
+    assert_search "*", ["Product A"], where: {name: /Pro.+/}
+  end
+
   def test_where_string
     store [
       {name: "Product A", color: "RED"}
