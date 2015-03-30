@@ -23,7 +23,7 @@ Plus:
 
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
-:tangerine: Battle-tested at [Instacart](https://www.instacart.com)
+:tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
