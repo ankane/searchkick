@@ -1,7 +1,5 @@
 # Searchkick
 
-[![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
-
 :rocket: Intelligent search made easy
 
 Searchkick learns what **your users** are looking for.  As more people search, it gets smarter and the results get better.  It’s friendly for developers - and magical for your users.
@@ -27,7 +25,7 @@ Plus:
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
 
-[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
+[![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
 We highly recommend tracking queries and conversions
 
