@@ -1,6 +1,6 @@
 # Searchkick
 
-[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick) [![Code Climate](https://codeclimate.com/github/ankane/searchkick/badges/gpa.svg)](https://codeclimate.com/github/ankane/searchkick) [![Test Coverage](https://codeclimate.com/github/ankane/searchkick/badges/coverage.svg)](https://codeclimate.com/github/ankane/searchkick)
+[![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick) [![Code Climate](https://codeclimate.com/github/ankane/searchkick/badges/gpa.svg)](https://codeclimate.com/github/ankane/searchkick) [![Test Coverage](https://codeclimate.com/github/ankane/searchkick/badges/coverage.svg)](https://codeclimate.com/github/ankane/searchkick)
 
 :rocket: Intelligent search made easy
 
