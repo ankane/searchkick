@@ -1,5 +1,7 @@
 # Searchkick
 
+[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick) [![Code Climate](https://codeclimate.com/github/ankane/searchkick/badges/gpa.svg)](https://codeclimate.com/github/ankane/searchkick) [![Test Coverage](https://codeclimate.com/github/ankane/searchkick/badges/coverage.svg)](https://codeclimate.com/github/ankane/searchkick)
+
 :rocket: Intelligent search made easy
 
 Searchkick learns what **your users** are looking for.  As more people search, it gets smarter and the results get better.  It’s friendly for developers - and magical for your users.
@@ -24,8 +26,6 @@ Plus:
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com)
-
-[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
 
 We highly recommend tracking queries and conversions
 
