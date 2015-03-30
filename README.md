@@ -19,13 +19,13 @@ Plus:
 - easily personalize results for each user
 - autocomplete
 - “Did you mean” suggestions
-- works with ActiveRecord and Mongoid
+- works with ActiveRecord, Mongoid, and NoBrainer
 
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
-:tangerine: Battle-tested at [Instacart](https://www.instacart.com)
+:tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
-[![Build Status](https://travis-ci.org/ankane/searchkick.png?branch=master)](https://travis-ci.org/ankane/searchkick)
+[![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
 We highly recommend tracking queries and conversions
 
@@ -136,6 +136,7 @@ Boost matching documents
 ```ruby
 boost_where: {user_id: 1}
 boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
+boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
 [Conversions](#keep-getting-better) are also a great way to boost.
@@ -354,6 +355,22 @@ There are three strategies for keeping the index synced with your database.
     searchkick callbacks: false
   end
   ```
+
+#### Associations
+
+Data is **not** automatically synced when an association is updated.  If this is desired, add a callback to reindex:
+
+```ruby
+class Image < ActiveRecord::Base
+  belongs_to :product
+
+  after_commit :reindex_product
+
+  def reindex_product
+    product.reindex # or reindex_async
+  end
+end
+```
 
 ### Keep Getting Better
 
@@ -685,7 +702,7 @@ Product.searchkick_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](lib/searchkick/reindex.rb#L86).
+See the [complete list of analyzers](lib/searchkick/index.rb#L209).
 
 ## Deployment
 
@@ -832,6 +849,25 @@ product.reindex
 product.reindex_async
 ```
 
+Reindex more than one record without recreating the index
+
+```ruby
+# do this ...
+some_company.products.each { |p| p.reindex }
+# or this ...
+Product.searchkick_index.import(some_company.products)
+# don't do the following as it will recreate the index with some_company's products only
+some_company.products.reindex
+```
+
+Reindex large set of records in batches
+
+```ruby
+Product.where("id > 100000").find_in_batches do |batch|
+  Product.searchkick_index.import(batch)
+end
+```
+
 Remove old indices
 
 ```ruby
@@ -938,6 +974,34 @@ Reindex all models - Rails only
 rake searchkick:reindex:all
 ```
 
+## Large Data Sets
+
+For large data sets, check out [Keeping Elasticsearch in Sync](https://www.found.no/foundation/keeping-elasticsearch-in-sync/).  Searchkick will make this easy in the future.
+
+## Testing
+
+This section could use some love.
+
+### RSpec
+
+```ruby
+describe Product do
+  it "searches" do
+    Product.reindex
+    Product.searchkick_index.refresh # don't forget this
+    # test goes here...
+  end
+end
+```
+
+### Factory Girl
+
+```ruby
+product = FactoryGirl.create(:product)
+product.reindex # don't forget this
+Product.searchkick_index.refresh # or this
+```
+
 ## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
@@ -1002,11 +1066,12 @@ Thanks to Karel Minarik for [Elasticsearch Ruby](https://github.com/elasticsearc
 
 ## Roadmap
 
+- More features for large data sets
+- Improve section on testing
 - Semantic search features
 - Search multiple fields for different terms
 - Search across models
 - Search nested objects
-- Add section on testing
 - Much finer customization
 
 ## Contributing

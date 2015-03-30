@@ -44,8 +44,8 @@ module Searchkick
       )
   end
 
-  def self.client=(client)
-    @client = client
+  class << self
+    attr_writer :client
   end
 
   def self.server_version

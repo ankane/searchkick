@@ -3,13 +3,13 @@ require "rake"
 namespace :searchkick do
 
   desc "reindex model"
-  task :reindex => :environment do
+  task reindex: :environment do
     if ENV["CLASS"]
       klass = ENV["CLASS"].constantize rescue nil
       if klass
         klass.reindex
       else
-        abort "Could not find class: #{ENV["CLASS"]}"
+        abort "Could not find class: #{ENV['CLASS']}"
       end
     else
       abort "USAGE: rake searchkick:reindex CLASS=Product"
@@ -20,7 +20,7 @@ namespace :searchkick do
 
     namespace :reindex do
       desc "reindex all models"
-      task :all => :environment do
+      task all: :environment do
         Rails.application.eager_load!
         Searchkick.models.each do |model|
           puts "Reindexing #{model.name}..."

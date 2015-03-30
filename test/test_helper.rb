@@ -8,7 +8,7 @@ ENV["RACK_ENV"] = "test"
 
 Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 
-File.delete("elasticsearch.log") if File.exists?("elasticsearch.log")
+File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
 I18n.config.enforce_available_locales = true
@@ -26,7 +26,7 @@ if defined?(Mongoid)
     module BSON
       class ObjectId
         def <=>(other)
-          self.data <=> other.data
+          data <=> other.data
         end
       end
     end
@@ -125,6 +125,8 @@ else
   # migrations
   ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
+  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+
   ActiveRecord::Migration.create_table :products do |t|
     t.string :name
     t.integer :store_id
@@ -136,7 +138,7 @@ else
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
     t.text :description
-    t.timestamps
+    t.timestamps null: true
   end
 
   ActiveRecord::Migration.create_table :stores do |t|
@@ -221,7 +223,7 @@ class Animal
   searchkick \
     autocomplete: [:name],
     suggest: [:name],
-    index_name: -> { "#{self.name.tableize}-#{Date.today.year}" }
+    index_name: -> { "#{name.tableize}-#{Date.today.year}" }
     # wordnet: true
 end
 
@@ -250,7 +252,7 @@ class Minitest::Test
   end
 
   def store_names(names, klass = Product)
-    store names.map{|name| {name: name} }, klass
+    store names.map { |name| {name: name} }, klass
   end
 
   # no order

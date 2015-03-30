@@ -19,13 +19,13 @@ class TestSuggest < Minitest::Test
 
   def test_without_option
     store_names ["hi"] # needed to prevent ElasticsearchException - seed 668
-    assert_raises(RuntimeError){ Product.search("hi").suggestions }
+    assert_raises(RuntimeError) { Product.search("hi").suggestions }
   end
 
   def test_multiple_fields
     store [
       {name: "Shark", color: "Sharp"},
-      {name: "Shark", color: "Sharp"},
+      {name: "Shark", color: "Sharp"}
     ]
     assert_suggest_all "shar", ["shark", "sharp"]
   end
@@ -58,9 +58,14 @@ class TestSuggest < Minitest::Test
     assert_suggest "shar", "shark", fields: [:name, :unknown]
   end
 
-  def test_fields_word_start
+  def test_fields_partial_match
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
     assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{name: :word_start}]
+  end
+
+  def test_fields_partial_match_boost
+    store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
+    assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{"name^2" => :word_start}]
   end
 
   protected
