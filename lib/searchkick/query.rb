@@ -254,9 +254,21 @@ module Searchkick
         # filters
         filters = where_filters(options[:where])
         if filters.any?
-          payload[:filter] = {
-            and: filters
-          }
+          if options[:facets]
+            payload[:filter] = {
+              and: filters
+            }
+          else
+            # more efficient query if no facets
+            payload[:query] = {
+              filtered: {
+                query: payload[:query],
+                filter: {
+                  and: filters
+                }
+              }
+            }
+          end
         end
 
         # facets
