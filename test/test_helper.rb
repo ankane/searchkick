@@ -11,6 +11,8 @@ Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 
+puts "Running against Elasticsearch #{Searchkick.server_version}"
+
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
