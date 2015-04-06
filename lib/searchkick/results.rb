@@ -30,21 +30,32 @@ module Searchkick
                 records = records.includes(options[:includes])
               end
             end
+
             results[type] = results_query(records, grouped_hits)
           end
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]].find { |r| r.id.to_s == hit["_id"].to_s }
+            r = results[hit["_type"]].find { |r| r.id.to_s == hit["_id"].to_s }
+
+            if options[:load] == "merge"
+              r["hits"] = {}
+
+              hit["fields"].keys.each do |key|
+                r["hits"][key] = hit["fields"][key][0]
+              end
+            end
+
+            r
           end.compact
         else
           hits.map do |hit|
             result =
-              if hit["_source"]
-                hit.except("_source").merge(hit["_source"])
-              else
-                hit.except("fields").merge(hit["fields"])
-              end
+                if hit["_source"]
+                  hit.except("_source").merge(hit["_source"])
+                else
+                  hit.except("fields").merge(hit["fields"])
+                end
             result["id"] ||= result["_id"] # needed for legacy reasons
             Hashie::Mash.new(result)
           end
@@ -89,6 +100,7 @@ module Searchkick
     def total_count
       response["hits"]["total"]
     end
+
     alias_method :total_entries, :total_count
 
     def current_page
@@ -98,6 +110,7 @@ module Searchkick
     def per_page
       options[:per_page]
     end
+
     alias_method :limit_value, :per_page
 
     def padding
@@ -107,16 +120,19 @@ module Searchkick
     def total_pages
       (total_count / per_page.to_f).ceil
     end
+
     alias_method :num_pages, :total_pages
 
     def offset_value
       (current_page - 1) * per_page + padding
     end
+
     alias_method :offset, :offset_value
 
     def previous_page
       current_page > 1 ? (current_page - 1) : nil
     end
+
     alias_method :prev_page, :previous_page
 
     def next_page
