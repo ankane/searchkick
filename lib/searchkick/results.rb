@@ -39,10 +39,9 @@ module Searchkick
             r = results[hit["_type"]].find { |r| r.id.to_s == hit["_id"].to_s }
 
             if options[:load] == "merge" and hit["fields"]
-              r["hits"] = {}
-
+              r.hits = {}
               hit["fields"].keys.each do |key|
-                r["hits"][key] = hit["fields"][key][0]
+                r.hits[key] = hit["fields"][key][0]
               end
             end
 
