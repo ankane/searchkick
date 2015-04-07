@@ -15,8 +15,8 @@ module Searchkick
       @term = term
       @options = options
 
-      below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2")
-      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4")
+      below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2.0")
+      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4.0")
 
       boost_fields = {}
       fields =
