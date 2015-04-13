@@ -37,7 +37,8 @@ class TestIndex < Minitest::Test
 
   def test_mapping_order
     store_names_with_store_id [["Brian Cris", 2], ["Carl Cris",3]], Product
-    assert_equal [], Product.search("Cris", order: {store_id: :asc}, fields: [:name], limit: 10).map(&:name)
+    assert_equal ["Brian Cris", "Carl Cris"], Product.search("Cris", order: {store_id: :asc}, fields: [:name], limit: 10).map(&:name)
+    assert_equal ["Carl Cris", "Brian Cris"], Product.search("Cris", order: {store_id: :desc}, fields: [:name], limit: 10).map(&:name)
   end
 
   def test_json
