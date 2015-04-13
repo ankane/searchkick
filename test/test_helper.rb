@@ -257,6 +257,10 @@ class Minitest::Test
     store names.map { |name| {name: name} }, klass
   end
 
+  def store_names_with_store_id(names_with_store_id, klass = Product)
+    store names_with_store_id.map{|name,store_id| {name: name, store_id: store_id} }, klass
+  end
+
   # no order
   def assert_search(term, expected, options = {}, klass = Product)
     assert_equal expected.sort, klass.search(term, options).map(&:name).sort

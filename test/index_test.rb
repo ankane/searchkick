@@ -35,6 +35,11 @@ class TestIndex < Minitest::Test
     assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
   end
 
+  def test_mapping_order
+    store_names_with_store_id [["Brian Cris", 2], ["Carl Cris",3]], Product
+    assert_equal [], Product.search("Cris", order: {store_id: :asc}, fields: [:name], limit: 10).map(&:name)
+  end
+
   def test_json
     store_names ["Dollar Tree"], Store
     assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
