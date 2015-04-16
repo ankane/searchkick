@@ -1,3 +1,8 @@
+## 0.9.0 [unreleased]
+
+- Much better performance for where queries if no facets
+- Added basic support for regex
+
 ## 0.8.7
 
 - Fixed Mongoid import
