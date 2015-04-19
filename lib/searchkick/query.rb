@@ -379,6 +379,11 @@ module Searchkick
         if options[:type] || klass != searchkick_klass
           @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
         end
+
+        # routing
+        if options[:routing]
+          @routing = options[:routing]
+        end
       end
 
       @body = payload
@@ -407,6 +412,7 @@ module Searchkick
         body: body
       }
       params.merge!(type: @type) if @type
+      params.merge!(routing: @routing) if @routing
       params
     end
 
