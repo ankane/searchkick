@@ -91,6 +91,12 @@ class TestMatch < Minitest::Test
     assert_search "ringo", ["Bingo"]
   end
 
+  def test_edit_distance_one_transposition
+    store_names ["Bingo"]
+    assert_search "binog", [], { misspellings: { transpositions: false } }
+    assert_search "binog", ["Bingo"], { misspellings: { transpositions: true } }
+  end
+
   def test_edit_distance_long_word
     store_names ["thisisareallylongword"]
     assert_search "thisisareallylongwor", ["thisisareallylongword"] # missing letter
