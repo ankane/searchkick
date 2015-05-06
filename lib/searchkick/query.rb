@@ -547,6 +547,8 @@ module Searchkick
         else
           {in: {field => value}}
         end
+      elsif value.is_a?(Range)
+        {range: { field => { gte: value.min, lte: value.max } }}
       elsif value.nil?
         {missing: {"field" => field, existence: true, null_value: true}}
       elsif value.is_a?(Regexp)
