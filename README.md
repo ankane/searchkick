@@ -606,7 +606,7 @@ Find similar items.
 
 ```ruby
 product = Product.first
-product.similar(fields: ["name"])
+product.similar(fields: ["name"], where: {size: "12 oz"})
 ```
 
 ### Geospatial Searches
