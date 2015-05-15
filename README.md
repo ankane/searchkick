@@ -494,7 +494,7 @@ Then add the search box and JavaScript code to a view.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick suggest: ["name"] # fields to generate suggestions
+  searchkick suggest: [:name] # fields to generate suggestions
 end
 ```
 
