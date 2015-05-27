@@ -24,13 +24,11 @@ module Searchkick
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
 
   class << self
-    attr_accessor :callbacks
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
     attr_accessor :timeout
     attr_accessor :models
   end
-  self.callbacks = true
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
   self.timeout = 10
@@ -53,15 +51,15 @@ module Searchkick
   end
 
   def self.enable_callbacks
-    self.callbacks = true
+    Thread.current[:searchkick_callbacks_enabled] = true
   end
 
   def self.disable_callbacks
-    self.callbacks = false
+    Thread.current[:searchkick_callbacks_enabled] = false
   end
 
   def self.callbacks?
-    callbacks
+    Thread.current[:searchkick_callbacks_enabled].nil? || Thread.current[:searchkick_callbacks_enabled]
   end
 
   def self.env
