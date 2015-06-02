@@ -301,7 +301,7 @@ module Searchkick
             else
               payload[:facets][field] = {
                 terms: {
-                  field: field,
+                  field: facet_options[:field] || field,
                   size: size
                 }
               }
