@@ -21,6 +21,12 @@ class TestFacets < Minitest::Test
     assert_equal ({1 => 1}), store_facet(facets: {store_id: {where: {in_stock: true}}})
   end
 
+  def test_field
+    assert_equal ({1 => 1, 2 => 2}), store_facet(facets: {store_id: {}})
+    assert_equal ({1 => 1, 2 => 2}), store_facet(facets: {store_id: {field: "store_id"}})
+    assert_equal ({1 => 1, 2 => 2}), store_facet({facets: {store_id_new: {field: "store_id"}}}, "store_id_new")
+  end
+
   def test_limit
     facet = Product.search("Product", facets: {store_id: {limit: 1}}).facets["store_id"]
     assert_equal 1, facet["terms"].size
@@ -78,8 +84,8 @@ class TestFacets < Minitest::Test
 
   protected
 
-  def store_facet(options)
-    Hash[Product.search("Product", options).facets["store_id"]["terms"].map { |v| [v["term"], v["count"]] }]
+  def store_facet(options, facet_key="store_id")
+    Hash[Product.search("Product", options).facets[facet_key]["terms"].map { |v| [v["term"], v["count"]] }]
   end
 
 end
