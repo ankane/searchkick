@@ -376,23 +376,24 @@ module Searchkick
           end
 
           payload[:aggregations] = {}
-          aggregations.each do |field, aggregation_options|
-            aggregation_name = aggregation_options[:name] || field.to_sym
+          aggregations.each do |key, aggregation_options|
+            field = aggregation_options[:field] || key
 
             if aggregation_options[:ranges]
-              payload[:aggregations][aggregation_name] = {
+              payload[:aggregations][key] = {
                 range: {
-                  field => aggregation_options[:ranges]
+                  field: field,
+                  ranges: aggregation_options[:ranges]
                 }
               }
             elsif aggregation_options[:stats]
-              payload[:aggregations][aggregation_name] = {
+              payload[:aggregations][key] = {
                 stats: {
                   field: field
                 }
               }
             else
-              payload[:aggregations][aggregation_name] = {
+              payload[:aggregations][key] = {
                 terms: {
                   field: field
                 }
