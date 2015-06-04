@@ -368,6 +368,49 @@ module Searchkick
           end
         end
 
+        #aggregations
+        if options[:aggregations]
+          aggregations = options[:aggregations] || {}
+          if aggregations.is_a?(Array)
+            aggregations = Hash[aggregations.map { |f| [f, {}] }]
+          end
+
+          payload[:aggregations] = {}
+          aggregations.each do |field, aggregation_options|
+            aggregation_name = aggregation_options[:name] || field.to_sym
+
+            if aggregation_options[:ranges]
+              payload[:aggregations][aggregation_name] = {
+                range: {
+                  field => aggregation_options[:ranges]
+                }
+              }
+            elsif aggregation_options[:stats]
+              payload[:aggregations][aggregation_name] = {
+                stats: {
+                  field: field
+                }
+              }
+            else
+              payload[:aggregations][aggregation_name] = {
+                terms: {
+                  field: field
+                }
+              }
+            end
+          end
+
+          if options[:smart_aggregations] && !filters.empty?
+            aggregations = payload[:aggregations]
+            payload[:aggregations] = {
+              searchkick_filtered_aggregation: {
+                filter: payload[:query][:filtered][:filter],
+                aggregations: aggregations
+              }
+            }
+          end
+        end
+
         # An empty array will cause only the _id and _type for each hit to be returned
         # http://www.elasticsearch.org/guide/reference/api/search/fields/
         if options[:select]

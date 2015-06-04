@@ -78,6 +78,14 @@ module Searchkick
       response["facets"]
     end
 
+    def aggregations
+      if response["aggregations"]
+        filtered_aggregation = response["aggregations"]["searchkick_filtered_aggregation"]
+        return filtered_aggregation if filtered_aggregation
+      end
+      response["aggregations"]
+    end
+
     def model_name
       klass.model_name
     end
