@@ -401,11 +401,11 @@ module Searchkick
             end
           end
 
-          if options[:smart_aggregations] && !filters.empty?
+          if options[:unfiltered_aggregations]
             aggregations = payload[:aggregations]
             payload[:aggregations] = {
-              searchkick_filtered_aggregation: {
-                filter: payload[:query][:filtered][:filter],
+              searchkick_unfiltered_aggregation: {
+                global: {},
                 aggregations: aggregations
               }
             }

@@ -80,7 +80,7 @@ module Searchkick
 
     def aggregations
       if response["aggregations"]
-        filtered_aggregation = response["aggregations"]["searchkick_filtered_aggregation"]
+        filtered_aggregation = response["aggregations"]["searchkick_unfiltered_aggregation"]
         return filtered_aggregation if filtered_aggregation
       end
       response["aggregations"]

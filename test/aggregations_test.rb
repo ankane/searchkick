@@ -41,9 +41,9 @@ class TestAggregations < Minitest::Test
     assert_equal expected_aggregations_keys, aggregations.keys
   end
 
-  def test_smart_aggregations
-    options = {where: {store_id: 2}, aggregations: [:store_id], smart_aggregations: true}
-    assert_equal ({2 => 2}), store_bucket_aggregation(options)
+  def test_unfiltered_aggregations
+    options = {where: {store_id: 2}, aggregations: [:store_id], unfiltered_aggregations: true}
+    assert_equal ({1 => 1, 2 => 2, 3 => 1}), store_bucket_aggregation(options)
   end
 
   protected
