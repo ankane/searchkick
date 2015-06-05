@@ -633,6 +633,58 @@ Bounded by a box
 City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
 ```
 
+### Geoshape Searches
+
+Create a custom mapping for required field and set the field [type for geoshape](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-shape-type.html#_input_structure_2):
+
+```ruby
+class City < ActiveRecord::Base
+  searchkick \
+    merge_mappings: true,
+    mappings: {
+      city: {
+        properties: {
+          field: { type: "geo_shape", precision: "100m" }
+        }
+      }
+    }
+
+  def search_data
+    {
+      field: { type: "polygon", coordinates: your_coordinates }
+    }
+  end
+end
+```
+
+Your coordinates can be presented either as a string (searchkick will convert them into array) or as an array. For example:
+
+```ruby
+  ...
+  field: { type: "polygon", coordinates: "[[[77.0,64.0],[38.0,30.0],[118.0,25.0],[77.0,64.0]]]" }
+  ...
+```
+
+You can find available geoshape mapping options in the [Elasticsearch reference](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-shape-type.html#geo-shape-mapping-options).
+
+You can search a point inside the shape:
+
+```ruby
+City.search "san", where: { field: { geo_shape: { shape: { type: "point", coordinates: [32.8,68.9] }}}}
+```
+
+envelope:
+
+```ruby
+City.search "san", where: { field: { geo_shape: { shape: { type: "envelope", coordinates: [[13.3, 53.7],[14.9, -52.4]] }}}}
+```
+
+and even another geoshape:
+
+```ruby
+City.search "san", where: { field: { geo_shape: { shape: { type: "circle", coordinates: [32.8,68.9], radius: "100m"}}}}
+```
+
 ### Boost By Distance
 
 Boost results by distance - closer results are boosted more

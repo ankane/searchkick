@@ -181,6 +181,24 @@ class TestSql < Minitest::Test
     assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}}
   end
 
+  def test_geo_shape_as_circle
+    store [
+      {name: "Minsk", circle_coordinates: "[27.568647, 53.9186]"},
+      {name: "Minsk Mazowiecki", circle_coordinates: "[21.558431, 52.186756]"},
+    ]
+    assert_search "minsk", ["Minsk"], where: {circle: {geo_shape: {shape: { type: "point", coordinates: [27.6, 53.95]}}}}
+    assert_search "minsk", ["Minsk"], where: {circle: {geo_shape: {shape: { type: "envelope", coordinates: [[27.6, 53.95],[27.55,53.95]]}}}}
+  end
+
+  def test_geo_shape_as_polygon
+    store [
+      {name: "Minsk", polygon_coordinates: "[[[27.548734,54.032343],[27.279569,53.790546],[27.846738,53.784765],[27.548734,54.032343]]]"},
+      {name: "Minsk Mazowiecki", polygon_coordinates: "[[[21.566292,52.215489],[21.499001,52.162342],[21.626036,52.163656],[21.566292,52.215489]]]"}
+    ]
+    assert_search "minsk", ["Minsk"], where: {polygon: {geo_shape: {shape: { type: "point", coordinates: [27.6, 53.95]}}}}
+    assert_search "minsk", ["Minsk"], where: {polygon: {geo_shape: {shape: { type: "envelope", coordinates: [[27.6, 53.95],[27.55,53.95]]}}}}
+  end
+
   def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}

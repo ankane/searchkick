@@ -56,6 +56,8 @@ if defined?(Mongoid)
     field :latitude, type: BigDecimal
     field :longitude, type: BigDecimal
     field :description
+    field :circle_coordinates
+    field :polygon_coordinates
   end
 
   class Store
@@ -95,6 +97,8 @@ elsif defined?(NoBrainer)
     field :latitude
     field :longitude
     field :description,  type: String
+    field :circle_coordinates,  type: String
+    field :polygon_coordinates,  type: String
   end
 
   class Store
@@ -140,6 +144,8 @@ else
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
     t.text :description
+    t.text :circle_coordinates
+    t.text :polygon_coordinates
     t.timestamps null: true
   end
 
@@ -192,7 +198,16 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    unsearchable: [:description]
+    unsearchable: [:description],
+    merge_mappings: true,
+    mappings: { 
+      product: {
+        properties: {
+          circle: { type: "geo_shape" },
+          polygon: { type: "geo_shape" }
+        }
+      }
+    }
 
   attr_accessor :conversions, :user_ids, :aisle
 
@@ -202,7 +217,9 @@ class Product
       user_ids: user_ids,
       location: [latitude, longitude],
       multiple_locations: [[latitude, longitude], [0, 0]],
-      aisle: aisle
+      aisle: aisle,
+      circle: { type: "circle", coordinates: circle_coordinates, radius: "10km" },
+      polygon: { type: "polygon", coordinates: polygon_coordinates } 
     )
   end
 

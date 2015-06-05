@@ -504,6 +504,12 @@ module Searchkick
                     }
                   }
                 }
+              when :geo_shape
+                filters << {
+                  geo_shape: {
+                    field => op_value
+                  }
+                }
               when :not # not equal
                 filters << {not: term_filters(field, op_value)}
               when :all
