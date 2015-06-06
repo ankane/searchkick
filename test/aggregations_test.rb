@@ -26,28 +26,28 @@ class TestAggregations < Minitest::Test
     price_ranges = [{to: 10}, {from: 10, to: 20}, {from: 20}]
     aggregation = Product.search("Product", aggregations: {price: {ranges: price_ranges}}).aggregations["price"]
 
-    assert_equal 3, aggregation["buckets"].size
-    assert_equal 10.0, aggregation["buckets"][0]["to"]
-    assert_equal 20.0, aggregation["buckets"][2]["from"]
-    assert_equal 1, aggregation["buckets"][0]["doc_count"]
-    assert_equal 0, aggregation["buckets"][1]["doc_count"]
-    assert_equal 2, aggregation["buckets"][2]["doc_count"]
+    assert_equal 3, aggregation["ranges"]["buckets"].size
+    assert_equal 10.0, aggregation["ranges"]["buckets"][0]["to"]
+    assert_equal 20.0, aggregation["ranges"]["buckets"][2]["from"]
+    assert_equal 1, aggregation["ranges"]["buckets"][0]["doc_count"]
+    assert_equal 0, aggregation["ranges"]["buckets"][1]["doc_count"]
+    assert_equal 2, aggregation["ranges"]["buckets"][2]["doc_count"]
   end
 
   def test_stats
     options = {where: {store_id: 2}, aggregations: {store_id: {stats: true}}}
-    aggregations = Product.search("Product", options).aggregations["store_id"]
+    aggregations = Product.search("Product", options).aggregations["store_id"]["stats"]
     expected_aggregations_keys = %w(count min max avg sum)
     assert_equal expected_aggregations_keys, aggregations.keys
   end
 
-  def test_unfiltered_aggregations
-    options = {where: {store_id: 2}, aggregations: [:store_id], unfiltered_aggregations: true}
-    assert_equal ({1 => 1, 2 => 2, 3 => 1}), store_bucket_aggregation(options)
+  def test_smart_aggregations
+    options = {where: {store_id: 2}, aggregations: [:store_id], smart_aggregations: true}
+    assert_equal ({1 => 1, 2 => 2}), store_bucket_aggregation(options)
   end
 
   protected
   def store_bucket_aggregation(options, aggregation_key="store_id")
-    Hash[Product.search("Product", options).aggregations[aggregation_key]["buckets"].map { |v| [v["key"], v["doc_count"]] }]
+    Hash[Product.search("Product", options).aggregations[aggregation_key]["terms"]["buckets"].map { |v| [v["key"], v["doc_count"]] }]
   end
 end

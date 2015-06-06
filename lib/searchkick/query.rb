@@ -376,39 +376,54 @@ module Searchkick
           end
 
           payload[:aggregations] = {}
+          #removes filter of the query scope (since aggregations results are affected by the query)
+          payload[:filter] = payload[:query][:filtered].delete(:filter) if options[:smart_aggregations] && options[:where]
+
           aggregations.each do |key, aggregation_options|
             field = aggregation_options[:field] || key
+            if options[:smart_aggregations] && options[:where]
+              aggregation_options.deep_merge!(where: options[:where].reject { |k| k == field })
+              aggregation_filters = where_filters(aggregation_options[:where])
+              aggregation_filters = [{}] if aggregation_filters.empty?
+            else
+              aggregation_filters = [{}]
+            end
 
             if aggregation_options[:ranges]
               payload[:aggregations][key] = {
-                range: {
-                  field: field,
-                  ranges: aggregation_options[:ranges]
+                filter: { and: aggregation_filters },
+                aggregations: {
+                  ranges: {
+                    range: {
+                      field: field,
+                      ranges: aggregation_options[:ranges]
+                    }
+                  }
                 }
               }
             elsif aggregation_options[:stats]
               payload[:aggregations][key] = {
-                stats: {
-                  field: field
+                filter: { and: aggregation_filters },
+                aggregations: {
+                  stats: {
+                    stats: {
+                      field: field
+                    }
+                  }
                 }
               }
             else
               payload[:aggregations][key] = {
-                terms: {
-                  field: field
+                filter: { and: aggregation_filters },
+                aggregations: {
+                  terms: {
+                    terms: {
+                      field: field
+                    }
+                  }
                 }
               }
             end
-          end
-
-          if options[:unfiltered_aggregations]
-            aggregations = payload[:aggregations]
-            payload[:aggregations] = {
-              searchkick_unfiltered_aggregation: {
-                global: {},
-                aggregations: aggregations
-              }
-            }
           end
         end
 
