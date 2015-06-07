@@ -647,7 +647,7 @@ Also supports [additional options](http://www.elasticsearch.org/guide/en/elastic
 City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
 ```
 
-### Routing [master]
+### Routing
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 

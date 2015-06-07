@@ -1,8 +1,9 @@
-## 0.9.0 [unreleased]
+## 0.9.0
 
 - Much better performance for where queries if no facets
 - Added basic support for regex
 - Added support for routing
+- Made `Searchkick.disable_callbacks` thread-safe
 
 ## 0.8.7
 
