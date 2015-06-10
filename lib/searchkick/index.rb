@@ -130,7 +130,8 @@ module Searchkick
 
     # reindex
 
-    def create_index
+    def create_index(options = {})
+      index_options = options[:index_options] || self.index_options
       index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
@@ -153,7 +154,7 @@ module Searchkick
 
       clean_indices
 
-      index = create_index
+      index = create_index(index_options: scope.searchkick_index_options)
 
       # check if alias exists
       if alias_exists?
