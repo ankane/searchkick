@@ -197,7 +197,7 @@ class Product
   attr_accessor :conversions, :user_ids, :aisle
 
   def search_data
-    serializable_hash.except("id").merge(
+    serializable_hash.merge(
       conversions: conversions,
       user_ids: user_ids,
       location: [latitude, longitude],
