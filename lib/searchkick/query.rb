@@ -504,6 +504,8 @@ module Searchkick
                     }
                   }
                 }
+              when :regexp # support for regexp queries without using a regexp ruby object
+                filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
                 filters << {not: term_filters(field, op_value)}
               when :all
