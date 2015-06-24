@@ -92,11 +92,11 @@ Where
 where: {
   expires_at: {gt: Time.now}, # lt, gte, lte also available
   orders_count: 1..10,        # equivalent to {gte: 1, lte: 10}
-  category: /frozen .+/,      # regexp
   aisle_id: [25, 30],         # in
   store_id: {not: 2},         # not
   aisle_id: {not: [25, 30]},  # not in
   user_ids: {all: [1, 3]},    # all elements in array
+  category: /frozen .+/,      # regexp
   or: [
     [{in_stock: true}, {backordered: true}]
   ]
