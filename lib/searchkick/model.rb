@@ -47,8 +47,8 @@ module Searchkick
             searchkick_index.reindex_scope(searchkick_klass, options)
           end
 
-          def clean_indices
-            searchkick_index.clean_indices
+          def clean_indices(retain = false)
+            searchkick_index.clean_indices(retain)
           end
 
           def searchkick_import(options = {})
