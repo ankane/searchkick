@@ -151,10 +151,13 @@ module Searchkick
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex_scope(scope, options ={})
+      skip_import = options[:import] == false
+
       write_alias = "#{name}_write"
       read_alias = name
 
-      index = create_index # This is the "new" index we are reindexing to
+      # This is the "new" index we are reindexing to
+      index = create_index
 
       # set writes to go to new index and don't remove alias to old index
       set_alias_to_index(write_alias, index.name, false)
@@ -162,7 +165,7 @@ module Searchkick
       # set reads to go to new index if there is no existing read alias
       set_alias_to_index(read_alias, index.name) unless alias_exists?(read_alias)
 
-      index.import_scope(scope)
+      index.import_scope(scope) unless skip_import
 
       # set writes and reads to only go to new index
       set_alias_to_index(write_alias, index.name)
