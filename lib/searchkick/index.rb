@@ -23,19 +23,8 @@ module Searchkick
       client.indices.refresh index: name
     end
 
-    def alias_exists?
-      client.indices.exists_alias name: name
-    end
-
-    def swap(new_name)
-      old_indices =
-        begin
-          client.indices.get_alias(name: name).keys
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          []
-        end
-      actions = old_indices.map { |old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
-      client.indices.update_aliases body: {actions: actions}
+    def alias_exists?(alias_name=name)
+      client.indices.exists_alias name: alias_name
     end
 
     # record based
@@ -146,34 +135,43 @@ module Searchkick
       indices
     end
 
-    # https://gist.github.com/jarosan/3124884
-    # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, options = {})
-      skip_import = options[:import] == false
-
-      clean_indices
-
-      index = create_index
-
-      # check if alias exists
-      if alias_exists?
-        # import before swap
-        index.import_scope(scope) unless skip_import
-
-        # get existing indices to remove
-        swap(index.name)
-        clean_indices
-      else
-        delete if exists?
-        swap(index.name)
-
-        # import after swap
-        index.import_scope(scope) unless skip_import
+    def set_alias_to_index(alias_name, index_name, clear=true)
+      old_indices = begin
+        client.indices.get_alias(name: alias_name).keys
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        []
       end
 
-      index.refresh
+      actions = clear ? old_indices.map { |old_name| {remove: {index: old_name, alias: alias_name}} } : []
+      actions += [{add: {index: index_name, alias: alias_name}}]
 
-      true
+      client.indices.update_aliases body: {actions: actions}
+    end
+
+    # https://gist.github.com/jarosan/3124884
+    # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+    def reindex_scope(scope, options ={})
+      skip_import = options[:import] == false
+
+      write_alias = "#{name}_write"
+      read_alias = name
+
+      # This is the "new" index we are reindexing to
+      index = create_index
+
+      # set writes to go to new index and don't remove alias to old index
+      set_alias_to_index(write_alias, index.name, false)
+
+      # set reads to go to new index if there is no existing read alias
+      set_alias_to_index(read_alias, index.name) unless alias_exists?(read_alias)
+
+      index.import_scope(scope) unless skip_import
+
+      # set writes and reads to only go to new index
+      set_alias_to_index(write_alias, index.name)
+      set_alias_to_index(read_alias, index.name)
+    ensure
+      clean_indices
     end
 
     def import_scope(scope)
