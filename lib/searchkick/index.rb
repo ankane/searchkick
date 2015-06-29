@@ -170,7 +170,7 @@ module Searchkick
       # set writes and reads to only go to new index
       set_alias_to_index(write_alias, index.name)
       set_alias_to_index(read_alias, index.name)
-
+    ensure
       clean_indices
     end
 
