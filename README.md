@@ -268,24 +268,27 @@ end
 
 ### Misspellings
 
-By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one. To turn off this feature, use:
+By default, Searchkick handles misspelled queries by returning results with an [edit distance](http://en.wikipedia.org/wiki/Levenshtein_distance) of one.
 
-```ruby
-Product.search "zuchini", misspellings: false # no zucchini
-```
-
-You can also change the edit distance with:
+You can change this with:
 
 ```ruby
 Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
-A transposition of two letters is considered to be an edit distance of 2. Enable single-letter transpositions while leaving edit distance at 1 with:
+Or turn off misspellings with:
 
 ```ruby
-Product.search "zuccihni", misspellings: {transpositions: true} # zucchini
+Product.search "zuchini", misspellings: false # no zucchini
 ```
 
+Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use: [master]
+
+```ruby
+Product.search "mikl", misspellings: {transpositions: true} # milk
+```
+
+This is planned to be the default in Searchkick 1.0.
 
 ### Indexing
 
