@@ -107,9 +107,10 @@ module Searchkick
                 misspellings = options.key?(:misspellings) ? options[:misspellings] : options[:mispellings] # why not?
                 if misspellings != false
                   edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
+                  transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
                   qs.concat [
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search"),
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2")
+                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search").merge(transpositions),
+                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
                   ]
                 end
               elsif field.end_with?(".exact")

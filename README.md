@@ -280,6 +280,13 @@ You can also change the edit distance with:
 Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
+A transposition of two letters is considered to be an edit distance of 2. Enable single-letter transpositions while leaving edit distance at 1 with:
+
+```ruby
+Product.search "zuccihni", misspellings: {transpositions: true} # zucchini
+```
+
+
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.

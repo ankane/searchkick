@@ -112,6 +112,27 @@ class TestMatch < Minitest::Test
     assert_search "zip lock", ["Ziploc"]
   end
 
+  def test_misspelling_zucchini_transposition
+    store_names ["zucchini"]
+    assert_search "zuccihni", [] # doesn't work without transpositions:true option
+    assert_search "zuccihni", ["zucchini"], misspellings: {transpositions: true}
+  end
+
+  def test_misspelling_lasagna
+    store_names ["lasagna"]
+    assert_search "lasanga", ["lasagna"], misspellings: {transpositions: true}
+    assert_search "lasgana", ["lasagna"], misspellings: {transpositions: true}
+    assert_search "lasaang", [], misspellings: {transpositions: true} # triple transposition, shouldn't work
+    assert_search "lsagana", [], misspellings: {transpositions: true} # triple transposition, shouldn't work
+  end
+
+  def test_misspelling_lasagna_pasta
+    store_names ["lasagna pasta"]
+    assert_search "lasanga", ["lasagna pasta"], misspellings: {transpositions: true}
+    assert_search "lasanga pasta", ["lasagna pasta"], misspellings: {transpositions: true}
+    assert_search "lasanga pasat", ["lasagna pasta"], misspellings: {transpositions: true} # both words misspelled with a transposition should still work
+  end
+
   # spaces
 
   def test_spaces_in_field
