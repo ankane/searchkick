@@ -1,3 +1,7 @@
+## 0.9.1 [unreleased]
+
+- Added `transpositions` option to misspellings
+
 ## 0.9.0
 
 - Much better performance for where queries if no facets
