@@ -238,6 +238,40 @@ module Searchkick
           }
         end
 
+        multiply_filters = []
+
+        multiply_by = options[:multiply_by] || {}
+        if multiply_by.is_a?(Array)
+          multiply_by = Hash[multiply_by.map { |f| [f, {factor: 1}] }]
+        end
+
+        multiply_by.each do |field, value|
+          script_score =
+            if below12
+              {script_score: {script: "#{value[:factor].to_f} * doc['#{field}'].value"}}
+            else
+              {field_value_factor: {field: field, factor: value[:factor].to_f}}
+            end
+
+          multiply_filters << {
+            filter: {
+              exists: {
+                field: field
+              }
+            }
+          }.merge(script_score)
+        end
+
+        if multiply_filters.any?
+          payload = {
+            function_score: {
+              functions: multiply_filters,
+              query: payload,
+              score_mode: "multiply"
+            }
+          }
+        end
+
         payload = {
           query: payload,
           size: per_page,
