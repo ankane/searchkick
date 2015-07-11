@@ -108,8 +108,7 @@ class TestBoost < Minitest::Test
       {name: "Tomato C", found_rate: 0.5}
     ]
 
-    assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], multiply_by: [:found_rate]
-    assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], multiply_by: {found_rate: {factor: 1}}
+    assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], boost_by: {found_rate: {factor: 1, boost_mode: "multiply"}}
   end
 
   def test_boost_where
