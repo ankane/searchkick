@@ -174,6 +174,21 @@ class TestMatch < Minitest::Test
     assert_search "to be", ["to be or not to be"]
   end
 
+  def test_apostrophe
+    store_names ["Ben and Jerry's"]
+    assert_search "ben and jerrys", ["Ben and Jerry's"]
+  end
+
+  def test_ampersand_index
+    store_names ["Ben & Jerry's"]
+    assert_search "ben and jerrys", ["Ben & Jerry's"]
+  end
+
+  def test_ampersand_search
+    store_names ["Ben and Jerry's"]
+    assert_search "ben & jerrys", ["Ben and Jerry's"]
+  end
+
   def test_unsearchable
     store [
       {name: "Unsearchable", description: "Almond"}
