@@ -561,7 +561,9 @@ module Searchkick
 
     def custom_filter(field, value, factor)
       {
-        filter: term_filters(field, value),
+        filter: {
+          and: where_filters({field => value})
+        },
         boost_factor: factor
       }
     end
