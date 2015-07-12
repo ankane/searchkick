@@ -132,10 +132,8 @@ module Searchkick
     end
 
     def out_of_range?
-      options[:page] > (total_count / per_page.to_f).ceil
+      current_page > total_pages
     end
-
-    protected
 
     def hits
       @response["hits"]["hits"]
