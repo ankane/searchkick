@@ -909,11 +909,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use a lambda to define the index name
+Use a dynamic index name
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick index_name: -> { "#{self.name.tableize}-#{something_else}" }
+  searchkick index_name: -> { "#{name.tableize}-#{I18n.locale}" }
 end
 ```
 
