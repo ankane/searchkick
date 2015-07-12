@@ -40,6 +40,7 @@ class TestSql < Minitest::Test
     assert !products.first_page?
     assert !products.last_page?
     assert !products.empty?
+    assert !products.out_of_range?
     assert products.any?
   end
 

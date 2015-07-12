@@ -131,6 +131,10 @@ module Searchkick
       next_page.nil?
     end
 
+    def out_of_range?
+      current_page > total_pages
+    end
+
     def hits
       @response["hits"]["hits"]
     end
