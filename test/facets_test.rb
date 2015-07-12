@@ -76,6 +76,7 @@ class TestFacets < Minitest::Test
   end
 
   def test_stats_facets
+    skip if Gem::Version.new(Searchkick.server_version) >= Gem::Version.new("1.4.0")
     options = {where: {store_id: 2}, facets: {store_id: {stats: true}}}
     facets = Product.search("Product", options).facets["store_id"]["terms"]
     expected_facets_keys = %w[term count total_count min max total mean]
