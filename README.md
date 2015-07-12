@@ -909,6 +909,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Use a lambda to define the index name
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick index_name: -> { "#{self.name.tableize}-#{something_else}" }
+end
+```
+
 Prefix the index name
 
 ```ruby
