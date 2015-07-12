@@ -1,6 +1,7 @@
 ## 0.9.1 [unreleased]
 
 - Added `transpositions` option to misspellings
+- `and` now matches `&`
 
 ## 0.9.0
 
