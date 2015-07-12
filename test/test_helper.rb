@@ -85,8 +85,8 @@ elsif defined?(NoBrainer)
     include NoBrainer::Document
     include NoBrainer::Document::Timestamps
 
+    field :id,           type: Object
     field :name,         type: String
-    field :store_id,     type: Integer
     field :in_stock,     type: Boolean
     field :backordered,  type: Boolean
     field :orders_count, type: Integer
@@ -95,17 +95,21 @@ elsif defined?(NoBrainer)
     field :latitude
     field :longitude
     field :description,  type: String
+
+    belongs_to :store, validates: false
   end
 
   class Store
     include NoBrainer::Document
 
+    field :id,   type: Object
     field :name, type: String
   end
 
   class Animal
     include NoBrainer::Document
 
+    field :id,   type: Object
     field :name, type: String
   end
 
