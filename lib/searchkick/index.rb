@@ -322,9 +322,11 @@ module Searchkick
               }
             },
             char_filter: {
+              # https://www.elastic.co/guide/en/elasticsearch/guide/current/custom-analyzers.html
+              # &_to_and
               ampersand: {
                 type: "mapping",
-                mappings: ["&=>and"]
+                mappings: ["&=> and "]
               }
             },
             tokenizer: {
