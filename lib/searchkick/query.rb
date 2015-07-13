@@ -568,6 +568,7 @@ module Searchkick
     def boost_filters(boost_by, options = {})
       boost_by.map do |field, value|
         log = value.key?(:log) ? value[:log] : options[:log]
+        value[:factor] ||= 1
         script_score =
           if below12?
             script = log ? "log(doc['#{field}'].value + 2.718281828)" : "doc['#{field}'].value"
