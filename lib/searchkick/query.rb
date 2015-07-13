@@ -167,14 +167,17 @@ module Searchkick
         custom_filters = []
 
         boost_by = options[:boost_by] || {}
+
         if boost_by.is_a?(Array)
-          boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+          boost_by_sum = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+        elsif boost_by.is_a?(Hash)
+          boost_by_multiply, boost_by_sum = boost_by.partition { |k,v| v[:boost_mode] == "multiply" }.map{|i| Hash[i] }
         end
         if options[:boost]
-          boost_by[options[:boost]] = {factor: 1}
+          boost_by_sum[options[:boost]] = {factor: 1}
         end
 
-        boost_by.each do |field, value|
+        boost_by_sum.each do |field, value|
           script_score =
             if below12
               {script_score: {script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"}}
@@ -189,6 +192,28 @@ module Searchkick
               }
             }
           }.merge(script_score)
+        end
+
+        if boost_by_multiply
+          multiply_filters = []
+
+          boost_by_multiply.each do |field, value|
+            script_score =
+              if below12
+                {script_score: {script: "#{value[:factor].to_f} * doc['#{field}'].value"}}
+              else
+                value[:factor] ||= 1
+                {field_value_factor: {field: field, factor: value[:factor].to_f}}
+              end
+
+            multiply_filters << {
+              filter: {
+                exists: {
+                  field: field
+                }
+              }
+            }.merge(script_score)
+          end
         end
 
         boost_where = options[:boost_where] || {}
@@ -234,6 +259,16 @@ module Searchkick
               functions: custom_filters,
               query: payload,
               score_mode: "sum"
+            }
+          }
+        end
+
+        if multiply_filters && multiply_filters.any?
+          payload = {
+            function_score: {
+              functions: multiply_filters,
+              query: payload,
+              score_mode: "multiply"
             }
           }
         end
