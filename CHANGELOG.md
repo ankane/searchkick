@@ -1,7 +1,8 @@
 ## 0.9.1 [unreleased]
 
-- Added `transpositions` option to misspellings
 - `and` now matches `&`
+- Added `transpositions` option to misspellings
+- Added `boost_mode` and `log` options to `boost_by`
 
 ## 0.9.0
 
