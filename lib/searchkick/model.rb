@@ -44,6 +44,9 @@ module Searchkick
           end
 
           def reindex(options = {})
+            if respond_to?(:current_scope) && current_scope && current_scope.to_sql != default_scoped.to_sql
+              raise Searchkick::DangerousOperation, "Only call reindex on models, not relations"
+            end
             searchkick_index.reindex_scope(searchkick_klass, options)
           end
 

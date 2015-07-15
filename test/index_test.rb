@@ -103,6 +103,10 @@ class TestIndex < Minitest::Test
     assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {}) }
   end
 
+  def test_reindex
+    assert_raises(Searchkick::DangerousOperation) { Product.where(id: [1, 2, 3]).reindex }
+  end
+
   if defined?(ActiveRecord)
 
     def test_transaction
