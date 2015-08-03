@@ -15,9 +15,6 @@ module Searchkick
       @term = term
       @options = options
 
-      below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2.0")
-      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4.0")
-
       boost_fields = {}
       fields =
         if options[:fields]
@@ -157,7 +154,7 @@ module Searchkick
           if conversions_field && options[:conversions] != false
             # wrap payload in a bool query
             script_score =
-              if below12
+              if below12?
                 {script_score: {script: "doc['count'].value"}}
               else
                 {field_value_factor: {field: "count"}}
@@ -188,31 +185,21 @@ module Searchkick
         end
 
         custom_filters = []
+        multiply_filters = []
 
         boost_by = options[:boost_by] || {}
+
         if boost_by.is_a?(Array)
           boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+        elsif boost_by.is_a?(Hash)
+          multiply_by, boost_by = boost_by.partition { |k,v| v[:boost_mode] == "multiply" }.map{ |i| Hash[i] }
         end
         if options[:boost]
           boost_by[options[:boost]] = {factor: 1}
         end
 
-        boost_by.each do |field, value|
-          script_score =
-            if below12
-              {script_score: {script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"}}
-            else
-              {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: "ln2p"}}
-            end
-
-          custom_filters << {
-            filter: {
-              exists: {
-                field: field
-              }
-            }
-          }.merge(script_score)
-        end
+        custom_filters.concat boost_filters(boost_by, log: true)
+        multiply_filters.concat boost_filters(multiply_by || {})
 
         boost_where = options[:boost_where] || {}
         if options[:user_id] && personalize_field
@@ -257,6 +244,16 @@ module Searchkick
               functions: custom_filters,
               query: payload,
               score_mode: "sum"
+            }
+          }
+        end
+
+        if multiply_filters.any?
+          payload = {
+            function_score: {
+              functions: multiply_filters,
+              query: payload,
+              score_mode: "multiply"
             }
           }
         end
@@ -318,7 +315,7 @@ module Searchkick
               payload[:facets][field] = {
                 terms_stats: {
                   key_field: field,
-                  value_script: below14 ? "doc.score" : "_score",
+                  value_script: below14? ? "doc.score" : "_score",
                   size: size
                 }
               }
@@ -528,6 +525,8 @@ module Searchkick
                     }
                   }
                 }
+              when :regexp # support for regexp queries without using a regexp ruby object
+                filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
                 filters << {not: term_filters(field, op_value)}
               when :all
@@ -582,10 +581,45 @@ module Searchkick
 
     def custom_filter(field, value, factor)
       {
-        filter: term_filters(field, value),
+        filter: {
+          and: where_filters({field => value})
+        },
         boost_factor: factor
       }
     end
 
+    def boost_filters(boost_by, options = {})
+      boost_by.map do |field, value|
+        log = value.key?(:log) ? value[:log] : options[:log]
+        value[:factor] ||= 1
+        script_score =
+          if below12?
+            script = log ? "log(doc['#{field}'].value + 2.718281828)" : "doc['#{field}'].value"
+            {script_score: {script: "#{value[:factor].to_f} * #{script}"}}
+          else
+            {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: log ? "ln2p" : nil}}
+          end
+
+        {
+          filter: {
+            exists: {
+              field: field
+            }
+          }
+        }.merge(script_score)
+      end
+    end
+
+    def below12?
+      below_version?("1.2.0")
+    end
+
+    def below14?
+      below_version?("1.4.0")
+    end
+
+    def below_version?(version)
+      Gem::Version.new(Searchkick.server_version) < Gem::Version.new(version)
+    end
   end
 end

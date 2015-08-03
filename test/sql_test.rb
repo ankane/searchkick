@@ -40,6 +40,7 @@ class TestSql < Minitest::Test
     assert !products.first_page?
     assert !products.last_page?
     assert !products.empty?
+    assert !products.out_of_range?
     assert products.any?
   end
 
@@ -96,6 +97,11 @@ class TestSql < Minitest::Test
   def test_regexp
     store_names ["Product A"]
     assert_search "*", ["Product A"], where: {name: /Pro.+/}
+  end
+
+  def test_alternate_regexp
+    store_names ["Product A", "Item B"]
+    assert_search "*", ["Product A"], where: {name: {regexp: "Pro.+"}}
   end
 
   def test_where_string

@@ -1,3 +1,9 @@
+## 0.9.1 [unreleased]
+
+- `and` now matches `&`
+- Added `transpositions` option to misspellings
+- Added `boost_mode` and `log` options to `boost_by`
+
 ## 0.9.0
 
 - Much better performance for where queries if no facets

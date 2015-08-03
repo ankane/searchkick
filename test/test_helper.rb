@@ -51,6 +51,7 @@ if defined?(Mongoid)
     field :in_stock, type: Boolean
     field :backordered, type: Boolean
     field :orders_count, type: Integer
+    field :found_rate, type: BigDecimal
     field :price, type: Integer
     field :color
     field :latitude, type: BigDecimal
@@ -85,27 +86,32 @@ elsif defined?(NoBrainer)
     include NoBrainer::Document
     include NoBrainer::Document::Timestamps
 
+    field :id,           type: Object
     field :name,         type: String
-    field :store_id,     type: Integer
     field :in_stock,     type: Boolean
     field :backordered,  type: Boolean
     field :orders_count, type: Integer
+    field :found_rate
     field :price,        type: Integer
     field :color,        type: String
     field :latitude
     field :longitude
     field :description,  type: String
+
+    belongs_to :store, validates: false
   end
 
   class Store
     include NoBrainer::Document
 
+    field :id,   type: Object
     field :name, type: String
   end
 
   class Animal
     include NoBrainer::Document
 
+    field :id,   type: Object
     field :name, type: String
   end
 
@@ -135,6 +141,7 @@ else
     t.boolean :in_stock
     t.boolean :backordered
     t.integer :orders_count
+    t.decimal :found_rate
     t.integer :price
     t.string :color
     t.decimal :latitude, precision: 10, scale: 7
