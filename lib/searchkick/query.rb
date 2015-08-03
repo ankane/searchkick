@@ -98,19 +98,39 @@ module Searchkick
                 boost: factor
               }
 
-              if field == "_all" || field.end_with?(".analyzed")
+              custom_analyzed = field.end_with?("_custom_analyzed")
+
+              if field == "_all" || field.end_with?(".analyzed") || custom_analyzed
                 shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-                qs.concat [
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
-                ]
+
+                custom_analyzer = field.split(".").last.sub(/_custom_analyzed\z/, "")
+
+                if custom_analyzed
+                  qs.concat [
+                    shared_options.merge(boost: 10 * factor, analyzer: custom_analyzer)
+                  ]
+                else
+                  qs.concat [
+                    shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
+                    shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
+                  ]
+                end
+
                 misspellings = options.key?(:misspellings) ? options[:misspellings] : options[:mispellings] # why not?
                 if misspellings != false
                   edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
-                  qs.concat [
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search"),
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2")
-                  ]
+                  transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
+
+                  if custom_analyzed
+                    qs.concat [
+                      shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: custom_analyzer).merge(transpositions)
+                    ]
+                  else
+                    qs.concat [
+                      shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search").merge(transpositions),
+                      shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
+                    ]
+                  end
                 end
               elsif field.end_with?(".exact")
                 f = field.split(".")[0..-2].join(".")
@@ -118,6 +138,10 @@ module Searchkick
               else
                 analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
                 qs << shared_options.merge(analyzer: analyzer)
+              end
+
+              if custom_analyzed
+                field = field.split(".").first + ".analyzed"
               end
 
               queries.concat(qs.map { |q| {match: {field => q}} })
