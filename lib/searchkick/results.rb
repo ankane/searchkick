@@ -15,6 +15,15 @@ module Searchkick
       @options = options
     end
 
+    def records
+      raise "Only supports ActiveRecord" unless klass.try(:primary_key)
+      @records ||= begin
+        records = klass
+        records = records.includes(options[:includes]) if options[:includes]
+        records.where(records.primary_key => hits.map { |hit| hit["_id"] })
+      end
+    end
+
     def results
       @results ||= begin
         if options[:load]
