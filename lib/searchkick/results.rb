@@ -26,12 +26,12 @@ module Searchkick
           results = {}
 
           hits.group_by { |hit, i| hit["_type"] }.each do |type, grouped_hits|
-            results[type] = results_query(type.camelize.constantize, grouped_hits).to_a
+            results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]].find { |r| r.id.to_s == hit["_id"].to_s }
+            results[hit["_type"]][hit["_id"].to_s]
           end.compact
         else
           hits.map do |hit|
@@ -141,11 +141,12 @@ module Searchkick
       ids = hits.map { |hit| hit["_id"] }
 
       if options[:includes]
-        if defined?(NoBrainer::Document) && records < NoBrainer::Document
-          records = records.preload(options[:includes])
-        else
-          records = records.includes(options[:includes])
-        end
+        records =
+          if defined?(NoBrainer::Document) && records < NoBrainer::Document
+            records.preload(options[:includes])
+          else
+            records.includes(options[:includes])
+          end
       end
 
       if records.respond_to?(:primary_key) && records.primary_key
