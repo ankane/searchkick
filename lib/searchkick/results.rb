@@ -15,6 +15,7 @@ module Searchkick
       @options = options
     end
 
+    # experimental: may not make next release
     def records
       @records ||= results_query(klass, hits)
     end
