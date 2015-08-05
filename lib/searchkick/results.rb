@@ -15,6 +15,10 @@ module Searchkick
       @options = options
     end
 
+    def records
+      @records ||= results_query(klass, hits)
+    end
+
     def results
       @results ||= begin
         if options[:load]
@@ -22,15 +26,7 @@ module Searchkick
           results = {}
 
           hits.group_by { |hit, i| hit["_type"] }.each do |type, grouped_hits|
-            records = type.camelize.constantize
-            if options[:includes]
-              if defined?(NoBrainer::Document) && records < NoBrainer::Document
-                records = records.preload(options[:includes])
-              else
-                records = records.includes(options[:includes])
-              end
-            end
-            results[type] = results_query(records, grouped_hits)
+            results[type] = results_query(type.camelize.constantize, grouped_hits).to_a
           end
 
           # sort
@@ -141,19 +137,29 @@ module Searchkick
 
     private
 
-    def results_query(records, grouped_hits)
+    def results_query(records, hits)
+      ids = hits.map { |hit| hit["_id"] }
+
+      if options[:includes]
+        if defined?(NoBrainer::Document) && records < NoBrainer::Document
+          records = records.preload(options[:includes])
+        else
+          records = records.includes(options[:includes])
+        end
+      end
+
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
-        records.where(records.primary_key => grouped_hits.map { |hit| hit["_id"] }).to_a
+        records.where(records.primary_key => ids)
       elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
-        records.all.for_ids(grouped_hits.map { |hit| hit["_id"] }).to_a
+        records.all.for_ids(ids)
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
-        records.queryable.for_ids(grouped_hits.map { |hit| hit["_id"] }).to_a
+        records.queryable.for_ids(ids)
       elsif records.respond_to?(:unscoped) && records.all.respond_to?(:preload)
         # Nobrainer
-        records.unscoped.where(:id.in => grouped_hits.map { |hit| hit["_id"] }).to_a
+        records.unscoped.where(:id.in => ids)
       else
         raise "Not sure how to load records"
       end
