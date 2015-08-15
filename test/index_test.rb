@@ -88,6 +88,24 @@ class TestIndex < Minitest::Test
     Product.reindex
   end
 
+  def test_update_color
+    store [{name: "Product A", color: "blue", store_id: 1},
+           {name: "Product B", color: "red", store_id: 3}]
+
+    assert_search "product", [], where: {color: "green"}
+
+    product = Product.where(color: "blue").first
+    product["color"] = "green"
+    product["store_id"] = 5
+    Product.searchkick_index.update([product], ["color"])
+    Product.searchkick_index.refresh
+
+    assert_search "product", ["Product A"], where: {color: "green"}
+    assert_search "product", [], where: {store_id: 5}
+  ensure
+    Product.reindex
+  end
+
   def test_missing_index
     assert_raises(Searchkick::MissingIndexError) { Product.search "test", index_name: "not_found" }
   end
