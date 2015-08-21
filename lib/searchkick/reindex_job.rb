@@ -1,5 +1,8 @@
 module Searchkick
   class ReindexJob
+    def self.execute(*args)
+      new(*args).perform
+    end
 
     def initialize(klass, id)
       @klass = klass
