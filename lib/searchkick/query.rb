@@ -96,11 +96,6 @@ module Searchkick
               }
 
               if field == "_all" || field.end_with?(".analyzed")
-                shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-                qs.concat [
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
-                ]
                 misspellings = options.key?(:misspellings) ? options[:misspellings] : options[:mispellings] # why not?
                 if misspellings != false
                   edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
@@ -110,6 +105,11 @@ module Searchkick
                     shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
                   ]
                 end
+                shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
+                qs.concat [
+                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
+                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
+                ]
               elsif field.end_with?(".exact")
                 f = field.split(".")[0..-2].join(".")
                 queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
