@@ -244,6 +244,28 @@ class TestSql < Minitest::Test
     assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
   end
 
+  def test_misspellings_fields_operator
+    store [
+      {name: "red", color: "red"},
+      {name: "blue", color: "blue"},
+      {name: "cyan", color: "blue green"},
+      {name: "magenta", color: "red blue"},
+      {name: "green", color: "green"}
+    ]
+    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"], misspellings: false
+  end
+
+  def test_fields_operator
+    store [
+      {name: "red", color: "red"},
+      {name: "blue", color: "blue"},
+      {name: "cyan", color: "blue green"},
+      {name: "magenta", color: "red blue"},
+      {name: "green", color: "green"}
+    ]
+    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"]
+  end
+
   def test_fields
     store [
       {name: "red", color: "light blue"},
