@@ -63,7 +63,7 @@ module Searchkick
   end
 
   def self.env
-    @env ||= ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
+    @env ||= ENV["ELASTICSEARCH_ENV"] || ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   end
 end
 
