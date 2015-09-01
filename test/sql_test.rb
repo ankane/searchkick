@@ -244,6 +244,18 @@ class TestSql < Minitest::Test
     assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
   end
 
+  def test_misspellings_prefix_length
+    store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
+    assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
+    assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
+  end
+
+  def test_misspellings_prefix_length_operator
+    store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
+    assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
+    assert_search "api ahi", ["ap", "api", "apt", "ah", "aha"], operator: "or", misspellings: {prefix_length: 2}
+  end
+
   def test_misspellings_fields_operator
     store [
       {name: "red", color: "red"},
