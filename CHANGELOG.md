@@ -1,4 +1,4 @@
-## 0.9.1 [unreleased]
+## 0.9.1
 
 - `and` now matches `&`
 - Added `transpositions` option to misspellings

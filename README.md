@@ -282,7 +282,7 @@ Or turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
-Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use: [master]
+Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use:
 
 ```ruby
 Product.search "mikl", misspellings: {transpositions: true} # milk
