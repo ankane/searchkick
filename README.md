@@ -290,18 +290,6 @@ Product.search "mikl", misspellings: {transpositions: true} # milk
 
 This is planned to be the default in Searchkick 1.0.
 
-For short queries, it may be helpful to turn on mispellings after a specified number of letters.
-
-```ruby
-Product.search "api", misspellings: {prefix_length:2} # api, apt, not any
-```
-
-**Note:** If query length is the same as `prefix_length`, misspellings is automatically turned off.
-
-```ruby
-Product.search "ah", misspellings: {prefix_length:2} # ah, not aha
-```
-
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
@@ -1019,6 +1007,18 @@ Reindex all models - Rails only
 
 ```sh
 rake searchkick:reindex:all
+```
+
+Turn on misspellings after a certain number of characters
+
+```ruby
+Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
+```
+
+**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off
+
+```ruby
+Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
 
 ## Large Data Sets

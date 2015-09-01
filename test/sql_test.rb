@@ -245,7 +245,7 @@ class TestSql < Minitest::Test
   end
 
   def test_misspellings_prefix_length
-    store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
+    store_names ["ap", "api", "apt", "any", "nap", "ah", "ahi"]
     assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
     assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
   end

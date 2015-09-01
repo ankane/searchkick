@@ -3,6 +3,8 @@
 - `and` now matches `&`
 - Added `transpositions` option to misspellings
 - Added `boost_mode` and `log` options to `boost_by`
+- Added `prefix_length` option to `misspellings`
+- Added ability to set env
 
 ## 0.9.0
 
