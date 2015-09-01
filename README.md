@@ -1009,6 +1009,18 @@ Reindex all models - Rails only
 rake searchkick:reindex:all
 ```
 
+Turn on misspellings after a certain number of characters
+
+```ruby
+Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
+```
+
+**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off
+
+```ruby
+Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
+```
+
 ## Large Data Sets
 
 For large data sets, check out [Keeping Elasticsearch in Sync](https://www.found.no/foundation/keeping-elasticsearch-in-sync/).  Searchkick will make this easy in the future.

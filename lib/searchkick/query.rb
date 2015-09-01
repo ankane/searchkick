@@ -100,9 +100,10 @@ module Searchkick
                 if misspellings != false
                   edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
                   transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
+                  prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
                   qs.concat [
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search").merge(transpositions),
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
+                    shared_options.merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: 3, analyzer: "searchkick_search").merge(transpositions),
+                    shared_options.merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
                   ]
                 end
                 shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
