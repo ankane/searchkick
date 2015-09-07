@@ -87,6 +87,16 @@ module Searchkick
       )
     end
 
+    def bulk_update(records, updates)
+      records.group_by { |r| document_type(r) }.each do |type, batch|
+        client.bulk(
+          index: name,
+          type: type,
+          body: batch.map { |r| {update: {_id: search_id(r), data: {doc: updates}}} }
+        )
+      end
+    end
+
     def reindex_record(record)
       if record.destroyed? || !record.should_index?
         begin
