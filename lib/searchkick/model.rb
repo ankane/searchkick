@@ -84,7 +84,7 @@ module Searchkick
         end unless method_defined?(:reindex_async)
 
         def reindex_update(updates)
-        self.class.searchkick_index.update_record(self, updates)
+          self.class.searchkick_index.update_record(self, updates)
         end unless method_defined?(:reindex_update)
 
         def similar(options = {})
