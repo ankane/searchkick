@@ -78,6 +78,15 @@ module Searchkick
       )["_source"]
     end
 
+    def update(record, updates)
+      client.update(
+        index: name,
+        type: document_type(record),
+        id: search_id(record),
+        body: {doc: updates}
+      )
+    end
+
     def reindex_record(record)
       if record.destroyed? || !record.should_index?
         begin
@@ -96,6 +105,10 @@ module Searchkick
       else
         Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
       end
+    end
+
+    def update_record(record, updates)
+      update(record, updates)
     end
 
     def similar_record(record, options = {})
