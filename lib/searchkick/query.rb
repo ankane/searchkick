@@ -311,7 +311,7 @@ module Searchkick
             # offset is not possible
             # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
-            facet_options.deep_merge!(where: options[:where].reject { |k| k == field }) if options[:smart_facets] == true
+            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field } ) if options[:smart_facets] == true
             facet_filters = where_filters(facet_options[:where])
             if facet_filters.any?
               payload[:facets][field][:facet_filter] = {
