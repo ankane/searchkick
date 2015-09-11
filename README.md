@@ -223,6 +223,14 @@ fields: [{"name^2" => :word_start}] # better interface on the way
 User.search "hi@searchkick.org", fields: [{email: :exact}, :name]
 ```
 
+### Match Phrase
+
+```ruby
+User.search "the queen", match_phrase: true
+```
+
+It would be sensible to also use <code>misspellings: false</code> with this option.
+
 ### Language
 
 Searchkick defaults to English for stemming.  To change this, use:

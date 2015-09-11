@@ -119,7 +119,8 @@ module Searchkick
                 qs << shared_options.merge(analyzer: analyzer)
               end
 
-              queries.concat(qs.map { |q| {match: {field => q}} })
+              match_type = options[:match_phrase] == true ? :match_phrase : :match
+              queries.concat(qs.map { |q| {match_type => {field => q}} })
             end
 
             payload = {
