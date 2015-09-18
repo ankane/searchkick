@@ -120,8 +120,11 @@ class TestFacets < Minitest::Test
         }
       }
     ).facets
+    entry_attributes = %w(time count min max total total_count mean)
 
-    assert_equal 2, facets["products_per_year"]["entries"].size
+    entries = facets["products_per_year"]["entries"]
+    assert_equal 2, entries.size
+    assert_equal entry_attributes, entries.first.keys
   end
 
   protected
