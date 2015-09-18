@@ -87,7 +87,19 @@ class TestFacets < Minitest::Test
 
   def test_facets_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
-    facets = Product.search("Product", { facets: { products_per_year: { date_histogram: { field: :created_at, interval: :year }}}}).facets
+    facets = Product.search(
+      "Product",
+      {
+        facets: {
+          products_per_year: {
+            date_histogram: {
+              field: :created_at,
+              interval: :year
+            }
+          }
+        }
+      }
+    ).facets
 
     assert_equal 2, facets["products_per_year"]["entries"].size
   end
