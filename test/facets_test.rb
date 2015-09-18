@@ -83,6 +83,35 @@ class TestFacets < Minitest::Test
     assert_equal expected_facets_keys, facets.first.keys
   end
 
+  # time grouping
+
+  def test_facets_group_by_date
+    store [{name: "Old Product", created_at: 3.years.ago}]
+    facets = Product.search("Product", { facets: { products_per_year: { date_histogram: { field: :created_at, interval: :year }}}}).facets
+
+    assert_equal 2, facets["products_per_year"]["entries"].size
+  end
+
+  def test_facets_group_by_date_with_value_field
+    store [{name: "Old Product", created_at: 3.years.ago, price: 100}]
+    facets = Product.search(
+      "Product",
+      {
+        facets: {
+          products_per_year: {
+            date_histogram: {
+              key_field: :created_at,
+              value_field: :price,
+              interval: :year
+            }
+          }
+        }
+      }
+    ).facets
+
+    assert_equal 2, facets["products_per_year"]["entries"].size
+  end
+
   protected
 
   def store_facet(options, facet_key="store_id")
