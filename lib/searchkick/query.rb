@@ -368,6 +368,10 @@ module Searchkick
               payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
             end
 
+            if (fragment_size = options[:highlight][:fragment_size])
+              payload[:highlight][:fragment_size] = fragment_size
+            end
+
             highlight_fields = options[:highlight][:fields]
             if highlight_fields
               payload[:highlight][:fields] = {}

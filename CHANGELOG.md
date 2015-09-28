@@ -1,6 +1,7 @@
 ## 0.9.2 [unreleased]
 
 - Added ability to use misspellings for partial matches
+- Added `fragment_size` option for highlight
 
 ## 0.9.1
 
