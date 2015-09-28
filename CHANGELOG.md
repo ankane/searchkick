@@ -1,3 +1,7 @@
+## 0.9.2 [unreleased]
+
+- Added ability to use misspellings for partial matches
+
 ## 0.9.1
 
 - `and` now matches `&`
