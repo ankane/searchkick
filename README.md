@@ -117,6 +117,35 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
+### Results
+
+Searches return a `Searchkick::Results` object. This responds like an array to most methods.
+
+```ruby
+results = Product.search("milk")
+results.size
+results.any?
+results.each { ... }
+```
+
+Get total results
+
+```ruby
+results.total_count
+```
+
+Get the time the search took (in milliseconds) [master]
+
+```ruby
+results.took
+```
+
+Get the full response from Elasticsearch
+
+```ruby
+results.response
+```
+
 ### Boosting
 
 Boost important fields
