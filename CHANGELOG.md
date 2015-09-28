@@ -2,6 +2,7 @@
 
 - Added ability to use misspellings for partial matches
 - Added `fragment_size` option for highlight
+- Added `took` method to results
 
 ## 0.9.1
 

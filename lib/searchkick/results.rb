@@ -75,6 +75,10 @@ module Searchkick
       response["facets"]
     end
 
+    def took
+      response["took"]
+    end
+
     def model_name
       klass.model_name
     end
