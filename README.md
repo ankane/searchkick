@@ -735,6 +735,12 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 
 ## Debugging Queries
 
+See how Elasticsearch scores your queries with:
+
+```ruby
+Product.search("soap", explain: true)
+```
+
 See how Elasticsearch tokenizes your queries with:
 
 ```ruby
