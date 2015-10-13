@@ -349,6 +349,11 @@ module Searchkick
 
         # synonyms
         synonyms = options[:synonyms] || []
+
+        if synonyms.respond_to?(:call)
+          synonyms = synonyms.call
+        end
+
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
