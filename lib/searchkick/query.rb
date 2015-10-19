@@ -111,6 +111,7 @@ module Searchkick
                 edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
                 transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
                 prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
+                max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
               end
 
               if field == "_all" || field.end_with?(".analyzed")
@@ -128,7 +129,7 @@ module Searchkick
               end
 
               if misspellings != false
-                qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: 3, boost: factor).merge(transpositions) }
+                qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
               queries.concat(qs.map { |q| {match: {field => q}} })
