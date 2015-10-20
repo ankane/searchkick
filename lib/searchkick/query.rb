@@ -483,7 +483,6 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
-        field = :_id if field.to_s == "id"
 
         if field == :or
           value.each do |or_clause|
@@ -559,6 +558,7 @@ module Searchkick
     end
 
     def term_filters(field, value)
+      field = :_id if field.to_s == "id"
       if value.is_a?(Array) # in query
         if value.any?(&:nil?)
           {or: [term_filters(field, nil), term_filters(field, value.compact)]}

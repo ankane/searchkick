@@ -19,11 +19,11 @@ ActiveJob::Base.logger = nil if defined?(ActiveJob)
 
 if defined?(Mongoid)
 
-  def mongoid2?
-    Mongoid::VERSION.starts_with?("2.")
+  def mongoid_version?(version)
+    Mongoid::VERSION.starts_with?("#{version}.")
   end
 
-  if mongoid2?
+  if mongoid_version?(2)
     # enable comparison of BSON::ObjectIds
     module BSON
       class ObjectId
@@ -35,7 +35,7 @@ if defined?(Mongoid)
   end
 
   Mongoid.configure do |config|
-    if mongoid2?
+    if mongoid_version?(2)
       config.master = Mongo::Connection.new.db("searchkick_test")
     else
       config.connect_to "searchkick_test"
@@ -68,6 +68,7 @@ if defined?(Mongoid)
   class Animal
     include Mongoid::Document
 
+    field :id
     field :name
   end
 
