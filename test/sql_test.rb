@@ -119,10 +119,19 @@ class TestSql < Minitest::Test
     assert_search "product", ["Product A"], where: {color: nil}
   end
 
-  def test_where_id
+  def test_where_id_without_stored_id
     store_names ["Product A"]
     product = Product.last
-    assert_search "product", ["Product A"], where: {id: product.id.to_s}
+    assert_search "product", ["Product A"], where: {_id: product.id.to_s}
+  end
+
+  def test_where_id
+    if defined?(Mongoid) && mongoid_version?(4)
+      skip("Mongoid4 indexes id as an object {'$oid'=>'55793ce4416e742a190000c4'}")
+    end
+    store_names ["Dog"], Animal
+    animal = Animal.last
+    assert_search "*", ["Dog"], {where: {id: animal.id}}, Animal
   end
 
   def test_where_empty
@@ -133,6 +142,16 @@ class TestSql < Minitest::Test
   def test_where_empty_array
     store_names ["Product A"]
     assert_search "product", [], where: {store_id: []}
+  end
+
+  def test_where_range_id
+    if defined?(Mongoid) && mongoid_version?(4)
+      skip("Mongoid4 indexes id as an object {'$oid'=>'55793ce4416e742a190000c4'}")
+    end
+
+    store_names ["Cat", "Dog", "Racoon"], Animal
+    animals = Animal.all
+    assert_search "*", animals.map(&:name)[1..-1], {where: {id: {gte: animals[1].id}}}, Animal
   end
 
   # http://elasticsearch-users.115913.n3.nabble.com/Numeric-range-quey-or-filter-in-an-array-field-possible-or-not-td4042967.html

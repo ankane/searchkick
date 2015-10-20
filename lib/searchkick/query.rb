@@ -483,7 +483,6 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
-        field = :_id if field.to_s == "id"
 
         if field == :or
           value.each do |or_clause|
