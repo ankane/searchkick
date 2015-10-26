@@ -314,7 +314,8 @@ module Searchkick
               payload[:facets][field] = {
                 terms: {
                   field: facet_options[:field] || field,
-                  size: size
+                  size: size,
+                  order: facet_options[:order] || "count"
                 }
               }
             end
