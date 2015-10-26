@@ -437,6 +437,8 @@ module Searchkick
         response = Searchkick.client.search(params)
       rescue => e # TODO rescue type
         status_code = e.message[1..3].to_i
+        error_message = e.message[5..e.message.size] # remove the status code
+
         if status_code == 404
           raise MissingIndexError, "Index missing - run #{searchkick_klass.name}.reindex"
         elsif status_code == 500 && (
@@ -451,7 +453,7 @@ module Searchkick
           if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
             raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"
           else
-            raise InvalidQueryError, e.message
+            raise InvalidQueryError, error_message
           end
         else
           raise e
