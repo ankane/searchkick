@@ -130,7 +130,8 @@ module Searchkick
 
     # reindex
 
-    def create_index
+    def create_index(options = {})
+      index_options = options[:index_options] || self.index_options
       index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
@@ -153,7 +154,7 @@ module Searchkick
 
       clean_indices
 
-      index = create_index
+      index = create_index(index_options: scope.searchkick_index_options)
 
       # check if alias exists
       if alias_exists?
@@ -217,6 +218,9 @@ module Searchkick
               },
               default_index: {
                 type: "custom",
+                # character filters -> tokenizer -> token filters
+                # https://www.elastic.co/guide/en/elasticsearch/guide/current/analysis-intro.html
+                char_filter: ["ampersand"],
                 tokenizer: "standard",
                 # synonym should come last, after stemming and shingle
                 # shingle must come before searchkick_stemmer
@@ -224,11 +228,13 @@ module Searchkick
               },
               searchkick_search: {
                 type: "custom",
+                char_filter: ["ampersand"],
                 tokenizer: "standard",
                 filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
               },
               searchkick_search2: {
                 type: "custom",
+                char_filter: ["ampersand"],
                 tokenizer: "standard",
                 filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
               },
@@ -311,8 +317,18 @@ module Searchkick
                 max_gram: 50
               },
               searchkick_stemmer: {
-                type: "snowball",
+                # use stemmer if language is lowercase, snowball otherwise
+                # TODO deprecate language option in favor of stemmer
+                type: options[:language] == options[:language].to_s.downcase ? "stemmer" : "snowball",
                 language: options[:language] || "English"
+              }
+            },
+            char_filter: {
+              # https://www.elastic.co/guide/en/elasticsearch/guide/current/custom-analyzers.html
+              # &_to_and
+              ampersand: {
+                type: "mapping",
+                mappings: ["&=> and "]
               }
             },
             tokenizer: {
@@ -333,6 +349,11 @@ module Searchkick
 
         # synonyms
         synonyms = options[:synonyms] || []
+
+        if synonyms.respond_to?(:call)
+          synonyms = synonyms.call
+        end
+
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
@@ -423,9 +444,15 @@ module Searchkick
           }
         end
 
+        routing = {}
+        if options[:routing]
+          routing = {required: true, path: options[:routing].to_s}
+        end
+
         mappings = {
           _default_: {
             properties: mapping,
+            _routing: routing,
             # https://gist.github.com/kimchy/2898285
             dynamic_templates: [
               {

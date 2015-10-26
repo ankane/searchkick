@@ -15,9 +15,6 @@ module Searchkick
       @term = term
       @options = options
 
-      below12 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.2")
-      below14 = Gem::Version.new(Searchkick.server_version) < Gem::Version.new("1.4")
-
       boost_fields = {}
       fields =
         if options[:fields]
@@ -95,29 +92,44 @@ module Searchkick
               shared_options = {
                 query: term,
                 operator: operator,
-                boost: factor
+                boost: 10 * factor
               }
 
-              if field == "_all" || field.end_with?(".analyzed")
-                shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-                qs.concat [
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
-                ]
-                misspellings = options.key?(:misspellings) ? options[:misspellings] : options[:mispellings] # why not?
-                if misspellings != false
-                  edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
-                  qs.concat [
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search"),
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2")
-                  ]
+              misspellings =
+                if options.key?(:misspellings)
+                  options[:misspellings]
+                elsif options.key?(:mispellings)
+                  options[:mispellings] # why not?
+                elsif field == "_all" || field.end_with?(".analyzed")
+                  true
+                else
+                  # TODO default to true and remove this
+                  false
                 end
+
+              if misspellings != false
+                edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
+                transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
+                prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
+                max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
+              end
+
+              if field == "_all" || field.end_with?(".analyzed")
+                shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
+                qs.concat [
+                  shared_options.merge(analyzer: "searchkick_search"),
+                  shared_options.merge(analyzer: "searchkick_search2")
+                ]
               elsif field.end_with?(".exact")
                 f = field.split(".")[0..-2].join(".")
                 queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
               else
                 analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
                 qs << shared_options.merge(analyzer: analyzer)
+              end
+
+              if misspellings != false
+                qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
               queries.concat(qs.map { |q| {match: {field => q}} })
@@ -133,7 +145,7 @@ module Searchkick
           if conversions_field && options[:conversions] != false
             # wrap payload in a bool query
             script_score =
-              if below12
+              if below12?
                 {script_score: {script: "doc['count'].value"}}
               else
                 {field_value_factor: {field: "count"}}
@@ -164,31 +176,21 @@ module Searchkick
         end
 
         custom_filters = []
+        multiply_filters = []
 
         boost_by = options[:boost_by] || {}
+
         if boost_by.is_a?(Array)
           boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+        elsif boost_by.is_a?(Hash)
+          multiply_by, boost_by = boost_by.partition { |k,v| v[:boost_mode] == "multiply" }.map{ |i| Hash[i] }
         end
         if options[:boost]
           boost_by[options[:boost]] = {factor: 1}
         end
 
-        boost_by.each do |field, value|
-          script_score =
-            if below12
-              {script_score: {script: "#{value[:factor].to_f} * log(doc['#{field}'].value + 2.718281828)"}}
-            else
-              {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: "ln2p"}}
-            end
-
-          custom_filters << {
-            filter: {
-              exists: {
-                field: field
-              }
-            }
-          }.merge(script_score)
-        end
+        custom_filters.concat boost_filters(boost_by, log: true)
+        multiply_filters.concat boost_filters(multiply_by || {})
 
         boost_where = options[:boost_where] || {}
         if options[:user_id] && personalize_field
@@ -237,6 +239,16 @@ module Searchkick
           }
         end
 
+        if multiply_filters.any?
+          payload = {
+            function_score: {
+              functions: multiply_filters,
+              query: payload,
+              score_mode: "multiply"
+            }
+          }
+        end
+
         payload = {
           query: payload,
           size: per_page,
@@ -254,9 +266,21 @@ module Searchkick
         # filters
         filters = where_filters(options[:where])
         if filters.any?
-          payload[:filter] = {
-            and: filters
-          }
+          if options[:facets]
+            payload[:filter] = {
+              and: filters
+            }
+          else
+            # more efficient query if no facets
+            payload[:query] = {
+              filtered: {
+                query: payload[:query],
+                filter: {
+                  and: filters
+                }
+              }
+            }
+          end
         end
 
         # facets
@@ -282,14 +306,14 @@ module Searchkick
               payload[:facets][field] = {
                 terms_stats: {
                   key_field: field,
-                  value_script: below14 ? "doc.score" : "_score",
+                  value_script: below14? ? "doc.score" : "_score",
                   size: size
                 }
               }
             else
               payload[:facets][field] = {
                 terms: {
-                  field: field,
+                  field: facet_options[:field] || field,
                   size: size
                 }
               }
@@ -300,7 +324,7 @@ module Searchkick
             # offset is not possible
             # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
-            facet_options.deep_merge!(where: options[:where].reject { |k| k == field }) if options[:smart_facets] == true
+            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field } ) if options[:smart_facets] == true
             facet_filters = where_filters(facet_options[:where])
             if facet_filters.any?
               payload[:facets][field][:facet_filter] = {
@@ -345,6 +369,10 @@ module Searchkick
               payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
             end
 
+            if (fragment_size = options[:highlight][:fragment_size])
+              payload[:highlight][:fragment_size] = fragment_size
+            end
+
             highlight_fields = options[:highlight][:fields]
             if highlight_fields
               payload[:highlight][:fields] = {}
@@ -366,6 +394,11 @@ module Searchkick
 
         if options[:type] || klass != searchkick_klass
           @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
+        end
+
+        # routing
+        if options[:routing]
+          @routing = options[:routing]
         end
       end
 
@@ -395,6 +428,7 @@ module Searchkick
         body: body
       }
       params.merge!(type: @type) if @type
+      params.merge!(routing: @routing) if @routing
       params
     end
 
@@ -492,6 +526,8 @@ module Searchkick
                       field => op_value
                   }
               }
+              when :regexp # support for regexp queries without using a regexp ruby object
+                filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
                 filters << {not: term_filters(field, op_value)}
               when :all
@@ -546,10 +582,45 @@ module Searchkick
 
     def custom_filter(field, value, factor)
       {
-        filter: term_filters(field, value),
+        filter: {
+          and: where_filters({field => value})
+        },
         boost_factor: factor
       }
     end
 
+    def boost_filters(boost_by, options = {})
+      boost_by.map do |field, value|
+        log = value.key?(:log) ? value[:log] : options[:log]
+        value[:factor] ||= 1
+        script_score =
+          if below12?
+            script = log ? "log(doc['#{field}'].value + 2.718281828)" : "doc['#{field}'].value"
+            {script_score: {script: "#{value[:factor].to_f} * #{script}"}}
+          else
+            {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: log ? "ln2p" : nil}}
+          end
+
+        {
+          filter: {
+            exists: {
+              field: field
+            }
+          }
+        }.merge(script_score)
+      end
+    end
+
+    def below12?
+      below_version?("1.2.0")
+    end
+
+    def below14?
+      below_version?("1.4.0")
+    end
+
+    def below_version?(version)
+      Gem::Version.new(Searchkick.server_version) < Gem::Version.new(version)
+    end
   end
 end

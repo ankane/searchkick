@@ -1,3 +1,24 @@
+## 0.9.2 [unreleased]
+
+- Added ability to use misspellings for partial matches
+- Added `fragment_size` option for highlight
+- Added `took` method to results
+
+## 0.9.1
+
+- `and` now matches `&`
+- Added `transpositions` option to misspellings
+- Added `boost_mode` and `log` options to `boost_by`
+- Added `prefix_length` option to `misspellings`
+- Added ability to set env
+
+## 0.9.0
+
+- Much better performance for where queries if no facets
+- Added basic support for regex
+- Added support for routing
+- Made `Searchkick.disable_callbacks` thread-safe
+
 ## 0.8.7
 
 - Fixed Mongoid import

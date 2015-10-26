@@ -1,6 +1,5 @@
 language: ruby
-rvm:
-  - 2.1
+rvm: 2.2
 services:
   - elasticsearch
   - mongodb

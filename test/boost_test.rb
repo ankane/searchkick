@@ -101,6 +101,16 @@ class TestBoost < Minitest::Test
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
   end
 
+  def test_boost_by_boost_mode_multiply
+    store [
+      {name: "Tomato A", found_rate: 0.9},
+      {name: "Tomato B"},
+      {name: "Tomato C", found_rate: 0.5}
+    ]
+
+    assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], boost_by: {found_rate: {boost_mode: "multiply"}}
+  end
+
   def test_boost_where
     store [
       {name: "Tomato A"},
@@ -108,6 +118,7 @@ class TestBoost < Minitest::Test
       {name: "Tomato C", user_ids: [3]}
     ]
     assert_first "tomato", "Tomato B", boost_where: {user_ids: 2}
+    assert_first "tomato", "Tomato B", boost_where: {user_ids: 1..2}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: [1, 4]}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: [1, 4], factor: 10}}

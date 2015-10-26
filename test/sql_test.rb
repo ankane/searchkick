@@ -40,6 +40,7 @@ class TestSql < Minitest::Test
     assert !products.first_page?
     assert !products.last_page?
     assert !products.empty?
+    assert !products.out_of_range?
     assert products.any?
   end
 
@@ -96,6 +97,11 @@ class TestSql < Minitest::Test
   def test_regexp
     store_names ["Product A"]
     assert_search "*", ["Product A"], where: {name: /Pro.+/}
+  end
+
+  def test_alternate_regexp
+    store_names ["Product A", "Item B"]
+    assert_search "*", ["Product A"], where: {name: {regexp: "Pro.+"}}
   end
 
   def test_where_string
@@ -236,6 +242,40 @@ class TestSql < Minitest::Test
   def test_misspellings_distance
     store_names ["abbb", "aabb"]
     assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
+  end
+
+  def test_misspellings_prefix_length
+    store_names ["ap", "api", "apt", "any", "nap", "ah", "ahi"]
+    assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
+    assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
+  end
+
+  def test_misspellings_prefix_length_operator
+    store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
+    assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
+    assert_search "api ahi", ["ap", "api", "apt", "ah", "aha"], operator: "or", misspellings: {prefix_length: 2}
+  end
+
+  def test_misspellings_fields_operator
+    store [
+      {name: "red", color: "red"},
+      {name: "blue", color: "blue"},
+      {name: "cyan", color: "blue green"},
+      {name: "magenta", color: "red blue"},
+      {name: "green", color: "green"}
+    ]
+    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"], misspellings: false
+  end
+
+  def test_fields_operator
+    store [
+      {name: "red", color: "red"},
+      {name: "blue", color: "blue"},
+      {name: "cyan", color: "blue green"},
+      {name: "magenta", color: "red blue"},
+      {name: "green", color: "green"}
+    ]
+    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"]
   end
 
   def test_fields

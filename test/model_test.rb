@@ -18,6 +18,9 @@ class TestModel < Minitest::Test
   end
 
   def test_disable_callbacks_global
+    # make sure callbacks default to on
+    assert Searchkick.callbacks?
+    
     store_names ["product a"]
 
     Searchkick.disable_callbacks
