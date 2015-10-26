@@ -400,6 +400,12 @@ module Searchkick
         if options[:routing]
           @routing = options[:routing]
         end
+
+        # query caching can only be true/false
+        @query_cache = options[:query_cache]
+        unless !!@query_cache == @query_cache
+          @query_cache = nil
+        end
       end
 
       @body = payload
@@ -429,6 +435,7 @@ module Searchkick
       }
       params.merge!(type: @type) if @type
       params.merge!(routing: @routing) if @routing
+      params.merge!(query_cache: @query_cache) unless @query_cache.nil?
       params
     end
 
