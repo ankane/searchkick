@@ -27,6 +27,13 @@ class TestAggs < Minitest::Test
     assert_equal ({1 => 1, 2 => 2}), store_agg({aggs: {store_id_new: {field: "store_id"}}}, "store_id_new")
   end
 
+  def test_limit
+    agg = Product.search("Product", aggs: {store_id: {limit: 1}}).aggs["store_id"]
+    assert_equal 1, agg["buckets"].size
+    # assert_equal 3, agg["doc_count"]
+    assert_equal 1, agg["sum_other_doc_count"]
+  end
+
   def test_where_no_smart_aggs
     assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}})
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}})

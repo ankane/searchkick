@@ -346,9 +346,12 @@ module Searchkick
           end
 
           aggs.each do |field, agg_options|
+            size = agg_options[:limit] ? agg_options[:limit] : 100_000
+
             payload[:aggs][field] = {
               terms: {
-                field: agg_options[:field] || field
+                field: agg_options[:field] || field,
+                size: size
               }
             }
 
@@ -363,11 +366,7 @@ module Searchkick
                   }
                 },
                 aggs: {
-                  field => {
-                    terms: {
-                      field: field
-                    }
-                  }
+                  field => payload[:aggs][field]
                 }
               }
             end
