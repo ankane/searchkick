@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestShouldIndex < Minitest::Test
-
+class ShouldIndexTest < Minitest::Test
   def test_basic
     store_names ["INDEX", "DO NOT INDEX"]
     assert_search "index", ["INDEX"]
@@ -30,5 +29,4 @@ class TestShouldIndex < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "index", []
   end
-
 end

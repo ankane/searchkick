@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestFacets < Minitest::Test
+class FacetsTest < Minitest::Test
 
   def setup
     skip if elasticsearch2?

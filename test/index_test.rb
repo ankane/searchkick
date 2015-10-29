@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestIndex < Minitest::Test
+class IndexTest < Minitest::Test
 
   def test_clean_indices
     old_index = Searchkick::Index.new("products_test_20130801000000000")

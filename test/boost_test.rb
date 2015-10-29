@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestBoost < Minitest::Test
+class BoostTest < Minitest::Test
 
   # conversions
 

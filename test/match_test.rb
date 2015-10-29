@@ -2,7 +2,7 @@
 
 require_relative "test_helper"
 
-class TestMatch < Minitest::Test
+class MatchTest < Minitest::Test
 
   # exact
 

@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestRouting < Minitest::Test
+class RoutingTest < Minitest::Test
 
   def test_routing_query
     skip if elasticsearch2?
@@ -13,4 +13,5 @@ class TestRouting < Minitest::Test
     index_options = Store.searchkick_index.index_options
     assert_equal index_options[:mappings][:_default_][:_routing], {required: true, path: "name"}
   end
+
 end

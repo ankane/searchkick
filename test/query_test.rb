@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestQuery < Minitest::Test
+class QueryTest < Minitest::Test
 
   def test_basic
     store_names ["Milk", "Apple"]

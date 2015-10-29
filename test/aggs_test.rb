@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestAggs < Minitest::Test
+class AggsTest < Minitest::Test
 
   def setup
     super

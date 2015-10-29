@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestInheritance < Minitest::Test
+class InheritanceTest < Minitest::Test
 
   def test_child_reindex
     store_names ["Max"], Cat

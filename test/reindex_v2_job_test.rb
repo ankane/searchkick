@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class TestReindexV2Job < Minitest::Test
+class ReindexV2JobTest < Minitest::Test
 
   def setup
     skip unless defined?(ActiveJob)
