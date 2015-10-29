@@ -594,7 +594,7 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
   products = Product.search "chuck taylor", aggs: [:brand]
   ```
 
-2. Replace the `facets` method with `aggs` to get the results.
+2. Replace the `facets` method with `aggs` for results.
 
   ```ruby
   products.facets
@@ -629,7 +629,9 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
   }
   ```
 
-3. By default, where conditions apply - equivalent to `smart_facets: true`. You can control this with `smart_aggs: false`.
+  Update your application to handle this.
+
+3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
 
 ### Highlight
 
