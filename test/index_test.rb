@@ -100,7 +100,7 @@ class TestIndex < Minitest::Test
   end
 
   def test_invalid_query
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {}) }
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {boom: true}) }
   end
 
   if defined?(ActiveRecord)

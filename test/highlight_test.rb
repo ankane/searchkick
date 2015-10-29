@@ -41,7 +41,7 @@ class TestHighlight < Minitest::Test
     json = {
       query: {
         match: {
-          _all: "cinema"
+          "name.analyzed" => "cinema"
         }
       },
       highlight: {

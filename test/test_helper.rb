@@ -17,6 +17,10 @@ I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
 
+def elasticsearch2?
+  Searchkick.server_version.starts_with?("2.")
+end
+
 if defined?(Mongoid)
 
   def mongoid2?
@@ -220,7 +224,7 @@ end
 
 class Store
   searchkick \
-    routing: :name,
+    routing: elasticsearch2? ? false : "name",
     merge_mappings: true,
     mappings: {
       store: {

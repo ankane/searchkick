@@ -109,7 +109,14 @@ module Searchkick
 
               if misspellings != false
                 edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
-                transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
+                transpositions =
+                  if misspellings.is_a?(Hash) && misspellings[:transpositions] == true
+                    {fuzzy_transpositions: true}
+                  elsif below20?
+                    {}
+                  else
+                    {fuzzy_transpositions: false}
+                  end
                 prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
                 max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
               end
@@ -148,7 +155,8 @@ module Searchkick
               if below12?
                 {script_score: {script: "doc['count'].value"}}
               else
-                {field_value_factor: {field: "count"}}
+                conversions_count_field = below20? ? "count" : "#{conversions_field}.count"
+                {field_value_factor: {field: conversions_count_field}}
               end
 
             payload = {
@@ -648,6 +656,10 @@ module Searchkick
 
     def below14?
       below_version?("1.4.0")
+    end
+
+    def below20?
+      below_version?("2.0.0")
     end
 
     def below_version?(version)
