@@ -101,7 +101,7 @@ elsif defined?(NoBrainer)
     field :color,        type: String
     field :latitude
     field :longitude
-    field :description,  type: String
+    field :description, type: String
 
     belongs_to :store, validates: false
   end
@@ -230,10 +230,10 @@ class Store
     mappings: {
       store: {
         properties: {
-          name: {type: "string", analyzer: "keyword"},
+          name: {type: "string", analyzer: "keyword"}
         }
       }
-  }
+    }
 end
 
 class Animal
@@ -252,7 +252,6 @@ Store.reindex
 Animal.reindex
 
 class Minitest::Test
-
   def setup
     Product.destroy_all
     Store.destroy_all
@@ -284,5 +283,4 @@ class Minitest::Test
   def assert_first(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, options).map(&:name).first
   end
-
 end

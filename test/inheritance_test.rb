@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestInheritance < Minitest::Test
-
+class InheritanceTest < Minitest::Test
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex
@@ -76,5 +75,4 @@ class TestInheritance < Minitest::Test
     store_names ["Product B"], Animal
     assert_search "product", ["Product A", "Product B"], index_name: [Product.searchkick_index.name, Animal.searchkick_index.name], conversions: false
   end
-
 end

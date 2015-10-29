@@ -2,7 +2,6 @@ module Searchkick
   module Reindex; end # legacy for Searchjoy
 
   module Model
-
     def searchkick(options = {})
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 
@@ -94,9 +93,7 @@ module Searchkick
         def should_index?
           true
         end unless method_defined?(:should_index?)
-
       end
     end
-
   end
 end
