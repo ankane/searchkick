@@ -810,6 +810,8 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
+For Amazon Elasticsearch Service, [check out this](https://github.com/ankane/searchkick/issues/532).
+
 ### Performance
 
 For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
