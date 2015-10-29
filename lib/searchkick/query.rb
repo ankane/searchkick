@@ -155,8 +155,7 @@ module Searchkick
               if below12?
                 {script_score: {script: "doc['count'].value"}}
               else
-                conversions_count_field = below20? ? "count" : "#{conversions_field}.count"
-                {field_value_factor: {field: conversions_count_field}}
+                {field_value_factor: {field: "#{conversions_field}.count"}}
               end
 
             payload = {
@@ -165,13 +164,13 @@ module Searchkick
                 should: {
                   nested: {
                     path: conversions_field,
-                    score_mode: "total",
+                    score_mode: "sum",
                     query: {
                       function_score: {
                         boost_mode: "replace",
                         query: {
                           match: {
-                            query: term
+                            "#{conversions_field}.query" => term
                           }
                         }
                       }.merge(script_score)
