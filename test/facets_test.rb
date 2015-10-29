@@ -1,5 +1,4 @@
 require_relative "test_helper"
-require "active_support/core_ext"
 
 class TestFacets < Minitest::Test
 
