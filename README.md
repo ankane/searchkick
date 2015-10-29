@@ -798,7 +798,7 @@ heroku run rake searchkick:reindex CLASS=Product
 
 ### Amazon Elasticsearch Service
 
-Unfortunately, you must use an [IP-based access policy](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg-search.html) for it to work.
+You must use an [IP-based access policy](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg-search.html) to use Searchkick.
 
 Include `elasticsearch 1.0.14` or greater in your Gemfile.
 
