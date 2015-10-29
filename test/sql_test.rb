@@ -139,11 +139,11 @@ class TestSql < Minitest::Test
   # https://gist.github.com/jprante/7099463
   def test_where_range_array
     store [
-      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23.6]},
-      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 8.9, 9.1, 9.4]},
+      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23]},
+      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9]},
       {name: "Product C", user_ids: [101, 230, 150, 200]}
     ]
-    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 23.9}}
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 24}}
   end
 
   def test_where_range_array_again
@@ -301,9 +301,9 @@ class TestSql < Minitest::Test
 
   def test_big_decimal
     store [
-      {name: "Product", latitude: 100.0}
+      {name: "Product", latitude: 80.0}
     ]
-    assert_search "product", ["Product"], where: {latitude: {gt: 99}}
+    assert_search "product", ["Product"], where: {latitude: {gt: 79}}
   end
 
   # load
