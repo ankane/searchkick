@@ -266,7 +266,7 @@ module Searchkick
         # filters
         filters = where_filters(options[:where])
         if filters.any?
-          if options[:facets]
+          if options[:facets] || options[:aggs]
             payload[:filter] = {
               and: filters
             }
@@ -330,6 +330,44 @@ module Searchkick
               payload[:facets][field][:facet_filter] = {
                 and: {
                   filters: facet_filters
+                }
+              }
+            end
+          end
+        end
+
+        # aggregations
+        if options[:aggs]
+          aggs = options[:aggs]
+          payload[:aggs] = {}
+
+          if aggs.is_a?(Array) # convert to more advanced syntax
+            aggs = aggs.map { |f| [f, {}] }.to_h
+          end
+
+          aggs.each do |field, agg_options|
+            payload[:aggs][field] = {
+              terms: {
+                field: agg_options[:field] || field
+              }
+            }
+
+            agg_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field } ) if options[:smart_aggs] == true
+            agg_filters = where_filters(agg_options[:where])
+
+            if agg_filters.any?
+              payload[:aggs][field] = {
+                filter: {
+                  bool: {
+                    must: agg_filters
+                  }
+                },
+                aggs: {
+                  field => {
+                    terms: {
+                      field: field
+                    }
+                  }
                 }
               }
             end
