@@ -547,54 +547,67 @@ products = Product.search "peantu butta", suggest: true
 products.suggestions # ["peanut butter"]
 ```
 
-### Facets
+### Aggregations / Facets
 
-[Facets](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
+[Aggregations](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
 
-![Facets](http://ankane.github.io/searchkick/facets.png)
+![Aggregations](http://ankane.github.io/searchkick/facets.png)
 
 ```ruby
-products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
-p products.facets
+products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
+p products.aggs
 ```
 
-By default, `where` conditions are not applied to facets (for backward compatibility).
+By default, `where` conditions are not applied to aggregations (for backward compatibility).
 
 ```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size]
-# facets *not* filtered by color :(
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size]
+# aggs *not* filtered by color :(
 ```
 
 Change this with:
 
 ```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size], smart_facets: true
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: true
 ```
 
-or set `where` conditions for each facet separately:
+or set `where` conditions for each aggregation separately:
 
 ```ruby
-Product.search "wingtips", facets: {size: {where: {color: "brandy"}}}
+Product.search "wingtips", aggs: {size: {where: {color: "brandy"}}}
 ```
 
 Limit
 
 ```ruby
-Product.search "apples", facets: {store_id: {limit: 10}}
+Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
-Ranges
+#### Moving From Facets
 
-```ruby
-price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
-Product.search "*", facets: {price: {ranges: price_ranges}}
-```
+1. Replace `facets` with `aggs` in searches. **Note:** Range and stats facets are not supported at this time.
 
-Use the `stats` option to get to max, min, mean, and total scores for each facet
+  ```ruby
+  products = Product.search "chuck taylor", aggs: [:brand]
+  ```
 
-```ruby
-Product.search "*", facets: {store_id: {stats: true}}
-```
+2. Replace the `facets` method with `aggs` to get the results.
+
+  ```ruby
+  products.aggs
+  ```
+
+  The format of results slightly differs. Instead of:
+
+  ```json
+
+  ```
+
+  You get:
+
+  ```json
+
+  ```
 
 ### Highlight
 
