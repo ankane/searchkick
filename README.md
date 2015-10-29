@@ -45,7 +45,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
+For Elasticsearch 2.0, use version `0.9.2` or above. For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -547,11 +547,95 @@ products = Product.search "peantu butta", suggest: true
 products.suggestions # ["peanut butter"]
 ```
 
-### Facets
+### Aggregations
 
-[Facets](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
+[Aggregations](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
 
-![Facets](http://ankane.github.io/searchkick/facets.png)
+![Aggregations](http://ankane.github.io/searchkick/facets.png)
+
+```ruby
+products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
+products.aggs
+```
+
+By default, `where` conditions apply to aggregations.
+
+```ruby
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size]
+# aggregations for brandy wingtips are returned
+```
+
+Change this with:
+
+```ruby
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: false
+# aggregations for all wingtips are returned
+```
+
+Set `where` conditions for each aggregation separately with:
+
+```ruby
+Product.search "wingtips", aggs: {size: {where: {color: "brandy"}}}
+```
+
+Limit
+
+```ruby
+Product.search "apples", aggs: {store_id: {limit: 10}}
+```
+
+#### Moving From Facets
+
+1. Replace `facets` with `aggs` in searches. **Note:** Range and stats facets are not supported at this time.
+
+  ```ruby
+  products = Product.search "chuck taylor", facets: [:brand]
+  # to
+  products = Product.search "chuck taylor", aggs: [:brand]
+  ```
+
+2. Replace the `facets` method with `aggs` for results.
+
+  ```ruby
+  products.facets
+  # to
+  products.aggs
+  ```
+
+  The keys in results differ slightly. Instead of:
+
+  ```json
+  {
+    "_type":"terms",
+    "missing":0,
+    "total":45,
+    "other":34,
+    "terms":[
+      {"term":14.0,"count":11}
+    ]
+  }
+  ```
+
+  You get:
+
+  ```json
+  {
+    "doc_count":45,
+    "doc_count_error_upper_bound":0,
+    "sum_other_doc_count":34,
+    "buckets":[
+      {"key":14.0,"doc_count":11}
+    ]
+  }
+  ```
+
+  Update your application to handle this.
+
+3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
+
+### Facets [deprecated]
+
+Facets have been deprecated in favor of aggregations as of Searchkick 0.9.2. See [how to upgrade](#moving-from-facets).
 
 ```ruby
 products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
@@ -692,6 +776,8 @@ City.search "san", boost_by_distance: {field: :location, origin: [37, -122], fun
 ### Routing
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
+
+**Note:** Routing is not yet supported for Elasticsearch 2.0.
 
 ```ruby
 class Contact < ActiveRecord::Base
