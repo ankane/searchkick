@@ -1,5 +1,6 @@
 ## 0.9.2 [unreleased]
 
+- Added support for aggregations
 - Added ability to use misspellings for partial matches
 - Added `fragment_size` option for highlight
 - Added `took` method to results
