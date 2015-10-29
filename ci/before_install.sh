@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.2.deb
-sudo dpkg -i elasticsearch-1.3.2.deb
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.3.deb
+sudo dpkg -i elasticsearch-1.7.3.deb
 sudo service elasticsearch restart
 
 if [ -n "$NOBRAINER" ]; then
