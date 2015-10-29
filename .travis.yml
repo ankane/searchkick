@@ -4,7 +4,7 @@ services:
   - elasticsearch
   - mongodb
 before_install:
-  - ./ci/before_install.sh
+  - ./test/ci/before_install.sh
 script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
@@ -14,14 +14,14 @@ notifications:
     on_failure: change
 gemfile:
   - Gemfile
-  - gemfiles/activerecord41.gemfile
-  - gemfiles/activerecord40.gemfile
-  - gemfiles/activerecord32.gemfile
-  - gemfiles/activerecord31.gemfile
-  - gemfiles/mongoid2.gemfile
-  - gemfiles/mongoid3.gemfile
-  - gemfiles/mongoid4.gemfile
+  - test/gemfiles/activerecord41.gemfile
+  - test/gemfiles/activerecord40.gemfile
+  - test/gemfiles/activerecord32.gemfile
+  - test/gemfiles/activerecord31.gemfile
+  - test/gemfiles/mongoid2.gemfile
+  - test/gemfiles/mongoid3.gemfile
+  - test/gemfiles/mongoid4.gemfile
 matrix:
   include:
-    - gemfile: gemfiles/nobrainer.gemfile
+    - gemfile: test/gemfiles/nobrainer.gemfile
       env: NOBRAINER=true
