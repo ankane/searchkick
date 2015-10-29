@@ -392,8 +392,8 @@ module Searchkick
         mapping = {}
 
         # conversions
-        if options[:conversions]
-          mapping[:conversions] = {
+        if (conversions_field = options[:conversions])
+          mapping[conversions_field] = {
             type: "nested",
             properties: {
               query: {type: "string", analyzer: "searchkick_keyword"},
