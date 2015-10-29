@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class IndexTest < Minitest::Test
-
   def test_clean_indices
     old_index = Searchkick::Index.new("products_test_20130801000000000")
     different_index = Searchkick::Index.new("items_test_20130801000000000")
@@ -93,7 +92,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_unsupported_version
-    raises_exception = ->(s) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
+    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
     Searchkick.client.stub :search, raises_exception do
       assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
     end
@@ -115,5 +114,4 @@ class IndexTest < Minitest::Test
     end
 
   end
-
 end

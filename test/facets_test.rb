@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class FacetsTest < Minitest::Test
-
   def setup
     skip if elasticsearch2?
     super
@@ -79,14 +78,13 @@ class FacetsTest < Minitest::Test
     skip if Gem::Version.new(Searchkick.server_version) >= Gem::Version.new("1.4.0")
     options = {where: {store_id: 2}, facets: {store_id: {stats: true}}}
     facets = Product.search("Product", options).facets["store_id"]["terms"]
-    expected_facets_keys = %w[term count total_count min max total mean]
+    expected_facets_keys = %w(term count total_count min max total mean)
     assert_equal expected_facets_keys, facets.first.keys
   end
 
   protected
 
-  def store_facet(options, facet_key="store_id")
+  def store_facet(options, facet_key = "store_id")
     Hash[Product.search("Product", options).facets[facet_key]["terms"].map { |v| [v["term"], v["count"]] }]
   end
-
 end

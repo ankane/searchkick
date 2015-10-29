@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class AggsTest < Minitest::Test
-
   def setup
     super
     store [
@@ -79,5 +78,4 @@ class AggsTest < Minitest::Test
       [field, buckets_as_hash(filtered_agg)]
     end.to_h
   end
-
 end

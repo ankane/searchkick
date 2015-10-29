@@ -1,6 +1,5 @@
 module Searchkick
   class ReindexJob
-
     def initialize(klass, id)
       @klass = klass
       @id = id
@@ -23,6 +22,5 @@ module Searchkick
         index.store record
       end
     end
-
   end
 end

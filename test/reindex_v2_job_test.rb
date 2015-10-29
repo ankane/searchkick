@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class ReindexV2JobTest < Minitest::Test
-
   def setup
     skip unless defined?(ActiveJob)
     super
@@ -30,5 +29,4 @@ class ReindexV2JobTest < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "*", []
   end
-
 end

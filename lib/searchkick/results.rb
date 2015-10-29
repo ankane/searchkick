@@ -26,7 +26,7 @@ module Searchkick
           # results can have different types
           results = {}
 
-          hits.group_by { |hit, i| hit["_type"] }.each do |type, grouped_hits|
+          hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
             results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 

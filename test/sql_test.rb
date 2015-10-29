@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class SqlTest < Minitest::Test
-
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
@@ -333,7 +332,7 @@ class SqlTest < Minitest::Test
   def test_select
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
-    assert_equal %w[id name store_id], result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal ["Product A"], result.name # this is not great
   end
 
@@ -363,5 +362,4 @@ class SqlTest < Minitest::Test
       assert Product.search("product", include: [:store]).first.association(:store).loaded?
     end
   end
-
 end

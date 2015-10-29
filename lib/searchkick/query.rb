@@ -190,11 +190,9 @@ module Searchkick
         if boost_by.is_a?(Array)
           boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
         elsif boost_by.is_a?(Hash)
-          multiply_by, boost_by = boost_by.partition { |k,v| v[:boost_mode] == "multiply" }.map{ |i| Hash[i] }
+          multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
         end
-        if options[:boost]
-          boost_by[options[:boost]] = {factor: 1}
-        end
+        boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
         custom_filters.concat boost_filters(boost_by, log: true)
         multiply_filters.concat boost_filters(multiply_by || {})
@@ -209,12 +207,10 @@ module Searchkick
         boost_where.each do |field, value|
           if value.is_a?(Array) && value.first.is_a?(Hash)
             value.each do |value_factor|
-              value, factor = value_factor[:value], value_factor[:factor]
-              custom_filters << custom_filter(field, value, factor)
+              custom_filters << custom_filter(field, value_factor[:value], value_factor[:factor])
             end
           elsif value.is_a?(Hash)
-            value, factor = value[:value], value[:factor]
-            custom_filters << custom_filter(field, value, factor)
+            custom_filters << custom_filter(field, value[:value], value[:factor])
           else
             factor = 1000
             custom_filters << custom_filter(field, value, factor)
@@ -227,7 +223,7 @@ module Searchkick
           if !boost_by_distance[:field] || !boost_by_distance[:origin]
             raise ArgumentError, "boost_by_distance requires :field and :origin"
           end
-          function_params = boost_by_distance.select { |k, v| [:origin, :scale, :offset, :decay].include?(k) }
+          function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
           function_params[:origin] = function_params[:origin].reverse
           custom_filters << {
             boost_by_distance[:function] => {
@@ -293,9 +289,7 @@ module Searchkick
         # facets
         if options[:facets]
           facets = options[:facets] || {}
-          if facets.is_a?(Array) # convert to more advanced syntax
-            facets = Hash[facets.map { |f| [f, {}] }]
-          end
+          facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
 
           payload[:facets] = {}
           facets.each do |field, facet_options|
@@ -331,7 +325,7 @@ module Searchkick
             # offset is not possible
             # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
-            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field } ) if options[:smart_facets] == true
+            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_facets] == true
             facet_filters = where_filters(facet_options[:where])
             if facet_filters.any?
               payload[:facets][field][:facet_filter] = {
@@ -348,9 +342,7 @@ module Searchkick
           aggs = options[:aggs]
           payload[:aggs] = {}
 
-          if aggs.is_a?(Array) # convert to more advanced syntax
-            aggs = aggs.map { |f| [f, {}] }.to_h
-          end
+          aggs = aggs.map { |f| [f, {}] }.to_h if aggs.is_a?(Array) # convert to more advanced syntax
 
           aggs.each do |field, agg_options|
             size = agg_options[:limit] ? agg_options[:limit] : 100_000
@@ -362,7 +354,7 @@ module Searchkick
               }
             }
 
-            agg_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field } ) if options[:smart_aggs] == true
+            agg_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_aggs] == true
             agg_filters = where_filters(agg_options[:where])
 
             if agg_filters.any?
@@ -441,9 +433,7 @@ module Searchkick
         end
 
         # routing
-        if options[:routing]
-          @routing = options[:routing]
-        end
+        @routing = options[:routing] if options[:routing]
       end
 
       @body = payload
@@ -539,9 +529,7 @@ module Searchkick
             value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
           end
 
-          if value.is_a?(Array)
-            value = {in: value}
-          end
+          value = {in: value} if value.is_a?(Array)
 
           if value.is_a?(Hash)
             value.each do |op, op_value|
@@ -623,7 +611,7 @@ module Searchkick
     def custom_filter(field, value, factor)
       {
         filter: {
-          and: where_filters({field => value})
+          and: where_filters(field => value)
         },
         boost_factor: factor
       }

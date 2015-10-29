@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
 class ModelTest < Minitest::Test
-
   def test_disable_callbacks_model
     store_names ["product a"]
 
@@ -34,5 +33,4 @@ class ModelTest < Minitest::Test
 
     assert_search "product", ["product a", "product b"]
   end
-
 end
