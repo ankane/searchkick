@@ -547,7 +547,7 @@ products = Product.search "peantu butta", suggest: true
 products.suggestions # ["peanut butter"]
 ```
 
-### Aggregations / Facets
+### Aggregations (Facets)
 
 [Aggregations](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
 
@@ -555,23 +555,24 @@ products.suggestions # ["peanut butter"]
 
 ```ruby
 products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
-p products.aggs
+products.aggs
 ```
 
-By default, `where` conditions are not applied to aggregations (for backward compatibility).
+By default, `where` conditions apply to aggregations.
 
 ```ruby
 Product.search "wingtips", where: {color: "brandy"}, aggs: [:size]
-# aggs *not* filtered by color :(
+# aggregations for brandy wingtips are returned
 ```
 
 Change this with:
 
 ```ruby
-Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: true
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: false
+# aggregations for all wingtips are returned
 ```
 
-or set `where` conditions for each aggregation separately:
+Set `where` conditions for each aggregation separately with:
 
 ```ruby
 Product.search "wingtips", aggs: {size: {where: {color: "brandy"}}}
@@ -588,26 +589,47 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
 1. Replace `facets` with `aggs` in searches. **Note:** Range and stats facets are not supported at this time.
 
   ```ruby
+  products = Product.search "chuck taylor", facets: [:brand]
+  # to
   products = Product.search "chuck taylor", aggs: [:brand]
   ```
 
 2. Replace the `facets` method with `aggs` to get the results.
 
   ```ruby
+  products.facets
+  # to
   products.aggs
   ```
 
-  The format of results slightly differs. Instead of:
+  The keys in results differ slightly. Instead of:
 
   ```json
-
+  {
+    "_type":"terms",
+    "missing":0,
+    "total":45,
+    "other":34,
+    "terms":[
+      {"term":14.0,"count":11}
+    ]
+  }
   ```
 
   You get:
 
   ```json
-
+  {
+    "doc_count":45,
+    "doc_count_error_upper_bound":0,
+    "sum_other_doc_count":34,
+    "buckets":[
+      {"key":14.0,"doc_count":11}
+    ]
+  }
   ```
+
+3. By default, where conditions apply - equivalent to `smart_facets: true`. You can control this with `smart_aggs: false`.
 
 ### Highlight
 
