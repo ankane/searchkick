@@ -77,12 +77,14 @@ module Searchkick
 
     def aggs
       @aggs ||= begin
-        response["aggregations"].dup.each do |field, filtered_agg|
-          buckets = filtered_agg[field]
-          # move the buckets one level above into the field hash
-          if buckets
-            filtered_agg.delete(field)
-            filtered_agg.merge!(buckets)
+        if response["aggregations"]
+          response["aggregations"].dup.each do |field, filtered_agg|
+            buckets = filtered_agg[field]
+            # move the buckets one level above into the field hash
+            if buckets
+              filtered_agg.delete(field)
+              filtered_agg.merge!(buckets)
+            end
           end
         end
       end

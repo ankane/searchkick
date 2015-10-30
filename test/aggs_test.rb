@@ -25,6 +25,10 @@ class AggsTest < Minitest::Test
     assert_equal ({1 => 1, 2 => 2}), store_agg({aggs: {store_id_new: {field: "store_id"}}}, "store_id_new")
   end
 
+  def test_no_aggs
+    assert_nil Product.search("*").aggs
+  end
+
   def test_limit
     agg = Product.search("Product", aggs: {store_id: {limit: 1}}).aggs["store_id"]
     assert_equal 1, agg["buckets"].size
