@@ -820,7 +820,7 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 See how Elasticsearch scores your queries with:
 
 ```ruby
-Product.search("soap", explain: true)
+Product.search("soap", explain: true).response
 ```
 
 See how Elasticsearch tokenizes your queries with:
