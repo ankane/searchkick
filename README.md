@@ -272,7 +272,7 @@ end
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
   # or
-  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") } [master]
+  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
