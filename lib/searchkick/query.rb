@@ -100,22 +100,19 @@ module Searchkick
                   options[:misspellings]
                 elsif options.key?(:mispellings)
                   options[:mispellings] # why not?
-                elsif field == "_all" || field.end_with?(".analyzed")
-                  true
                 else
-                  # TODO default to true and remove this
-                  false
+                  true
                 end
 
               if misspellings != false
                 edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
                 transpositions =
-                  if misspellings.is_a?(Hash) && misspellings[:transpositions] == true
-                    {fuzzy_transpositions: true}
+                  if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
+                    {fuzzy_transpositions: misspellings[:transpositions]}
                   elsif below20?
                     {}
                   else
-                    {fuzzy_transpositions: false}
+                    {fuzzy_transpositions: true}
                   end
                 prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
                 max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
