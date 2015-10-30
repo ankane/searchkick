@@ -114,6 +114,11 @@ class IndexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_dangerous_reindex_inheritance
+    skip if mongoid2? || nobrainer?
+    assert_raises(Searchkick::DangerousOperation) { Dog.where(id: [1, 2, 3]).reindex }
+  end
+
   if defined?(ActiveRecord)
 
     def test_transaction
