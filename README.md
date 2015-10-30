@@ -260,11 +260,11 @@ Searchkick defaults to English for stemming.  To change this, use:
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick language: "German"
+  searchkick stemmer: "german"
 end
 ```
 
-[See the list of languages](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/analysis-snowball-tokenfilter.html)
+[See the list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html)
 
 ### Synonyms
 
