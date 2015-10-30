@@ -32,34 +32,34 @@ class AggsTest < Minitest::Test
     assert_equal(1, agg["sum_other_doc_count"]) if Gem::Version.new(Searchkick.server_version) >= Gem::Version.new("1.4.0")
   end
 
-  def test_where_no_smart_aggs
-    assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}})
-    assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}})
+  def test_query_where
+    assert_equal ({1 => 1}), store_agg(where: {in_stock: true}, aggs: [:store_id])
   end
 
-  def test_smart_aggs
-    assert_equal ({1 => 1}), store_agg(where: {in_stock: true}, aggs: [:store_id], smart_aggs: true)
+  def test_two_wheres
+    assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}})
   end
 
-  def test_smart_aggs_where
-    assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: true)
+  def test_where_override
+    assert_equal ({}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}})
+    assert_equal ({2 => 1}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}})
   end
 
-  def test_smart_aggs_where_override
-    assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}, smart_aggs: true)
-    assert_equal ({}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}, smart_aggs: true)
+  def test_skip
+    assert_equal ({1 => 1, 2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id])
   end
 
-  def test_smart_aggs_skip_agg
-    assert_equal ({1 => 1, 2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id], smart_aggs: true)
+  def test_skip_complex
+    assert_equal ({1 => 1, 2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id])
   end
 
-  def test_smart_aggs_skip_agg_complex
-    assert_equal ({1 => 1, 2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id], smart_aggs: true)
-  end
-
-  def test_multiple_aggs
+  def test_multiple
     assert_equal ({"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}), store_multiple_aggs(aggs: [:store_id, :color])
+  end
+
+  def test_smart_aggs_false
+    assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
+    assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
   end
 
   protected
