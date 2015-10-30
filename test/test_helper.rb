@@ -23,6 +23,8 @@ def elasticsearch2?
 end
 
 if defined?(Mongoid)
+  Mongoid.logger.level = Logger::INFO
+  Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
 
   def mongoid2?
     Mongoid::VERSION.starts_with?("2.")
