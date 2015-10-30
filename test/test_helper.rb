@@ -31,7 +31,7 @@ def nobrainer?
 end
 
 def activerecord_below41?
-  defined?(ActiveRecord) && ActiveRecord::VERSION < "4.1"
+  defined?(ActiveRecord) && Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("4.1.0")
 end
 
 if defined?(Mongoid)
