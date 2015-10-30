@@ -30,6 +30,10 @@ def nobrainer?
   defined?(NoBrainer)
 end
 
+def activerecord_below41?
+  defined?(ActiveRecord) && ActiveRecord::VERSION < "4.1"
+end
+
 if defined?(Mongoid)
   Mongoid.logger.level = Logger::INFO
   Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
