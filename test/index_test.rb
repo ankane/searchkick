@@ -102,8 +102,16 @@ class IndexTest < Minitest::Test
     assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {boom: true}) }
   end
 
-  def test_reindex
+  def test_dangerous_reindex
+    skip if mongoid2? || nobrainer?
     assert_raises(Searchkick::DangerousOperation) { Product.where(id: [1, 2, 3]).reindex }
+  end
+
+  def test_dangerous_reindex_accepted
+    skip if nobrainer?
+    store_names ["Product A", "Product B"]
+    Product.where(name: "Product A").reindex(accept_danger: true)
+    assert_search "product", ["Product A"]
   end
 
   if defined?(ActiveRecord)

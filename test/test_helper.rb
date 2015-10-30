@@ -22,13 +22,17 @@ def elasticsearch2?
   Searchkick.server_version.starts_with?("2.")
 end
 
+def mongoid2?
+  defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
+end
+
+def nobrainer?
+  defined?(NoBrainer)
+end
+
 if defined?(Mongoid)
   Mongoid.logger.level = Logger::INFO
   Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
-
-  def mongoid2?
-    Mongoid::VERSION.starts_with?("2.")
-  end
 
   if mongoid2?
     # enable comparison of BSON::ObjectIds
