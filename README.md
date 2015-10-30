@@ -578,9 +578,16 @@ Limit
 Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
+Ranges
+
+```ruby
+price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
+Product.search "*", aggs: {price: {ranges: price_ranges}}
+```
+
 #### Moving From Facets
 
-1. Replace `facets` with `aggs` in searches. **Note:** Range and stats facets are not supported at this time.
+1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
 
   ```ruby
   products = Product.search "chuck taylor", facets: [:brand]
@@ -626,6 +633,14 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
   Update your application to handle this.
 
 3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
+
+4. If you have any range facets with dates, change the key from `ranges` to `date_ranges`.
+
+  ```ruby
+  facets: {date_field: {ranges: date_ranges}}
+  # to
+  aggs: {date_field: {date_ranges: date_ranges}}
+  ```
 
 ### Facets [deprecated]
 

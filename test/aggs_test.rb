@@ -32,6 +32,27 @@ class AggsTest < Minitest::Test
     assert_equal(1, agg["sum_other_doc_count"]) if Gem::Version.new(Searchkick.server_version) >= Gem::Version.new("1.4.0")
   end
 
+  def test_ranges
+    price_ranges = [{to: 10}, {from: 10, to: 20}, {from: 20}]
+    agg = Product.search("Product", aggs: {price: {ranges: price_ranges}}).aggs["price"]
+
+    assert_equal 3, agg["buckets"].size
+    assert_equal 10.0, agg["buckets"][0]["to"]
+    assert_equal 20.0, agg["buckets"][2]["from"]
+    assert_equal 1, agg["buckets"][0]["doc_count"]
+    assert_equal 0, agg["buckets"][1]["doc_count"]
+    assert_equal 2, agg["buckets"][2]["doc_count"]
+  end
+
+  def test_date_ranges
+    ranges = [{to: 1.day.ago}, {from: 1.day.ago, to: 1.day.from_now}, {from: 1.day.from_now}]
+    agg = Product.search("Product", aggs: {created_at: {date_ranges: ranges}}).aggs["created_at"]
+
+    assert_equal 1, agg["buckets"][0]["doc_count"]
+    assert_equal 1, agg["buckets"][1]["doc_count"]
+    assert_equal 1, agg["buckets"][2]["doc_count"]
+  end
+
   def test_query_where
     assert_equal ({1 => 1}), store_agg(where: {in_stock: true}, aggs: [:store_id])
   end

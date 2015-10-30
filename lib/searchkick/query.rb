@@ -344,12 +344,28 @@ module Searchkick
           aggs.each do |field, agg_options|
             size = agg_options[:limit] ? agg_options[:limit] : 100_000
 
-            payload[:aggs][field] = {
-              terms: {
-                field: agg_options[:field] || field,
-                size: size
+            if agg_options[:ranges]
+              payload[:aggs][field] = {
+                range: {
+                  field: agg_options[:field] || field,
+                  ranges: agg_options[:ranges]
+                }
               }
-            }
+            elsif agg_options[:date_ranges]
+              payload[:aggs][field] = {
+                date_range: {
+                  field: agg_options[:field] || field,
+                  ranges: agg_options[:date_ranges]
+                }
+              }
+            else
+              payload[:aggs][field] = {
+                terms: {
+                  field: agg_options[:field] || field,
+                  size: size
+                }
+              }
+            end
 
             where = {}
             where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
