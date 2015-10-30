@@ -110,7 +110,7 @@ class IndexTest < Minitest::Test
         raise ActiveRecord::Rollback
       end
 
-      assert_search "product", []
+      assert_search "product", [], conversions: false
     end
 
   end
