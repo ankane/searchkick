@@ -354,9 +354,9 @@ module Searchkick
               }
             }
 
-            where = {}
-            where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
-            agg_filters = where_filters(where.merge(agg_options[:where] || {}))
+            agg_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_aggs] == true
+            agg_filters = where_filters(agg_options[:where])
+
             if agg_filters.any?
               payload[:aggs][field] = {
                 filter: {

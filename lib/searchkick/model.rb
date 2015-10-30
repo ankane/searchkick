@@ -42,6 +42,12 @@ module Searchkick
           end
 
           def searchkick_reindex(options = {})
+            unless options[:accept_danger]
+              if (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
+                (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
+                raise Searchkick::DangerousOperation, "Only call reindex on models, not relations. Pass `accept_danger: true` if this is your intention."
+              end
+            end
             searchkick_index.reindex_scope(searchkick_klass, options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
