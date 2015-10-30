@@ -45,7 +45,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
+For Elasticsearch 2.0, use the `elasticsearch2` branch and [this readme](https://github.com/ankane/searchkick/blob/elasticsearch2/README.md). For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -115,6 +115,35 @@ Limit / offset
 
 ```ruby
 limit: 20, offset: 40
+```
+
+### Results
+
+Searches return a `Searchkick::Results` object. This responds like an array to most methods.
+
+```ruby
+results = Product.search("milk")
+results.size
+results.any?
+results.each { ... }
+```
+
+Get total results
+
+```ruby
+results.total_count
+```
+
+Get the time the search took (in milliseconds) [master]
+
+```ruby
+results.took
+```
+
+Get the full response from Elasticsearch
+
+```ruby
+results.response
 ```
 
 ### Boosting
@@ -240,6 +269,8 @@ end
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
+  # or
+  # searchkick synonyms: Proc.new { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
@@ -282,7 +313,7 @@ Or turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
-Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use: [master]
+Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use:
 
 ```ruby
 Product.search "mikl", misspellings: {transpositions: true} # milk
@@ -706,6 +737,12 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 
 ## Debugging Queries
 
+See how Elasticsearch scores your queries with:
+
+```ruby
+Product.search("soap", explain: true)
+```
+
 See how Elasticsearch tokenizes your queries with:
 
 ```ruby
@@ -757,6 +794,28 @@ Then deploy and reindex:
 
 ```sh
 heroku run rake searchkick:reindex CLASS=Product
+```
+
+### Amazon Elasticsearch Service
+
+You must use an [IP-based access policy](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg-search.html) for Searchkick to work.
+
+Include `elasticsearch 1.0.14` or greater in your Gemfile.
+
+```ruby
+gem "elasticsearch", ">= 1.0.14"
+```
+
+Create an initializer `config/initializers/elasticsearch.rb` with:
+
+```ruby
+ENV["ELASTICSEARCH_URL"] = "http://es-domain-1234.us-east-1.es.amazonaws.com"
+```
+
+Then deploy and reindex:
+
+```sh
+rake searchkick:reindex CLASS=Product
 ```
 
 ### Other
@@ -1007,6 +1066,18 @@ Reindex all models - Rails only
 
 ```sh
 rake searchkick:reindex:all
+```
+
+Turn on misspellings after a certain number of characters
+
+```ruby
+Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
+```
+
+**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off
+
+```ruby
+Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
 
 ## Large Data Sets

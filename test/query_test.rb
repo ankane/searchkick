@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestQuery < Minitest::Test
-
+class QueryTest < Minitest::Test
   def test_basic
     store_names ["Milk", "Apple"]
     query = Product.search("milk", execute: false)
@@ -10,5 +9,4 @@ class TestQuery < Minitest::Test
     query.body[:query] = {match_all: {}}
     assert_equal ["Apple", "Milk"], query.execute.map(&:name).sort
   end
-
 end

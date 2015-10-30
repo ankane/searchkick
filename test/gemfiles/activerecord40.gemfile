@@ -1,7 +1,8 @@
 source 'https://rubygems.org'
 
 # Specify your gem's dependencies in searchkick.gemspec
-gemspec path: "../"
+gemspec path: "../../"
 
-gem "mongoid", "~> 4.0.0"
+gem "sqlite3"
+gem "activerecord", "~> 4.0.0"
 gem "activejob_backport"

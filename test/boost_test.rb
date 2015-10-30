@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestBoost < Minitest::Test
-
+class BoostTest < Minitest::Test
   # conversions
 
   def test_conversions
@@ -133,5 +132,4 @@ class TestBoost < Minitest::Test
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: [37, -122], scale: "1000mi"}
   end
-
 end

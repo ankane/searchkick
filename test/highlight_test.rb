@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestHighlight < Minitest::Test
-
+class HighlightTest < Minitest::Test
   def test_basic
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", fields: [:name], highlight: true).with_details.first[1][:highlight][:name]
@@ -41,7 +40,7 @@ class TestHighlight < Minitest::Test
     json = {
       query: {
         match: {
-          _all: "cinema"
+          "name.analyzed" => "cinema"
         }
       },
       highlight: {
@@ -54,5 +53,4 @@ class TestHighlight < Minitest::Test
     }
     assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(json: json).with_details.first[1][:highlight][:"name.analyzed"]
   end
-
 end

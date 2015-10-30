@@ -2,8 +2,7 @@
 
 require_relative "test_helper"
 
-class TestMatch < Minitest::Test
-
+class MatchTest < Minitest::Test
   # exact
 
   def test_match
@@ -195,5 +194,4 @@ class TestMatch < Minitest::Test
     ]
     assert_search "almond", []
   end
-
 end

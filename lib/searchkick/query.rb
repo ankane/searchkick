@@ -92,30 +92,51 @@ module Searchkick
               shared_options = {
                 query: term,
                 operator: operator,
-                boost: factor
+                boost: 10 * factor
               }
 
-              if field == "_all" || field.end_with?(".analyzed")
-                shared_options[:cutoff_frequency] = 0.001 unless operator == "and"
-                qs.concat [
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search"),
-                  shared_options.merge(boost: 10 * factor, analyzer: "searchkick_search2")
-                ]
-                misspellings = options.key?(:misspellings) ? options[:misspellings] : options[:mispellings] # why not?
-                if misspellings != false
-                  edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
-                  transpositions = (misspellings.is_a?(Hash) && misspellings[:transpositions] == true) ? {fuzzy_transpositions: true} : {}
-                  qs.concat [
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search").merge(transpositions),
-                    shared_options.merge(fuzziness: edit_distance, max_expansions: 3, analyzer: "searchkick_search2").merge(transpositions)
-                  ]
+              misspellings =
+                if options.key?(:misspellings)
+                  options[:misspellings]
+                elsif options.key?(:mispellings)
+                  options[:mispellings] # why not?
+                elsif field == "_all" || field.end_with?(".analyzed")
+                  true
+                else
+                  # TODO default to true and remove this
+                  false
                 end
+
+              if misspellings != false
+                edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
+                transpositions =
+                  if misspellings.is_a?(Hash) && misspellings[:transpositions] == true
+                    {fuzzy_transpositions: true}
+                  elsif below20?
+                    {}
+                  else
+                    {fuzzy_transpositions: false}
+                  end
+                prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
+                max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
+              end
+
+              if field == "_all" || field.end_with?(".analyzed")
+                shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
+                qs.concat [
+                  shared_options.merge(analyzer: "searchkick_search"),
+                  shared_options.merge(analyzer: "searchkick_search2")
+                ]
               elsif field.end_with?(".exact")
                 f = field.split(".")[0..-2].join(".")
                 queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
               else
                 analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
                 qs << shared_options.merge(analyzer: analyzer)
+              end
+
+              if misspellings != false
+                qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
               queries.concat(qs.map { |q| {match: {field => q}} })
@@ -134,7 +155,7 @@ module Searchkick
               if below12?
                 {script_score: {script: "doc['count'].value"}}
               else
-                {field_value_factor: {field: "count"}}
+                {field_value_factor: {field: "#{conversions_field}.count"}}
               end
 
             payload = {
@@ -143,13 +164,13 @@ module Searchkick
                 should: {
                   nested: {
                     path: conversions_field,
-                    score_mode: "total",
+                    score_mode: "sum",
                     query: {
                       function_score: {
                         boost_mode: "replace",
                         query: {
                           match: {
-                            query: term
+                            "#{conversions_field}.query" => term
                           }
                         }
                       }.merge(script_score)
@@ -169,11 +190,9 @@ module Searchkick
         if boost_by.is_a?(Array)
           boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
         elsif boost_by.is_a?(Hash)
-          multiply_by, boost_by = boost_by.partition { |k,v| v[:boost_mode] == "multiply" }.map{ |i| Hash[i] }
+          multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
         end
-        if options[:boost]
-          boost_by[options[:boost]] = {factor: 1}
-        end
+        boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
         custom_filters.concat boost_filters(boost_by, log: true)
         multiply_filters.concat boost_filters(multiply_by || {})
@@ -188,12 +207,10 @@ module Searchkick
         boost_where.each do |field, value|
           if value.is_a?(Array) && value.first.is_a?(Hash)
             value.each do |value_factor|
-              value, factor = value_factor[:value], value_factor[:factor]
-              custom_filters << custom_filter(field, value, factor)
+              custom_filters << custom_filter(field, value_factor[:value], value_factor[:factor])
             end
           elsif value.is_a?(Hash)
-            value, factor = value[:value], value[:factor]
-            custom_filters << custom_filter(field, value, factor)
+            custom_filters << custom_filter(field, value[:value], value[:factor])
           else
             factor = 1000
             custom_filters << custom_filter(field, value, factor)
@@ -206,7 +223,7 @@ module Searchkick
           if !boost_by_distance[:field] || !boost_by_distance[:origin]
             raise ArgumentError, "boost_by_distance requires :field and :origin"
           end
-          function_params = boost_by_distance.select { |k, v| [:origin, :scale, :offset, :decay].include?(k) }
+          function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
           function_params[:origin] = function_params[:origin].reverse
           custom_filters << {
             boost_by_distance[:function] => {
@@ -252,7 +269,7 @@ module Searchkick
         # filters
         filters = where_filters(options[:where])
         if filters.any?
-          if options[:facets]
+          if options[:facets] || options[:aggs]
             payload[:filter] = {
               and: filters
             }
@@ -272,9 +289,7 @@ module Searchkick
         # facets
         if options[:facets]
           facets = options[:facets] || {}
-          if facets.is_a?(Array) # convert to more advanced syntax
-            facets = Hash[facets.map { |f| [f, {}] }]
-          end
+          facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
 
           payload[:facets] = {}
           facets.each do |field, facet_options|
@@ -310,12 +325,47 @@ module Searchkick
             # offset is not possible
             # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
 
-            facet_options.deep_merge!(where: options[:where].reject { |k| k == field }) if options[:smart_facets] == true
+            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_facets] == true
             facet_filters = where_filters(facet_options[:where])
             if facet_filters.any?
               payload[:facets][field][:facet_filter] = {
                 and: {
                   filters: facet_filters
+                }
+              }
+            end
+          end
+        end
+
+        # aggregations
+        if options[:aggs]
+          aggs = options[:aggs]
+          payload[:aggs] = {}
+
+          aggs = aggs.map { |f| [f, {}] }.to_h if aggs.is_a?(Array) # convert to more advanced syntax
+
+          aggs.each do |field, agg_options|
+            size = agg_options[:limit] ? agg_options[:limit] : 100_000
+
+            payload[:aggs][field] = {
+              terms: {
+                field: agg_options[:field] || field,
+                size: size
+              }
+            }
+
+            agg_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_aggs] == true
+            agg_filters = where_filters(agg_options[:where])
+
+            if agg_filters.any?
+              payload[:aggs][field] = {
+                filter: {
+                  bool: {
+                    must: agg_filters
+                  }
+                },
+                aggs: {
+                  field => payload[:aggs][field]
                 }
               }
             end
@@ -355,6 +405,10 @@ module Searchkick
               payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
             end
 
+            if (fragment_size = options[:highlight][:fragment_size])
+              payload[:highlight][:fragment_size] = fragment_size
+            end
+
             highlight_fields = options[:highlight][:fields]
             if highlight_fields
               payload[:highlight][:fields] = {}
@@ -379,9 +433,7 @@ module Searchkick
         end
 
         # routing
-        if options[:routing]
-          @routing = options[:routing]
-        end
+        @routing = options[:routing] if options[:routing]
       end
 
       @body = payload
@@ -477,9 +529,7 @@ module Searchkick
             value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
           end
 
-          if value.is_a?(Array)
-            value = {in: value}
-          end
+          value = {in: value} if value.is_a?(Array)
 
           if value.is_a?(Hash)
             value.each do |op, op_value|
@@ -505,9 +555,11 @@ module Searchkick
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
-                filters << {not: term_filters(field, op_value)}
+                filters << {not: {filter: term_filters(field, op_value)}}
               when :all
-                filters << {terms: {field => op_value, execution: "and"}}
+                op_value.each do |value|
+                  filters << term_filters(field, value)
+                end
               when :in
                 filters << term_filters(field, op_value)
               else
@@ -559,7 +611,7 @@ module Searchkick
     def custom_filter(field, value, factor)
       {
         filter: {
-          and: where_filters({field => value})
+          and: where_filters(field => value)
         },
         boost_factor: factor
       }
@@ -593,6 +645,10 @@ module Searchkick
 
     def below14?
       below_version?("1.4.0")
+    end
+
+    def below20?
+      below_version?("2.0.0")
     end
 
     def below_version?(version)

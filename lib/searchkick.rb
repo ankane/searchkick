@@ -29,6 +29,7 @@ module Searchkick
     attr_accessor :wordnet_path
     attr_accessor :timeout
     attr_accessor :models
+    attr_writer :env
   end
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"

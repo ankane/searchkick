@@ -1,8 +1,18 @@
-## 0.9.1 [unreleased]
+## 0.9.2 [unreleased]
+
+- Added support for Elasticsearch 2.0
+- Added support for aggregations
+- Added ability to use misspellings for partial matches
+- Added `fragment_size` option for highlight
+- Added `took` method to results
+
+## 0.9.1
 
 - `and` now matches `&`
 - Added `transpositions` option to misspellings
 - Added `boost_mode` and `log` options to `boost_by`
+- Added `prefix_length` option to `misspellings`
+- Added ability to set env
 
 ## 0.9.0
 

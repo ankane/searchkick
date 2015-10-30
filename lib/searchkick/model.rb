@@ -2,7 +2,6 @@ module Searchkick
   module Reindex; end # legacy for Searchjoy
 
   module Model
-
     def searchkick(options = {})
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 
@@ -18,12 +17,11 @@ module Searchkick
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] || [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
 
-        define_singleton_method(Searchkick.search_method_name) do |term = nil, options = {}, &block|
-          searchkick_index.search_model(self, term, options, &block)
-        end
-        extend Searchkick::Reindex # legacy for Searchjoy
-
         class << self
+          def searchkick_search(term = nil, options = {}, &block)
+            searchkick_index.search_model(self, term, options, &block)
+          end
+          alias_method Searchkick.search_method_name, :searchkick_search
 
           def searchkick_index
             index = class_variable_get :@@searchkick_index
@@ -43,12 +41,13 @@ module Searchkick
             class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
           end
 
-          def reindex(options = {})
+          def searchkick_reindex(options = {})
             if respond_to?(:current_scope) && current_scope && current_scope.to_sql != default_scoped.to_sql
               raise Searchkick::DangerousOperation, "Only call reindex on models, not relations"
             end
             searchkick_index.reindex_scope(searchkick_klass, options)
           end
+          alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
           def clean_indices
             searchkick_index.clean_indices
@@ -65,8 +64,8 @@ module Searchkick
           def searchkick_index_options
             searchkick_index.index_options
           end
-
         end
+        extend Searchkick::Reindex # legacy for Searchjoy
 
         if callbacks
           callback_name = callbacks == :async ? :reindex_async : :reindex
@@ -97,9 +96,7 @@ module Searchkick
         def should_index?
           true
         end unless method_defined?(:should_index?)
-
       end
     end
-
   end
 end

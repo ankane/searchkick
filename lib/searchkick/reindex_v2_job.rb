@@ -19,6 +19,5 @@ module Searchkick
         index.store record
       end
     end
-
   end
 end

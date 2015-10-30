@@ -100,7 +100,7 @@ module Searchkick
 
     def similar_record(record, options = {})
       like_text = retrieve(record).to_hash
-        .keep_if { |k, v| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
+        .keep_if { |k, _| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
 
       # TODO deep merge method
@@ -118,9 +118,7 @@ module Searchkick
 
     def search_model(searchkick_klass, term = nil, options = {}, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
-      if block
-        block.call(query.body)
-      end
+      block.call(query.body) if block
       if options[:execute] == false
         query
       else
@@ -317,7 +315,9 @@ module Searchkick
                 max_gram: 50
               },
               searchkick_stemmer: {
-                type: "snowball",
+                # use stemmer if language is lowercase, snowball otherwise
+                # TODO deprecate language option in favor of stemmer
+                type: options[:language] == options[:language].to_s.downcase ? "stemmer" : "snowball",
                 language: options[:language] || "English"
               }
             },
@@ -347,6 +347,9 @@ module Searchkick
 
         # synonyms
         synonyms = options[:synonyms] || []
+
+        synonyms = synonyms.call if synonyms.respond_to?(:call)
+
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
@@ -377,7 +380,7 @@ module Searchkick
         end
 
         if options[:special_characters] == false
-          settings[:analysis][:analyzer].each do |analyzer, analyzer_settings|
+          settings[:analysis][:analyzer].each do |_, analyzer_settings|
             analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
           end
         end
@@ -385,8 +388,8 @@ module Searchkick
         mapping = {}
 
         # conversions
-        if options[:conversions]
-          mapping[:conversions] = {
+        if (conversions_field = options[:conversions])
+          mapping[conversions_field] = {
             type: "nested",
             properties: {
               query: {type: "string", analyzer: "searchkick_keyword"},
@@ -559,6 +562,5 @@ module Searchkick
         obj
       end
     end
-
   end
 end
