@@ -109,7 +109,7 @@ module Searchkick
                 transpositions =
                   if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
                     {fuzzy_transpositions: misspellings[:transpositions]}
-                  elsif below20?
+                  elsif below14?
                     {}
                   else
                     {fuzzy_transpositions: true}
