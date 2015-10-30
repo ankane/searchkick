@@ -1226,6 +1226,7 @@ Important notes are listed below.
 
 ### 1.0.0
 
+- Added support for Elasticsearch 2.0
 - Facets are deprecated in favor of [aggregations](#aggregations)
 
 #### Breaking Changes
