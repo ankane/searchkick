@@ -21,6 +21,8 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord, Mongoid, and NoBrainer
 
+**Searchkick 1.0 was just released!** See [instructions for upgrading](#20)
+
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
@@ -45,7 +47,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 2.0, use the `elasticsearch2` branch and [this readme](https://github.com/ankane/searchkick/blob/elasticsearch2/README.md). For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
+For Elasticsearch 2.0, use the version `1.0` and above. For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -134,7 +136,7 @@ Get total results
 results.total_count
 ```
 
-Get the time the search took (in milliseconds) [master]
+Get the time the search took (in milliseconds)
 
 ```ruby
 results.took
@@ -312,14 +314,6 @@ Or turn off misspellings with:
 ```ruby
 Product.search "zuchini", misspellings: false # no zucchini
 ```
-
-Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use:
-
-```ruby
-Product.search "mikl", misspellings: {transpositions: true} # milk
-```
-
-This is planned to be the default in Searchkick 1.0.
 
 ### Indexing
 
@@ -1143,6 +1137,27 @@ Product.searchkick_index.refresh # or this
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 Important notes are listed below.
+
+### 1.0
+
+- Facets are deprecated in favor of [aggregations](#aggregations)
+
+#### Breaking Changes
+
+- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws an error to keep your from accidentally recreating your index with only a few records.
+
+  ```ruby
+  Product.where(color: "brandy").reindex # throws Searchkick::DangerousOperation
+  ```
+
+  If this is what you intended, use:
+
+  ```ruby
+  Product.where(color: "brandy").reindex(accept_danger: true)
+  ```
+
+- Misspellings are enabled by default for [partial matches](#partial-matches). Use `misspellings: false` to disable.
+- [Transpositions](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) are enabled by default for misspellings. Use `misspellings: {transpositions: false}` to disable.
 
 ### 0.6.0 and 0.7.0
 
