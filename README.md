@@ -21,7 +21,7 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord, Mongoid, and NoBrainer
 
-**Searchkick 1.0 was just released!** See [instructions for upgrading](#10)
+**Searchkick 1.0 was just released!** See [instructions for upgrading](#100)
 
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
@@ -1224,19 +1224,19 @@ View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.
 
 Important notes are listed below.
 
-### 1.0
+### 1.0.0
 
 - Facets are deprecated in favor of [aggregations](#aggregations)
 
 #### Breaking Changes
 
-- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws an error to keep your from accidentally recreating your index with only a few records.
+- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws a `Searchkick::DangerousOperation` error to keep your from accidentally recreating your index with only a few records.
 
   ```ruby
-  Product.where(color: "brandy").reindex # throws Searchkick::DangerousOperation
+  Product.where(color: "brandy").reindex # error!
   ```
 
-  If this is what you intended, use:
+  If this is what you intend to do, use:
 
   ```ruby
   Product.where(color: "brandy").reindex(accept_danger: true)
