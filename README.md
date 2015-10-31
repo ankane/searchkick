@@ -21,6 +21,8 @@ Plus:
 - “Did you mean” suggestions
 - works with ActiveRecord, Mongoid, and NoBrainer
 
+**Searchkick 1.0 was just released!** See [instructions for upgrading](#100)
+
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
@@ -45,7 +47,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
+For Elasticsearch 2.0, use the version `1.0` and above. For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -115,6 +117,35 @@ Limit / offset
 
 ```ruby
 limit: 20, offset: 40
+```
+
+### Results
+
+Searches return a `Searchkick::Results` object. This responds like an array to most methods.
+
+```ruby
+results = Product.search("milk")
+results.size
+results.any?
+results.each { ... }
+```
+
+Get total results
+
+```ruby
+results.total_count
+```
+
+Get the time the search took (in milliseconds)
+
+```ruby
+results.took
+```
+
+Get the full response from Elasticsearch
+
+```ruby
+results.response
 ```
 
 ### Boosting
@@ -229,17 +260,19 @@ Searchkick defaults to English for stemming.  To change this, use:
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick language: "German"
+  searchkick stemmer: "german"
 end
 ```
 
-[See the list of languages](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/analysis-snowball-tokenfilter.html)
+[See the list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html)
 
 ### Synonyms
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
+  # or
+  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
@@ -281,14 +314,6 @@ Or turn off misspellings with:
 ```ruby
 Product.search "zuchini", misspellings: false # no zucchini
 ```
-
-Swapping two letters counts as two edits. To count the [transposition of two adjacent characters as a single edit](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance), use:
-
-```ruby
-Product.search "mikl", misspellings: {transpositions: true} # milk
-```
-
-This is planned to be the default in Searchkick 1.0.
 
 ### Indexing
 
@@ -516,11 +541,110 @@ products = Product.search "peantu butta", suggest: true
 products.suggestions # ["peanut butter"]
 ```
 
-### Facets
+### Aggregations
 
-[Facets](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
+[Aggregations](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
 
-![Facets](http://ankane.github.io/searchkick/facets.png)
+![Aggregations](http://ankane.github.io/searchkick/facets.png)
+
+```ruby
+products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
+products.aggs
+```
+
+By default, `where` conditions apply to aggregations.
+
+```ruby
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size]
+# aggregations for brandy wingtips are returned
+```
+
+Change this with:
+
+```ruby
+Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: false
+# aggregations for all wingtips are returned
+```
+
+Set `where` conditions for each aggregation separately with:
+
+```ruby
+Product.search "wingtips", aggs: {size: {where: {color: "brandy"}}}
+```
+
+Limit
+
+```ruby
+Product.search "apples", aggs: {store_id: {limit: 10}}
+```
+
+Ranges
+
+```ruby
+price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
+Product.search "*", aggs: {price: {ranges: price_ranges}}
+```
+
+#### Moving From Facets
+
+1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
+
+  ```ruby
+  products = Product.search "chuck taylor", facets: [:brand]
+  # to
+  products = Product.search "chuck taylor", aggs: [:brand]
+  ```
+
+2. Replace the `facets` method with `aggs` for results.
+
+  ```ruby
+  products.facets
+  # to
+  products.aggs
+  ```
+
+  The keys in results differ slightly. Instead of:
+
+  ```json
+  {
+    "_type":"terms",
+    "missing":0,
+    "total":45,
+    "other":34,
+    "terms":[
+      {"term":14.0,"count":11}
+    ]
+  }
+  ```
+
+  You get:
+
+  ```json
+  {
+    "doc_count":45,
+    "doc_count_error_upper_bound":0,
+    "sum_other_doc_count":34,
+    "buckets":[
+      {"key":14.0,"doc_count":11}
+    ]
+  }
+  ```
+
+  Update your application to handle this.
+
+3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
+
+4. If you have any range facets with dates, change the key from `ranges` to `date_ranges`.
+
+  ```ruby
+  facets: {date_field: {ranges: date_ranges}}
+  # to
+  aggs: {date_field: {date_ranges: date_ranges}}
+  ```
+
+### Facets [deprecated]
+
+Facets have been deprecated in favor of aggregations as of Searchkick 0.9.2. See [how to upgrade](#moving-from-facets).
 
 ```ruby
 products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
@@ -662,6 +786,8 @@ City.search "san", boost_by_distance: {field: :location, origin: [37, -122], fun
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 
+**Note:** Routing is not yet supported for Elasticsearch 2.0.
+
 ```ruby
 class Contact < ActiveRecord::Base
   searchkick routing: :user_id
@@ -705,6 +831,12 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 ```
 
 ## Debugging Queries
+
+See how Elasticsearch scores your queries with:
+
+```ruby
+Product.search("soap", explain: true).response
+```
 
 See how Elasticsearch tokenizes your queries with:
 
@@ -757,6 +889,28 @@ Then deploy and reindex:
 
 ```sh
 heroku run rake searchkick:reindex CLASS=Product
+```
+
+### Amazon Elasticsearch Service
+
+You must use an [IP-based access policy](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg-search.html) for Searchkick to work.
+
+Include `elasticsearch 1.0.14` or greater in your Gemfile.
+
+```ruby
+gem "elasticsearch", ">= 1.0.14"
+```
+
+Create an initializer `config/initializers/elasticsearch.rb` with:
+
+```ruby
+ENV["ELASTICSEARCH_URL"] = "http://es-domain-1234.us-east-1.es.amazonaws.com"
+```
+
+Then deploy and reindex:
+
+```sh
+rake searchkick:reindex CLASS=Product
 ```
 
 ### Other
@@ -1084,6 +1238,28 @@ Product.searchkick_index.refresh # or this
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 Important notes are listed below.
+
+### 1.0.0
+
+- Added support for Elasticsearch 2.0
+- Facets are deprecated in favor of [aggregations](#aggregations) - see [how to upgrade](#moving-from-facets)
+
+#### Breaking Changes
+
+- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws a `Searchkick::DangerousOperation` error to keep your from accidentally recreating your index with only a few records.
+
+  ```ruby
+  Product.where(color: "brandy").reindex # error!
+  ```
+
+  If this is what you intend to do, use:
+
+  ```ruby
+  Product.where(color: "brandy").reindex(accept_danger: true)
+  ```
+
+- Misspellings are enabled by default for [partial matches](#partial-matches). Use `misspellings: false` to disable.
+- [Transpositions](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) are enabled by default for misspellings. Use `misspellings: {transpositions: false}` to disable.
 
 ### 0.6.0 and 0.7.0
 

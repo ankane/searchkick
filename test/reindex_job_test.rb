@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestReindexJob < Minitest::Test
-
+class ReindexJobTest < Minitest::Test
   def setup
     super
     Searchkick.disable_callbacks
@@ -29,5 +28,4 @@ class TestReindexJob < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "*", []
   end
-
 end

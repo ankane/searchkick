@@ -1,3 +1,17 @@
+## 1.0.0
+
+- Added support for Elasticsearch 2.0
+- Added support for aggregations
+- Added ability to use misspellings for partial matches
+- Added `fragment_size` option for highlight
+- Added `took` method to results
+
+Breaking changes
+
+- Raise `Searchkick::DangerousOperation` error when calling reindex with scope
+- Enabled misspellings by default for partial matches
+- Enabled transpositions by default for misspellings
+
 ## 0.9.1
 
 - `and` now matches `&`

@@ -1,9 +1,6 @@
-# encoding: utf-8
-
 require_relative "test_helper"
 
-class TestMatch < Minitest::Test
-
+class MatchTest < Minitest::Test
   # exact
 
   def test_match
@@ -114,8 +111,8 @@ class TestMatch < Minitest::Test
 
   def test_misspelling_zucchini_transposition
     store_names ["zucchini"]
-    assert_search "zuccihni", [] # doesn't work without transpositions:true option
-    assert_search "zuccihni", ["zucchini"], misspellings: {transpositions: true}
+    assert_search "zuccihni", ["zucchini"]
+    assert_search "zuccihni", [], misspellings: {transpositions: false}
   end
 
   def test_misspelling_lasagna
@@ -131,6 +128,11 @@ class TestMatch < Minitest::Test
     assert_search "lasanga", ["lasagna pasta"], misspellings: {transpositions: true}
     assert_search "lasanga pasta", ["lasagna pasta"], misspellings: {transpositions: true}
     assert_search "lasanga pasat", ["lasagna pasta"], misspellings: {transpositions: true} # both words misspelled with a transposition should still work
+  end
+
+  def test_misspellings_word_start
+    store_names ["Sriracha"]
+    assert_search "siracha", ["Sriracha"], fields: [{name: :word_start}]
   end
 
   # spaces
@@ -195,5 +197,4 @@ class TestMatch < Minitest::Test
     ]
     assert_search "almond", []
   end
-
 end

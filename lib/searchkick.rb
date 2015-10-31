@@ -22,6 +22,7 @@ module Searchkick
   class MissingIndexError < StandardError; end
   class UnsupportedVersionError < StandardError; end
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
+  class DangerousOperation < StandardError; end
 
   class << self
     attr_accessor :search_method_name

@@ -62,7 +62,8 @@ module Searchkick
     end
 
     def self.reset_runtime
-      rt, self.runtime = runtime, 0
+      rt = runtime
+      self.runtime = 0
       rt
     end
 
@@ -122,7 +123,8 @@ module Searchkick
 
     module ClassMethods
       def log_process_action(payload)
-        messages, runtime = super, payload[:searchkick_runtime]
+        messages = super
+        runtime = payload[:searchkick_runtime]
         messages << ("Searchkick: %.1fms" % runtime.to_f) if runtime.to_f > 0
         messages
       end

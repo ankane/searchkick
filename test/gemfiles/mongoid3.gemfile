@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
 # Specify your gem's dependencies in searchkick.gemspec
-gemspec path: "../"
+gemspec path: "../../"
 
-gem "mongoid", "~> 2"
-gem "bson_ext"
+gem "mongoid", "~> 3.1.0"

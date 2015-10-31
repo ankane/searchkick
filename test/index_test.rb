@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestIndex < Minitest::Test
-
+class IndexTest < Minitest::Test
   def test_clean_indices
     old_index = Searchkick::Index.new("products_test_20130801000000000")
     different_index = Searchkick::Index.new("items_test_20130801000000000")
@@ -93,27 +92,39 @@ class TestIndex < Minitest::Test
   end
 
   def test_unsupported_version
-    raises_exception = ->(s) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
+    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
     Searchkick.client.stub :search, raises_exception do
       assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
     end
   end
 
   def test_invalid_query
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {}) }
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {boom: true}) }
+  end
+
+  unless mongoid2? || nobrainer? || activerecord_below41?
+    def test_dangerous_reindex
+      assert_raises(Searchkick::DangerousOperation) { Product.where(id: [1, 2, 3]).reindex }
+    end
+
+    def test_dangerous_reindex_accepted
+      store_names ["Product A", "Product B"]
+      Product.where(name: "Product A").reindex(accept_danger: true)
+      assert_search "product", ["Product A"]
+    end
+
+    def test_dangerous_reindex_inheritance
+      assert_raises(Searchkick::DangerousOperation) { Dog.where(id: [1, 2, 3]).reindex }
+    end
   end
 
   if defined?(ActiveRecord)
-
     def test_transaction
       Product.transaction do
         store_names ["Product A"]
         raise ActiveRecord::Rollback
       end
-
-      assert_search "product", []
+      assert_search "product", [], conversions: false
     end
-
   end
-
 end

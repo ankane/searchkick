@@ -26,7 +26,7 @@ module Searchkick
           # results can have different types
           results = {}
 
-          hits.group_by { |hit, i| hit["_type"] }.each do |type, grouped_hits|
+          hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
             results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
@@ -73,6 +73,29 @@ module Searchkick
 
     def facets
       response["facets"]
+    end
+
+    def aggregations
+      response["aggregations"]
+    end
+
+    def aggs
+      @aggs ||= begin
+        if aggregations
+          aggregations.dup.each do |field, filtered_agg|
+            buckets = filtered_agg[field]
+            # move the buckets one level above into the field hash
+            if buckets
+              filtered_agg.delete(field)
+              filtered_agg.merge!(buckets)
+            end
+          end
+        end
+      end
+    end
+
+    def took
+      response["took"]
     end
 
     def model_name

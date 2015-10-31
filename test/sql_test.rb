@@ -1,7 +1,6 @@
 require_relative "test_helper"
 
-class TestSql < Minitest::Test
-
+class SqlTest < Minitest::Test
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
@@ -139,11 +138,11 @@ class TestSql < Minitest::Test
   # https://gist.github.com/jprante/7099463
   def test_where_range_array
     store [
-      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23.6]},
-      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 8.9, 9.1, 9.4]},
+      {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23]},
+      {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9]},
       {name: "Product C", user_ids: [101, 230, 150, 200]}
     ]
-    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 23.9}}
+    assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 24}}
   end
 
   def test_where_range_array_again
@@ -301,9 +300,9 @@ class TestSql < Minitest::Test
 
   def test_big_decimal
     store [
-      {name: "Product", latitude: 100.0}
+      {name: "Product", latitude: 80.0}
     ]
-    assert_search "product", ["Product"], where: {latitude: {gt: 99}}
+    assert_search "product", ["Product"], where: {latitude: {gt: 79}}
   end
 
   # load
@@ -333,7 +332,7 @@ class TestSql < Minitest::Test
   def test_select
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
-    assert_equal %w[id name store_id], result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal ["Product A"], result.name # this is not great
   end
 
@@ -363,5 +362,4 @@ class TestSql < Minitest::Test
       assert Product.search("product", include: [:store]).first.association(:store).loaded?
     end
   end
-
 end

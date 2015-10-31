@@ -3,6 +3,7 @@ Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
 require "logger"
+require "active_support/core_ext" if defined?(NoBrainer)
 
 ENV["RACK_ENV"] = "test"
 
@@ -17,11 +18,25 @@ I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
 
-if defined?(Mongoid)
+def elasticsearch2?
+  Searchkick.server_version.starts_with?("2.")
+end
 
-  def mongoid2?
-    Mongoid::VERSION.starts_with?("2.")
-  end
+def mongoid2?
+  defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
+end
+
+def nobrainer?
+  defined?(NoBrainer)
+end
+
+def activerecord_below41?
+  defined?(ActiveRecord) && Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("4.1.0")
+end
+
+if defined?(Mongoid)
+  Mongoid.logger.level = Logger::INFO
+  Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
 
   if mongoid2?
     # enable comparison of BSON::ObjectIds
@@ -96,7 +111,7 @@ elsif defined?(NoBrainer)
     field :color,        type: String
     field :latitude
     field :longitude
-    field :description,  type: String
+    field :description, type: String
 
     belongs_to :store, validates: false
   end
@@ -220,15 +235,15 @@ end
 
 class Store
   searchkick \
-    routing: :name,
+    routing: elasticsearch2? ? false : "name",
     merge_mappings: true,
     mappings: {
       store: {
         properties: {
-          name: {type: "string", analyzer: "keyword"},
+          name: {type: "string", analyzer: "keyword"}
         }
       }
-  }
+    }
 end
 
 class Animal
@@ -247,7 +262,6 @@ Store.reindex
 Animal.reindex
 
 class Minitest::Test
-
   def setup
     Product.destroy_all
     Store.destroy_all
@@ -279,5 +293,4 @@ class Minitest::Test
   def assert_first(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, options).map(&:name).first
   end
-
 end

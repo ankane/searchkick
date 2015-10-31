@@ -1,7 +1,6 @@
 require "rake"
 
 namespace :searchkick do
-
   desc "reindex model"
   task reindex: :environment do
     if ENV["CLASS"]
@@ -31,5 +30,4 @@ namespace :searchkick do
     end
 
   end
-
 end
