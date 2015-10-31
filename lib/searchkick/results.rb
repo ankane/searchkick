@@ -75,10 +75,14 @@ module Searchkick
       response["facets"]
     end
 
+    def aggregations
+      response["aggregations"]
+    end
+
     def aggs
       @aggs ||= begin
-        if response["aggregations"]
-          response["aggregations"].dup.each do |field, filtered_agg|
+        if aggregations
+          aggregations.dup.each do |field, filtered_agg|
             buckets = filtered_agg[field]
             # move the buckets one level above into the field hash
             if buckets
