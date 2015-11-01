@@ -7,6 +7,7 @@ class QueryTest < Minitest::Test
     # query.body = {query: {match_all: {}}}
     # query.body = {query: {match: {name: "Apple"}}}
     query.body[:query] = {match_all: {}}
+    assert_equal ["Apple", "Milk"], query.map(&:name).sort
     assert_equal ["Apple", "Milk"], query.execute.map(&:name).sort
   end
 end

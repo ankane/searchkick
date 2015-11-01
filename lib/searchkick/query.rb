@@ -1,7 +1,11 @@
 module Searchkick
   class Query
+    extend Forwardable
+
     attr_reader :klass, :term, :options
     attr_accessor :body
+
+    def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary
 
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
@@ -480,49 +484,51 @@ module Searchkick
     end
 
     def execute
-      begin
-        response = Searchkick.client.search(params)
-      rescue => e # TODO rescue type
-        status_code = e.message[1..3].to_i
-        if status_code == 404
-          raise MissingIndexError, "Index missing - run #{searchkick_klass.name}.reindex"
-        elsif status_code == 500 && (
-            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
-            e.message.include?("No query registered for [multi_match]") ||
-            e.message.include?("[match] query does not support [cutoff_frequency]]") ||
-            e.message.include?("No query registered for [function_score]]")
-          )
+      @execute ||= begin
+        begin
+          response = Searchkick.client.search(params)
+        rescue => e # TODO rescue type
+          status_code = e.message[1..3].to_i
+          if status_code == 404
+            raise MissingIndexError, "Index missing - run #{searchkick_klass.name}.reindex"
+          elsif status_code == 500 && (
+              e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
+              e.message.include?("No query registered for [multi_match]") ||
+              e.message.include?("[match] query does not support [cutoff_frequency]]") ||
+              e.message.include?("No query registered for [function_score]]")
+            )
 
-          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
-        elsif status_code == 400
-          if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
-            raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"
+            raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
+          elsif status_code == 400
+            if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+              raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"
+            else
+              raise InvalidQueryError, e.message
+            end
           else
-            raise InvalidQueryError, e.message
+            raise e
           end
-        else
-          raise e
         end
-      end
 
-      # apply facet limit in client due to
-      # https://github.com/elasticsearch/elasticsearch/issues/1305
-      @facet_limits.each do |field, limit|
-        field = field.to_s
-        facet = response["facets"][field]
-        response["facets"][field]["terms"] = facet["terms"].first(limit)
-        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
-      end
+        # apply facet limit in client due to
+        # https://github.com/elasticsearch/elasticsearch/issues/1305
+        @facet_limits.each do |field, limit|
+          field = field.to_s
+          facet = response["facets"][field]
+          response["facets"][field]["terms"] = facet["terms"].first(limit)
+          response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
+        end
 
-      opts = {
-        page: @page,
-        per_page: @per_page,
-        padding: @padding,
-        load: @load,
-        includes: options[:include] || options[:includes],
-        json: !options[:json].nil?
-      }
-      Searchkick::Results.new(searchkick_klass, response, opts)
+        opts = {
+          page: @page,
+          per_page: @per_page,
+          padding: @padding,
+          load: @load,
+          includes: options[:include] || options[:includes],
+          json: !options[:json].nil?
+        }
+        Searchkick::Results.new(searchkick_klass, response, opts)
+      end
     end
 
     private
