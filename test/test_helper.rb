@@ -257,6 +257,7 @@ end
 Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
+Product.create!(name: "Set mapping")
 
 Store.reindex
 Animal.reindex

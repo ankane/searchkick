@@ -213,12 +213,12 @@ class SqlTest < Minitest::Test
   end
 
   def test_order_ignore_unmapped
-    assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}, conversions: false
+    assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}
   end
 
   def test_order_array
     store [{name: "San Francisco", latitude: 37.7833, longitude: -122.4167}]
-    assert_order "francisco", ["San Francisco"], order: [{_geo_distance: {location: "0,0"}}], conversions: false
+    assert_order "francisco", ["San Francisco"], order: [{_geo_distance: {location: "0,0"}}]
   end
 
   def test_partial
