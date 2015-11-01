@@ -531,6 +531,17 @@ module Searchkick
       end
     end
 
+    def to_curl
+      query = params
+      type = query[:type]
+      index = query[:index].is_a?(Array) ? query[:index].join(",") : query[:index]
+
+      # no easy way to tell which host the client will use
+      host = Searchkick.client.transport.hosts.first
+      credentials = (host[:user] || host[:password]) ? "#{host[:user]}:#{host[:password]}@" : nil
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -d '#{query[:body].to_json}'"
+    end
+
     private
 
     def where_filters(where)
