@@ -1,3 +1,9 @@
+## 1.0.1 [unreleased]
+
+- Added aggregations method to get raw response
+- Use `execute: false` for lazy loading
+- Return nil when no aggs
+
 ## 1.0.0
 
 - Added support for Elasticsearch 2.0
