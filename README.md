@@ -1137,6 +1137,13 @@ Create index without importing
 Product.reindex(import: false)
 ```
 
+Lazy searching [master]
+
+```ruby
+products = Product.search("carrots", execute: false)
+products.each { ... } # search not executed until here
+```
+
 Make fields unsearchable but include in the source
 
 ```ruby
