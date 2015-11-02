@@ -644,7 +644,7 @@ Product.search "*", aggs: {price: {ranges: price_ranges}}
 
 ### Facets [deprecated]
 
-Facets have been deprecated in favor of aggregations as of Searchkick 0.9.2. See [how to upgrade](#moving-from-facets).
+Facets have been deprecated in favor of aggregations as of Searchkick 1.0. See [how to upgrade](#moving-from-facets).
 
 ```ruby
 products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
