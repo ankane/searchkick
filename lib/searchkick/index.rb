@@ -201,6 +201,8 @@ module Searchkick
 
     def index_options
       options = @options
+      language = options[:language]
+      language = language.call if language.respond_to?(:call)
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
@@ -317,8 +319,8 @@ module Searchkick
               searchkick_stemmer: {
                 # use stemmer if language is lowercase, snowball otherwise
                 # TODO deprecate language option in favor of stemmer
-                type: options[:language] == options[:language].to_s.downcase ? "stemmer" : "snowball",
-                language: options[:language] || "English"
+                type: language == language.to_s.downcase ? "stemmer" : "snowball",
+                language: language || "English"
               }
             },
             char_filter: {
