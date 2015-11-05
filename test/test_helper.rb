@@ -76,6 +76,7 @@ if defined?(Mongoid)
 
   class Store
     include Mongoid::Document
+    has_many :products
 
     field :name
   end
