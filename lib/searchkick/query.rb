@@ -15,6 +15,10 @@ module Searchkick
         term = term.to_s
       end
 
+      if options[:emoji]
+        term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
+      end
+
       @klass = klass
       @term = term
       @options = options

@@ -3,6 +3,7 @@
 - Added aggregations method to get raw response
 - Use `execute: false` for lazy loading
 - Return nil when no aggs
+- Added emoji search
 
 ## 1.0.0
 

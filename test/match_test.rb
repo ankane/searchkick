@@ -197,4 +197,16 @@ class MatchTest < Minitest::Test
     ]
     assert_search "almond", []
   end
+
+  def test_emoji
+    skip unless defined?(EmojiParser)
+    store_names ["Banana"]
+    assert_search "🍌", ["Banana"], emoji: true
+  end
+
+  def test_emoji_multiple
+    skip unless defined?(EmojiParser)
+    store_names ["Ice Cream Cake"]
+    assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true
+  end
 end

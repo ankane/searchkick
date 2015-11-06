@@ -315,6 +315,22 @@ Or turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
+### Emoji [master]
+
+Make :ice_cream::cake: match `ice cream cake`!
+
+Add this line to your application’s Gemfile:
+
+```ruby
+gem 'gemoji-parser'
+```
+
+And use:
+
+```ruby
+Product.search "[emoji go here]", emoji: true
+```
+
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
