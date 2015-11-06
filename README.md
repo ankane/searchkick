@@ -260,7 +260,7 @@ Searchkick defaults to English for stemming.  To change this, use:
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick stemmer: "german"
+  searchkick language: "german"
 end
 ```
 
