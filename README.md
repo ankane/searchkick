@@ -317,7 +317,7 @@ Product.search "zuchini", misspellings: false # no zucchini
 
 ### Emoji
 
-Make :ice_cream::cake: match `ice cream cake`!
+Search :ice_cream::cake: and get `ice cream cake`!
 
 Add this line to your application’s Gemfile:
 
