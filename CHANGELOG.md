@@ -1,4 +1,4 @@
-## 1.0.1 [unreleased]
+## 1.0.1
 
 - Added aggregations method to get raw response
 - Use `execute: false` for lazy loading

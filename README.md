@@ -315,7 +315,7 @@ Or turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
-### Emoji [master]
+### Emoji
 
 Make :ice_cream::cake: match `ice cream cake`!
 
@@ -1153,7 +1153,7 @@ Create index without importing
 Product.reindex(import: false)
 ```
 
-Lazy searching [master]
+Lazy searching
 
 ```ruby
 products = Product.search("carrots", execute: false)
