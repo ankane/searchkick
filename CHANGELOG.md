@@ -2,6 +2,7 @@
 
 - Throw `Searchkick::ImportError` for errors when importing records
 - Errors now inherit from `Searchkick::Error`
+- Added `mapping` method
 
 ## 1.0.1
 
