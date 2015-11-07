@@ -1,3 +1,8 @@
+## 1.0.2 [unreleased]
+
+- Throw `Searchkick::ImportError` for errors when importing records
+- Errors now inherit from `Searchkick::Error`
+
 ## 1.0.1
 
 - Added aggregations method to get raw response

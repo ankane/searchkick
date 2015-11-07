@@ -62,11 +62,15 @@ module Searchkick
 
     def import(records)
       records.group_by { |r| document_type(r) }.each do |type, batch|
-        client.bulk(
-          index: name,
-          type: type,
-          body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
-        )
+        response =
+          client.bulk(
+            index: name,
+            type: type,
+            body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
+          )
+        if response["errors"]
+          raise Searchkick::ImportError, response["items"].first["index"]["error"]
+        end
       end
     end
 
