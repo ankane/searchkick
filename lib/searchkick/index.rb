@@ -27,6 +27,10 @@ module Searchkick
       client.indices.exists_alias name: name
     end
 
+    def mapping
+      client.indices.get_mapping index: name
+    end
+
     def swap(new_name)
       old_indices =
         begin
