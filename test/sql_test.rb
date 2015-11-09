@@ -153,6 +153,19 @@ class SqlTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: {gt: 26, lt: 36}}
   end
 
+  def test_where_nested
+    store [
+      {name: "ProductA", creator: Creator.create(first_name: 'John', last_name: 'Doe')},
+      {name: "ProductB", creator: Creator.create(first_name: 'Doe', last_name: 'John')}
+    ]
+    assert_search "product", ["ProductA"],  nested: {
+                                              path: 'nested_info',
+                                              where: {
+                                                'nested_info.creator_first_name' => 'John',
+                                              }
+                                            }
+  end
+
   def test_near
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},

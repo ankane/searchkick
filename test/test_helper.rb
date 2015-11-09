@@ -81,6 +81,13 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Creator
+    include Mongoid::Document
+
+    field :first_name
+    field :last_name
+  end
+
   class Animal
     include Mongoid::Document
 
@@ -124,6 +131,14 @@ elsif defined?(NoBrainer)
     field :name, type: String
   end
 
+  class Creator
+    include NoBrainer::Document
+
+    field :id,         type: Object
+    field :first_name, type: String
+    field :last_name,  type: String
+  end
+
   class Animal
     include NoBrainer::Document
 
@@ -154,6 +169,7 @@ else
   ActiveRecord::Migration.create_table :products do |t|
     t.string :name
     t.integer :store_id
+    t.integer :creator_id
     t.boolean :in_stock
     t.boolean :backordered
     t.integer :orders_count
@@ -170,6 +186,11 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :creators do |t|
+    t.string :first_name
+    t.string :last_name
+  end
+
   ActiveRecord::Migration.create_table :animals do |t|
     t.string :name
     t.string :type
@@ -180,6 +201,9 @@ else
 
   class Store < ActiveRecord::Base
     has_many :products
+  end
+
+  class Creator < ActiveRecord::Base
   end
 
   class Animal < ActiveRecord::Base
@@ -194,6 +218,7 @@ end
 
 class Product
   belongs_to :store
+  belongs_to :creator
 
   searchkick \
     synonyms: [
@@ -216,7 +241,9 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    unsearchable: [:description]
+    unsearchable: [:description],
+    mappings: {product: {properties: {nested_info: {type: 'nested'}}}},
+    merge_mappings: true
 
   attr_accessor :conversions, :user_ids, :aisle
 
@@ -226,7 +253,11 @@ class Product
       user_ids: user_ids,
       location: [latitude, longitude],
       multiple_locations: [[latitude, longitude], [0, 0]],
-      aisle: aisle
+      aisle: aisle,
+      nested_info: {
+        creator_first_name: creator.try(:first_name) || "Undefined",
+        creator_last_name: creator.try(:last_name) || "Undefined"
+      }
     )
   end
 
