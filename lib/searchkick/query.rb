@@ -351,30 +351,28 @@ module Searchkick
 
           aggs.each do |field, agg_options|
             size = agg_options[:limit] ? agg_options[:limit] : 100_000
+            shared_agg_options = agg_options.slice(:order)
 
             if agg_options[:ranges]
               payload[:aggs][field] = {
                 range: {
                   field: agg_options[:field] || field,
-                  ranges: agg_options[:ranges],
-                  order: agg_options[:order]
-                }
+                  ranges: agg_options[:ranges]
+                }.merge(shared_agg_options)
               }
             elsif agg_options[:date_ranges]
               payload[:aggs][field] = {
                 date_range: {
                   field: agg_options[:field] || field,
-                  ranges: agg_options[:date_ranges],
-                  order: agg_options[:order]
-                }
+                  ranges: agg_options[:date_ranges]
+                }.merge(shared_agg_options)
               }
             else
               payload[:aggs][field] = {
                 terms: {
                   field: agg_options[:field] || field,
-                  size: size,
-                  order: agg_options[:order]
-                }
+                  size: size
+                }.merge(shared_agg_options)
               }
             end
 
