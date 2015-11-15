@@ -40,6 +40,11 @@ We highly recommend tracking queries and conversions
 ```sh
 brew install elasticsearch
 ```
+Don't forget to start elasticsearch. This command will show you how.  
+
+```sh
+brew info elasticsearch
+```
 
 Add this line to your application’s Gemfile:
 
