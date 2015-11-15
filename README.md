@@ -594,6 +594,14 @@ Limit
 Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
+Order [master]
+
+```ruby
+Product.search "wingtips", aggs: {color: {order: {"_term" => "asc"}}} # alphabetically
+```
+
+[All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
+
 Ranges
 
 ```ruby

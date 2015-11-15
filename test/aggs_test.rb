@@ -19,6 +19,11 @@ class AggsTest < Minitest::Test
     assert_equal ({1 => 1}), store_agg(aggs: {store_id: {where: {in_stock: true}}})
   end
 
+  def test_order
+    agg = Product.search("Product", aggs: {color: {order: {"_term" => "desc"}}}).aggs["color"]
+    assert_equal %w[red green blue], agg["buckets"].map { |b| b["key"] }
+  end
+
   def test_field
     assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: {store_id: {}})
     assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: {store_id: {field: "store_id"}})

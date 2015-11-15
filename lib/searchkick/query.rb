@@ -356,21 +356,24 @@ module Searchkick
               payload[:aggs][field] = {
                 range: {
                   field: agg_options[:field] || field,
-                  ranges: agg_options[:ranges]
+                  ranges: agg_options[:ranges],
+                  order: agg_options[:order]
                 }
               }
             elsif agg_options[:date_ranges]
               payload[:aggs][field] = {
                 date_range: {
                   field: agg_options[:field] || field,
-                  ranges: agg_options[:date_ranges]
+                  ranges: agg_options[:date_ranges],
+                  order: agg_options[:order]
                 }
               }
             else
               payload[:aggs][field] = {
                 terms: {
                   field: agg_options[:field] || field,
-                  size: size
+                  size: size,
+                  order: agg_options[:order]
                 }
               }
             end

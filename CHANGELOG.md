@@ -2,6 +2,7 @@
 
 - Throw `Searchkick::ImportError` for errors when importing records
 - Errors now inherit from `Searchkick::Error`
+- Added `order` option to aggs
 - Added `mapping` method
 
 ## 1.0.1
