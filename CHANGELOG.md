@@ -1,8 +1,8 @@
-## 1.0.2 [unreleased]
+## 1.0.2
 
 - Throw `Searchkick::ImportError` for errors when importing records
 - Errors now inherit from `Searchkick::Error`
-- Added `order` option to aggs
+- Added `order` option to aggregations
 - Added `mapping` method
 
 ## 1.0.1

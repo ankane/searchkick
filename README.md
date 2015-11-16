@@ -594,7 +594,7 @@ Limit
 Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
-Order [master]
+Order
 
 ```ruby
 Product.search "wingtips", aggs: {color: {order: {"_term" => "asc"}}} # alphabetically
