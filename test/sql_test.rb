@@ -103,7 +103,7 @@ class SqlTest < Minitest::Test
   end
 
   def test_include
-    skip unless defined?(Mongoid) || defined?(NoBrainer)
+    skip unless defined?(ActiveRecord)
     store_names ["Product A"]
     assert Product.search("product", include: [:store]).first.association(:store).loaded?
   end

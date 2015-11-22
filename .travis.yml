@@ -26,3 +26,6 @@ matrix:
   include:
     - gemfile: test/gemfiles/nobrainer.gemfile
       env: NOBRAINER=true
+  allow_failures:
+    - gemfile: test/gemfiles/nobrainer.gemfile
+      env: NOBRAINER=true
