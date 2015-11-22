@@ -63,7 +63,7 @@ module Searchkick
 
     def with_details
       each_with_hit.map do |model, hit|
-        details = {}
+        details = {score: hit['_score']}
         if hit["highlight"]
           details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.analyzed\z/, "")).to_sym, v] }]
         end

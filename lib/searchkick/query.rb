@@ -137,6 +137,22 @@ module Searchkick
               end
 
               queries.concat(qs.map { |q| {match: {field => q}} })
+
+              if options[:multi_match]
+                fields_query = fields.map {|f| "#{f}#{'^'+boost_fields[f].to_s if boost_fields[f]}"}
+
+                multi_match_query = {
+                  multi_match: {
+                    fields: fields_query,
+                    query: term,
+                    type: "cross_fields",
+                    analyzer: "searchkick_search2",
+                    operator: 'and'
+                  }
+                }
+
+                queries << multi_match_query
+              end
             end
 
             payload = {
