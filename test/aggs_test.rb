@@ -95,7 +95,7 @@ class AggsTest < Minitest::Test
   protected
 
   def buckets_as_hash(agg)
-    agg["buckets"].map { |v| [v["key"], v["doc_count"]] }.to_h
+    Hash[agg["buckets"].map { |v| [v["key"], v["doc_count"]] }]
   end
 
   def store_agg(options, agg_key = "store_id")
@@ -104,8 +104,8 @@ class AggsTest < Minitest::Test
   end
 
   def store_multiple_aggs(options)
-    Product.search("Product", options).aggs.map do |field, filtered_agg|
+    Hash[Product.search("Product", options).aggs.map do |field, filtered_agg|
       [field, buckets_as_hash(filtered_agg)]
-    end.to_h
+    end]
   end
 end

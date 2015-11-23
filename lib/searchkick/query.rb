@@ -347,7 +347,7 @@ module Searchkick
           aggs = options[:aggs]
           payload[:aggs] = {}
 
-          aggs = aggs.map { |f| [f, {}] }.to_h if aggs.is_a?(Array) # convert to more advanced syntax
+          aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
 
           aggs.each do |field, agg_options|
             size = agg_options[:limit] ? agg_options[:limit] : 100_000
