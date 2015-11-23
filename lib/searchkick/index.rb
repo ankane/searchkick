@@ -113,7 +113,7 @@ module Searchkick
       if defined?(Searchkick::ReindexV2Job)
         Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
       else
-        Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
+        Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s), queue: 'searchkick'
       end
     end
 
