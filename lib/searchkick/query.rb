@@ -49,7 +49,7 @@ module Searchkick
 
       # pagination
       page = [options[:page].to_i, 1].max
-      per_page = (options[:limit] || options[:per_page] || 100_000).to_i
+      per_page = (options[:limit] || options[:per_page] || 1_000).to_i
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
 
@@ -300,7 +300,7 @@ module Searchkick
           facets.each do |field, facet_options|
             # ask for extra facets due to
             # https://github.com/elasticsearch/elasticsearch/issues/1305
-            size = facet_options[:limit] ? facet_options[:limit] + 150 : 100_000
+            size = facet_options[:limit] ? facet_options[:limit] + 150 : 1_000
 
             if facet_options[:ranges]
               payload[:facets][field] = {
@@ -350,7 +350,7 @@ module Searchkick
           aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
 
           aggs.each do |field, agg_options|
-            size = agg_options[:limit] ? agg_options[:limit] : 100_000
+            size = agg_options[:limit] ? agg_options[:limit] : 1_000
             shared_agg_options = agg_options.slice(:order)
 
             if agg_options[:ranges]
