@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Added support for Elasticsearch 2.1
+
 ## 1.0.2
 
 - Throw `Searchkick::ImportError` for errors when importing records
