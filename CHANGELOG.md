@@ -1,3 +1,9 @@
+## 1.0.4 [unreleased]
+
+- Added `word: false` option
+- Added `match` option
+- Added highlighted fields to `load: false`
+
 ## 1.0.3
 
 - Added support for Elasticsearch 2.1

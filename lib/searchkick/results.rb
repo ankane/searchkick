@@ -42,6 +42,14 @@ module Searchkick
               else
                 hit.except("fields").merge(hit["fields"])
               end
+
+            if hit["highlight"]
+              highlight = Hash[hit["highlight"].map { |k, v| [k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end)\z/, ""), v.first] }]
+              highlight.each do |k, v|
+                result["highlighted_#{k}"] ||= (v || result[k])
+              end
+            end
+
             result["id"] ||= result["_id"] # needed for legacy reasons
             Hashie::Mash.new(result)
           end

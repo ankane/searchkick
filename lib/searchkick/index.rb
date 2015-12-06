@@ -417,12 +417,13 @@ module Searchkick
           field_mapping = {
             type: "multi_field",
             fields: {
-              field => {type: "string", index: "not_analyzed"},
-              "analyzed" => {type: "string", index: "analyzed"}
-              # term_vector: "with_positions_offsets" for fast / correct highlighting
-              # http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_fast_vector_highlighter
+              field => {type: "string", index: "not_analyzed"}
             }
           }
+
+          unless options[:word] == false
+            field_mapping[:fields]["analyzed"] = {type: "string", index: "analyzed"}
+          end
 
           mapping_options.except(:highlight).each do |type, fields|
             if fields.include?(field)
@@ -455,6 +456,18 @@ module Searchkick
           routing = {required: true, path: options[:routing].to_s}
         end
 
+        dynamic_fields = {
+          # analyzed field must be the default field for include_in_all
+          # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+          # however, we can include the not_analyzed field in _all
+          # and the _all index analyzer will take care of it
+          "{name}" => {type: "string", index: "not_analyzed"}
+        }
+
+        unless options[:word] == false
+          dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
+        end
+
         mappings = {
           _default_: {
             properties: mapping,
@@ -468,14 +481,7 @@ module Searchkick
                   mapping: {
                     # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
                     type: "multi_field",
-                    fields: {
-                      # analyzed field must be the default field for include_in_all
-                      # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-                      # however, we can include the not_analyzed field in _all
-                      # and the _all index analyzer will take care of it
-                      "{name}" => {type: "string", index: "not_analyzed"},
-                      "analyzed" => {type: "string", index: "analyzed"}
-                    }
+                    fields: dynamic_fields
                   }
                 }
               }

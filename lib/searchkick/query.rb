@@ -30,7 +30,7 @@ module Searchkick
             options[:fields].map { |f| "#{f}.autocomplete" }
           else
             options[:fields].map do |value|
-              k, v = value.is_a?(Hash) ? value.to_a.first : [value, :word]
+              k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || :word]
               k2, boost = k.to_s.split("^", 2)
               field = "#{k2}.#{v == :word ? 'analyzed' : v}"
               boost_fields[field] = boost.to_f if boost
