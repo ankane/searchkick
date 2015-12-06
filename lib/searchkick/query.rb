@@ -546,7 +546,7 @@ module Searchkick
             end
           end
 
-          @highlighted_fields = payload[:highlight][:fields].keys.map { |k| k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end)\z/, "") }
+          @highlighted_fields = payload[:highlight][:fields].keys
         end
 
         # An empty array will cause only the _id and _type for each hit to be returned
