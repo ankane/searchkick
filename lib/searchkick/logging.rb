@@ -2,16 +2,16 @@
 
 module Searchkick
   class Query
-    def execute_with_instrumentation
+    def execute_search_with_instrumentation
       event = {
         name: "#{searchkick_klass.name} Search",
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
-        execute_without_instrumentation
+        execute_search_without_instrumentation
       end
     end
-    alias_method_chain :execute, :instrumentation
+    alias_method_chain :execute_search, :instrumentation
   end
 
   class Index

@@ -51,10 +51,10 @@ module Searchkick
     def execute
       @execute ||= begin
         begin
-          response = Searchkick.client.search(params)
+          response = execute_search
           if @misspellings_below && response["hits"]["total"] < @misspellings_below
             prepare
-            response = Searchkick.client.search(params)
+            response = execute_search
           end
         rescue => e # TODO rescue type
           status_code = e.message[1..3].to_i
@@ -113,6 +113,9 @@ module Searchkick
 
     private
 
+    def execute_search
+      Searchkick.client.search(params)
+    end
 
     def prepare
       boost_fields = {}
