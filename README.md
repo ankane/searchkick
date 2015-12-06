@@ -241,7 +241,7 @@ Available options are:
 ### Exact Matches
 
 ```ruby
-User.search "hi@searchkick.org", fields: [{email: :exact}, :name]
+User.search params[:q], fields: [{email: :exact}, :name]
 ```
 
 ### Language
@@ -488,14 +488,14 @@ First, specify which fields use this feature.  This is necessary since autocompl
 
 ```ruby
 class City < ActiveRecord::Base
-  searchkick text_start: [:name]
+  searchkick match: :word_start
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-City.search "san fr", fields: [{name: :text_start}]
+City.search "san fr", fields: [:name]
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -507,11 +507,9 @@ First, add a route and controller action.
 ```ruby
 # app/controllers/cities_controller.rb
 class CitiesController < ApplicationController
-
   def autocomplete
-    render json: City.search(params[:query], fields: [{name: :text_start}], limit: 10).map(&:name)
+    render json: City.search(params[:query], fields: [:name], limit: 10).map(&:name)
   end
-
 end
 ```
 
@@ -536,7 +534,7 @@ Then add the search box and JavaScript code to a view.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick suggest: ["name"] # fields to generate suggestions
+  searchkick suggest: [:name] # fields to generate suggestions
 end
 ```
 
