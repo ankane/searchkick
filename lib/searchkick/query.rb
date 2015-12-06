@@ -96,7 +96,8 @@ module Searchkick
           load: @load,
           includes: options[:include] || options[:includes],
           json: !options[:json].nil?,
-          match_suffix: @match_suffix
+          match_suffix: @match_suffix,
+          highlighted_fields: @highlighted_fields || []
         }
         Searchkick::Results.new(searchkick_klass, response, opts)
       end
@@ -544,6 +545,8 @@ module Searchkick
               end
             end
           end
+
+          @highlighted_fields = payload[:highlight][:fields].keys.map { |k| k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end)\z/, "") }
         end
 
         # An empty array will cause only the _id and _type for each hit to be returned

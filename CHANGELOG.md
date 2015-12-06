@@ -2,7 +2,7 @@
 
 - Added `below` option to misspellings to improve performance
 - Added `match` option
-- Added `word: false` option
+- Added `word` option
 - Added highlighted fields to `load: false`
 
 ## 1.0.3
