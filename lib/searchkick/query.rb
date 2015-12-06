@@ -22,6 +22,7 @@ module Searchkick
       @klass = klass
       @term = term
       @options = options
+      @match_suffix = options[:match] || searchkick_options[:match] || "analyzed"
 
       boost_fields = {}
       fields =
@@ -436,7 +437,7 @@ module Searchkick
               payload[:highlight][:fields] = {}
 
               highlight_fields.each do |name, opts|
-                payload[:highlight][:fields]["#{name}.analyzed"] = opts || {}
+                payload[:highlight][:fields]["#{name}.#{@match_suffix}"] = opts || {}
               end
             end
           end
@@ -530,7 +531,8 @@ module Searchkick
           padding: @padding,
           load: @load,
           includes: options[:include] || options[:includes],
-          json: !options[:json].nil?
+          json: !options[:json].nil?,
+          match_suffix: @match_suffix
         }
         Searchkick::Results.new(searchkick_klass, response, opts)
       end

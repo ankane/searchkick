@@ -27,7 +27,8 @@ class HighlightTest < Minitest::Test
 
   def test_field_options
     store_names ["Two Door Cinema Club are a Northern Irish indie rock band"]
-    assert_equal "Two Door <em>Cinema</em> Club are", Product.search("cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 20}}}).with_details.first[1][:highlight][:name]
+    fragment_size = ENV["MATCH"] == "word_start" ? 26 : 20
+    assert_equal "Two Door <em>Cinema</em> Club are", Product.search("cinema", fields: [:name], highlight: {fields: {name: {fragment_size: fragment_size}}}).with_details.first[1][:highlight][:name]
   end
 
   def test_multiple_words

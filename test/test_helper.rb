@@ -216,7 +216,8 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    unsearchable: [:description]
+    unsearchable: [:description],
+    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle
 

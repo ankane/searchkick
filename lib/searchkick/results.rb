@@ -73,7 +73,7 @@ module Searchkick
       each_with_hit.map do |model, hit|
         details = {}
         if hit["highlight"]
-          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.analyzed\z/, "")).to_sym, v.first] }]
+          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
         end
         [model, details]
       end

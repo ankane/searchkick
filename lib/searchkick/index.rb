@@ -426,7 +426,7 @@ module Searchkick
           end
 
           mapping_options.except(:highlight).each do |type, fields|
-            if fields.include?(field)
+            if options[:match] == type || fields.include?(field)
               field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
             end
           end
