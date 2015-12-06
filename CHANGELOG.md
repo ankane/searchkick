@@ -1,5 +1,6 @@
 ## 1.0.4 [unreleased]
 
+- Added `below` option to misspellings to improve performance
 - Added `match` option
 - Added `word: false` option
 - Added highlighted fields to `load: false`
