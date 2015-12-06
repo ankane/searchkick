@@ -464,9 +464,12 @@ module Searchkick
           "{name}" => {type: "string", index: "not_analyzed"}
         }
 
-        unless options[:word] == false
+        if options[:match] && options[:match] != :word
+          dynamic_fields[options[:match]] = {type: "string", index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
+        elsif options[:word] != false
           dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
         end
+
 
         mappings = {
           _default_: {
