@@ -470,7 +470,6 @@ module Searchkick
           dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
         end
 
-
         mappings = {
           _default_: {
             properties: mapping,
