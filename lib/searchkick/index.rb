@@ -409,9 +409,11 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
+          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
             .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
+
+        word = options[:word] != false && (!options[:match] || options[:match] == :word)
 
         mapping_options.values.flatten.uniq.each do |field|
           field_mapping = {
@@ -421,7 +423,7 @@ module Searchkick
             }
           }
 
-          unless options[:word] == false
+          if word
             field_mapping[:fields]["analyzed"] = {type: "string", index: "analyzed"}
           end
 
@@ -431,7 +433,7 @@ module Searchkick
             end
           end
 
-          if mapping_options[:highlight].include?(field)
+          if word && mapping_options[:highlight].include?(field)
             field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
           end
 
@@ -466,7 +468,9 @@ module Searchkick
 
         if options[:match] && options[:match] != :word
           dynamic_fields[options[:match]] = {type: "string", index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
-        elsif options[:word] != false
+        end
+
+        if word
           dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
         end
 

@@ -37,6 +37,7 @@ class HighlightTest < Minitest::Test
   end
 
   def test_json
+    skip if ENV["MATCH"] == "word_start"
     store_names ["Two Door Cinema Club"]
     json = {
       query: {
