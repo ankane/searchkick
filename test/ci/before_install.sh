@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+gem install bundler
+
 sudo apt-get purge elasticsearch
 wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.3.deb
 sudo dpkg -i elasticsearch-1.7.3.deb
