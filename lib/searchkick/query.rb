@@ -214,7 +214,8 @@ module Searchkick
                   {fuzzy_transpositions: true}
                 end
               prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
-              max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || 3
+              default_max_expansions = @misspellings_below ? 20 : 3
+              max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
             end
 
             fields.each do |field|
