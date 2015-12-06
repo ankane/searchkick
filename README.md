@@ -309,7 +309,15 @@ You can change this with:
 Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
-Or turn off misspellings with:
+To significantly improve performance, Searchkick can first perform a search without misspellings, and if there are few results, perform another with them. [master]
+
+```ruby
+Product.search "zuchini", misspellings: {below: 5}
+```
+
+If there are fewer than 5 results, a 2nd search is performed for misspellings.
+
+Turn off misspellings with:
 
 ```ruby
 Product.search "zuchini", misspellings: false # no zucchini

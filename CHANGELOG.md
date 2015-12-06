@@ -1,3 +1,7 @@
+## 1.0.4 [unreleased]
+
+- Added `below` option to misspellings to improve performance
+
 ## 1.0.3
 
 - Added support for Elasticsearch 2.1

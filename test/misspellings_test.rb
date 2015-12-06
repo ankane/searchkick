@@ -33,4 +33,14 @@ class MisspellingsTest < Minitest::Test
     ]
     assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"], misspellings: false
   end
+
+  def test_misspellings_below_unmet
+    store_names ["abc", "abd", "aee"]
+    assert_search "abc", ["abc", "abd"], misspellings: {below: 2}
+  end
+
+  def test_misspellings_below_met
+    store_names ["abc", "abd", "aee"]
+    assert_search "abc", ["abc"], misspellings: {below: 1}
+  end
 end
