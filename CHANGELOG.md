@@ -1,6 +1,7 @@
 ## 1.0.4 [unreleased]
 
 - Added `below` option to misspellings to improve performance
+- Added `similarity` option
 
 ## 1.0.3
 
