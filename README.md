@@ -1143,6 +1143,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Use [Okapi BM25](https://www.elastic.co/guide/en/elasticsearch/guide/current/pluggable-similarites.html) for ranking [master]
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick similarity: "BM25"
+end
+```
+
 Change import batch size
 
 ```ruby
