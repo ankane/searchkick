@@ -525,7 +525,7 @@ class BooksController < ApplicationController
       limit: 10,
       load: false,
       misspellings: {below: 5}
-    }).map(&:name)
+    }).map(&:title)
   end
 end
 ```
