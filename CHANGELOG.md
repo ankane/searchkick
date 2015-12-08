@@ -2,6 +2,7 @@
 
 - Added `below` option to misspellings to improve performance
 - Fixed synonyms for `word_*` partial matches
+- Added `searchable` option
 - Added `similarity` option
 - Added `match` option
 - Added `word` option

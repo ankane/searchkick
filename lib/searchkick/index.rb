@@ -421,7 +421,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight]
+          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable]
             .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -435,18 +435,20 @@ module Searchkick
             }
           }
 
-          if word
-            field_mapping[:fields]["analyzed"] = {type: "string", index: "analyzed"}
-          end
+          if !options[:searchable] || mapping_options[:searchable].include?(field)
+            if word
+              field_mapping[:fields]["analyzed"] = {type: "string", index: "analyzed"}
 
-          mapping_options.except(:highlight).each do |type, fields|
-            if options[:match] == type || fields.include?(field)
-              field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
+              if mapping_options[:highlight].include?(field)
+                field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
+              end
             end
-          end
 
-          if word && mapping_options[:highlight].include?(field)
-            field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
+            mapping_options.except(:highlight, :searchable).each do |type, fields|
+              if options[:match] == type || fields.include?(field)
+                field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
+              end
+            end
           end
 
           mapping[field] = field_mapping
@@ -475,15 +477,17 @@ module Searchkick
           # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
           # however, we can include the not_analyzed field in _all
           # and the _all index analyzer will take care of it
-          "{name}" => {type: "string", index: "not_analyzed"}
+          "{name}" => {type: "string", index: "not_analyzed", include_in_all: !options[:searchable]}
         }
 
-        if options[:match] && options[:match] != :word
-          dynamic_fields[options[:match]] = {type: "string", index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
-        end
+        unless options[:searchable]
+          if options[:match] && options[:match] != :word
+            dynamic_fields[options[:match]] = {type: "string", index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
+          end
 
-        if word
-          dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
+          if word
+            dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
+          end
         end
 
         mappings = {

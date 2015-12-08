@@ -198,6 +198,13 @@ class MatchTest < Minitest::Test
     assert_search "almond", []
   end
 
+  def test_unsearchable_where
+    store [
+      {name: "Unsearchable", description: "Almond"}
+    ]
+    assert_search "*", ["Unsearchable"], where: {description: "Almond"}
+  end
+
   def test_emoji
     skip unless defined?(EmojiParser)
     store_names ["Banana"]
