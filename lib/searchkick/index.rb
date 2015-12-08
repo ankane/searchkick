@@ -380,6 +380,10 @@ module Searchkick
           # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
           settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_synonym")
           settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
+
+          %w(word_start word_middle word_end).each do |type|
+            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
+          end
         end
 
         if options[:wordnet]
@@ -391,6 +395,10 @@ module Searchkick
 
           settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_wordnet")
           settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_wordnet"
+
+          %w(word_start word_middle word_end).each do |type|
+            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
+          end
         end
 
         if options[:special_characters] == false

@@ -2,6 +2,7 @@
 
 - Added `below` option to misspellings to improve performance
 - Added `similarity` option
+- Fixed synonyms for `word_*` partial matches
 
 ## 1.0.3
 
