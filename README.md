@@ -220,11 +220,15 @@ By default, results must match the entire word - `back` will not match `backpack
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick match: :word_start
+  searchkick word_start: [:name]
 end
 ```
 
-And reindex.
+And to search (after you reindex):
+
+```ruby
+Product.search "back", fields: [:name], match: :word_start
+```
 
 Available options are:
 
