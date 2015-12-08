@@ -488,7 +488,7 @@ Reindex and search with:
 Product.search "milk", boost_where: {orderer_ids: current_user.id}
 ```
 
-### Autocomplete
+### Instant Search / Autocomplete
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
@@ -499,15 +499,15 @@ Autocomplete predicts what a user will type, making the search experience faster
 First, specify which fields use this feature.  This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
 
 ```ruby
-class City < ActiveRecord::Base
-  searchkick match: :word_start
+class Book < ActiveRecord::Base
+  searchkick match: :word_start, searchable: [:title, :author]
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-City.search "san fr", fields: [:name]
+Book.search "tipping poi"
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -517,10 +517,15 @@ Typically, you want to use a JavaScript library like [typeahead.js](http://twitt
 First, add a route and controller action.
 
 ```ruby
-# app/controllers/cities_controller.rb
-class CitiesController < ApplicationController
+# app/controllers/books_controller.rb
+class BooksController < ApplicationController
   def autocomplete
-    render json: City.search(params[:query], fields: [:name], limit: 10).map(&:name)
+    render json: Book.search(params[:query], {
+      fields: ["title^5", "author"],
+      limit: 10,
+      load: false,
+      misspellings: {below: 5}
+    }).map(&:name)
   end
 end
 ```
@@ -534,8 +539,8 @@ Then add the search box and JavaScript code to a view.
 <script src="typeahead.js"></script>
 <script>
   $("#query").typeahead({
-    name: "city",
-    remote: "/cities/autocomplete?query=%QUERY"
+    name: "book",
+    remote: "/books/autocomplete?query=%QUERY"
   });
 </script>
 ```
