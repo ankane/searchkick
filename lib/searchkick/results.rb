@@ -45,7 +45,7 @@ module Searchkick
 
             if hit["highlight"]
               highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), v.first] }]
-              options[:highlighted_fields].map(&:base_field).each do |k|
+              options[:highlighted_fields].map{ |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
               end
             end
@@ -199,7 +199,7 @@ module Searchkick
     end
 
     def base_field(k)
-      k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end)\z/, "")
+      k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
     end
   end
 end
