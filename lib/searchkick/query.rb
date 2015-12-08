@@ -122,12 +122,13 @@ module Searchkick
 
     def prepare
       boost_fields = {}
+      fields = options[:fields] || searchkick_options[:searchable]
       fields =
-        if options[:fields]
+        if fields
           if options[:autocomplete]
-            options[:fields].map { |f| "#{f}.autocomplete" }
+            fields.map { |f| "#{f}.autocomplete" }
           else
-            options[:fields].map do |value|
+            fields.map do |value|
               k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || searchkick_options[:match] || :word]
               k2, boost = k.to_s.split("^", 2)
               field = "#{k2}.#{v == :word ? 'analyzed' : v}"
