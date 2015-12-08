@@ -1,4 +1,4 @@
-## 1.1.0 [unreleased]
+## 1.1.0
 
 - Added `below` option to misspellings to improve performance
 - Fixed synonyms for `word_*` partial matches
