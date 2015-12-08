@@ -303,7 +303,7 @@ You can change this with:
 Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
-To improve performance for correctly spelled queries (which should be a majority for most applications), Searchkick can first perform a search without misspellings, and if there are few results, perform another with them. [master]
+To improve performance for correctly spelled queries (which should be a majority for most applications), Searchkick can first perform a search without misspellings, and if there are few results, perform another with them.
 
 ```ruby
 Product.search "zuchini", misspellings: {below: 5}
@@ -1147,7 +1147,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use [Okapi BM25](https://www.elastic.co/guide/en/elasticsearch/guide/current/pluggable-similarites.html) for ranking [master]
+Use [Okapi BM25](https://www.elastic.co/guide/en/elasticsearch/guide/current/pluggable-similarites.html) for ranking
 
 ```ruby
 class Product < ActiveRecord::Base
