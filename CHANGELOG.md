@@ -1,8 +1,8 @@
-## 1.0.4 [unreleased]
+## 1.1.0 [unreleased]
 
 - Added `below` option to misspellings to improve performance
-- Added `similarity` option
 - Fixed synonyms for `word_*` partial matches
+- Added `similarity` option
 - Added `match` option
 - Added `word` option
 - Added highlighted fields to `load: false`
