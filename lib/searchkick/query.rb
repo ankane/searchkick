@@ -705,7 +705,8 @@ module Searchkick
             location = (
               sort[:_geo_distance][:location]  ||
               sort[:_geo_distance][:"pin.location"]
-            )
+            )                                  &&
+            location.is_a?(Array)
 
           location.reverse!
         end
