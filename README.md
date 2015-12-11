@@ -399,6 +399,13 @@ There are three strategies for keeping the index synced with your database.
   ```
 
   And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
+  
+  if you use a queueing system, it will use the queue named 'searchkick'. For example with sidekiq :
+  
+  ```
+  sidekiq -q default -q searchkick
+  ```
+  
 
 3. Manual
 
