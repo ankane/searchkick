@@ -922,18 +922,38 @@ heroku run rake searchkick:reindex CLASS=Product
 
 ### Amazon Elasticsearch Service
 
-You must use an [IP-based access policy](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg-search.html) for Searchkick to work.
-
-Include `elasticsearch 1.0.14` or greater in your Gemfile.
+Include `elasticsearch 1.0.15` or greater in your Gemfile.
 
 ```ruby
-gem "elasticsearch", ">= 1.0.14"
+gem "elasticsearch", ">= 1.0.15"
 ```
 
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "http://es-domain-1234.us-east-1.es.amazonaws.com"
+ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
+```
+
+To use signed request, include in your Gemfile:
+
+```ruby
+gem 'faraday_middleware-aws-signers-v4'
+```
+
+and add your initializer:
+
+```ruby
+Searchkick.client =
+  Elasticsearch::Client.new(
+    url: ENV["ELASTICSEARCH_URL"],
+    transport_options: {request: {timeout: 10}}
+  ) do |f|
+    f.request :aws_signers_v4, {
+      credentials: Aws::Credentials.new(ENV["AWS_ACCESS_KEY_ID"], ENV["AWS_SECRET_ACCESS_KEY"]),
+      service_name: "es",
+      region: "us-east-1"
+    }
+  end
 ```
 
 Then deploy and reindex:
