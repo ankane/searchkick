@@ -940,7 +940,7 @@ To use signed request, include in your Gemfile:
 gem 'faraday_middleware-aws-signers-v4'
 ```
 
-and add your initializer:
+and add to your initializer:
 
 ```ruby
 Searchkick.client =
