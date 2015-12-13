@@ -29,10 +29,6 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
-We highly recommend tracking queries and conversions
-
-:zap: [Searchjoy](https://github.com/ankane/searchjoy) makes it easy
-
 ## Get Started
 
 [Install Elasticsearch](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
@@ -426,18 +422,23 @@ class Image < ActiveRecord::Base
 end
 ```
 
-### Keep Getting Better
+### Analytics
 
-Searchkick uses conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
+We highly recommend tracking searches and conversions.
 
-The first step is to define your conversion metric and start tracking conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
+[Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
 
 ```ruby
-class Search < ActiveRecord::Base
-  belongs_to :product
-  # fields: id, query, searched_at, converted_at, product_id
-end
+Product.search "apple", track: {user_id: current_user.id}
 ```
+
+[See the docs](https://github.com/ankane/searchjoy) for how to install and use.
+
+### Keep Getting Better
+
+Searchkick can use conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
+
+The first step is to define your conversion metric and start tracking conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
 
 You do **not** need to clean up the search queries.  Searchkick automatically treats `apple` and `APPLES` the same.
 
@@ -445,14 +446,14 @@ Next, add conversions to the index.
 
 ```ruby
 class Product < ActiveRecord::Base
-  has_many :searches
+  has_many :searches, class_name: "Searchjoy::Search"
 
   searchkick conversions: "conversions" # name of field
 
   def search_data
     {
       name: name,
-      conversions: searches.group("query").count
+      conversions: searches.group(:query).uniq.count(:user_id)
       # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
     }
   end
