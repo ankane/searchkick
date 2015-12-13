@@ -472,14 +472,12 @@ Order results differently for each user.  For example, show a user’s previousl
 
 ```ruby
 class Product < ActiveRecord::Base
-
   def search_data
     {
       name: name,
       orderer_ids: orders.pluck(:user_id) # boost this product for these users
     }
   end
-
 end
 ```
 
