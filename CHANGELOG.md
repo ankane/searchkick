@@ -1,3 +1,7 @@
+## 1.1.1 [unreleased]
+
+- Added support for `{lat: lat, lon: lon}` as preferred format for locations
+
 ## 1.1.0
 
 - Added `below` option to misspellings to improve performance

@@ -599,7 +599,7 @@ module Searchkick
               when :near
                 filters << {
                   geo_distance: {
-                    field => op_value.map(&:to_f).reverse,
+                    field => location_value(op_value),
                     distance: value[:within] || "50mi"
                   }
                 }
@@ -607,8 +607,8 @@ module Searchkick
                 filters << {
                   geo_bounding_box: {
                     field => {
-                      top_left: op_value.map(&:to_f).reverse,
-                      bottom_right: value[:bottom_right].map(&:to_f).reverse
+                      top_left: location_value(op_value),
+                      bottom_right: location_value(value[:bottom_right])
                     }
                   }
                 }
@@ -696,6 +696,14 @@ module Searchkick
             }
           }
         }.merge(script_score)
+      end
+    end
+
+    def location_value(value)
+      if value.is_a?(Array)
+        value.map(&:to_f).reverse
+      else
+        value
       end
     end
 

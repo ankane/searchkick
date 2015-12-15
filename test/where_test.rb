@@ -111,6 +111,14 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco"], where: {location: {near: [37.5, -122.5]}}
   end
 
+  def test_near_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {near: {lat: 37.5, lon: -122.5}}}
+  end
+
   def test_near_within
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
@@ -118,6 +126,15 @@ class WhereTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: [37, -122], within: "2000mi"}}
+  end
+
+  def test_near_within_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: {lat: 37, lon: -122}, within: "2000mi"}}
   end
 
   def test_top_left_bottom_right
@@ -128,11 +145,27 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco"], where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
   end
 
+  def test_top_left_bottom_right_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
+  end
+
   def test_multiple_locations
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
       {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
     ]
     assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}}
+  end
+
+  def test_multiple_locations_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {multiple_locations: {near: {lat: 37.5, lon: -122.5}}}
   end
 end

@@ -226,8 +226,8 @@ class Product
     serializable_hash.except("id").merge(
       conversions: conversions,
       user_ids: user_ids,
-      location: [latitude, longitude],
-      multiple_locations: [[latitude, longitude], [0, 0]],
+      location: {lat: latitude, lon: longitude},
+      multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
       aisle: aisle
     )
   end

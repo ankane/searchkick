@@ -568,10 +568,11 @@ module Searchkick
       # locations
       (options[:locations] || []).map(&:to_s).each do |field|
         if source[field]
-          if source[field].first.is_a?(Array) # array of arrays
-            source[field] = source[field].map { |a| a.map(&:to_f).reverse }
+          if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
+            # multiple locations
+            source[field] = source[field].map { |a| location_value(a) }
           else
-            source[field] = source[field].map(&:to_f).reverse
+            source[field] = location_value(source[field])
           end
         end
       end
@@ -579,6 +580,16 @@ module Searchkick
       cast_big_decimal(source)
 
       source.as_json
+    end
+
+    def location_value(value)
+      if value.is_a?(Array)
+        value.map(&:to_f).reverse
+      elsif value.is_a?(Hash)
+        {lat: value[:lat].to_f, lon: value[:lon].to_f}
+      else
+        value
+      end
     end
 
     # change all BigDecimal values to floats due to

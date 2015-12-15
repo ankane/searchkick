@@ -779,7 +779,7 @@ class City < ActiveRecord::Base
   searchkick locations: ["location"]
 
   def search_data
-    attributes.merge location: [latitude, longitude]
+    attributes.merge location: {lat: latitude, lon: longitude}
   end
 end
 ```
@@ -787,13 +787,13 @@ end
 Reindex and search with:
 
 ```ruby
-City.search "san", where: {location: {near: [37, -114], within: "100mi"}} # or 160km
+City.search "san", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
 ```
 
 Bounded by a box
 
 ```ruby
-City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -122]}}
+City.search "san", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
 
 ### Boost By Distance
@@ -801,13 +801,13 @@ City.search "san", where: {location: {top_left: [38, -123], bottom_right: [37, -
 Boost results by distance - closer results are boosted more
 
 ```ruby
-City.search "san", boost_by_distance: {field: :location, origin: [37, -122]}
+City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}}
 ```
 
 Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
 
 ```ruby
-City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
+City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
 
 ### Routing
