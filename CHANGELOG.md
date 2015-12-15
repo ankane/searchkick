@@ -1,4 +1,4 @@
-## 1.1.1 [unreleased]
+## 1.1.1
 
 - Added support for `{lat: lat, lon: lon}` as preferred format for locations
 
