@@ -31,7 +31,7 @@ Plus:
 
 ## Get Started
 
-[Install Elasticsearch](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
+[Install Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
 
 ```sh
 brew install elasticsearch
@@ -68,7 +68,7 @@ products.each do |product|
 end
 ```
 
-Searchkick supports the complete [Elasticsearch Search API](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
+Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
 
 ### Queries
 
@@ -107,7 +107,7 @@ Order
 order: {_score: :desc} # most relevant first - default
 ```
 
-[All of these sort options are supported](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html)
+[All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html)
 
 Limit / offset
 
@@ -563,7 +563,7 @@ products.suggestions # ["peanut butter"]
 
 ### Aggregations
 
-[Aggregations](http://www.elasticsearch.org/guide/reference/api/search/facets/) provide aggregated search data.
+[Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-facets.html) provide aggregated search data.
 
 ![Aggregations](http://ankane.github.io/searchkick/facets.png)
 
@@ -761,7 +761,7 @@ Additional options, including fragment size, can be specified for each field:
 Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
 ```
 
-You can find available highlight options in the [Elasticsearch reference](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
+You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
 
 ### Similar Items
 
@@ -804,7 +804,7 @@ Boost results by distance - closer results are boosted more
 City.search "san", boost_by_distance: {field: :location, origin: [37, -122]}
 ```
 
-Also supports [additional options](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
+Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
 
 ```ruby
 City.search "san", boost_by_distance: {field: :location, origin: [37, -122], function: :linear, scale: "30mi", decay: 0.5}
@@ -897,7 +897,7 @@ Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This d
 
 ### Heroku
 
-Choose an add-on: [SearchBox](https://elements.heroku.com/addons/searchbox), [Bonsai](https://elements.heroku.com/addons/bonsai), or [Found](https://addons.heroku.com/foundelasticsearch).
+Choose an add-on: [SearchBox](https://elements.heroku.com/addons/searchbox), [Bonsai](https://elements.heroku.com/addons/bonsai), or [Found](https://elements.heroku.com/addons/foundelasticsearch).
 
 ```sh
 # SearchBox
@@ -1000,7 +1000,7 @@ Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts
 Searchkick.client = Elasticsearch::Client.new(hosts: ["localhost:9200", "localhost:9201"], retry_on_failure: true)
 ```
 
-See [elasticsearch-transport](https://github.com/elasticsearch/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
+See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
 
 ### Lograge
 
@@ -1018,7 +1018,7 @@ See [Production Rails](https://github.com/ankane/production_rails) for other goo
 
 ## Advanced
 
-Prefer to use the [Elasticsearch DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
+Prefer to use the [Elasticsearch DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
 
 ### Advanced Mapping
 
@@ -1242,7 +1242,7 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Large Data Sets
 
-For large data sets, check out [Keeping Elasticsearch in Sync](https://www.found.no/foundation/keeping-elasticsearch-in-sync/).  Searchkick will make this easy in the future.
+For large data sets, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).  Searchkick will make this easy in the future.
 
 ## Testing
 
@@ -1338,7 +1338,7 @@ Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to r
 
 ### Inconsistent Scores
 
-Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](http://www.elasticsearch.org/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch/).  To fix this, do:
+Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch).  To fix this, do:
 
 ```ruby
 class Product < ActiveRecord::Base
