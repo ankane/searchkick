@@ -371,10 +371,8 @@ module Searchkick
         payload[:explain] = options[:explain] if options[:explain]
 
         # order
-        if options[:order]
-          order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-          # TODO id transformation for arrays
-          payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? :_id : k, v] }]
+        if order = options[:order]
+          payload[:sort] = sort_fields(order)
         end
 
         # filters
@@ -696,6 +694,30 @@ module Searchkick
             }
           }
         }.merge(script_score)
+      end
+    end
+
+    def sort_fields(order)
+      order            = order.is_a?(Enumerable) ? order : {order => :asc}
+      reverse_location = ->(sort) {
+        if  sort.is_a?(Hash)                   &&
+            sort[:_geo_distance]               &&
+            location = (
+              sort[:_geo_distance][:location]  ||
+              sort[:_geo_distance][:"pin.location"]
+            )                                  &&
+            location.is_a?(Array)
+
+          location.reverse!
+        end
+      }
+
+      # TODO id transformation for arrays
+      if order.is_a?(Array)
+        order.each(&reverse_location)
+      else
+        Hash[order.map { |k, v| [k.to_s == "id" ? :_id : k, v] }].
+          tap(&reverse_location)
       end
     end
 
