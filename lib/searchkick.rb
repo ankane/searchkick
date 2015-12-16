@@ -8,6 +8,7 @@ require "searchkick/query"
 require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
+require "searchkick/middleware"
 require "searchkick/logging" if defined?(Rails)
 
 # background jobs
@@ -30,6 +31,7 @@ module Searchkick
     attr_accessor :search_method_name
     attr_accessor :wordnet_path
     attr_accessor :timeout
+    attr_writer :search_timeout
     attr_accessor :models
     attr_writer :env
   end
@@ -43,11 +45,17 @@ module Searchkick
       Elasticsearch::Client.new(
         url: ENV["ELASTICSEARCH_URL"],
         transport_options: {request: {timeout: timeout}}
-      )
+      ) do |f|
+        f.use Searchkick::Middleware
+      end
   end
 
   class << self
     attr_writer :client
+  end
+
+  def self.search_timeout
+    @search_timeout || timeout
   end
 
   def self.server_version
