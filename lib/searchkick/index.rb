@@ -45,38 +45,21 @@ module Searchkick
     # record based
 
     def store(record)
-      client.index(
-        index: name,
-        type: document_type(record),
-        id: search_id(record),
-        body: search_data(record)
-      )
+      bulk_index([record])
     end
 
     def remove(record)
-      id = search_id(record)
-      unless id.blank?
-        client.delete(
-          index: name,
-          type: document_type(record),
-          id: id
-        )
-      end
+      bulk_delete([record])
     end
 
-    def import(records)
-      records.group_by { |r| document_type(r) }.each do |type, batch|
-        response =
-          client.bulk(
-            index: name,
-            type: type,
-            body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
-          )
-        if response["errors"]
-          raise Searchkick::ImportError, response["items"].first["index"]["error"]
-        end
-      end
+    def bulk_delete(records)
+      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: {_index: name, _type: document_type(r), _id: search_id(r)}} })
     end
+
+    def bulk_index(records)
+      Searchkick.queue_items(records.map { |r| {index: {_index: name, _type: document_type(r), _id: search_id(r), data: search_data(r)}} })
+    end
+    alias_method :import, :bulk_index
 
     def retrieve(record)
       client.get(
@@ -99,10 +82,14 @@ module Searchkick
     end
 
     def reindex_record_async(record)
-      if defined?(Searchkick::ReindexV2Job)
-        Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+      if Searchkick.callbacks_value.nil?
+        if defined?(Searchkick::ReindexV2Job)
+          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+        else
+          Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
+        end
       else
-        Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
+        reindex_record(record)
       end
     end
 

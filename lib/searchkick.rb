@@ -55,15 +55,67 @@ module Searchkick
   end
 
   def self.enable_callbacks
-    Thread.current[:searchkick_callbacks_enabled] = true
+    self.callbacks_value = nil
   end
 
   def self.disable_callbacks
-    Thread.current[:searchkick_callbacks_enabled] = false
+    self.callbacks_value = false
   end
 
   def self.callbacks?
     Thread.current[:searchkick_callbacks_enabled].nil? || Thread.current[:searchkick_callbacks_enabled]
+  end
+
+  def self.callbacks(value)
+    if block_given?
+      previous_value = callbacks_value
+      begin
+        self.callbacks_value = value
+        yield
+        perform_bulk if callbacks_value == :bulk
+      ensure
+        self.callbacks_value = previous_value
+      end
+    else
+      self.callbacks_value = value
+    end
+  end
+
+  def self.queue_items(items)
+    queued_items.concat(items)
+    perform_bulk unless callbacks_value == :bulk
+  end
+
+  def self.perform_bulk
+    items = queued_items
+    clear_queued_items
+    perform_items(items)
+  end
+
+  def self.perform_items(items)
+    if items.any?
+      response = client.bulk(body: items)
+      if response["errors"]
+        first_item = response["items"].first
+        raise Searchkick::ImportError, (first_item["index"] || first_item["delete"])["error"]
+      end
+    end
+  end
+
+  def self.queued_items
+    Thread.current[:searchkick_queued_items] ||= []
+  end
+
+  def self.clear_queued_items
+    Thread.current[:searchkick_queued_items] = []
+  end
+
+  def self.callbacks_value
+    Thread.current[:searchkick_callbacks_enabled]
+  end
+
+  def self.callbacks_value=(value)
+    Thread.current[:searchkick_callbacks_enabled] = value
   end
 
   def self.env

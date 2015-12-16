@@ -406,6 +406,22 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
+For better performance, you can also do bulk updates. [master]
+
+```ruby
+Searchkick.callbacks(:bulk) do
+  User.find_each(&:update_fields)
+end
+```
+
+Or temporarily skip updates. [master]
+
+```ruby
+Searchkick.callbacks(false) do
+  User.find_each(&:update_fields)
+end
+```
+
 #### Associations
 
 Data is **not** automatically synced when an association is updated.  If this is desired, add a callback to reindex:
@@ -1127,15 +1143,6 @@ Prefix the index name
 class Product < ActiveRecord::Base
   searchkick index_prefix: "datakick"
 end
-```
-
-Turn off callbacks temporarily
-
-```ruby
-Product.disable_search_callbacks # or use Searchkick.disable_callbacks for all models
-ExpensiveProductsTask.execute
-Product.enable_search_callbacks # or use Searchkick.enable_callbacks for all models
-Product.reindex
 ```
 
 Change timeout
