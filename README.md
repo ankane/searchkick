@@ -406,7 +406,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-For better performance, you can also do bulk updates. [master]
+You can also do bulk updates. [master]
 
 ```ruby
 Searchkick.callbacks(:bulk) do

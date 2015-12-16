@@ -70,14 +70,12 @@ module Searchkick
         end
         extend Searchkick::Reindex # legacy for Searchjoy
 
-        if callbacks
-          callback_name = callbacks == :async ? :reindex_async : :reindex
-          if respond_to?(:after_commit)
-            after_commit callback_name, if: proc { self.class.search_callbacks? }
-          else
-            after_save callback_name, if: proc { self.class.search_callbacks? }
-            after_destroy callback_name, if: proc { self.class.search_callbacks? }
-          end
+        callback_name = callbacks == :async ? :reindex_async : :reindex
+        if respond_to?(:after_commit)
+          after_commit callback_name, if: proc { self.class.search_callbacks? }
+        else
+          after_save callback_name, if: proc { self.class.search_callbacks? }
+          after_destroy callback_name, if: proc { self.class.search_callbacks? }
         end
 
         def reindex
