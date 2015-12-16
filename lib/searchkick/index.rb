@@ -45,7 +45,12 @@ module Searchkick
     # record based
 
     def store(record)
-      import([record])
+      client.index(
+        index: name,
+        type: document_type(record),
+        id: search_id(record),
+        body: search_data(record)
+      )
     end
 
     def remove(record)
@@ -60,13 +65,16 @@ module Searchkick
     end
 
     def import(records)
-      response =
-        client.bulk(
-          index: name,
-          body: records.map { |r| {index: {_id: search_id(r), _type: document_type(r), data: search_data(r)}} }
-        )
-      if response["errors"]
-        raise Searchkick::ImportError, response["items"].first["index"]["error"]
+      records.group_by { |r| document_type(r) }.each do |type, batch|
+        response =
+          client.bulk(
+            index: name,
+            type: type,
+            body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
+          )
+        if response["errors"]
+          raise Searchkick::ImportError, response["items"].first["index"]["error"]
+        end
       end
     end
 
