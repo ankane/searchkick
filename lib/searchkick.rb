@@ -28,12 +28,8 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name
-    attr_accessor :wordnet_path
-    attr_accessor :timeout
-    attr_writer :search_timeout
-    attr_accessor :models
-    attr_writer :env
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models
+    attr_writer :client, :env, :search_timeout
   end
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
@@ -50,8 +46,8 @@ module Searchkick
       end
   end
 
-  class << self
-    attr_writer :client
+  def self.env
+    @env ||= ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   end
 
   def self.search_timeout
@@ -89,17 +85,20 @@ module Searchkick
     end
   end
 
+  # private
   def self.queue_items(items)
     queued_items.concat(items)
     perform_bulk unless callbacks_value == :bulk
   end
 
+  # private
   def self.perform_bulk
     items = queued_items
     clear_queued_items
     perform_items(items)
   end
 
+  # private
   def self.perform_items(items)
     if items.any?
       response = client.bulk(body: items)
@@ -110,24 +109,24 @@ module Searchkick
     end
   end
 
+  # private
   def self.queued_items
     Thread.current[:searchkick_queued_items] ||= []
   end
 
+  # private
   def self.clear_queued_items
     Thread.current[:searchkick_queued_items] = []
   end
 
+  # private
   def self.callbacks_value
     Thread.current[:searchkick_callbacks_enabled]
   end
 
+  # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
-  end
-
-  def self.env
-    @env ||= ENV["RAILS_ENV"] || ENV["RACK_ENV"] || "development"
   end
 end
 
