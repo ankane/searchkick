@@ -132,4 +132,13 @@ class BoostTest < Minitest::Test
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: [37, -122], scale: "1000mi"}
   end
+
+  def test_boost_by_distance_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, scale: "1000mi"}
+  end
 end

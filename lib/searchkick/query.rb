@@ -335,7 +335,7 @@ module Searchkick
             raise ArgumentError, "boost_by_distance requires :field and :origin"
           end
           function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
-          function_params[:origin] = function_params[:origin].reverse
+          function_params[:origin] = location_value(function_params[:origin])
           custom_filters << {
             boost_by_distance[:function] => {
               boost_by_distance[:field] => function_params
