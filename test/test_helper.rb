@@ -11,6 +11,7 @@ Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 
 File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
+Searchkick.search_timeout = 5
 
 puts "Running against Elasticsearch #{Searchkick.server_version}"
 

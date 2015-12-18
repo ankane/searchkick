@@ -1,3 +1,7 @@
+## 1.1.2 [unreleased]
+
+- Added `search_timeout` option
+
 ## 1.1.1
 
 - Added support for `{lat: lat, lon: lon}` as preferred format for locations

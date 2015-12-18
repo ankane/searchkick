@@ -1148,7 +1148,13 @@ end
 Change timeout
 
 ```ruby
-Searchkick.timeout = 5 # defaults to 10
+Searchkick.timeout = 15 # defaults to 10
+```
+
+Set a lower timeout for searches [master]
+
+```ruby
+Searchkick.search_timeout = 3
 ```
 
 Change the search method name in `config/initializers/searchkick.rb`
