@@ -406,7 +406,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-You can also do bulk updates. [master]
+You can also do bulk updates.
 
 ```ruby
 Searchkick.callbacks(:bulk) do
@@ -414,7 +414,7 @@ Searchkick.callbacks(:bulk) do
 end
 ```
 
-Or temporarily skip updates. [master]
+Or temporarily skip updates.
 
 ```ruby
 Searchkick.callbacks(false) do
@@ -1151,7 +1151,7 @@ Change timeout
 Searchkick.timeout = 15 # defaults to 10
 ```
 
-Set a lower timeout for searches [master]
+Set a lower timeout for searches
 
 ```ruby
 Searchkick.search_timeout = 3

@@ -1,6 +1,9 @@
-## 1.1.2 [unreleased]
+## 1.1.2
 
+- Added bulk updates with `callbacks` method
+- Added `bulk_delete` method
 - Added `search_timeout` option
+- Fixed bug with new location format for `boost_by_distance`
 
 ## 1.1.1
 
