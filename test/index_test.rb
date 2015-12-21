@@ -113,7 +113,7 @@ class IndexTest < Minitest::Test
 
   def test_large_text
     large_value = 10000.times.map { "hello" }.join(" ")
-    assert_raises { store_names[large_value] }
+    assert_raises { store_names [large_value] }
   end
 
   def test_analyzed_only
