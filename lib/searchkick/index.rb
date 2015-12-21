@@ -408,7 +408,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable]
+          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :only_analyzed]
             .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -417,10 +417,12 @@ module Searchkick
         mapping_options.values.flatten.uniq.each do |field|
           field_mapping = {
             type: "multi_field",
-            fields: {
-              field => {type: "string", index: "not_analyzed"}
-            }
+            fields: {}
           }
+
+          unless mapping_options[:only_analyzed].include?(field)
+            field_mapping[:fields][field] = {type: "string", index: "not_analyzed"}
+          end
 
           if !options[:searchable] || mapping_options[:searchable].include?(field)
             if word
@@ -431,7 +433,7 @@ module Searchkick
               end
             end
 
-            mapping_options.except(:highlight, :searchable).each do |type, fields|
+            mapping_options.except(:highlight, :searchable, :only_analyzed).each do |type, fields|
               if options[:match] == type || fields.include?(field)
                 field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
               end

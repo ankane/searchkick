@@ -73,6 +73,7 @@ if defined?(Mongoid)
     field :latitude, type: BigDecimal
     field :longitude, type: BigDecimal
     field :description
+    field :alt_description
   end
 
   class Store
@@ -114,6 +115,7 @@ elsif defined?(NoBrainer)
     field :latitude
     field :longitude
     field :description, type: String
+    field :alt_description, type: String
 
     belongs_to :store, validates: false
   end
@@ -164,6 +166,7 @@ else
     t.decimal :latitude, precision: 10, scale: 7
     t.decimal :longitude, precision: 10, scale: 7
     t.text :description
+    t.text :alt_description
     t.timestamps null: true
   end
 
@@ -219,6 +222,7 @@ class Product
     highlight: [:name],
     # unsearchable: [:description],
     searchable: [:name, :color],
+    only_analyzed: [:alt_description],
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle
