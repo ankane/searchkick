@@ -36,6 +36,11 @@ class HighlightTest < Minitest::Test
     assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", fields: [:name], highlight: true).with_details.first[1][:highlight][:name]
   end
 
+  def test_encoder
+    store_names ["<b>Hello</b>"]
+    assert_equal "&lt;b&gt;<em>Hello</em>&lt;&#x2F;b&gt;", Product.search("hello", fields: [:name], highlight: {encoder: "html"}, misspellings: false).with_details.first[1][:highlight][:name]
+  end
+
   def test_json
     skip if ENV["MATCH"] == "word_start"
     store_names ["Two Door Cinema Club"]

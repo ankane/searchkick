@@ -536,6 +536,9 @@ module Searchkick
             if (fragment_size = options[:highlight][:fragment_size])
               payload[:highlight][:fragment_size] = fragment_size
             end
+            if (encoder = options[:highlight][:encoder])
+              payload[:highlight][:encoder] = encoder
+            end
 
             highlight_fields = options[:highlight][:fields]
             if highlight_fields
