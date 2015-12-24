@@ -111,13 +111,8 @@ class IndexTest < Minitest::Test
     assert_search "product", []
   end
 
-  def test_large_text
-    large_value = 20000.times.map { "hello" }.join(" ")
-    assert_raises { store_names [large_value] }
-  end
-
   def test_analyzed_only
-    large_value = 20000.times.map { "hello" }.join(" ")
+    large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", alt_description: large_value}]
     assert_search "product", ["Product A"]
   end
