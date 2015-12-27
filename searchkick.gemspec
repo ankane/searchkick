@@ -22,7 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "elasticsearch", ">= 1"
   spec.add_dependency "hashie"
   spec.add_dependency "faraday_middleware"
-  spec.add_dependency "faraday_utf"
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
