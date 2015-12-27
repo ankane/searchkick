@@ -43,7 +43,6 @@ module Searchkick
         url: ENV["ELASTICSEARCH_URL"],
         transport_options: {request: {timeout: timeout}}
       ) do |f|
-        f.request  :url_encoded
         f.use      Searchkick::Middleware
         f.use      FaradayMiddleware::Gzip
         f.response :utf_normalize, :nfc
