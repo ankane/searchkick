@@ -1,5 +1,10 @@
 module Searchkick
   module Helpers
+
+    def client
+      Searchkick.client
+    end
+
     def map_to_string(value)
       (value || []).map(&:to_s)
     end
