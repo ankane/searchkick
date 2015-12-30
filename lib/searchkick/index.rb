@@ -7,7 +7,7 @@ module Searchkick
     include Records
     include Options
 
-    attr_reader :name, :options
+    attr_reader :name, :options, :settings
 
     def initialize(name, options = {})
       @name = name
