@@ -1,5 +1,6 @@
 module Searchkick
   class Index
+    include Searchkick::Helpers
     attr_reader :name, :options
 
     def initialize(name, options = {})
@@ -443,22 +444,23 @@ module Searchkick
           mapping[field] = field_mapping
         end
 
-        (options[:locations] || []).map(&:to_s).each do |field|
+        map_to_string(options[:locations]).each do |field|
           mapping[field] = {
             type: "geo_point"
           }
         end
 
-        (options[:unsearchable] || []).map(&:to_s).each do |field|
+        map_to_string(options[:unsearchable]).each do |field|
           mapping[field] = {
             type: "string",
             index: "no"
           }
         end
 
-        routing = {}
         if options[:routing]
-          routing = {required: true, path: options[:routing].to_s}
+          routing = { required: true, path: options[:routing].to_s }
+        else
+          routing = {}
         end
 
         dynamic_fields = {
@@ -550,12 +552,12 @@ module Searchkick
       end
 
       # hack to prevent generator field doesn't exist error
-      (options[:suggest] || []).map(&:to_s).each do |field|
+      map_to_string(options[:suggest]).each do |field|
         source[field] = nil unless source[field]
       end
 
       # locations
-      (options[:locations] || []).map(&:to_s).each do |field|
+      map_to_string(options[:locations]).each do |field|
         if source[field]
           if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
             # multiple locations
@@ -569,36 +571,6 @@ module Searchkick
       cast_big_decimal(source)
 
       source.as_json
-    end
-
-    def location_value(value)
-      if value.is_a?(Array)
-        value.map(&:to_f).reverse
-      elsif value.is_a?(Hash)
-        {lat: value[:lat].to_f, lon: value[:lon].to_f}
-      else
-        value
-      end
-    end
-
-    # change all BigDecimal values to floats due to
-    # https://github.com/rails/rails/issues/6033
-    # possible loss of precision :/
-    def cast_big_decimal(obj)
-      case obj
-      when BigDecimal
-        obj.to_f
-      when Hash
-        obj.each do |k, v|
-          obj[k] = cast_big_decimal(v)
-        end
-      when Enumerable
-        obj.map do |v|
-          cast_big_decimal(v)
-        end
-      else
-        obj
-      end
     end
   end
 end
