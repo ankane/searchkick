@@ -1,14 +1,18 @@
 module Searchkick
   class Index
-    class Settings
-      attr_reader :options, :output
+    class SettingsBuilder
+      attr_reader :options, :settings
 
       def initialize(options)
         @options = options
-        @output = initialized_settings
+        @settings = initialized_settings
       end
 
-      private
+      def output
+        if Searchkick.env == "test"
+          settings.merge!(number_of_shards: 1, number_of_replicas: 0)
+        end
+      end
 
       def initialized_settings
         {
@@ -152,6 +156,46 @@ module Searchkick
           }
         }
       end
+
+      def set_similarity
+        settings[:similarity] = { default: { type: options[:similarity] } }
+      end
+
+      def deep_merge_user_settings
+        settings.deep_merge!(options[:settings] || {})
+      end
+
+      def set_synonyms
+        settings[:analysis][:filter][:searchkick_synonym] = {
+          type: "synonym",
+          synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.join(",") }
+        }
+        # choosing a place for the synonym filter when stemming is not easy
+        # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
+        # TODO use a snowball stemmer on synonyms when creating the token filter
+
+        # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
+        # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
+        # - Only apply the synonym expansion at index time
+        # - Don't have the synonym filter applied search
+        # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
+        settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_synonym")
+        settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
+
+        %w(word_start word_middle word_end).each do |type|
+          settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
+        end
+      end
+
+      def synonyms
+        @synonyms ||=
+          if synonyms = options[:synonyms]
+            language.respond_to?(:call) ? synonyms.call : synonyms
+          else
+            []
+          end
+      end
+
       def language
         @language ||=
           if lang = options[:language]
@@ -159,6 +203,7 @@ module Searchkick
           end
       end
     end
+
     module Options
       def index_options
         language = options[:language]
@@ -168,44 +213,13 @@ module Searchkick
           settings = options[:settings] || {}
           mappings = options[:mappings]
         else
-          settings = Settings.new(options).output
+          settings = SettingsBuilder.new(options)
 
-          if Searchkick.env == "test"
-            settings.merge!(number_of_shards: 1, number_of_replicas: 0)
-          end
+          settings.set_similarity if options[:similarity]
+          settings.deep_merge_user_settings
+          settings.set_synonyms if settings.synonyms.any?
 
-          if options[:similarity]
-            settings[:similarity] = {default: {type: options[:similarity]}}
-          end
-
-          settings.deep_merge!(options[:settings] || {})
-
-          # synonyms
-          synonyms = options[:synonyms] || []
-
-          synonyms = synonyms.call if synonyms.respond_to?(:call)
-
-          if synonyms.any?
-            settings[:analysis][:filter][:searchkick_synonym] = {
-              type: "synonym",
-              synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.join(",") }
-            }
-            # choosing a place for the synonym filter when stemming is not easy
-            # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
-            # TODO use a snowball stemmer on synonyms when creating the token filter
-
-            # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
-            # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
-            # - Only apply the synonym expansion at index time
-            # - Don't have the synonym filter applied search
-            # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-            settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_synonym")
-            settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
-
-            %w(word_start word_middle word_end).each do |type|
-              settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
-            end
-          end
+          settings = settings.output
 
           if options[:wordnet]
             settings[:analysis][:filter][:searchkick_wordnet] = {
