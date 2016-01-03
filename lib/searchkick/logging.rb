@@ -1,54 +1,51 @@
 # based on https://gist.github.com/mnutt/566725
 
 module Searchkick
-  class Query
-    def execute_search_with_instrumentation
+  module QueryWithInstrumentation
+    def execute_search
       event = {
         name: "#{searchkick_klass.name} Search",
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
-        execute_search_without_instrumentation
+        super
       end
     end
-    alias_method_chain :execute_search, :instrumentation
   end
 
-  class Index
-    def store_with_instrumentation(record)
+  module IndexWithInstrumentation
+    def store(record)
       event = {
         name: "#{record.searchkick_klass.name} Store",
         id: search_id(record)
       }
       ActiveSupport::Notifications.instrument("request.searchkick", event) do
-        store_without_instrumentation(record)
+        super(record)
       end
     end
-    alias_method_chain :store, :instrumentation
 
-    def remove_with_instrumentation(record)
+
+    def remove(record)
       event = {
         name: "#{record.searchkick_klass.name} Remove",
         id: search_id(record)
       }
       ActiveSupport::Notifications.instrument("request.searchkick", event) do
-        remove_without_instrumentation(record)
+        super(record)
       end
     end
-    alias_method_chain :remove, :instrumentation
 
-    def import_with_instrumentation(records)
+    def import(records)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",
           count: records.size
         }
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          import_without_instrumentation(records)
+          super(records)
         end
       end
     end
-    alias_method_chain :import, :instrumentation
   end
 
   # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/log_subscriber.rb
@@ -131,7 +128,8 @@ module Searchkick
     end
   end
 end
-
+Searchkick::Query.send(:prepend, Searchkick::QueryWithInstrumentation)
+Searchkick::Index.send(:prepend, Searchkick::IndexWithInstrumentation)
 Searchkick::LogSubscriber.attach_to :searchkick
 ActiveSupport.on_load(:action_controller) do
   include Searchkick::ControllerRuntime
