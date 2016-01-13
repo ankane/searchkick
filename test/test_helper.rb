@@ -4,6 +4,7 @@ require "minitest/autorun"
 require "minitest/pride"
 require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
+require 'oj'
 
 ENV["RACK_ENV"] = "test"
 
