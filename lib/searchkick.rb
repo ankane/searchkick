@@ -101,11 +101,16 @@ module Searchkick
   # private
   def self.perform_items(items)
     if items.any?
+      if defined?(Oj)
+        oj_options = Oj.default_options
+        Oj.default_options = { :indent => 0 }
+      end
       response = client.bulk(body: items)
       if response["errors"]
         first_item = response["items"].first
         raise Searchkick::ImportError, (first_item["index"] || first_item["delete"])["error"]
       end
+      Oj.default_options = oj_options if defined?(Oj)
     end
   end
 
