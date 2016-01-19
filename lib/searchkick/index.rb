@@ -343,6 +343,10 @@ module Searchkick
         if options[:similarity]
           settings[:similarity] = {default: {type: options[:similarity]}}
         end
+        
+        if options[:number_of_replicas]
+          settings.merge!(number_of_replicas: options[:number_of_replicas])
+        end
 
         settings.deep_merge!(options[:settings] || {})
 
