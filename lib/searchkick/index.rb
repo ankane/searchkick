@@ -102,7 +102,7 @@ module Searchkick
       options[:where] ||= {}
       options[:where][:_id] ||= {}
       options[:where][:_id][:not] = record.id.to_s
-      options[:limit] ||= 10
+      options[:per_page] ||= 10
       options[:similar] = true
 
       # TODO use index class instead of record class
