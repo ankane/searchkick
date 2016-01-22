@@ -35,6 +35,9 @@ Plus:
 
 ```sh
 brew install elasticsearch
+
+# start the server
+elasticsearch
 ```
 
 Add this line to your application’s Gemfile:
