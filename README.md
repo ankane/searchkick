@@ -1124,7 +1124,7 @@ Remove old indices
 Product.clean_indices
 ```
 
-Add custom settings
+Use custom settings
 
 ```ruby
 class Product < ActiveRecord::Base
