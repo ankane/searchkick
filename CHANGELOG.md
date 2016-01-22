@@ -1,3 +1,10 @@
+## 1.1.3 [unreleased]
+
+- Fixed deprecation warnings with `alias_method_chain`
+- Added `analyzed_only` option for large text fields
+- Added `encoder` option to highlight
+- Fixed issue in `similar` method with `per_page` option
+
 ## 1.1.2
 
 - Added bulk updates with `callbacks` method
