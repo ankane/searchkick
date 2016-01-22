@@ -1124,6 +1124,14 @@ Remove old indices
 Product.clean_indices
 ```
 
+Add custom settings
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick settings: {number_of_shards: 3}
+end
+```
+
 Use a different index name
 
 ```ruby
