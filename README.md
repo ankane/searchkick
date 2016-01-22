@@ -397,7 +397,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
+  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below. Jobs are added to a queue named `searchkick`.
 
 3. Manual
 
