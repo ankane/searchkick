@@ -27,7 +27,7 @@ module Searchkick
           results = {}
 
           hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
-            results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
+            results[type] = results_query(active_record_model(type), grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
           # sort
@@ -168,6 +168,14 @@ module Searchkick
     end
 
     private
+
+    def active_record_model(type)
+      if options[:active_record_model].present?
+        options[:active_record_model]
+      else
+        type.camelize.constantize
+      end
+    end
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }

@@ -182,6 +182,9 @@ else
   class Product < ActiveRecord::Base
   end
 
+  class ProductWithDeleted < Product
+  end
+
   class Store < ActiveRecord::Base
     has_many :products
   end

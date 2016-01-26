@@ -97,8 +97,10 @@ module Searchkick
           includes: options[:include] || options[:includes],
           json: !options[:json].nil?,
           match_suffix: @match_suffix,
-          highlighted_fields: @highlighted_fields || []
+          highlighted_fields: @highlighted_fields || [],
+          active_record_model: @active_record_model
         }
+
         Searchkick::Results.new(searchkick_klass, response, opts)
       end
     end
@@ -567,6 +569,10 @@ module Searchkick
 
         # routing
         @routing = options[:routing] if options[:routing]
+      end
+
+      if options[:active_record_model]
+        @active_record_model = options[:active_record_model]
       end
 
       @body = payload
