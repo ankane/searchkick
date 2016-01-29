@@ -537,6 +537,7 @@ module Searchkick
     end
 
     def search_id(record)
+      return record.search_id if record.method_defined?(:search_id)
       record.id.is_a?(Numeric) ? record.id : record.id.to_s
     end
 

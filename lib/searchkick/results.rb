@@ -183,7 +183,12 @@ module Searchkick
 
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
-        records.where(records.primary_key => ids)
+        # When you have composite keys when using https://github.com/composite-primary-keys/composite_primary_keys
+        if records.primary_key.is_a?(Array)
+          records.find(ids)
+        else
+          records.where(records.primary_key => ids)
+        end
       elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
         records.all.for_ids(ids)
