@@ -98,8 +98,8 @@ module Searchkick
           json: !options[:json].nil?,
           match_suffix: @match_suffix,
           highlighted_fields: @highlighted_fields || [],
-          includes: options[:include] || options[:includes],
-          scopes: [options[:scope] || options[:scopes]].flatten
+          includes: @includes,
+          scopes: @scopes
         }
         Searchkick::Results.new(searchkick_klass, response, opts)
       end
