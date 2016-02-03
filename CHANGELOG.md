@@ -4,6 +4,7 @@
 - Added `analyzed_only` option for large text fields
 - Added `encoder` option to highlight
 - Fixed issue in `similar` method with `per_page` option
+- Added basic support for multiple models
 
 ## 1.1.2
 

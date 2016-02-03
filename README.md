@@ -1246,6 +1246,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Search multiple models [master]
+
+```ruby
+Searchkick.search "milk", index_name: [Product, Category]
+```
+
 Reindex all models - Rails only
 
 ```sh
