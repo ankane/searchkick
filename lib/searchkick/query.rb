@@ -28,20 +28,29 @@ module Searchkick
     end
 
     def searchkick_index
-      klass.searchkick_index
+      klass ? klass.searchkick_index : nil
     end
 
     def searchkick_options
-      klass.searchkick_options
+      klass ? klass.searchkick_options : {}
     end
 
     def searchkick_klass
-      klass.searchkick_klass
+      klass ? klass.searchkick_klass : nil
     end
 
     def params
+      index =
+        if options[:index_name]
+          Array(options[:index_name]).map { |v| v.respond_to?(:searchkick_index) ? v.searchkick_index.name : v }.join(",")
+        elsif searchkick_index
+          searchkick_index.name
+        else
+          "_all"
+        end
+
       params = {
-        index: options[:index_name] || searchkick_index.name,
+        index: index,
         body: body
       }
       params.merge!(type: @type) if @type
@@ -60,7 +69,7 @@ module Searchkick
         rescue => e # TODO rescue type
           status_code = e.message[1..3].to_i
           if status_code == 404
-            raise MissingIndexError, "Index missing - run #{searchkick_klass.name}.reindex"
+            raise MissingIndexError, "Index missing - run #{reindex_command}"
           elsif status_code == 500 && (
               e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
               e.message.include?("No query registered for [multi_match]") ||
@@ -71,7 +80,7 @@ module Searchkick
             raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
           elsif status_code == 400
             if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
-              raise InvalidQueryError, "Bad mapping - run #{searchkick_klass.name}.reindex"
+              raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
             else
               raise InvalidQueryError, e.message
             end
@@ -115,6 +124,10 @@ module Searchkick
     end
 
     private
+
+    def reindex_command
+      searchkick_klass ? "#{searchkick_klass.name}.reindex" : "reindex"
+    end
 
     def execute_search
       Searchkick.client.search(params)
@@ -561,7 +574,7 @@ module Searchkick
           payload[:fields] = []
         end
 
-        if options[:type] || klass != searchkick_klass
+        if options[:type] || (klass != searchkick_klass && searchkick_index)
           @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
         end
 

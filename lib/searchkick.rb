@@ -128,6 +128,16 @@ module Searchkick
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
   end
+
+  def self.search(term = nil, options = {}, &block)
+    query = Searchkick::Query.new(nil, term, options)
+    block.call(query.body) if block
+    if options[:execute] == false
+      query
+    else
+      query.execute
+    end
+  end
 end
 
 # TODO find better ActiveModel hook
