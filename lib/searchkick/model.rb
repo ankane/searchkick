@@ -21,7 +21,7 @@ module Searchkick
           def searchkick_search(term = nil, options = {}, &block)
             searchkick_index.search_model(self, term, options, &block)
           end
-          alias_method Searchkick.search_method_name, :searchkick_search
+          alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index
             index = class_variable_get :@@searchkick_index
