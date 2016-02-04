@@ -254,7 +254,7 @@ class Store
       }
     }
 
-  def search_id
+  def search_document_id
     id
   end
 

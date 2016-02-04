@@ -1,6 +1,7 @@
 ## 1.2.1 [unreleased]
 
 - Added support for routing for Elasticsearch 2
+- Added support for `search_document_id` and `search_document_type` in models
 
 ## 1.2.0
 

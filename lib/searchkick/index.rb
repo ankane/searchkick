@@ -546,11 +546,15 @@ module Searchkick
     end
 
     def document_type(record)
-      klass_document_type(record.class)
+      if record.respond_to?(:search_document_type)
+        record.search_document_type
+      else
+        klass_document_type(record.class)
+      end
     end
 
     def search_id(record)
-      id = record.respond_to?(:search_id) ? record.search_id : record.id
+      id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
       id.is_a?(Numeric) ? id : id.to_s
     end
 
