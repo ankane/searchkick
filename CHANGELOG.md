@@ -1,4 +1,4 @@
-## 1.1.3 [unreleased]
+## 1.2.0
 
 - Fixed deprecation warnings with `alias_method_chain`
 - Added `analyzed_only` option for large text fields
