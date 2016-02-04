@@ -568,14 +568,14 @@ module Searchkick
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
-        # doc for :source_select - https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+        # doc for :select_v2 - https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
         if options[:select]
           payload[:fields] = options[:select] if options[:select] != true
-        elsif options[:source_select]
-          if options[:source_select] == []
+        elsif options[:select_v2]
+          if options[:select_v2] == []
             payload[:fields] = [] # intuitively [] makes sense to return no fields, but ES by default returns all fields
           else
-            payload[:_source] = options[:source_select]
+            payload[:_source] = options[:select_v2]
           end
         elsif load
           # don't need any fields since we're going to load them from the DB anyways
