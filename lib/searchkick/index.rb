@@ -550,7 +550,8 @@ module Searchkick
     end
 
     def search_id(record)
-      record.id.is_a?(Numeric) ? record.id : record.id.to_s
+      id = record.respond_to?(:search_id) ? record.search_id : record.id
+      id.is_a?(Numeric) ? id : id.to_s
     end
 
     def search_data(record)

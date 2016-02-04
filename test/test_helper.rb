@@ -254,6 +254,10 @@ class Store
       }
     }
 
+  def search_id
+    id
+  end
+
   def search_routing
     name
   end
