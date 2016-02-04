@@ -81,6 +81,7 @@ class SqlTest < Minitest::Test
     result = Product.search("product", load: false, select: [:name, :store_id]).first
     assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal ["Product A"], result.name # this is not great
+    assert_equal [1], result.store_id
   end
 
   def test_select_array
@@ -89,12 +90,65 @@ class SqlTest < Minitest::Test
     assert_equal [1, 2], result.user_ids
   end
 
+  def test_select_single_field
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false, select: :name).first
+    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal ["Product A"], result.name
+    assert_nil result.store_id
+  end
+
   def test_select_all
     store [{name: "Product A", user_ids: [1, 2]}]
     hit = Product.search("product", select: true).hits.first
     assert_equal hit["_source"]["name"], "Product A"
     assert_equal hit["_source"]["user_ids"], [1, 2]
   end
+
+  def test_select_none
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", select: []).hits.first
+    assert_nil hit["_source"]
+  end
+
+  # select_v2
+
+  def test_select_v2
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false, select_v2: [:name, :store_id]).first
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_equal 1, result.store_id
+  end
+
+  def test_select_v2_array
+    store [{name: "Product A", user_ids: [1, 2]}]
+    result = Product.search("product", load: false, select_v2: [:user_ids]).first
+    assert_equal [1, 2], result.user_ids
+  end
+
+  def test_select_v2_single_field
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false, select_v2: :name).first
+    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_nil result.store_id
+  end
+
+  def test_select_v2_all
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", select_v2: true).hits.first
+    assert_equal hit["_source"]["name"], "Product A"
+    assert_equal hit["_source"]["user_ids"], [1, 2]
+  end
+
+  def test_select_v2_none
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", select_v2: []).hits.first
+    assert_nil hit["_source"]
+  end
+
+  # other tests
 
   def test_nested_object
     aisle = {"id" => 1, "name" => "Frozen"}
