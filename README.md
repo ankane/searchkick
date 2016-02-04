@@ -834,11 +834,11 @@ City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 
 ```ruby
-class Contact < ActiveRecord::Base
+class Business < ActiveRecord::Base
   searchkick routing: true
 
   def searchkick_routing
-    user_id
+    city_id
   end
 end
 ```
@@ -846,7 +846,7 @@ end
 Reindex and search with:
 
 ```ruby
-Contact.search "John", routing: current_user.id
+Business.search "ice cream", routing: params[:city_id]
 ```
 
 ## Inheritance
