@@ -95,7 +95,7 @@ class SqlTest < Minitest::Test
     result = Product.search("product", load: false, select: :name).first
     assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal ["Product A"], result.name
-    assert_equal nil, result.store_id
+    assert_nil result.store_id
   end
 
   def test_select_all
@@ -108,8 +108,7 @@ class SqlTest < Minitest::Test
   def test_select_none
     store [{name: "Product A", user_ids: [1, 2]}]
     hit = Product.search("product", select: []).hits.first
-    assert_equal hit["_source"], nil
-    assert_equal hit["_source"], nil
+    assert_nil hit["_source"]
   end
 
   # source_select
@@ -133,7 +132,7 @@ class SqlTest < Minitest::Test
     result = Product.search("product", load: false, source_select: :name).first
     assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
-    assert_equal nil, result.store_id
+    assert_nil result.store_id
   end
 
   def test_source_select_all
@@ -146,8 +145,7 @@ class SqlTest < Minitest::Test
   def test_source_select_none
     store [{name: "Product A", user_ids: [1, 2]}]
     hit = Product.search("product", source_select: []).hits.first
-    assert_equal hit["_source"], nil
-    assert_equal hit["_source"], nil
+    assert_nil hit["_source"]
   end
 
   # other tests
