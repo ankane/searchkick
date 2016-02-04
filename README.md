@@ -338,12 +338,13 @@ Control what data is indexed with the `search_data` method. Call `Product.reinde
 
 ```ruby
 class Product < ActiveRecord::Base
+  belongs_to :department
+
   def search_data
-    as_json only: [:name, :active]
-    # or equivalently
     {
       name: name,
-      active: active
+      department_name: department.name,
+      on_sale: sale_price.present?
     }
   end
 end
@@ -353,7 +354,7 @@ Searchkick uses `find_in_batches` to import documents.  To eager load associatio
 
 ```ruby
 class Product < ActiveRecord::Base
-  scope :search_import, -> { includes(:searches) }
+  scope :search_import, -> { includes(:department) }
 end
 ```
 
