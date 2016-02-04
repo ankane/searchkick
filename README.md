@@ -829,15 +829,17 @@ Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch
 City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
 
-### Routing
+### Routing [master]
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 
-**Note:** Routing is not yet supported for Elasticsearch 2.0.
-
 ```ruby
 class Contact < ActiveRecord::Base
-  searchkick routing: :user_id
+  searchkick routing: true
+
+  def searchkick_routing
+    user_id
+  end
 end
 ```
 

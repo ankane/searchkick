@@ -1,3 +1,7 @@
+## 1.2.1 [unreleased]
+
+- Added support for routing for Elasticsearch 2
+
 ## 1.2.0
 
 - Fixed deprecation warnings with `alias_method_chain`

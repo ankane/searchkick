@@ -244,7 +244,7 @@ end
 
 class Store
   searchkick \
-    routing: elasticsearch2? ? false : "name",
+    routing: true,
     merge_mappings: true,
     mappings: {
       store: {
@@ -253,6 +253,10 @@ class Store
         }
       }
     }
+
+  def search_routing
+    name
+  end
 end
 
 class Animal

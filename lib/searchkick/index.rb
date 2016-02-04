@@ -53,13 +53,23 @@ module Searchkick
     end
 
     def bulk_delete(records)
-      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: {_index: name, _type: document_type(r), _id: search_id(r)}} })
+      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
     end
 
     def bulk_index(records)
-      Searchkick.queue_items(records.map { |r| {index: {_index: name, _type: document_type(r), _id: search_id(r), data: search_data(r)}} })
+      Searchkick.queue_items(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
     end
     alias_method :import, :bulk_index
+
+    def record_data(r)
+      data = {
+        _index: name,
+        _id: search_id(r),
+        _type: document_type(r)
+      }
+      data[:_routing] = r.search_routing if r.respond_to?(:search_routing)
+      data
+    end
 
     def retrieve(record)
       client.get(
@@ -463,7 +473,10 @@ module Searchkick
 
         routing = {}
         if options[:routing]
-          routing = {required: true, path: options[:routing].to_s}
+          routing = {required: true}
+          unless options[:routing] == true
+            routing[:path] = options[:routing].to_s
+          end
         end
 
         dynamic_fields = {
