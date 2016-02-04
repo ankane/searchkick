@@ -567,10 +567,18 @@ module Searchkick
         end
 
         # An empty array will cause only the _id and _type for each hit to be returned
-        # http://www.elasticsearch.org/guide/reference/api/search/fields/
+        # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
+        # doc for :source_select - https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
         if options[:select]
           payload[:fields] = options[:select] if options[:select] != true
+        elsif options[:source_select]
+          if options[:source_select] == []
+            payload[:fields] = [] # intuitively [] makes sense to return no fields, but ES by default returns all fields
+          else
+            payload[:_source] = options[:source_select]
+          end
         elsif load
+          # don't need any fields since we're going to load them from the DB anyways
           payload[:fields] = []
         end
 
@@ -650,7 +658,7 @@ module Searchkick
                   when :lte
                     {to: op_value, include_upper: true}
                   else
-                    raise "Unknown where operator"
+                    raise "Unknown where operator: #{op.inspect}"
                   end
                 # issue 132
                 if (existing = filters.find { |f| f[:range] && f[:range][field] })
