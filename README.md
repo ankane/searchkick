@@ -428,17 +428,11 @@ end
 
 #### Associations
 
-Data is **not** automatically synced when an association is updated.  If this is desired, add a callback to reindex:
+Data is **not** automatically synced when an association is updated.  If this is desired, be sure to include a `touch` option to your association to ensure that an ActiveRecord update is triggered when the associated record is changed to allow it to be reindexed:
 
 ```ruby
 class Image < ActiveRecord::Base
-  belongs_to :product
-
-  after_commit :reindex_product
-
-  def reindex_product
-    product.reindex # or reindex_async
-  end
+  belongs_to :product, touch: true
 end
 ```
 
