@@ -28,6 +28,26 @@ module Searchkick
 
           hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
             results[type] = results_query(type.camelize.constantize, grouped_hits).to_a.index_by { |r| r.id.to_s }
+
+            if options[:includes]
+              results[type] = results[type].includes(options[:includes])
+            end
+
+            if options[:scopes]
+              options[:scopes].map do |scope|
+                results[type] = results[type].send(scope)
+              end
+            end
+
+            if options[:unscope]
+              options[:unscope].map do |scoping|
+                if scoping.kind_of? Array
+                  results[type] = results[type].unscope(Hash[*scoping])
+                else
+                  results[type] = results[type].unscope(scoping)
+                end
+              end
+            end
           end
 
           # sort
