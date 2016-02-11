@@ -618,6 +618,17 @@ module Searchkick
           if value.is_a?(Hash)
             value.each do |op, op_value|
               case op
+              when :geo_shape
+                filters << {
+                  geo_shape: {
+                    field => {
+                      shape: { 
+                        type: "point",
+                        coordinates: op_value.map(&:to_f).reverse
+                      } 
+                    } 
+                  }
+                }
               when :within, :bottom_right
                 # do nothing
               when :near
