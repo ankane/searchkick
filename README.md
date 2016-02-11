@@ -964,6 +964,7 @@ gem 'faraday_middleware-aws-signers-v4'
 and add to your initializer:
 
 ```ruby
+require "faraday_middleware/aws_signers_v4"
 Searchkick.client =
   Elasticsearch::Client.new(
     url: ENV["ELASTICSEARCH_URL"],
