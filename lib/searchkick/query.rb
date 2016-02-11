@@ -71,11 +71,11 @@ module Searchkick
           if status_code == 404
             raise MissingIndexError, "Index missing - run #{reindex_command}"
           elsif status_code == 500 && (
-              e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
-              e.message.include?("No query registered for [multi_match]") ||
-              e.message.include?("[match] query does not support [cutoff_frequency]]") ||
-              e.message.include?("No query registered for [function_score]]")
-            )
+            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
+            e.message.include?("No query registered for [multi_match]") ||
+            e.message.include?("[match] query does not support [cutoff_frequency]]") ||
+            e.message.include?("No query registered for [function_score]]")
+          )
 
             raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
           elsif status_code == 400

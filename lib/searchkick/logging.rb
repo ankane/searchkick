@@ -24,7 +24,6 @@ module Searchkick
       end
     end
 
-
     def remove(record)
       event = {
         name: "#{record.searchkick_klass.name} Remove",
