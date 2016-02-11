@@ -82,6 +82,18 @@ class FacetsTest < Minitest::Test
     assert_equal expected_facets_keys, facets.first.keys
   end
 
+  # test min_score's effect
+
+  def test_facets_with_0_min_score
+    store_names ["Product1"]
+    assert_equal ({ "Product1" => 1, "Product Show" => 1, "Product Hide" => 1, "Product B" => 1}), store_facet({ facets: { name: {} }, min_score: 0 }, "name")
+  end
+
+  def test_facets_with_0_1_min_score
+    store_names ["Product1"]
+    assert_equal ({ "Product Show" => 1, "Product Hide" => 1, "Product B" => 1}), store_facet({ facets: { name: {} }, min_score: 0.1 }, "name")
+  end
+
   protected
 
   def store_facet(options, facet_key = "store_id")

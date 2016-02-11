@@ -74,6 +74,18 @@ class SqlTest < Minitest::Test
     assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first
   end
 
+  # min_score
+
+   def test_min_score_default_to_zero
+    query = Product.search("milk", execute: false)
+    assert_equal 0, query.body[:min_score]
+  end
+
+  def test_should_use_min_score_param
+    query = Product.search({ query: { name: "milk"}, min_score: 1 }, execute: false)
+    assert_equal 1, query.body[:min_score]
+  end
+
   # select
 
   def test_select
