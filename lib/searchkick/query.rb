@@ -67,48 +67,9 @@ module Searchkick
             response = execute_search
           end
         rescue => e # TODO rescue type
-          status_code = e.message[1..3].to_i
-          if status_code == 404
-            raise MissingIndexError, "Index missing - run #{reindex_command}"
-          elsif status_code == 500 && (
-            e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
-            e.message.include?("No query registered for [multi_match]") ||
-            e.message.include?("[match] query does not support [cutoff_frequency]]") ||
-            e.message.include?("No query registered for [function_score]]")
-          )
-
-            raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
-          elsif status_code == 400
-            if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
-              raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
-            else
-              raise InvalidQueryError, e.message
-            end
-          else
-            raise e
-          end
+          handle_error(e)
         end
-
-        # apply facet limit in client due to
-        # https://github.com/elasticsearch/elasticsearch/issues/1305
-        @facet_limits.each do |field, limit|
-          field = field.to_s
-          facet = response["facets"][field]
-          response["facets"][field]["terms"] = facet["terms"].first(limit)
-          response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
-        end
-
-        opts = {
-          page: @page,
-          per_page: @per_page,
-          padding: @padding,
-          load: @load,
-          includes: options[:include] || options[:includes],
-          json: !options[:json].nil?,
-          match_suffix: @match_suffix,
-          highlighted_fields: @highlighted_fields || []
-        }
-        Searchkick::Results.new(searchkick_klass, response, opts)
+        handle_response(response)
       end
     end
 
@@ -124,6 +85,52 @@ module Searchkick
     end
 
     private
+
+    def handle_error(e)
+      status_code = e.message[1..3].to_i
+      if status_code == 404
+        raise MissingIndexError, "Index missing - run #{reindex_command}"
+      elsif status_code == 500 && (
+        e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
+        e.message.include?("No query registered for [multi_match]") ||
+        e.message.include?("[match] query does not support [cutoff_frequency]]") ||
+        e.message.include?("No query registered for [function_score]]")
+      )
+
+        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
+      elsif status_code == 400
+        if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+          raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
+        else
+          raise InvalidQueryError, e.message
+        end
+      else
+        raise e
+      end
+    end
+
+    def handle_response(response)
+      # apply facet limit in client due to
+      # https://github.com/elasticsearch/elasticsearch/issues/1305
+      @facet_limits.each do |field, limit|
+        field = field.to_s
+        facet = response["facets"][field]
+        response["facets"][field]["terms"] = facet["terms"].first(limit)
+        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
+      end
+
+      opts = {
+        page: @page,
+        per_page: @per_page,
+        padding: @padding,
+        load: @load,
+        includes: options[:include] || options[:includes],
+        json: !options[:json].nil?,
+        match_suffix: @match_suffix,
+        highlighted_fields: @highlighted_fields || []
+      }
+      Searchkick::Results.new(searchkick_klass, response, opts)
+    end
 
     def reindex_command
       searchkick_klass ? "#{searchkick_klass.name}.reindex" : "reindex"
