@@ -838,7 +838,7 @@ Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/b
 class Business < ActiveRecord::Base
   searchkick routing: true
 
-  def searchkick_routing
+  def search_routing
     city_id
   end
 end
