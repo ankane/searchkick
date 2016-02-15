@@ -20,7 +20,7 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
-# ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT)
+ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch2?
   Searchkick.server_version.starts_with?("2.")
