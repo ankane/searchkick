@@ -9,7 +9,7 @@ require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
-require "searchkick/logging" if defined?(Rails)
+require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
 # background jobs
 begin

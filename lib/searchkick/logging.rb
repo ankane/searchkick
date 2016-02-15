@@ -1,10 +1,12 @@
 # based on https://gist.github.com/mnutt/566725
+require "active_support/core_ext/module/attr_internal"
 
 module Searchkick
   module QueryWithInstrumentation
     def execute_search
+      name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
       event = {
-        name: "#{searchkick_klass.name} Search",
+        name: name,
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
@@ -29,8 +31,9 @@ module Searchkick
     end
 
     def remove(record)
+      name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
       event = {
-        name: "#{record.searchkick_klass.name} Remove",
+        name: name,
         id: search_id(record)
       }
       if Searchkick.callbacks_value == :bulk

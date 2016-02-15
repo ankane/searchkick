@@ -3,6 +3,7 @@
 - Added `multi_search` method
 - Added support for routing for Elasticsearch 2
 - Added support for `search_document_id` and `search_document_type` in models
+- Fixed error with instrumentation for searching multiple models
 - Fixed instrumentation for bulk updates
 
 ## 1.2.0
