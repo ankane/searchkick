@@ -129,7 +129,7 @@ module Searchkick
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || []
       }
-      Searchkick::Results.new(searchkick_klass, response, opts)
+      @execute = Searchkick::Results.new(searchkick_klass, response, opts)
     end
 
     def reindex_command

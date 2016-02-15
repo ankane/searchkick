@@ -138,6 +138,16 @@ module Searchkick
       query.execute
     end
   end
+
+  def self.multi_search(queries)
+    if queries.any?
+      responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
+      queries.each_with_index do |query, i|
+        query.send(:handle_response, responses[i])
+      end
+    end
+    true
+  end
 end
 
 # TODO find better ActiveModel hook
