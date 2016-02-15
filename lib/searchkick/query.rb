@@ -5,7 +5,13 @@ module Searchkick
     attr_reader :klass, :term, :options
     attr_accessor :body
 
-    def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary
+    def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
+      :records, :results, :suggestions, :each_with_hit, :with_details, :facets, :aggregations, :aggs,
+      :took, :error, :model_name, :entry_name, :total_count, :total_entries,
+      :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
+      :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
+      :out_of_range?, :hits
+
 
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
@@ -84,6 +90,29 @@ module Searchkick
       "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -d '#{query[:body].to_json}'"
     end
 
+    def handle_response(response)
+      # apply facet limit in client due to
+      # https://github.com/elasticsearch/elasticsearch/issues/1305
+      @facet_limits.each do |field, limit|
+        field = field.to_s
+        facet = response["facets"][field]
+        response["facets"][field]["terms"] = facet["terms"].first(limit)
+        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
+      end
+
+      opts = {
+        page: @page,
+        per_page: @per_page,
+        padding: @padding,
+        load: @load,
+        includes: options[:include] || options[:includes],
+        json: !options[:json].nil?,
+        match_suffix: @match_suffix,
+        highlighted_fields: @highlighted_fields || []
+      }
+      @execute = Searchkick::Results.new(searchkick_klass, response, opts)
+    end
+
     private
 
     def handle_error(e)
@@ -107,29 +136,6 @@ module Searchkick
       else
         raise e
       end
-    end
-
-    def handle_response(response)
-      # apply facet limit in client due to
-      # https://github.com/elasticsearch/elasticsearch/issues/1305
-      @facet_limits.each do |field, limit|
-        field = field.to_s
-        facet = response["facets"][field]
-        response["facets"][field]["terms"] = facet["terms"].first(limit)
-        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
-      end
-
-      opts = {
-        page: @page,
-        per_page: @per_page,
-        padding: @padding,
-        load: @load,
-        includes: options[:include] || options[:includes],
-        json: !options[:json].nil?,
-        match_suffix: @match_suffix,
-        highlighted_fields: @highlighted_fields || []
-      }
-      @execute = Searchkick::Results.new(searchkick_klass, response, opts)
     end
 
     def reindex_command

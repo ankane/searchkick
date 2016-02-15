@@ -19,8 +19,12 @@ module Searchkick
         name: "#{record.searchkick_klass.name} Store",
         id: search_id(record)
       }
-      ActiveSupport::Notifications.instrument("request.searchkick", event) do
-        super(record)
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
       end
     end
 
@@ -29,8 +33,12 @@ module Searchkick
         name: "#{record.searchkick_klass.name} Remove",
         id: search_id(record)
       }
-      ActiveSupport::Notifications.instrument("request.searchkick", event) do
-        super(record)
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
       end
     end
 
@@ -43,6 +51,32 @@ module Searchkick
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
           super(records)
         end
+      end
+    end
+  end
+
+  module SearchkickWithInstrumentation
+    def multi_search(searches)
+      event = {
+        name: "Multi Search",
+        count: searches.size
+      }
+      ActiveSupport::Notifications.instrument("request.searchkick", event) do
+        super
+      end
+    end
+
+    def perform_items(items)
+      if callbacks_value == :bulk
+        event = {
+          name: "Bulk",
+          count: items.size
+        }
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
+      else
+        super
       end
     end
   end
@@ -129,6 +163,7 @@ module Searchkick
 end
 Searchkick::Query.send(:prepend, Searchkick::QueryWithInstrumentation)
 Searchkick::Index.send(:prepend, Searchkick::IndexWithInstrumentation)
+Searchkick.singleton_class.send(:prepend, Searchkick::SearchkickWithInstrumentation)
 Searchkick::LogSubscriber.attach_to :searchkick
 ActiveSupport.on_load(:action_controller) do
   include Searchkick::ControllerRuntime

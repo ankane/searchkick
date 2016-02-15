@@ -1092,6 +1092,18 @@ products =
   end
 ```
 
+### Multi Search [master]
+
+To batch search requests for performance, use:
+
+```ruby
+fresh_products = Product.search("fresh", execute: false)
+frozen_products = Product.search("frozen", execute: false)
+Searchkick.multi_search([fresh_products, frozen_products])
+```
+
+Then use `fresh_products` and `frozen_products` as typical results.
+
 ## Reference
 
 Reindex one record

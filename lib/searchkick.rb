@@ -143,10 +143,10 @@ module Searchkick
     if queries.any?
       responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
       queries.each_with_index do |query, i|
-        query.send(:handle_response, responses[i])
+        query.handle_response(responses[i])
       end
     end
-    true
+    nil
   end
 end
 

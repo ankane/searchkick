@@ -108,6 +108,10 @@ module Searchkick
       response["took"]
     end
 
+    def error
+      response["error"]
+    end
+
     def model_name
       klass.model_name
     end
