@@ -4,7 +4,6 @@ require "minitest/autorun"
 require "minitest/pride"
 require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
-require "active_support/logger"
 require "active_support/notifications"
 
 ENV["RACK_ENV"] = "test"
@@ -12,7 +11,7 @@ ENV["RACK_ENV"] = "test"
 Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 
 File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
-Searchkick.client.transport.logger = ActiveSupport::Logger.new("elasticsearch.log")
+Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 Searchkick.search_timeout = 5
 
 puts "Running against Elasticsearch #{Searchkick.server_version}"
@@ -20,7 +19,7 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
-ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
+ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch2?
   Searchkick.server_version.starts_with?("2.")
