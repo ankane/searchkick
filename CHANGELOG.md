@@ -1,4 +1,4 @@
-## 1.2.1 [unreleased]
+## 1.2.1
 
 - Added `multi_search` method
 - Added support for routing for Elasticsearch 2

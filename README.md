@@ -830,7 +830,7 @@ Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch
 City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
 
-### Routing [master]
+### Routing
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 
@@ -1092,7 +1092,7 @@ products =
   end
 ```
 
-### Multi Search [master]
+### Multi Search
 
 To batch search requests for performance, use:
 
@@ -1104,7 +1104,7 @@ Searchkick.multi_search([fresh_products, frozen_products])
 
 Then use `fresh_products` and `frozen_products` as typical results.
 
-**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, the misspellings `below` option is ignored.
+**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, the `below` option for misspellings is ignored.
 
 ## Reference
 
@@ -1264,7 +1264,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Search multiple models [master]
+Search multiple models
 
 ```ruby
 Searchkick.search "milk", index_name: [Product, Category]
