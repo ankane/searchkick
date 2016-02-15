@@ -62,9 +62,9 @@ module Searchkick
     def multi_search(searches)
       event = {
         name: "Multi Search",
-        count: searches.size
+        body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join
       }
-      ActiveSupport::Notifications.instrument("request.searchkick", event) do
+      ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
         super
       end
     end
@@ -122,6 +122,18 @@ module Searchkick
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
 
       debug "  #{color(name, YELLOW, true)}  #{payload.except(:name).to_json}"
+    end
+
+    def multi_search(event)
+      self.class.runtime += event.duration
+      return unless logger.debug?
+
+      payload = event.payload
+      name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
+
+      # no easy way to tell which host the client will use
+      host = Searchkick.client.transport.hosts.first
+      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/_msearch?pretty -d '#{payload[:body]}'"
     end
   end
 
