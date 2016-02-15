@@ -110,6 +110,8 @@ module Searchkick
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || []
       }
+
+      # set execute for multi search
       @execute = Searchkick::Results.new(searchkick_klass, response, opts)
     end
 

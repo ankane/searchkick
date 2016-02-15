@@ -1104,6 +1104,8 @@ Searchkick.multi_search([fresh_products, frozen_products])
 
 Then use `fresh_products` and `frozen_products` as typical results.
 
+**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, the misspellings `below` option is ignored.
+
 ## Reference
 
 Reindex one record
