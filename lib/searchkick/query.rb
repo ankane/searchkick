@@ -410,7 +410,9 @@ module Searchkick
         if filters.any?
           if options[:facets] || options[:aggs]
             payload[:filter] = {
-              and: filters
+              bool: {
+                must: filters
+              }
             }
           else
             # more efficient query if no facets
@@ -418,7 +420,9 @@ module Searchkick
               filtered: {
                 query: payload[:query],
                 filter: {
-                  and: filters
+                  bool: {
+                    must: filters
+                  }
                 }
               }
             }
@@ -468,8 +472,8 @@ module Searchkick
             facet_filters = where_filters(facet_options[:where])
             if facet_filters.any?
               payload[:facets][field][:facet_filter] = {
-                and: {
-                  filters: facet_filters
+                bool: {
+                  must: facet_filters
                 }
               }
             end
@@ -615,12 +619,13 @@ module Searchkick
 
     def where_filters(where)
       filters = []
+      boolean_filters = {must: [], must_not: [], should: []}
       (where || {}).each do |field, value|
         field = :_id if field.to_s == "id"
 
         if field == :or
           value.each do |or_clause|
-            filters << {or: or_clause.map { |or_statement| {and: where_filters(or_statement)} }}
+            boolean_filters[:should] << or_clause.map { |or_statement| {and: where_filters(or_statement)} }
           end
         else
           # expand ranges
@@ -652,15 +657,15 @@ module Searchkick
                   }
                 }
               when :regexp # support for regexp queries without using a regexp ruby object
-                filters << {regexp: {field => {value: op_value}}}
+                boolean_filters[:must] << {regexp: {field => {value: op_value}}}
               when :not # not equal
-                filters << {not: {filter: term_filters(field, op_value)}}
+                boolean_filters[:must_not] << term_filters(field, op_value)
               when :all
                 op_value.each do |value|
-                  filters << term_filters(field, value)
+                  boolean_filters[:must] << term_filters(field, value)
                 end
               when :in
-                filters << term_filters(field, op_value)
+                boolean_filters[:should] << term_filters(field, op_value)
               else
                 range_query =
                   case op
@@ -684,11 +689,23 @@ module Searchkick
               end
             end
           else
-            filters << term_filters(field, value)
+            boolean_filters[:must] << term_filters(field, value)
           end
         end
       end
-      filters
+      boolean_filters = scrub_boolean_filters(boolean_filters)
+      if(filters.empty? && !boolean_filters.empty?)
+        [{:bool => boolean_filters}]
+      elsif boolean_filters.present? && filters.present?
+        filters << {:bool => boolean_filters}
+        {and: filters}
+      else
+        filters
+      end
+    end
+
+    def scrub_boolean_filters(boolean_filters)
+      boolean_filters.map{|k,v| [k,v] unless v.empty? }.compact.to_h
     end
 
     def term_filters(field, value)
