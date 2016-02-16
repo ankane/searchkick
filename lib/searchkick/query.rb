@@ -454,7 +454,8 @@ module Searchkick
               payload[:facets][field] = {
                 terms: {
                   field: facet_options[:field] || field,
-                  size: size
+                  size: size,
+                  order: facet_options[:order] || "count"
                 }
               }
             end
@@ -651,6 +652,12 @@ module Searchkick
                     }
                   }
                 }
+              when :geo_shape
+                  filters << {
+                      geo_shape: {
+                      field => op_value
+                  }
+              }
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
