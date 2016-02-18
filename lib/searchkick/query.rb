@@ -238,6 +238,14 @@ module Searchkick
                 boost: 10 * factor
               }
 
+              match_type =
+                if field.end_with?(".phrase")
+                  field = field.sub(/\.phrase\z/, ".analyzed")
+                  :match_phrase
+                else
+                  :match
+                end
+
               if field == "_all" || field.end_with?(".analyzed")
                 shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
                 qs.concat [
@@ -256,7 +264,7 @@ module Searchkick
                 qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
-              queries.concat(qs.map { |q| {match: {field => q}} })
+              queries.concat(qs.map { |q| {match_type => {field => q}} })
             end
 
             payload = {

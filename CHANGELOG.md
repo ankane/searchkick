@@ -1,3 +1,7 @@
+## 1.2.2 [unreleased]
+
+- Added support for phrase matches
+
 ## 1.2.1
 
 - Added `multi_search` method
