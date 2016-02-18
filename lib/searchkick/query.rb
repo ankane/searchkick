@@ -149,28 +149,7 @@ module Searchkick
     end
 
     def prepare
-      boost_fields = {}
-      fields = options[:fields] || searchkick_options[:searchable]
-      fields =
-        if fields
-          if options[:autocomplete]
-            fields.map { |f| "#{f}.autocomplete" }
-          else
-            fields.map do |value|
-              k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || searchkick_options[:match] || :word]
-              k2, boost = k.to_s.split("^", 2)
-              field = "#{k2}.#{v == :word ? 'analyzed' : v}"
-              boost_fields[field] = boost.to_f if boost
-              field
-            end
-          end
-        else
-          if options[:autocomplete]
-            (searchkick_options[:autocomplete] || []).map { |f| "#{f}.autocomplete" }
-          else
-            ["_all"]
-          end
-        end
+      boost_fields, fields = set_fields
 
       operator = options[:operator] || (options[:partial] ? "or" : "and")
 
@@ -187,7 +166,7 @@ module Searchkick
       personalize_field = searchkick_options[:personalize]
 
       all = term == "*"
-      facet_limits = {}
+      
 
       options[:json] ||= options[:body]
       if options[:json]
@@ -324,52 +303,11 @@ module Searchkick
         custom_filters = []
         multiply_filters = []
 
-        boost_by = options[:boost_by] || {}
+        set_boost_by(multiply_filters, custom_filters)
 
-        if boost_by.is_a?(Array)
-          boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
-        elsif boost_by.is_a?(Hash)
-          multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
-        end
-        boost_by[options[:boost]] = {factor: 1} if options[:boost]
+        set_boost_where(custom_filters, personalize_field)
 
-        custom_filters.concat boost_filters(boost_by, log: true)
-        multiply_filters.concat boost_filters(multiply_by || {})
-
-        boost_where = options[:boost_where] || {}
-        if options[:user_id] && personalize_field
-          boost_where[personalize_field] = options[:user_id]
-        end
-        if options[:personalize]
-          boost_where = boost_where.merge(options[:personalize])
-        end
-        boost_where.each do |field, value|
-          if value.is_a?(Array) && value.first.is_a?(Hash)
-            value.each do |value_factor|
-              custom_filters << custom_filter(field, value_factor[:value], value_factor[:factor])
-            end
-          elsif value.is_a?(Hash)
-            custom_filters << custom_filter(field, value[:value], value[:factor])
-          else
-            factor = 1000
-            custom_filters << custom_filter(field, value, factor)
-          end
-        end
-
-        boost_by_distance = options[:boost_by_distance]
-        if boost_by_distance
-          boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
-          if !boost_by_distance[:field] || !boost_by_distance[:origin]
-            raise ArgumentError, "boost_by_distance requires :field and :origin"
-          end
-          function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
-          function_params[:origin] = location_value(function_params[:origin])
-          custom_filters << {
-            boost_by_distance[:function] => {
-              boost_by_distance[:field] => function_params
-            }
-          }
-        end
+        set_boost_by_distance(custom_filters) if options[:boost_by_distance]
 
         if custom_filters.any?
           payload = {
@@ -399,187 +337,24 @@ module Searchkick
         payload[:explain] = options[:explain] if options[:explain]
 
         # order
-        if options[:order]
-          order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-          # TODO id transformation for arrays
-          payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? :_id : k, v] }]
-        end
+        set_order(payload) if options[:order]
 
         # filters
         filters = where_filters(options[:where])
-        if filters.any?
-          if options[:facets] || options[:aggs]
-            payload[:filter] = {
-              and: filters
-            }
-          else
-            # more efficient query if no facets
-            payload[:query] = {
-              filtered: {
-                query: payload[:query],
-                filter: {
-                  and: filters
-                }
-              }
-            }
-          end
-        end
+        set_filters(payload, filters) if filters.any?
 
         # facets
-        if options[:facets]
-          facets = options[:facets] || {}
-          facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
-
-          payload[:facets] = {}
-          facets.each do |field, facet_options|
-            # ask for extra facets due to
-            # https://github.com/elasticsearch/elasticsearch/issues/1305
-            size = facet_options[:limit] ? facet_options[:limit] + 150 : 1_000
-
-            if facet_options[:ranges]
-              payload[:facets][field] = {
-                range: {
-                  field.to_sym => facet_options[:ranges]
-                }
-              }
-            elsif facet_options[:stats]
-              payload[:facets][field] = {
-                terms_stats: {
-                  key_field: field,
-                  value_script: below14? ? "doc.score" : "_score",
-                  size: size
-                }
-              }
-            else
-              payload[:facets][field] = {
-                terms: {
-                  field: facet_options[:field] || field,
-                  size: size
-                }
-              }
-            end
-
-            facet_limits[field] = facet_options[:limit] if facet_options[:limit]
-
-            # offset is not possible
-            # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
-
-            facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_facets] == true
-            facet_filters = where_filters(facet_options[:where])
-            if facet_filters.any?
-              payload[:facets][field][:facet_filter] = {
-                and: {
-                  filters: facet_filters
-                }
-              }
-            end
-          end
-        end
+        set_facets(payload) if options[:facets]
 
         # aggregations
-        if options[:aggs]
-          aggs = options[:aggs]
-          payload[:aggs] = {}
-
-          aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
-
-          aggs.each do |field, agg_options|
-            size = agg_options[:limit] ? agg_options[:limit] : 1_000
-            shared_agg_options = agg_options.slice(:order)
-
-            if agg_options[:ranges]
-              payload[:aggs][field] = {
-                range: {
-                  field: agg_options[:field] || field,
-                  ranges: agg_options[:ranges]
-                }.merge(shared_agg_options)
-              }
-            elsif agg_options[:date_ranges]
-              payload[:aggs][field] = {
-                date_range: {
-                  field: agg_options[:field] || field,
-                  ranges: agg_options[:date_ranges]
-                }.merge(shared_agg_options)
-              }
-            else
-              payload[:aggs][field] = {
-                terms: {
-                  field: agg_options[:field] || field,
-                  size: size
-                }.merge(shared_agg_options)
-              }
-            end
-
-            where = {}
-            where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
-            agg_filters = where_filters(where.merge(agg_options[:where] || {}))
-            if agg_filters.any?
-              payload[:aggs][field] = {
-                filter: {
-                  bool: {
-                    must: agg_filters
-                  }
-                },
-                aggs: {
-                  field => payload[:aggs][field]
-                }
-              }
-            end
-          end
-        end
-
+        set_aggregations(payload) if options[:aggs]
+ 
         # suggestions
-        if options[:suggest]
-          suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
-
-          # intersection
-          if options[:fields]
-            suggest_fields &= options[:fields].map { |v| (v.is_a?(Hash) ? v.keys.first : v).to_s.split("^", 2).first }
-          end
-
-          if suggest_fields.any?
-            payload[:suggest] = {text: term}
-            suggest_fields.each do |field|
-              payload[:suggest][field] = {
-                phrase: {
-                  field: "#{field}.suggest"
-                }
-              }
-            end
-          end
-        end
+        set_suggestions(payload) if options[:suggest]
 
         # highlight
-        if options[:highlight]
-          payload[:highlight] = {
-            fields: Hash[fields.map { |f| [f, {}] }]
-          }
+        set_highlights(payload, fields) if options[:highlight]
 
-          if options[:highlight].is_a?(Hash)
-            if (tag = options[:highlight][:tag])
-              payload[:highlight][:pre_tags] = [tag]
-              payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
-            end
-
-            if (fragment_size = options[:highlight][:fragment_size])
-              payload[:highlight][:fragment_size] = fragment_size
-            end
-            if (encoder = options[:highlight][:encoder])
-              payload[:highlight][:encoder] = encoder
-            end
-
-            highlight_fields = options[:highlight][:fields]
-            if highlight_fields
-              payload[:highlight][:fields] = {}
-
-              highlight_fields.each do |name, opts|
-                payload[:highlight][:fields]["#{name}.#{@match_suffix}"] = opts || {}
-              end
-            end
-          end
-
-          @highlighted_fields = payload[:highlight][:fields].keys
-        end
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
@@ -606,11 +381,264 @@ module Searchkick
       end
 
       @body = payload
-      @facet_limits = facet_limits
+      @facet_limits = @facet_limits || {}
       @page = page
       @per_page = per_page
       @padding = padding
       @load = load
+    end
+
+    def set_fields
+      boost_fields = {}
+      fields = options[:fields] || searchkick_options[:searchable]
+      fields =
+        if fields
+          if options[:autocomplete]
+            fields.map { |f| "#{f}.autocomplete" }
+          else
+            fields.map do |value|
+              k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || searchkick_options[:match] || :word]
+              k2, boost = k.to_s.split("^", 2)
+              field = "#{k2}.#{v == :word ? 'analyzed' : v}"
+              boost_fields[field] = boost.to_f if boost
+              field
+            end
+          end
+        else
+          if options[:autocomplete]
+            (searchkick_options[:autocomplete] || []).map { |f| "#{f}.autocomplete" }
+          else
+            ["_all"]
+          end
+        end
+      [boost_fields, fields]
+    end
+
+    def set_boost_by_distance(custom_filters)
+      boost_by_distance = options[:boost_by_distance] || {}
+      boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
+      if !boost_by_distance[:field] || !boost_by_distance[:origin]
+        raise ArgumentError, "boost_by_distance requires :field and :origin"
+      end
+      function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
+      function_params[:origin] = location_value(function_params[:origin])
+      custom_filters << {
+        boost_by_distance[:function] => {
+          boost_by_distance[:field] => function_params
+        }
+      }
+    end
+
+    def set_boost_by(multiply_filters, custom_filters)
+      boost_by = options[:boost_by] || {}
+      if boost_by.is_a?(Array)
+        boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+      elsif boost_by.is_a?(Hash)
+        multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
+      end
+      boost_by[options[:boost]] = {factor: 1} if options[:boost]
+
+      custom_filters.concat boost_filters(boost_by, log: true)
+      multiply_filters.concat boost_filters(multiply_by || {})
+    end
+
+    def set_boost_where(custom_filters, personalize_field)
+      boost_where = options[:boost_where] || {}
+      if options[:user_id] && personalize_field
+        boost_where[personalize_field] = options[:user_id]
+      end
+      if options[:personalize]
+        boost_where = boost_where.merge(options[:personalize])
+      end
+      boost_where.each do |field, value|
+        if value.is_a?(Array) && value.first.is_a?(Hash)
+          value.each do |value_factor|
+            custom_filters << custom_filter(field, value_factor[:value], value_factor[:factor])
+          end
+        elsif value.is_a?(Hash)
+          custom_filters << custom_filter(field, value[:value], value[:factor])
+        else
+          factor = 1000
+          custom_filters << custom_filter(field, value, factor)
+        end
+      end
+    end
+
+    def set_suggestions(payload)
+      suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
+
+      # intersection
+      if options[:fields]
+        suggest_fields &= options[:fields].map { |v| (v.is_a?(Hash) ? v.keys.first : v).to_s.split("^", 2).first }
+      end
+
+      if suggest_fields.any?
+        payload[:suggest] = {text: term}
+        suggest_fields.each do |field|
+          payload[:suggest][field] = {
+            phrase: {
+              field: "#{field}.suggest"
+            }
+          }
+        end
+      end
+    end
+
+    def set_highlights(payload, fields)
+      payload[:highlight] = {
+        fields: Hash[fields.map { |f| [f, {}] }]
+      }
+
+      if options[:highlight].is_a?(Hash)
+        if (tag = options[:highlight][:tag])
+          payload[:highlight][:pre_tags] = [tag]
+          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+        end
+
+        if (fragment_size = options[:highlight][:fragment_size])
+          payload[:highlight][:fragment_size] = fragment_size
+        end
+        if (encoder = options[:highlight][:encoder])
+          payload[:highlight][:encoder] = encoder
+        end
+
+        highlight_fields = options[:highlight][:fields]
+        if highlight_fields
+          payload[:highlight][:fields] = {}
+
+          highlight_fields.each do |name, opts|
+            payload[:highlight][:fields]["#{name}.#{@match_suffix}"] = opts || {}
+          end
+        end
+      end
+
+      @highlighted_fields = payload[:highlight][:fields].keys
+    end
+
+    def set_aggregations(payload)
+      aggs = options[:aggs]
+      payload[:aggs] = {}
+
+      aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
+
+      aggs.each do |field, agg_options|
+        size = agg_options[:limit] ? agg_options[:limit] : 1_000
+        shared_agg_options = agg_options.slice(:order)
+
+        if agg_options[:ranges]
+          payload[:aggs][field] = {
+            range: {
+              field: agg_options[:field] || field,
+              ranges: agg_options[:ranges]
+            }.merge(shared_agg_options)
+          }
+        elsif agg_options[:date_ranges]
+          payload[:aggs][field] = {
+            date_range: {
+              field: agg_options[:field] || field,
+              ranges: agg_options[:date_ranges]
+            }.merge(shared_agg_options)
+          }
+        else
+          payload[:aggs][field] = {
+            terms: {
+              field: agg_options[:field] || field,
+              size: size
+            }.merge(shared_agg_options)
+          }
+        end
+
+        where = {}
+        where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
+        agg_filters = where_filters(where.merge(agg_options[:where] || {}))
+        if agg_filters.any?
+          payload[:aggs][field] = {
+            filter: {
+              bool: {
+                must: agg_filters
+              }
+            },
+            aggs: {
+              field => payload[:aggs][field]
+            }
+          }
+        end
+      end
+    end
+
+    def set_facets(payload)
+      facets = options[:facets] || {}
+      facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
+      facet_limits = {}
+      payload[:facets] = {}
+      facets.each do |field, facet_options|
+        # ask for extra facets due to
+        # https://github.com/elasticsearch/elasticsearch/issues/1305
+        size = facet_options[:limit] ? facet_options[:limit] + 150 : 1_000
+
+        if facet_options[:ranges]
+          payload[:facets][field] = {
+            range: {
+              field.to_sym => facet_options[:ranges]
+            }
+          }
+        elsif facet_options[:stats]
+          payload[:facets][field] = {
+            terms_stats: {
+              key_field: field,
+              value_script: below14? ? "doc.score" : "_score",
+              size: size
+            }
+          }
+        else
+          payload[:facets][field] = {
+            terms: {
+              field: facet_options[:field] || field,
+              size: size
+            }
+          }
+        end
+
+        facet_limits[field] = facet_options[:limit] if facet_options[:limit]
+
+        # offset is not possible
+        # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
+
+        facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_facets] == true
+        facet_filters = where_filters(facet_options[:where])
+        if facet_filters.any?
+          payload[:facets][field][:facet_filter] = {
+            and: {
+              filters: facet_filters
+            }
+          }
+        end
+      end
+      @facet_limits = facet_limits
+    end
+
+    def set_filters(payload, filters)
+      if options[:facets] || options[:aggs]
+        payload[:filter] = {
+          and: filters
+        }
+      else
+        # more efficient query if no facets
+        payload[:query] = {
+          filtered: {
+            query: payload[:query],
+            filter: {
+              and: filters
+            }
+          }
+        }
+      end
+    end
+
+    def set_order(payload)
+      order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
+      # TODO id transformation for arrays
+      payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? :_id : k, v] }]
     end
 
     def where_filters(where)
