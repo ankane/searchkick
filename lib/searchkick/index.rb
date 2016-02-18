@@ -53,13 +53,23 @@ module Searchkick
     end
 
     def bulk_delete(records)
-      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: {_index: name, _type: document_type(r), _id: search_id(r)}} })
+      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
     end
 
     def bulk_index(records)
-      Searchkick.queue_items(records.map { |r| {index: {_index: name, _type: document_type(r), _id: search_id(r), data: search_data(r)}} })
+      Searchkick.queue_items(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
     end
     alias_method :import, :bulk_index
+
+    def record_data(r)
+      data = {
+        _index: name,
+        _id: search_id(r),
+        _type: document_type(r)
+      }
+      data[:_routing] = r.search_routing if r.respond_to?(:search_routing)
+      data
+    end
 
     def retrieve(record)
       client.get(
@@ -102,7 +112,7 @@ module Searchkick
       options[:where] ||= {}
       options[:where][:_id] ||= {}
       options[:where][:_id][:not] = record.id.to_s
-      options[:limit] ||= 10
+      options[:per_page] ||= 10
       options[:similar] = true
 
       # TODO use index class instead of record class
@@ -132,7 +142,12 @@ module Searchkick
 
     # remove old indices that start w/ index_name
     def clean_indices
-      all_indices = client.indices.get_aliases
+      all_indices =
+        begin
+          client.indices.get_aliases
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          []
+        end
       indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
         Searchkick::Index.new(index).delete
@@ -458,7 +473,10 @@ module Searchkick
 
         routing = {}
         if options[:routing]
-          routing = {required: true, path: options[:routing].to_s}
+          routing = {required: true}
+          unless options[:routing] == true
+            routing[:path] = options[:routing].to_s
+          end
         end
 
         dynamic_fields = {
@@ -528,11 +546,16 @@ module Searchkick
     end
 
     def document_type(record)
-      klass_document_type(record.class)
+      if record.respond_to?(:search_document_type)
+        record.search_document_type
+      else
+        klass_document_type(record.class)
+      end
     end
 
     def search_id(record)
-      record.id.is_a?(Numeric) ? record.id : record.id.to_s
+      id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
+      id.is_a?(Numeric) ? id : id.to_s
     end
 
     def search_data(record)

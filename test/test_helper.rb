@@ -5,6 +5,7 @@ require "minitest/pride"
 require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require 'oj'
+require "active_support/notifications"
 
 ENV["RACK_ENV"] = "test"
 
@@ -19,6 +20,7 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
+ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch2?
   Searchkick.server_version.starts_with?("2.")
@@ -245,7 +247,7 @@ end
 
 class Store
   searchkick \
-    routing: elasticsearch2? ? false : "name",
+    routing: true,
     merge_mappings: true,
     mappings: {
       store: {
@@ -254,6 +256,14 @@ class Store
         }
       }
     }
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    name
+  end
 end
 
 class Animal

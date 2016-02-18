@@ -191,6 +191,11 @@ class MatchTest < Minitest::Test
     assert_search "ben & jerrys", ["Ben and Jerry's"]
   end
 
+  def test_phrase
+    store_names ["Fresh Honey", "Honey Fresh"]
+    assert_search "fresh honey", ["Fresh Honey"], match: :phrase
+  end
+
   def test_unsearchable
     store [
       {name: "Unsearchable", description: "Almond"}

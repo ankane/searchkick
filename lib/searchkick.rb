@@ -9,7 +9,7 @@ require "searchkick/reindex_job"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
-require "searchkick/logging" if defined?(Rails)
+require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
 # background jobs
 begin
@@ -132,6 +132,26 @@ module Searchkick
   # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
+  end
+
+  def self.search(term = nil, options = {}, &block)
+    query = Searchkick::Query.new(nil, term, options)
+    block.call(query.body) if block
+    if options[:execute] == false
+      query
+    else
+      query.execute
+    end
+  end
+
+  def self.multi_search(queries)
+    if queries.any?
+      responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
+      queries.each_with_index do |query, i|
+        query.handle_response(responses[i])
+      end
+    end
+    nil
   end
 end
 

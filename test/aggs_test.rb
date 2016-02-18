@@ -21,7 +21,7 @@ class AggsTest < Minitest::Test
 
   def test_order
     agg = Product.search("Product", aggs: {color: {order: {"_term" => "desc"}}}).aggs["color"]
-    assert_equal %w[red green blue], agg["buckets"].map { |b| b["key"] }
+    assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
   end
 
   def test_field

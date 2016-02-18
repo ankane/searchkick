@@ -1,3 +1,23 @@
+## 1.2.2 [unreleased]
+
+- Added support for phrase matches
+
+## 1.2.1
+
+- Added `multi_search` method
+- Added support for routing for Elasticsearch 2
+- Added support for `search_document_id` and `search_document_type` in models
+- Fixed error with instrumentation for searching multiple models
+- Fixed instrumentation for bulk updates
+
+## 1.2.0
+
+- Fixed deprecation warnings with `alias_method_chain`
+- Added `analyzed_only` option for large text fields
+- Added `encoder` option to highlight
+- Fixed issue in `similar` method with `per_page` option
+- Added basic support for multiple models
+
 ## 1.1.2
 
 - Added bulk updates with `callbacks` method

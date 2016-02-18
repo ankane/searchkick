@@ -35,6 +35,9 @@ Plus:
 
 ```sh
 brew install elasticsearch
+
+# start the server
+elasticsearch
 ```
 
 Add this line to your application’s Gemfile:
@@ -244,6 +247,12 @@ Available options are:
 User.search params[:q], fields: [{email: :exact}, :name]
 ```
 
+### Phrase Matches [master]
+
+```ruby
+User.search "fresh honey", match: :phrase
+```
+
 ### Language
 
 Searchkick defaults to English for stemming.  To change this, use:
@@ -335,12 +344,13 @@ Control what data is indexed with the `search_data` method. Call `Product.reinde
 
 ```ruby
 class Product < ActiveRecord::Base
+  belongs_to :department
+
   def search_data
-    as_json only: [:name, :active]
-    # or equivalently
     {
       name: name,
-      active: active
+      department_name: department.name,
+      on_sale: sale_price.present?
     }
   end
 end
@@ -350,7 +360,7 @@ Searchkick uses `find_in_batches` to import documents.  To eager load associatio
 
 ```ruby
 class Product < ActiveRecord::Base
-  scope :search_import, -> { includes(:searches) }
+  scope :search_import, -> { includes(:department) }
 end
 ```
 
@@ -394,7 +404,7 @@ There are three strategies for keeping the index synced with your database.
   end
   ```
 
-  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below
+  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below. Jobs are added to a queue named `searchkick`.
 
 3. Manual
 
@@ -830,18 +840,20 @@ City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: 
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
 
-**Note:** Routing is not yet supported for Elasticsearch 2.0.
-
 ```ruby
-class Contact < ActiveRecord::Base
-  searchkick routing: :user_id
+class Business < ActiveRecord::Base
+  searchkick routing: true
+
+  def search_routing
+    city_id
+  end
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-Contact.search "John", routing: current_user.id
+Business.search "ice cream", routing: params[:city_id]
 ```
 
 ## Inheritance
@@ -958,6 +970,7 @@ gem 'faraday_middleware-aws-signers-v4'
 and add to your initializer:
 
 ```ruby
+require "faraday_middleware/aws_signers_v4"
 Searchkick.client =
   Elasticsearch::Client.new(
     url: ENV["ELASTICSEARCH_URL"],
@@ -1085,6 +1098,20 @@ products =
   end
 ```
 
+### Multi Search
+
+To batch search requests for performance, use:
+
+```ruby
+fresh_products = Product.search("fresh", execute: false)
+frozen_products = Product.search("frozen", execute: false)
+Searchkick.multi_search([fresh_products, frozen_products])
+```
+
+Then use `fresh_products` and `frozen_products` as typical results.
+
+**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
+
 ## Reference
 
 Reindex one record
@@ -1119,6 +1146,14 @@ Remove old indices
 
 ```ruby
 Product.clean_indices
+```
+
+Use custom settings
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick settings: {number_of_shards: 3}
+end
 ```
 
 Use a different index name
@@ -1223,7 +1258,7 @@ end
 
 Reindex conditionally
 
-**Note:** With ActiveRecord, use this feature with caution - [transaction rollbacks can cause data inconstencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks)
+**Note:** With ActiveRecord, use this feature with caution - [transaction rollbacks can cause data inconsistencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks)
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -1233,6 +1268,12 @@ class Product < ActiveRecord::Base
   after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
   after_destroy :reindex
 end
+```
+
+Search multiple models
+
+```ruby
+Searchkick.search "milk", index_name: [Product, Category]
 ```
 
 Reindex all models - Rails only

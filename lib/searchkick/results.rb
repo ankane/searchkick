@@ -39,13 +39,15 @@ module Searchkick
             result =
               if hit["_source"]
                 hit.except("_source").merge(hit["_source"])
-              else
+              elsif hit["fields"]
                 hit.except("fields").merge(hit["fields"])
+              else
+                hit
               end
 
             if hit["highlight"]
               highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), v.first] }]
-              options[:highlighted_fields].map{ |k| base_field(k) }.each do |k|
+              options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
               end
             end
@@ -104,6 +106,10 @@ module Searchkick
 
     def took
       response["took"]
+    end
+
+    def error
+      response["error"]
     end
 
     def model_name
