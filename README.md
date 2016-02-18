@@ -247,7 +247,7 @@ Available options are:
 User.search params[:q], fields: [{email: :exact}, :name]
 ```
 
-+### Phrase Matches [master]
+### Phrase Matches [master]
 
 ```ruby
 User.search "fresh honey", match: :phrase
