@@ -166,7 +166,6 @@ module Searchkick
       personalize_field = searchkick_options[:personalize]
 
       all = term == "*"
-      
 
       options[:json] ||= options[:body]
       if options[:json]
@@ -304,9 +303,7 @@ module Searchkick
         multiply_filters = []
 
         set_boost_by(multiply_filters, custom_filters)
-
         set_boost_where(custom_filters, personalize_field)
-
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
 
         if custom_filters.any?
@@ -348,13 +345,12 @@ module Searchkick
 
         # aggregations
         set_aggregations(payload) if options[:aggs]
- 
+
         # suggestions
         set_suggestions(payload) if options[:suggest]
 
         # highlight
         set_highlights(payload, fields) if options[:highlight]
-
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
@@ -571,6 +567,7 @@ module Searchkick
       facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
       facet_limits = {}
       payload[:facets] = {}
+
       facets.each do |field, facet_options|
         # ask for extra facets due to
         # https://github.com/elasticsearch/elasticsearch/issues/1305
@@ -614,6 +611,7 @@ module Searchkick
           }
         end
       end
+
       @facet_limits = facet_limits
     end
 
