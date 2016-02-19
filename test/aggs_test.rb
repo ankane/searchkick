@@ -31,7 +31,7 @@ class AggsTest < Minitest::Test
   end
 
   def test_min_doc_count
-    assert_equal ({2 => 2}), store_agg(aggs: {store_id: { min_doc_count: 2 }})
+    assert_equal ({2 => 2}), store_agg(aggs: {store_id: {min_doc_count: 2}})
   end
 
   def test_no_aggs

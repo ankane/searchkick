@@ -624,13 +624,6 @@ Limit
 Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
-Minimum Document Count
-
-```ruby
-Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
-# Only return stores that have 2 or more hits
-```
-
 Order
 
 ```ruby
@@ -644,6 +637,12 @@ Ranges
 ```ruby
 price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", aggs: {price: {ranges: price_ranges}}
+```
+
+Minimum document count [master]
+
+```ruby
+Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 ```
 
 #### Moving From Facets
