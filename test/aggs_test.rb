@@ -30,6 +30,10 @@ class AggsTest < Minitest::Test
     assert_equal ({1 => 1, 2 => 2}), store_agg({aggs: {store_id_new: {field: "store_id"}}}, "store_id_new")
   end
 
+  def test_min_doc_count
+    assert_equal ({2 => 2}), store_agg(aggs: {store_id: { min_doc_count: 2 }})
+  end
+
   def test_no_aggs
     assert_nil Product.search("*").aggs
   end

@@ -527,7 +527,7 @@ module Searchkick
 
       aggs.each do |field, agg_options|
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
-        shared_agg_options = agg_options.slice(:order)
+        shared_agg_options = agg_options.slice(:order, :min_doc_count)
 
         if agg_options[:ranges]
           payload[:aggs][field] = {

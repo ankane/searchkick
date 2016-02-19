@@ -624,6 +624,13 @@ Limit
 Product.search "apples", aggs: {store_id: {limit: 10}}
 ```
 
+Minimum Document Count
+
+```ruby
+Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
+# Only return stores that have 2 or more hits
+```
+
 Order
 
 ```ruby
