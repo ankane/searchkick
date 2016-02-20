@@ -103,12 +103,10 @@ module Searchkick
     if items.any?
       response = client.bulk(body: items)
       if response["errors"]
-        messages = response["items"].map do |item|
+        first_with_error = response["items"].map do |item|
           (item["index"] || item["delete"])
-        end.select { |item| item["error"] }.map do |item|
-          "#{item["error"]} on item with id '#{item["_id"]}'"
-        end.join "\n"
-        raise Searchkick::ImportError, messages
+        end.find { |item| item["error"] }
+        raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
       end
     end
   end
