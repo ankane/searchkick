@@ -11,6 +11,7 @@ class ErrorsTest < Minitest::Test
         }
       }
     }
+    index.store valid_dog
     error = assert_raises(Searchkick::ImportError) do
       index.bulk_index [valid_dog, invalid_dog]
     end
