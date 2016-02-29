@@ -17,7 +17,10 @@ module Searchkick
 
     # experimental: may not make next release
     def records
-      @records ||= results_query(klass, hits)
+      @order_by ||= hits.map do |hit|
+        "#{klass.table_name}.#{klass.primary_key}='#{hit['_id']}' DESC"
+      end.join(", ")
+      @records ||= results_query(klass, hits).reorder(@order_by)
     end
 
     def results
