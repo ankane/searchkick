@@ -36,7 +36,7 @@ module Searchkick
         begin
           client.indices.get_alias(name: name).keys
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          []
+          {}
         end
       actions = old_indices.map { |old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
       client.indices.update_aliases body: {actions: actions}
@@ -146,7 +146,7 @@ module Searchkick
         begin
           client.indices.get_aliases
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          []
+          {}
         end
       indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
       indices.each do |index|
