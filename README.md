@@ -335,7 +335,7 @@ gem 'gemoji-parser'
 And use:
 
 ```ruby
-Product.search "[emoji go here]", emoji: true
+Product.search "🍨🍰", emoji: true
 ```
 
 ### Indexing
