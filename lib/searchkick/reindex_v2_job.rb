@@ -12,7 +12,7 @@ module Searchkick
       @@reindexes ||= Hash.new
     end
 
-    def reindex_add(klass, id)
+    def reindex_add
       reindex_mutex.synchronize do
         if reindexes[key].nil?
           reindexes[key] = { count: 1, mutex: Mutex.new }
@@ -22,14 +22,14 @@ module Searchkick
       end
     end
 
-    def reindex_remove(klass, id)
+    def reindex_remove
       reindex_mutex.synchronize do
         reindexes[key][:count] -= 1
         reindexes.delete key if reindexes[key][:count].zero?
       end
     end
 
-    def self.reindex_synchronize(klass, id)
+    def reindex_synchronize
       reindexes[key][:mutex].synchronize do
         yield
       end
@@ -37,9 +37,9 @@ module Searchkick
 
     def perform(klass, id)
       self.key = "#{klass}::#{id}"
-      reindex_add klass, id
+      reindex_add
       reindex_synchronize { reindex_model klass, id }
-      reindex_remove klass, id
+      reindex_remove
     end
 
     def reindex_model(klass, id)
