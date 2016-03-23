@@ -29,4 +29,9 @@ class ReindexV2JobTest < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "*", []
   end
+
+  def test_reindex_mutex
+    job = Searchkick::ReindexV2Job.new
+    assert_instance_of Mutex, job.reindex_mutex
+  end
 end
