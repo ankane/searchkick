@@ -61,6 +61,7 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_not_string
+    skip unless elasticsearch2?
     store [
       {name: "Product A"},
     ]
