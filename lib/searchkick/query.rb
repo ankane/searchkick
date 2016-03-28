@@ -736,6 +736,9 @@ module Searchkick
         {missing: {"field" => field, existence: true, null_value: true}}
       elsif value.is_a?(Regexp)
         {regexp: {field => {value: value.source}}}
+      elsif value.is_a?(Hash)
+        op, value = value.shift
+        {op => {field => value}}
       else
         {term: {field => value}}
       end
