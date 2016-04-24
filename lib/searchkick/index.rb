@@ -535,7 +535,7 @@ module Searchkick
       if klass.respond_to?(:document_type)
         klass.document_type
       else
-        klass.model_name.to_s.underscore
+        klass.model_name.singular
       end
     end
 
