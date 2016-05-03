@@ -1328,7 +1328,7 @@ Product.searchkick_index.refresh # or this
 
 ## Multi-Tenancy
 
-Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/).
+Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
 ## Migrating from Tire
 
