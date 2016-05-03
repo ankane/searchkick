@@ -3,7 +3,6 @@ require_relative "test_helper"
 class MultiTenancyTest < Minitest::Test
   def setup
     skip unless defined?(Apartment)
-    super
   end
 
   def test_basic
