@@ -19,3 +19,4 @@ tmp
 .DS_Store
 .ruby-*
 .idea/
+*.sqlite3

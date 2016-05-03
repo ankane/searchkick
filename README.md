@@ -1326,6 +1326,10 @@ product.reindex # don't forget this
 Product.searchkick_index.refresh # or this
 ```
 
+## Multi-Tenancy
+
+Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/).
+
 ## Migrating from Tire
 
 1. Change `search` methods to `tire.search` and add index name in existing search calls
