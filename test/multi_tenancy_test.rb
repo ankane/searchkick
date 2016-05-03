@@ -3,6 +3,7 @@ require_relative "test_helper"
 class MultiTenancyTest < Minitest::Test
   def setup
     skip unless defined?(Apartment)
+    super
   end
 
   def test_basic
@@ -14,7 +15,9 @@ class MultiTenancyTest < Minitest::Test
     assert_search "product", ["Product A"], {load: false}, Tenant
     Apartment::Tenant.switch!("tenant2")
     assert_search "product", ["Product B"], {load: false}, Tenant
-  ensure
+  end
+
+  def teardown
     Apartment::Tenant.reset
   end
 end
