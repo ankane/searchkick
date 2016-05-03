@@ -17,6 +17,6 @@ class MultiTenancyTest < Minitest::Test
   end
 
   def teardown
-    Apartment::Tenant.reset
+    Apartment::Tenant.reset if defined?(Apartment)
   end
 end
