@@ -781,19 +781,15 @@ module Searchkick
     end
 
     def below12?
-      below_version?("1.2.0")
+      Searchkick.below_version?("1.2.0")
     end
 
     def below14?
-      below_version?("1.4.0")
+      Searchkick.below_version?("1.4.0")
     end
 
     def below20?
-      below_version?("2.0.0")
-    end
-
-    def below_version?(version)
-      Gem::Version.new(Searchkick.server_version) < Gem::Version.new(version)
+      Searchkick.below_version?("2.0.0")
     end
   end
 end

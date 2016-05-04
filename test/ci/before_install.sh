@@ -3,8 +3,12 @@
 gem install bundler
 
 sudo apt-get purge elasticsearch
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.3.deb
-sudo dpkg -i elasticsearch-1.7.3.deb
+if [[ $ELASTICSEARCH_VERSION == 1* ]]; then
+  wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
+else
+  wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.deb
+fi
+sudo dpkg -i elasticsearch-$ELASTICSEARCH_VERSION.deb
 sudo service elasticsearch start
 
 if [ -n "$NOBRAINER" ]; then

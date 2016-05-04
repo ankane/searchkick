@@ -21,8 +21,12 @@ I18n.config.enforce_available_locales = true
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
 ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
-def elasticsearch2?
-  Searchkick.server_version.starts_with?("2.")
+def elasticsearch_below20?
+  Searchkick.below_version?("2.0.0")
+end
+
+def elasticsearch_below14?
+  Searchkick.server_version.starts_with?("1.4.0")
 end
 
 def mongoid2?

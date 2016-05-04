@@ -58,6 +58,10 @@ module Searchkick
     @server_version ||= client.info["version"]["number"]
   end
 
+  def self.below_version?(version)
+    Gem::Version.new(server_version) < Gem::Version.new(version)
+  end
+
   def self.enable_callbacks
     self.callbacks_value = nil
   end

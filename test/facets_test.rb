@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class FacetsTest < Minitest::Test
   def setup
-    skip if elasticsearch2?
+    skip unless elasticsearch_below20?
     super
     store [
       {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21, created_at: 2.days.ago},
