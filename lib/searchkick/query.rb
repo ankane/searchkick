@@ -234,7 +234,6 @@ module Searchkick
               factor = boost_fields[field] || 1
               shared_options = {
                 query: term,
-                operator: operator,
                 boost: 10 * factor
               }
 
@@ -245,6 +244,8 @@ module Searchkick
                 else
                   :match
                 end
+
+              shared_options[:operator] = operator if match_type == :match || below50?
 
               if field == "_all" || field.end_with?(".analyzed")
                 shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
@@ -260,7 +261,7 @@ module Searchkick
                 qs << shared_options.merge(analyzer: analyzer)
               end
 
-              if misspellings != false
+              if misspellings != false && (match_type == :match || below50?)
                 qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
@@ -625,26 +626,44 @@ module Searchkick
 
     def set_filters(payload, filters)
       if options[:facets] || options[:aggs]
-        payload[:filter] = {
-          and: filters
-        }
-      else
-        # more efficient query if no facets
-        payload[:query] = {
-          filtered: {
-            query: payload[:query],
-            filter: {
-              and: filters
+        if below20?
+          payload[:filter] = {
+            and: filters
+          }
+        else
+          payload[:post_filter] = {
+            bool: {
+              filter: filters
             }
           }
-        }
+        end
+      else
+        # more efficient query if no facets
+        if below20?
+          payload[:query] = {
+            filtered: {
+              query: payload[:query],
+              filter: {
+                and: filters
+              }
+            }
+          }
+        else
+          payload[:query] = {
+            bool: {
+              must: payload[:query],
+              filter: filters
+            }
+          }
+        end
       end
     end
 
+    # TODO id transformation for arrays
     def set_order(payload)
       order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      # TODO id transformation for arrays
-      payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? :_id : k, v] }]
+      id_field = below50? ? :_id : :_uid
+      payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
     end
 
     def where_filters(where)
@@ -654,7 +673,11 @@ module Searchkick
 
         if field == :or
           value.each do |or_clause|
-            filters << {or: or_clause.map { |or_statement| {and: where_filters(or_statement)} }}
+            if below50?
+              filters << {or: or_clause.map { |or_statement| {and: where_filters(or_statement)} }}
+            else
+              filters << {bool: {should: or_clause.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
+            end
           end
         else
           # expand ranges
@@ -688,7 +711,11 @@ module Searchkick
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
-                filters << {not: {filter: term_filters(field, op_value)}}
+                if below50?
+                  filters << {not: {filter: term_filters(field, op_value)}}
+                else
+                  filters << {bool: {must_not: term_filters(field, op_value)}}
+                end
               when :all
                 op_value.each do |value|
                   filters << term_filters(field, value)
@@ -728,12 +755,20 @@ module Searchkick
     def term_filters(field, value)
       if value.is_a?(Array) # in query
         if value.any?(&:nil?)
-          {or: [term_filters(field, nil), term_filters(field, value.compact)]}
+          if below50?
+            {or: [term_filters(field, nil), term_filters(field, value.compact)]}
+          else
+            {bool: {should: [term_filters(field, nil), term_filters(field, value.compact)]}}
+          end
         else
           {in: {field => value}}
         end
       elsif value.nil?
-        {missing: {"field" => field, existence: true, null_value: true}}
+        if below50?
+          {missing: {field: field, existence: true, null_value: true}}
+        else
+          {bool: {must_not: {exists: {field: field}}}}
+        end
       elsif value.is_a?(Regexp)
         {regexp: {field => {value: value.source}}}
       else
@@ -742,12 +777,19 @@ module Searchkick
     end
 
     def custom_filter(field, value, factor)
-      {
-        filter: {
-          and: where_filters(field => value)
-        },
-        boost_factor: factor
-      }
+      if below50?
+        {
+          filter: {
+            and: where_filters(field => value)
+          },
+          boost_factor: factor
+        }
+      else
+        {
+          filter: where_filters(field => value),
+          weight: factor
+        }
+      end
     end
 
     def boost_filters(boost_by, options = {})
@@ -781,15 +823,19 @@ module Searchkick
     end
 
     def below12?
-      Searchkick.below_version?("1.2.0")
+      Searchkick.server_below?("1.2.0")
     end
 
     def below14?
-      Searchkick.below_version?("1.4.0")
+      Searchkick.server_below?("1.4.0")
     end
 
     def below20?
-      Searchkick.below_version?("2.0.0")
+      Searchkick.server_below?("2.0.0")
+    end
+
+    def below50?
+      Searchkick.server_below?("5.0.0-alpha1")
     end
   end
 end

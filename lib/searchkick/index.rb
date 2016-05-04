@@ -218,6 +218,22 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
+        below22 = Searchkick.server_below?("2.2.0")
+        below50 = Searchkick.server_below?("5.0.0-alpha1")
+        default_type = below50 ? "string" : "text"
+        default_analyzer = below50 ? :default_index : :default
+        keyword_mapping =
+          if below50
+            {
+              type: default_type,
+              index: "not_analyzed"
+            }
+          else
+            {
+              type: "keyword"
+            }
+          end
+
         settings = {
           analysis: {
             analyzer: {
@@ -226,7 +242,7 @@ module Searchkick
                 tokenizer: "keyword",
                 filter: ["lowercase"] + (options[:stem_conversions] == false ? [] : ["searchkick_stemmer"])
               },
-              default_index: {
+              default_analyzer => {
                 type: "custom",
                 # character filters -> tokenizer -> token filters
                 # https://www.elastic.co/guide/en/elasticsearch/guide/current/analysis-intro.html
@@ -380,8 +396,8 @@ module Searchkick
           # - Only apply the synonym expansion at index time
           # - Don't have the synonym filter applied search
           # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-          settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_synonym")
-          settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_synonym"
+          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_synonym")
+          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_synonym"
 
           %w(word_start word_middle word_end).each do |type|
             settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
@@ -395,8 +411,8 @@ module Searchkick
             synonyms_path: Searchkick.wordnet_path
           }
 
-          settings[:analysis][:analyzer][:default_index][:filter].insert(4, "searchkick_wordnet")
-          settings[:analysis][:analyzer][:default_index][:filter] << "searchkick_wordnet"
+          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_wordnet")
+          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_wordnet"
 
           %w(word_start word_middle word_end).each do |type|
             settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
@@ -416,7 +432,7 @@ module Searchkick
           mapping[conversions_field] = {
             type: "nested",
             properties: {
-              query: {type: "string", analyzer: "searchkick_keyword"},
+              query: {type: default_type, analyzer: "searchkick_keyword"},
               count: {type: "integer"}
             }
           }
@@ -430,32 +446,39 @@ module Searchkick
         word = options[:word] != false && (!options[:match] || options[:match] == :word)
 
         mapping_options.values.flatten.uniq.each do |field|
-          field_mapping = {
-            type: "multi_field",
-            fields: {}
-          }
+          fields = {}
 
-          unless mapping_options[:only_analyzed].include?(field)
-            field_mapping[:fields][field] = {type: "string", index: "not_analyzed"}
+          if mapping_options[:only_analyzed].include?(field)
+            fields[field] = {type: default_type, index: "no"}
+          else
+            fields[field] = keyword_mapping
           end
 
           if !options[:searchable] || mapping_options[:searchable].include?(field)
             if word
-              field_mapping[:fields]["analyzed"] = {type: "string", index: "analyzed"}
+              fields["analyzed"] = {type: default_type, index: "analyzed", analyzer: default_analyzer}
 
               if mapping_options[:highlight].include?(field)
-                field_mapping[:fields]["analyzed"][:term_vector] = "with_positions_offsets"
+                fields["analyzed"][:term_vector] = "with_positions_offsets"
               end
             end
 
-            mapping_options.except(:highlight, :searchable, :only_analyzed).each do |type, fields|
-              if options[:match] == type || fields.include?(field)
-                field_mapping[:fields][type] = {type: "string", index: "analyzed", analyzer: "searchkick_#{type}_index"}
+            mapping_options.except(:highlight, :searchable, :only_analyzed).each do |type, f|
+              if options[:match] == type || f.include?(field)
+                fields[type] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{type}_index"}
               end
             end
           end
 
-          mapping[field] = field_mapping
+          mapping[field] =
+            if below50
+              {
+                type: "multi_field",
+                fields: fields
+              }
+            elsif fields[field]
+              fields[field].merge(fields: fields.except(field))
+           end
         end
 
         (options[:locations] || []).map(&:to_s).each do |field|
@@ -466,7 +489,7 @@ module Searchkick
 
         (options[:unsearchable] || []).map(&:to_s).each do |field|
           mapping[field] = {
-            type: "string",
+            type: default_type,
             index: "no"
           }
         end
@@ -484,21 +507,35 @@ module Searchkick
           # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
           # however, we can include the not_analyzed field in _all
           # and the _all index analyzer will take care of it
-          "{name}" => {type: "string", index: "not_analyzed", include_in_all: !options[:searchable]}
+          "{name}" => keyword_mapping.merge(include_in_all: !options[:searchable])
         }
+
+        dynamic_fields["{name}"][:ignore_above] = 256 unless below22
 
         unless options[:searchable]
           if options[:match] && options[:match] != :word
-            dynamic_fields[options[:match]] = {type: "string", index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
+            dynamic_fields[options[:match]] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
           end
 
           if word
-            dynamic_fields["analyzed"] = {type: "string", index: "analyzed"}
+            dynamic_fields["analyzed"] = {type: default_type, index: "analyzed"}
           end
         end
 
+        # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+        multi_field =
+          if below50
+            {
+              type: "multi_field",
+              fields: dynamic_fields
+            }
+          else
+            dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
+          end
+
         mappings = {
           _default_: {
+            _all: {type: default_type, index: "analyzed", analyzer: default_analyzer},
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285
@@ -507,11 +544,7 @@ module Searchkick
                 string_template: {
                   match: "*",
                   match_mapping_type: "string",
-                  mapping: {
-                    # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-                    type: "multi_field",
-                    fields: dynamic_fields
-                  }
+                  mapping: multi_field
                 }
               }
             ]

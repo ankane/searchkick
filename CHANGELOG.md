@@ -1,5 +1,6 @@
-## 1.2.2 [unreleased]
+## 1.3.0 [unreleased]
 
+- Added support for Elasticsearch 5.0 alpha
 - Added support for phrase matches
 - Added support for procs for `index_prefix` option
 

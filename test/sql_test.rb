@@ -77,6 +77,7 @@ class SqlTest < Minitest::Test
   # select
 
   def test_select
+    skip unless elasticsearch_below50?
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
     assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
@@ -85,12 +86,14 @@ class SqlTest < Minitest::Test
   end
 
   def test_select_array
+    skip unless elasticsearch_below50?
     store [{name: "Product A", user_ids: [1, 2]}]
     result = Product.search("product", load: false, select: [:user_ids]).first
     assert_equal [1, 2], result.user_ids
   end
 
   def test_select_single_field
+    skip unless elasticsearch_below50?
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: :name).first
     assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
@@ -99,6 +102,7 @@ class SqlTest < Minitest::Test
   end
 
   def test_select_all
+    skip unless elasticsearch_below50?
     store [{name: "Product A", user_ids: [1, 2]}]
     hit = Product.search("product", select: true).hits.first
     assert_equal hit["_source"]["name"], "Product A"
@@ -106,6 +110,7 @@ class SqlTest < Minitest::Test
   end
 
   def test_select_none
+    skip unless elasticsearch_below50?
     store [{name: "Product A", user_ids: [1, 2]}]
     hit = Product.search("product", select: []).hits.first
     assert_nil hit["_source"]

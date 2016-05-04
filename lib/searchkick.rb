@@ -58,7 +58,7 @@ module Searchkick
     @server_version ||= client.info["version"]["number"]
   end
 
-  def self.below_version?(version)
+  def self.server_below?(version)
     Gem::Version.new(server_version) < Gem::Version.new(version)
   end
 

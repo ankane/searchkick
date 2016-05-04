@@ -21,12 +21,16 @@ I18n.config.enforce_available_locales = true
 ActiveJob::Base.logger = nil if defined?(ActiveJob)
 ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
+def elasticsearch_below50?
+  Searchkick.server_below?("5.0.0-alpha1")
+end
+
 def elasticsearch_below20?
-  Searchkick.below_version?("2.0.0")
+  Searchkick.server_below?("2.0.0")
 end
 
 def elasticsearch_below14?
-  Searchkick.server_version.starts_with?("1.4.0")
+  Searchkick.server_below?("1.4.0")
 end
 
 def mongoid2?
@@ -292,7 +296,7 @@ class Store
     mappings: {
       store: {
         properties: {
-          name: {type: "string", analyzer: "keyword"}
+          name: elasticsearch_below50? ? {type: "string", analyzer: "keyword"} : {type: "keyword"}
         }
       }
     }

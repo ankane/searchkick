@@ -28,7 +28,13 @@ class OrderTest < Minitest::Test
   end
 
   def test_order_ignore_unmapped
+    skip unless elasticsearch_below50?
     assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}
+  end
+
+  def test_order_unmapped_type
+    skip if elasticsearch_below50?
+    assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
   end
 
   def test_order_array
