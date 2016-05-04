@@ -5,7 +5,7 @@ services:
   - mongodb
 before_install:
   - ./test/ci/before_install.sh
-script: bundle exec rake test
+script: RUBYOPT=W0 bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
 notifications:
@@ -24,8 +24,8 @@ gemfile:
   - test/gemfiles/mongoid5.gemfile
 matrix:
   include:
-    - gemfile: test/gemfiles/nobrainer.gemfile
-      env: NOBRAINER=true
+    # - gemfile: test/gemfiles/nobrainer.gemfile
+    #   env: NOBRAINER=true
   allow_failures:
-    - gemfile: test/gemfiles/nobrainer.gemfile
-      env: NOBRAINER=true
+    # - gemfile: test/gemfiles/nobrainer.gemfile
+    #   env: NOBRAINER=true
