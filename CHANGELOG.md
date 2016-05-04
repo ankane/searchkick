@@ -1,4 +1,4 @@
-## 1.3.0 [unreleased]
+## 1.3.0
 
 - Added support for Elasticsearch 5.0 alpha
 - Added support for phrase matches

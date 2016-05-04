@@ -245,7 +245,7 @@ Available options are:
 User.search params[:q], fields: [{email: :exact}, :name]
 ```
 
-### Phrase Matches [master]
+### Phrase Matches
 
 ```ruby
 User.search "fresh honey", match: :phrase
@@ -637,7 +637,7 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", aggs: {price: {ranges: price_ranges}}
 ```
 
-Minimum document count [master]
+Minimum document count
 
 ```ruby
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
