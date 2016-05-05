@@ -110,6 +110,30 @@ order: {_score: :desc} # most relevant first - default
 
 [All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html)
 
+Using PostgreSQL? Are your records out of order?
+
+When requesting records from a postgresql database, the records are not in the same order that they were returned from ElasticSearch. In order to make this work and perform well, you will need to implement a sorting function at the database level. This is an example function in postgresql:
+
+```sql
+create or replace function find_in_array(needle anyelement, haystack anyarray) returns integer as $$
+declare i integer;
+begin
+  for i in 1..array_upper(haystack, 1) loop
+    if haystack[i] = needle then
+      return i;
+    end if;
+  end loop;
+  raise exception 'find_in_array: % not found in %', needle, haystack;
+end;
+$$ language 'plpgsql';
+```
+
+Once you've defined this function in your database, you just need to tell Searchkick to use it:
+
+```ruby
+Searchkick.db_sorting_function = 'find_in_array'
+```
+
 Limit / offset
 
 ```ruby
