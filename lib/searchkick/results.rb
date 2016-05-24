@@ -195,7 +195,7 @@ module Searchkick
           # See the link for a more in-depth description
           # https://www.chrissearle.org/2014/05/02/postgresql-sort-where-id-in-by-original-id-list-order/
           records.where(records.primary_key => ids)
-                 .reorder("#{Searchkick.db_sorting_function}(id, #{postgres_array(ids)})")
+                 .reorder("#{Searchkick.db_sorting_function}(#{@klass.table_name}.id, #{postgres_array(ids)})")
         else
           records.where(records.primary_key => ids)
         end
