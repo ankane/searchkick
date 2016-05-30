@@ -41,32 +41,38 @@ module Searchkick
     # record based
 
     def store(record)
-      client.index(
-        index: name,
-        type: document_type(record),
-        id: search_id(record),
-        body: search_data(record)
-      )
+      writing_clients.each do |client|
+        client.index(
+          index: name,
+          type: document_type(record),
+          id: search_id(record),
+          body: search_data(record)
+        )
+      end
     end
 
     def remove(record)
-      id = search_id(record)
-      unless id.blank?
-        client.delete(
-          index: name,
-          type: document_type(record),
-          id: id
-        )
+      writing_clients.each do |client|
+        id = search_id(record)
+        unless id.blank?
+          client.delete(
+            index: name,
+            type: document_type(record),
+            id: id
+          )
+        end
       end
     end
 
     def import(records)
       records.group_by { |r| document_type(r) }.each do |type, batch|
-        client.bulk(
-          index: name,
-          type: type,
-          body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
-        )
+        writing_clients.each do |client|
+          client.bulk(
+            index: name,
+            type: type,
+            body: batch.map { |r| {index: {_id: search_id(r), data: search_data(r)}} }
+          )
+        end
       end
     end
 
@@ -79,21 +85,25 @@ module Searchkick
     end
 
     def update(record, updates)
-      client.update(
-        index: name,
-        type: document_type(record),
-        id: search_id(record),
-        body: {doc: updates}
-      )
+      writing_clients.each do |client|
+        client.update(
+          index: name,
+          type: document_type(record),
+          id: search_id(record),
+          body: {doc: updates}
+        )
+      end
     end
 
     def bulk_update(records, updates)
       records.group_by { |r| document_type(r) }.each do |type, batch|
-        client.bulk(
-          index: name,
-          type: type,
-          body: batch.map { |r| {update: {_id: search_id(r), data: {doc: updates}}} }
-        )
+        writing_clients.each do |client|
+          client.bulk(
+            index: name,
+            type: type,
+            body: batch.map { |r| {update: {_id: search_id(r), data: {doc: updates}}} }
+          )
+        end
       end
     end
 
@@ -521,6 +531,10 @@ module Searchkick
 
     def client
       Searchkick.client
+    end
+
+    def writing_clients
+      Searchkick.writing_clients
     end
 
     def document_type(record)
