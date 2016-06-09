@@ -44,24 +44,25 @@ module Searchkick
       )
   end
 
-  def self.write_only_client
-    return nil unless ENV["ELASTICSEARCH_WRITE_ONLY_URL"].present?
-    @write_only_client ||=
-      Elasticsearch::Client.new(
-        url: ENV["ELASTICSEARCH_WRITE_ONLY_URL"],
-        transport_options: {request: {timeout: timeout}}
-      )
-  end
+  # def self.write_only_client
+  #   return nil unless ENV["ELASTICSEARCH_WRITE_ONLY_URL"].present?
+  #   @write_only_client ||=
+  #     Elasticsearch::Client.new(
+  #       url: ENV["ELASTICSEARCH_WRITE_ONLY_URL"],
+  #       transport_options: {request: {timeout: timeout}}
+  #     )
+  # end
 
   def self.writing_clients
     return @writing_clients if @writing_clients.present?
     @writing_clients = [client]
-    @writing_clients << write_only_client if write_only_client.present?
+    @writing_clients << @write_only_client if @write_only_client.present?
     @writing_clients
   end
 
   class << self
     attr_writer :client
+    attr_accessor :write_only_client
   end
 
   def self.server_version
