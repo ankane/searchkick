@@ -515,7 +515,7 @@ Product.search "milk", boost_where: {orderer_ids: current_user.id}
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
-![Autocomplete](http://ankane.github.io/searchkick/autocomplete.png)
+![Autocomplete](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/autocomplete.png)
 
 **Note:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
 
@@ -570,7 +570,7 @@ Then add the search box and JavaScript code to a view.
 
 ### Suggestions
 
-![Suggest](http://ankane.github.io/searchkick/recursion.png)
+![Suggest](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/recursion.png)
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -589,7 +589,7 @@ products.suggestions # ["peanut butter"]
 
 [Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-facets.html) provide aggregated search data.
 
-![Aggregations](http://ankane.github.io/searchkick/facets.png)
+![Aggregations](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/facets.png)
 
 ```ruby
 products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
