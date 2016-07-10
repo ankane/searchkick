@@ -1,3 +1,8 @@
+## 1.3.1
+
+- Fixed error with Ruby 2.0
+- Fixed error with indexing large fields
+
 ## 1.3.0
 
 - Added support for Elasticsearch 5.0 alpha
