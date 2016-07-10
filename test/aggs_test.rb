@@ -42,7 +42,7 @@ class AggsTest < Minitest::Test
     agg = Product.search("Product", aggs: {store_id: {limit: 1}}).aggs["store_id"]
     assert_equal 1, agg["buckets"].size
     # assert_equal 3, agg["doc_count"]
-    assert_equal(1, agg["sum_other_doc_count"]) if Gem::Version.new(Searchkick.server_version) >= Gem::Version.new("1.4.0")
+    assert_equal(1, agg["sum_other_doc_count"]) unless Searchkick.server_below?("1.4.0")
   end
 
   def test_ranges

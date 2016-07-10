@@ -59,7 +59,7 @@ module Searchkick
   end
 
   def self.server_below?(version)
-    Gem::Version.new(server_version) < Gem::Version.new(version)
+    Gem::Version.new(server_version.sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
   end
 
   def self.enable_callbacks
