@@ -162,7 +162,7 @@ else
   # migrations
   ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::VERSION::STRING.start_with?("4.2.")
 
   if defined?(Apartment)
     class Rails
