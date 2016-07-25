@@ -141,4 +141,11 @@ class BoostTest < Minitest::Test
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, scale: "1000mi"}
   end
+
+  def test_boost_by_indices
+    store_names ["Rex"], Animal
+    store_names ["Rexx"], Product
+
+    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}}, Store
+  end
 end

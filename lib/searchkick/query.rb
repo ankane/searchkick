@@ -345,6 +345,9 @@ module Searchkick
         # order
         set_order(payload) if options[:order]
 
+        # indices_boost
+        set_boost_by_indices(payload)
+
         # filters
         filters = where_filters(options[:where])
         set_filters(payload, filters) if filters.any?
@@ -467,6 +470,19 @@ module Searchkick
           custom_filters << custom_filter(field, value, factor)
         end
       end
+    end
+
+    def set_boost_by_indices(payload)
+      return unless options[:indices_boost]
+
+      indices_boost = options[:indices_boost].each_with_object({}) do |(key, boost), memo|
+        index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
+        # try to use index explicitly instead of alias: https://github.com/elasticsearch/elasticsearch/issues/4756
+        index_by_alias = Searchkick.client.indices.get_alias(index: index).keys.first
+        memo[index_by_alias || index] = boost
+      end
+
+      payload[:indices_boost] = indices_boost
     end
 
     def set_suggestions(payload)
