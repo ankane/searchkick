@@ -168,12 +168,6 @@ boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
 boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
-Boost indices when searching across more than one index
-
-```ruby
-indices_boost: { Animal => 1, Product => 200 }
-```
-
 [Conversions](#keep-getting-better) are also a great way to boost.
 
 ### Get Everything
@@ -1123,6 +1117,20 @@ Then use `fresh_products` and `frozen_products` as typical results.
 
 **Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
 
+### Multiple Indices
+
+Search across multiple indices with:
+
+```ruby
+Searchkick.search "milk", index_name: [Product, Category]
+```
+
+Boost specific indices with: [master]
+
+```ruby
+indices_boost: {Category => 2, Product => 1}
+```
+
 ## Reference
 
 Reindex one record
@@ -1279,12 +1287,6 @@ class Product < ActiveRecord::Base
   after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
   after_destroy :reindex
 end
-```
-
-Search multiple models
-
-```ruby
-Searchkick.search "milk", index_name: [Product, Category]
 ```
 
 Reindex all models - Rails only
