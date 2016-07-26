@@ -168,6 +168,12 @@ boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
 boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
+Boost indices when searching across more than one index
+
+```ruby
+indices_boost: { Animal => 1, Product => 200 }
+```
+
 [Conversions](#keep-getting-better) are also a great way to boost.
 
 ### Get Everything
