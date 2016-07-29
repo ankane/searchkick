@@ -430,7 +430,7 @@ module Searchkick
         mapping = {}
 
         # conversions
-        if (conversions_field = options[:conversions])
+        Array(options[:conversions]).each do |conversions_field|
           mapping[conversions_field] = {
             type: "nested",
             properties: {
@@ -602,9 +602,10 @@ module Searchkick
       source = source.inject({}) { |memo, (k, v)| memo[k.to_s] = v; memo }.except("_id")
 
       # conversions
-      conversions_field = options[:conversions]
-      if conversions_field && source[conversions_field]
-        source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+      Array(options[:conversions]).each do |conversions_field|
+        if source[conversions_field]
+          source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+        end
       end
 
       # hack to prevent generator field doesn't exist error

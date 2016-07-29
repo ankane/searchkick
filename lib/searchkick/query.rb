@@ -162,8 +162,8 @@ module Searchkick
       # model and eagar loading
       load = options[:load].nil? ? true : options[:load]
 
-      conversions_field = searchkick_options[:conversions]
-      personalize_field = searchkick_options[:personalize]
+      conversions_fields = Array(options[:conversions] || searchkick_options[:conversions])
+      personalize_field  = searchkick_options[:personalize]
 
       all = term == "*"
 
@@ -275,34 +275,38 @@ module Searchkick
             }
           end
 
-          if conversions_field && options[:conversions] != false
-            # wrap payload in a bool query
-            script_score =
-              if below12?
-                {script_score: {script: "doc['count'].value"}}
-              else
-                {field_value_factor: {field: "#{conversions_field}.count"}}
-              end
+          if conversions_fields.present? && options[:conversions] != false
+            shoulds = []
+            conversions_fields.each do |conversions_field|
+              # wrap payload in a bool query
+              script_score =
+                if below12?
+                  {script_score: {script: "doc['count'].value"}}
+                else
+                  {field_value_factor: {field: "#{conversions_field}.count"}}
+                end
 
+              shoulds <<  {
+                            nested: {
+                              path: conversions_field,
+                              score_mode: "sum",
+                              query: {
+                                function_score: {
+                                  boost_mode: "replace",
+                                  query: {
+                                    match: {
+                                      "#{conversions_field}.query" => term
+                                    }
+                                  }
+                                }.merge(script_score)
+                              }
+                            }
+                          }
+            end
             payload = {
               bool: {
                 must: payload,
-                should: {
-                  nested: {
-                    path: conversions_field,
-                    score_mode: "sum",
-                    query: {
-                      function_score: {
-                        boost_mode: "replace",
-                        query: {
-                          match: {
-                            "#{conversions_field}.query" => term
-                          }
-                        }
-                      }.merge(script_score)
-                    }
-                  }
-                }
+                should: shoulds
               }
             }
           end

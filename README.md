@@ -1199,6 +1199,34 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Multiple conversion fields
+
+```ruby
+class Product < ActiveRecord::Base
+  has_many :searches, class_name: "Searchjoy::Search"
+
+  # searchkick also supports multiple "conversions" fields
+  searchkick conversions: ["unique_user_conversions", "total_conversions"]
+
+  def search_data
+    {
+      name: name,
+      unique_user_conversions: searches.group(:query).uniq.count(:user_id)
+      # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
+      total_conversions: searches.group(:query).count
+      # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
+    }
+  end
+end
+```
+and during query time:
+
+```ruby
+Product.search("banana") # boost by both fields (default)
+Product.search("banana", {conversions: "total_conversions"}) # only boost by total_conversions
+Product.search("banana", {conversions: false}) # no conversion boosting
+```
+
 Change timeout
 
 ```ruby

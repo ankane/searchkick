@@ -93,6 +93,12 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Speaker
+    include Mongoid::Document
+
+    field :name
+  end
+
   class Animal
     include Mongoid::Document
 
@@ -131,6 +137,13 @@ elsif defined?(NoBrainer)
   end
 
   class Store
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+  end
+
+  class Speaker
     include NoBrainer::Document
 
     field :id,   type: Object
@@ -221,6 +234,10 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :speakers do |t|
+    t.string :name
+  end
+
   ActiveRecord::Migration.create_table :animals do |t|
     t.string :name
     t.string :type
@@ -231,6 +248,9 @@ else
 
   class Store < ActiveRecord::Base
     has_many :products
+  end
+
+  class Speaker < ActiveRecord::Base
   end
 
   class Animal < ActiveRecord::Base
@@ -310,6 +330,20 @@ class Store
   end
 end
 
+class Speaker
+  searchkick \
+    conversions: ["conversions_a", "conversions_b"]
+
+  attr_accessor :conversions_a, :conversions_b
+
+  def search_data
+    serializable_hash.except("id").merge(
+      conversions_a: conversions_a,
+      conversions_b: conversions_b,
+    )
+  end
+end
+
 class Animal
   searchkick \
     autocomplete: [:name],
@@ -325,12 +359,14 @@ Product.create!(name: "Set mapping")
 
 Store.reindex
 Animal.reindex
+Speaker.reindex
 
 class Minitest::Test
   def setup
     Product.destroy_all
     Store.destroy_all
     Animal.destroy_all
+    Speaker.destroy_all
   end
 
   protected
@@ -353,6 +389,10 @@ class Minitest::Test
 
   def assert_order(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, options).map(&:name)
+  end
+
+  def assert_equal_scores(term, options = {}, klass = Product)
+    assert_equal 1, klass.search(term, options).hits.map { |a| a['_score'] }.uniq.size
   end
 
   def assert_first(term, expected, options = {}, klass = Product)
