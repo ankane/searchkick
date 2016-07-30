@@ -112,30 +112,7 @@ class AggsTest < Minitest::Test
       }
     ).aggs
 
-    assert_equal 2, aggs["products_per_year"]["entries"].size
-  end
-
-  def test_facets_group_by_date_with_value_field
-    store [{name: "Old Product", created_at: 3.years.ago, price: 100}]
-    aggs = Product.search(
-      "Product",
-      {
-        facets: {
-          products_per_year: {
-            date_histogram: {
-              key_field: :created_at,
-              value_field: :price,
-              interval: :year
-            }
-          }
-        }
-      }
-    ).aggs
-    entry_attributes = %w(time count min max total total_count mean)
-
-    entries = aggs["products_per_year"]["entries"]
-    assert_equal 2, entries.size
-    assert_equal entry_attributes, entries.first.keys
+    assert_equal 2, aggs["products_per_year"]["buckets"].size
   end
 
   protected
