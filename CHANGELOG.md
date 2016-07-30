@@ -1,6 +1,8 @@
 ## 1.3.2 [unreleased]
 
+- Added `date_histogram` aggregation
 - Added `indices_boost` option
+- Added support for multiple conversions
 
 ## 1.3.1
 

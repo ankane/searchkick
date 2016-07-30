@@ -472,7 +472,7 @@ Next, add conversions to the index.
 class Product < ActiveRecord::Base
   has_many :searches, class_name: "Searchjoy::Search"
 
-  searchkick conversions: "conversions" # name of field
+  searchkick conversions: ["conversions"] # name of field
 
   def search_data
     {
@@ -646,9 +646,8 @@ Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 Date histogram [master]
 
 ```ruby
-Product.search("Product", aggs: { products_per_year: { date_histogram: { field: :created_at, interval: :year }}})
+Product.search("Product", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}})
 ```
-
 
 #### Moving From Facets
 
@@ -1226,12 +1225,13 @@ class Product < ActiveRecord::Base
   end
 end
 ```
+
 and during query time:
 
 ```ruby
 Product.search("banana") # boost by both fields (default)
-Product.search("banana", {conversions: "total_conversions"}) # only boost by total_conversions
-Product.search("banana", {conversions: false}) # no conversion boosting
+Product.search("banana", conversions: "total_conversions") # only boost by total_conversions
+Product.search("banana", conversions: false) # no conversion boosting
 ```
 
 Change timeout
