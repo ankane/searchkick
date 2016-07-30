@@ -643,6 +643,13 @@ Minimum document count
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 ```
 
+Date histogram [master]
+
+```ruby
+Product.search("Product", aggs: { products_per_year: { date_histogram: { field: :created_at, interval: :year }}})
+```
+
+
 #### Moving From Facets
 
 1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
