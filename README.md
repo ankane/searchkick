@@ -646,7 +646,7 @@ Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 Date histogram [master]
 
 ```ruby
-Product.search("Product", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}})
+Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
 #### Moving From Facets
