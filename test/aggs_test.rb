@@ -96,6 +96,29 @@ class AggsTest < Minitest::Test
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
   end
 
+  def test_aggs_group_by_date
+    store [{name: "Old Product", created_at: 3.years.ago}]
+    aggs = Product.search(
+      "Product",
+      {
+        aggs: {
+          products_per_year: {
+            date_histogram: {
+              field: :created_at,
+              interval: :year
+            }
+          }
+        }
+      }
+    ).aggs
+
+    if elasticsearch_below20?
+      assert_equal 2, aggs["products_per_year"]["buckets"].size
+    else
+      assert_equal 4, aggs["products_per_year"]["buckets"].size
+    end
+  end
+
   protected
 
   def buckets_as_hash(agg)
