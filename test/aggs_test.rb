@@ -112,7 +112,11 @@ class AggsTest < Minitest::Test
       }
     ).aggs
 
-    assert_equal 2, aggs["products_per_year"]["buckets"].size
+    if elasticsearch_below20?
+      assert_equal 2, aggs["products_per_year"]["buckets"].size
+    else
+      assert_equal 4, aggs["products_per_year"]["buckets"].size
+    end
   end
 
   protected
