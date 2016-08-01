@@ -643,7 +643,7 @@ Minimum document count
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 ```
 
-Date histogram [master]
+Date histogram
 
 ```ruby
 Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
@@ -1137,7 +1137,7 @@ Search across multiple indices with:
 Searchkick.search "milk", index_name: [Product, Category]
 ```
 
-Boost specific indices with: [master]
+Boost specific indices with:
 
 ```ruby
 indices_boost: {Category => 2, Product => 1}

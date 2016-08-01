@@ -1,4 +1,4 @@
-## 1.3.2 [unreleased]
+## 1.3.2
 
 - Added `body_options` option
 - Added `date_histogram` aggregation
