@@ -1,5 +1,6 @@
 ## 1.3.2 [unreleased]
 
+- Added `body_options` option
 - Added `date_histogram` aggregation
 - Added `indices_boost` option
 - Added support for multiple conversions
