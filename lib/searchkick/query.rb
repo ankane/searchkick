@@ -392,6 +392,9 @@ module Searchkick
         @routing = options[:routing] if options[:routing]
       end
 
+      # merge more body options
+      payload = payload.deep_merge(options[:body_options]) if options[:body_options]
+
       @body = payload
       @facet_limits = @facet_limits || {}
       @page = page
