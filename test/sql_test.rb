@@ -52,15 +52,10 @@ class SqlTest < Minitest::Test
     assert_search "product", ["Product"], where: {latitude: {gt: 79}}
   end
 
-  # min_score
+  # body_options
 
-  def test_min_score_default_to_zero
-    query = Product.search("milk", execute: false)
-    assert_equal 0.0, query.body[:min_score]
-  end
-
-  def test_should_use_min_score_param
-    query = Product.search({ query: { name: "milk"}, min_score: 1.0 }, execute: false)
+  def test_body_options_should_merge_into_body
+    query = Product.search({ query: { name: "milk"}, body_options: { min_score: 1.0 }}, execute: false)
     assert_equal 1.0, query.body[:min_score]
   end
 
