@@ -1,3 +1,7 @@
+## 1.3.3
+
+- Fix for namespaced models (broken in 1.3.2)
+
 ## 1.3.2
 
 - Added `body_options` option
