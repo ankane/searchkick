@@ -105,6 +105,10 @@ module Searchkick
   # private
   def self.perform_items(items)
     if items.any?
+      if defined?(Oj)
+        oj_options = Oj.default_options
+        Oj.default_options = { :indent => 0 }
+      end
       response = client.bulk(body: items)
       if response["errors"]
         first_with_error = response["items"].map do |item|
@@ -112,6 +116,7 @@ module Searchkick
         end.find { |item| item["error"] }
         raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
       end
+      Oj.default_options = oj_options if defined?(Oj)
     end
   end
 
