@@ -1,3 +1,7 @@
+## 1.3.4 [unreleased]
+
+- Added search timeout to payload
+
 ## 1.3.3
 
 - Fix for namespaced models (broken in 1.3.2)

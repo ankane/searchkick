@@ -20,4 +20,12 @@ class QueryTest < Minitest::Test
     store_names ["Milk", "Milk2"]
     assert_equal ["Milk", "Milk2"], Product.search("Milk", body_options: { min_score: 0.0001 }).map(&:name)
   end
+
+  def test_default_timeout
+    assert_equal "6s", Product.search("*", execute: false).body[:timeout]
+  end
+
+  def test_timeout_override
+    assert_equal "1s", Product.search("*", body_options: {timeout: "1s"}, execute: false).body[:timeout]
+  end
 end
