@@ -1,4 +1,4 @@
-## 1.3.4 [unreleased]
+## 1.3.4
 
 - Added `resume` option to reindex
 - Added search timeout to payload
