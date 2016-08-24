@@ -116,6 +116,16 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
+### Query in nested fields
+
+Search in nested fields on SearchKick. Suppose a model Post has one user and you want to search all posts of this user.
+
+```ruby
+posts = Post.search(where: {'user.id': 33 })
+posts.each do |post|
+.....
+```
+
 ### Results
 
 Searches return a `Searchkick::Results` object. This responds like an array to most methods.
@@ -1270,7 +1280,7 @@ Eager load associations
 Product.search "milk", include: [:brand, :stores]
 ```
 
-Do not load models
+Do not load models (without a query in sql)
 
 ```ruby
 Product.search "milk", load: false
