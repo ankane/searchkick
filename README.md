@@ -372,6 +372,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+If a reindex is interrupted, you can resume it with: [master]
+
+```ruby
+Product.reindex(resume: true)
+```
+
 ### To Reindex, or Not to Reindex
 
 #### Reindex
