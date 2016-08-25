@@ -1,3 +1,7 @@
+## 1.3.5 [unreleased]
+
+- Added `request_params` option
+
 ## 1.3.4
 
 - Added `resume` option to reindex

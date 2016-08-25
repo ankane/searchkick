@@ -28,4 +28,8 @@ class QueryTest < Minitest::Test
   def test_timeout_override
     assert_equal "1s", Product.search("*", body_options: {timeout: "1s"}, execute: false).body[:timeout]
   end
+
+  def test_request_params
+    assert_equal "dfs_query_then_fetch", Product.search("*", request_params: {search_type: "dfs_query_then_fetch"}, execute: false).params[:search_type]
+  end
 end
