@@ -500,7 +500,7 @@ module Searchkick
               end
             end
 
-            mapping_options.except(:highlight, :searchable, :only_analyzed).each do |type, f|
+            mapping_options.except(:highlight, :searchable, :only_analyzed, :word).each do |type, f|
               if options[:match] == type || f.include?(field)
                 fields[type] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{type}_index"}
               end
