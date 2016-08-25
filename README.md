@@ -116,6 +116,12 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
+Select
+
+```ruby
+select_v2: ["name"]
+```
+
 ### Results
 
 Searches return a `Searchkick::Results` object. This responds like an array to most methods.
@@ -125,6 +131,12 @@ results = Product.search("milk")
 results.size
 results.any?
 results.each { |result| ... }
+```
+
+By default, ids are fetched from Elasticsearch and records are fetched from your database. To fetch everything from Elasticsearch, use:
+
+```ruby
+Product.search("apples", load: false)
 ```
 
 Get total results
@@ -1268,12 +1280,6 @@ Eager load associations
 
 ```ruby
 Product.search "milk", include: [:brand, :stores]
-```
-
-Do not load models
-
-```ruby
-Product.search "milk", load: false
 ```
 
 Turn off special characters
