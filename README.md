@@ -1133,7 +1133,7 @@ products =
   end
 ```
 
-### Multi Search
+## Multi Search
 
 To batch search requests for performance, use:
 
@@ -1147,7 +1147,7 @@ Then use `fresh_products` and `frozen_products` as typical results.
 
 **Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
 
-### Multiple Indices
+## Multiple Indices
 
 Search across multiple indices with:
 
@@ -1159,6 +1159,14 @@ Boost specific indices with:
 
 ```ruby
 indices_boost: {Category => 2, Product => 1}
+```
+
+## Nested Data
+
+To query nested data, use dot notation.
+
+```ruby
+User.search "*", where: {"address.zip_code" => 12345}
 ```
 
 ## Reference
