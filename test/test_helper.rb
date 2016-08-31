@@ -292,7 +292,7 @@ class Product
     only_analyzed: [:alt_description],
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
-  attr_accessor :conversions, :user_ids, :aisle
+  attr_accessor :conversions, :user_ids, :aisle, :details
 
   def search_data
     serializable_hash.except("id").merge(
@@ -300,7 +300,8 @@ class Product
       user_ids: user_ids,
       location: {lat: latitude, lon: longitude},
       multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
-      aisle: aisle
+      aisle: aisle,
+      details: details
     )
   end
 
