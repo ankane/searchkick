@@ -488,7 +488,7 @@ Next, add conversions to the index.
 
 ```ruby
 class Product < ActiveRecord::Base
-  has_many :searches, class_name: "Searchjoy::Search"
+  has_many :searches, class_name: "Searchjoy::Search", as: :convertable
 
   searchkick conversions: ["conversions"] # name of field
 
