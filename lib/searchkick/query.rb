@@ -29,6 +29,7 @@ module Searchkick
       @term = term
       @options = options
       @match_suffix = options[:match] || searchkick_options[:match] || "analyzed"
+      @type = @routing = @misspellings_below = @highlighted_fields = nil
 
       prepare
     end
@@ -400,7 +401,7 @@ module Searchkick
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]
 
       @body = payload
-      @facet_limits = @facet_limits || {}
+      @facet_limits ||= {}
       @page = page
       @per_page = per_page
       @padding = padding
@@ -752,8 +753,8 @@ module Searchkick
                   filters << {bool: {must_not: term_filters(field, op_value)}}
                 end
               when :all
-                op_value.each do |value|
-                  filters << term_filters(field, value)
+                op_value.each do |val|
+                  filters << term_filters(field, val)
                 end
               when :in
                 filters << term_filters(field, op_value)

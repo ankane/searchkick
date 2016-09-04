@@ -515,7 +515,7 @@ module Searchkick
               }
             elsif fields[field]
               fields[field].merge(fields: fields.except(field))
-           end
+            end
         end
 
         (options[:locations] || []).map(&:to_s).each do |field|
