@@ -605,7 +605,7 @@ products.suggestions # ["peanut butter"]
 
 ### Aggregations
 
-[Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-facets.html) provide aggregated search data.
+[Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
 ![Aggregations](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/facets.png)
 
