@@ -263,6 +263,12 @@ User.search params[:q], fields: [{email: :exact}, :name]
 User.search "fresh honey", match: :phrase
 ```
 
+### Cross-fields Matches
+
+```ruby
+User.search "green apple", fields: [:name, :color], match: :cross_fields
+```
+
 ### Language
 
 Searchkick defaults to English for stemming.  To change this, use:

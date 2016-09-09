@@ -12,7 +12,6 @@ module Searchkick
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response
 
-
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
         options = term
@@ -160,7 +159,7 @@ module Searchkick
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
 
-      # model and eagar loading
+      # model and eager loading
       load = options[:load].nil? ? true : options[:load]
 
       conversions_fields = Array(options[:conversions] || searchkick_options[:conversions])
@@ -189,14 +188,18 @@ module Searchkick
             match_all: {}
           }
         else
-          if options[:autocomplete]
+          if options[:autocomplete] || options[:match] == :cross_fields
             payload = {
               multi_match: {
-                fields: fields,
-                query: term,
-                analyzer: "searchkick_autocomplete_search"
+                fields: fields.map { |f| "#{f}^#{boost_fields[f] || 1}" },
+                query: term
               }
             }
+            if options[:autocomplete]
+              payload[:multi_match][:analyzer] = "searchkick_autocomplete_search"
+            else
+              payload[:multi_match][:type] = :cross_fields
+            end
           else
             queries = []
 
@@ -418,7 +421,7 @@ module Searchkick
             fields.map do |value|
               k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || searchkick_options[:match] || :word]
               k2, boost = k.to_s.split("^", 2)
-              field = "#{k2}.#{v == :word ? 'analyzed' : v}"
+              field = "#{k2}.#{v[/^(word|cross_fields)$/] ? 'analyzed' : v}"
               boost_fields[field] = boost.to_f if boost
               field
             end
