@@ -160,7 +160,7 @@ module Searchkick
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
 
-      # model and eagar loading
+      # model and eager loading
       load = options[:load].nil? ? true : options[:load]
 
       conversions_fields = Array(options[:conversions] || searchkick_options[:conversions])
