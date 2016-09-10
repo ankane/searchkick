@@ -34,11 +34,11 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=2.0.0
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0-alpha2
+      env: ELASTICSEARCH_VERSION=5.0.0-alpha5
     # - gemfile: test/gemfiles/nobrainer.gemfile
     #   env: NOBRAINER=true
   allow_failures:
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0-alpha2
+      env: ELASTICSEARCH_VERSION=5.0.0-alpha5
     # - gemfile: test/gemfiles/nobrainer.gemfile
     #   env: NOBRAINER=true
