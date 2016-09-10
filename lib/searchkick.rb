@@ -40,7 +40,7 @@ module Searchkick
     @client ||=
       Elasticsearch::Client.new(
         url: ENV["ELASTICSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}}
+        transport_options: {request: {timeout: timeout}, headers: { content_type: 'application/json' }}
       ) do |f|
         f.use Searchkick::Middleware
       end
