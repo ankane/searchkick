@@ -100,16 +100,14 @@ class AggsTest < Minitest::Test
     store [{name: "Old Product", created_at: 3.years.ago}]
     aggs = Product.search(
       "Product",
-      {
-        aggs: {
-          products_per_year: {
-            date_histogram: {
-              field: :created_at,
-              interval: :year
-            }
-          }
-        }
-      }
+              aggs: {
+                products_per_year: {
+                  date_histogram: {
+                    field: :created_at,
+                    interval: :year
+                  }
+                }
+              }
     ).aggs
 
     if elasticsearch_below20?

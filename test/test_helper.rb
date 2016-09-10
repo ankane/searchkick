@@ -340,7 +340,7 @@ class Speaker
   def search_data
     serializable_hash.except("id").merge(
       conversions_a: conversions_a,
-      conversions_b: conversions_b,
+      conversions_b: conversions_b
     )
   end
 end
@@ -393,7 +393,7 @@ class Minitest::Test
   end
 
   def assert_equal_scores(term, options = {}, klass = Product)
-    assert_equal 1, klass.search(term, options).hits.map { |a| a['_score'] }.uniq.size
+    assert_equal 1, klass.search(term, options).hits.map { |a| a["_score"] }.uniq.size
   end
 
   def assert_first(term, expected, options = {}, klass = Product)

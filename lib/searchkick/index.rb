@@ -123,7 +123,7 @@ module Searchkick
 
     def search_model(searchkick_klass, term = nil, options = {}, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
-      block.call(query.body) if block
+      yield(query.body) if block
       if options[:execute] == false
         query
       else
@@ -147,8 +147,8 @@ module Searchkick
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           {}
         end
-      indices = indices.select { |k, v| v.empty? || v["aliases"].empty? } if options[:unaliased]
-      indices.select { |k, v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
+      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if options[:unaliased]
+      indices.select { |k, _v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
     end
 
     # remove old indices that start w/ index_name
@@ -405,7 +405,8 @@ module Searchkick
         }
 
         if Searchkick.env == "test"
-          settings.merge!(number_of_shards: 1, number_of_replicas: 0)
+          settings[:number_of_shards] = 1
+          settings[:number_of_replicas] = 0
         end
 
         if options[:similarity]
@@ -634,7 +635,7 @@ module Searchkick
 
       # stringify fields
       # remove _id since search_id is used instead
-      source = source.inject({}) { |memo, (k, v)| memo[k.to_s] = v; memo }.except("_id")
+      source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id")
 
       # conversions
       Array(options[:conversions]).each do |conversions_field|

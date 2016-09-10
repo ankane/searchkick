@@ -10,7 +10,7 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
-    assert_equal_scores "tomato", {conversions: false}
+    assert_equal_scores "tomato", conversions: false
   end
 
   def test_multiple_conversions
@@ -19,7 +19,7 @@ class BoostTest < Minitest::Test
     store [
       {name: "Speaker A", conversions_a: {"speaker" => 1}, conversions_b: {"speaker" => 6}},
       {name: "Speaker B", conversions_a: {"speaker" => 2}, conversions_b: {"speaker" => 5}},
-      {name: "Speaker C", conversions_a: {"speaker" => 3}, conversions_b: {"speaker" => 4}},
+      {name: "Speaker C", conversions_a: {"speaker" => 3}, conversions_b: {"speaker" => 4}}
     ], Speaker
 
     assert_equal_scores "speaker", {conversions: false}, Speaker

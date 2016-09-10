@@ -12,7 +12,6 @@ module Searchkick
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response
 
-
     def initialize(klass, term, options = {})
       if term.is_a?(Hash)
         options = term
@@ -65,8 +64,8 @@ module Searchkick
         index: index,
         body: body
       }
-      params.merge!(type: @type) if @type
-      params.merge!(routing: @routing) if @routing
+      params[:type] = @type if @type
+      params[:routing] = @routing if @routing
       params.merge!(options[:request_params]) if options[:request_params]
       params
     end
@@ -93,7 +92,7 @@ module Searchkick
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
-      credentials = (host[:user] || host[:password]) ? "#{host[:user]}:#{host[:password]}@" : nil
+      credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
       "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -d '#{query[:body].to_json}'"
     end
 
@@ -264,7 +263,7 @@ module Searchkick
                 f = field.split(".")[0..-2].join(".")
                 queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
               else
-                analyzer = field.match(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
+                analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
                 qs << shared_options.merge(analyzer: analyzer)
               end
 
@@ -293,22 +292,22 @@ module Searchkick
                   {field_value_factor: {field: "#{conversions_field}.count"}}
                 end
 
-              shoulds <<  {
-                            nested: {
-                              path: conversions_field,
-                              score_mode: "sum",
-                              query: {
-                                function_score: {
-                                  boost_mode: "replace",
-                                  query: {
-                                    match: {
-                                      "#{conversions_field}.query" => term
-                                    }
-                                  }
-                                }.merge(script_score)
-                              }
-                            }
-                          }
+              shoulds << {
+                nested: {
+                  path: conversions_field,
+                  score_mode: "sum",
+                  query: {
+                    function_score: {
+                      boost_mode: "replace",
+                      query: {
+                        match: {
+                          "#{conversions_field}.query" => term
+                        }
+                      }
+                    }.merge(script_score)
+                  }
+                }
+              }
             end
             payload = {
               bool: {

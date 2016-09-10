@@ -92,7 +92,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_unsupported_version
-    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
+    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error, "[500] No query registered for [multi_match]" }
     Searchkick.client.stub :search, raises_exception do
       assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
     end
