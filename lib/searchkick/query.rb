@@ -29,7 +29,12 @@ module Searchkick
       @term = term
       @options = options
       @match_suffix = options[:match] || searchkick_options[:match] || "analyzed"
-      @type = @routing = @misspellings_below = @highlighted_fields = nil
+
+      # prevent Ruby warnings
+      @type = nil
+      @routing = nil
+      @misspellings_below = nil
+      @highlighted_fields = nil
 
       prepare
     end
