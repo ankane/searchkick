@@ -33,6 +33,10 @@ def elasticsearch_below14?
   Searchkick.server_below?("1.4.0")
 end
 
+def elasticsearch_below11?
+  Searchkick.server_below?("1.1.0")
+end
+
 def mongoid2?
   defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
 end

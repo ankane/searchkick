@@ -18,6 +18,19 @@ class MatchTest < Minitest::Test
     assert_search "pepperjack cheese skewers", ["Pepper Jack Cheese Skewers"]
   end
 
+  def test_cross_fields
+    skip if elasticsearch_below11?
+    store [
+      {name: "apple", color: "black"},
+      {name: "carrot", color: "blue"},
+      {name: "red apple", color: "pink"},
+    ]
+    assert_search "black apple", ["apple", "red apple"], fields: [:name, :color], match: :cross_fields
+    assert_search "red or blue apple", ["apple", "carrot", "red apple"], fields: [:name, :color], match: :cross_fields, operator: 'or'
+    assert_order "black carrot", ["carrot", "apple"], fields: ['name^9', :color], match: :cross_fields, operator: 'or'
+    assert_order "black carrot", ["apple", "carrot"], fields: [:name, 'color^9'], match: :cross_fields, operator: 'or'
+  end
+
   # def test_cheese_space_in_query
   #   store_names ["Pepperjack Cheese Skewers"]
   #   assert_search "pepper jack cheese skewers", ["Pepperjack Cheese Skewers"]
