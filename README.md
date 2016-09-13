@@ -1287,7 +1287,7 @@ Searchkick.search_method_name = :lookup
 Eager load associations
 
 ```ruby
-Product.search "milk", include: [:brand, :stores]
+Product.search "milk", includes: [:brand, :stores]
 ```
 
 Turn off special characters
