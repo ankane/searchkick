@@ -168,7 +168,7 @@ module Searchkick
       # model and eager loading
       load = options[:load].nil? ? true : options[:load]
 
-      conversions_fields = Array(options[:conversions] || searchkick_options[:conversions])
+      conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
       personalize_field  = searchkick_options[:personalize]
 
       all = term == "*"

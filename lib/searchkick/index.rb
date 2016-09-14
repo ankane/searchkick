@@ -642,7 +642,7 @@ module Searchkick
       source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id")
 
       # conversions
-      Array(options[:conversions]).each do |conversions_field|
+      Array(options[:conversions]).map(&:to_s).each do |conversions_field|
         if source[conversions_field]
           source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
         end
