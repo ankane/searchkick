@@ -1,6 +1,7 @@
 ## 1.3.5 [unreleased]
 
 - Added `request_params` option
+- Added `filterable` option
 
 ## 1.3.4
 

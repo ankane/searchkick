@@ -112,6 +112,11 @@ class IndexTest < Minitest::Test
   end
 
   def test_analyzed_only
+    store [{name: "Product A", alt_description: "Hello"}]
+    assert_search "*", [], where: {alt_description: "Hello"}
+  end
+
+  def test_analyzed_only_large_value
     skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", alt_description: large_value}]
