@@ -423,7 +423,7 @@ module Searchkick
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.join(",") }
+            synonyms: synonyms.map { |s| s.join(",") }
           }
           # choosing a place for the synonym filter when stemming is not easy
           # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
