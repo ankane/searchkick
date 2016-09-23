@@ -384,13 +384,22 @@ module Searchkick
           payload[:fields] = options[:select] if options[:select] != true
         elsif options[:select_v2]
           if options[:select_v2] == []
-            payload[:fields] = [] # intuitively [] makes sense to return no fields, but ES by default returns all fields
+            # intuitively [] makes sense to return no fields, but ES by default returns all fields
+            if below50?
+              payload[:fields] = []
+            else
+              payload[:_source] = false
+            end
           else
             payload[:_source] = options[:select_v2]
           end
         elsif load
           # don't need any fields since we're going to load them from the DB anyways
-          payload[:fields] = []
+          if below50?
+            payload[:fields] = []
+          else
+            payload[:_source] = false
+          end
         end
 
         if options[:type] || (klass != searchkick_klass && searchkick_index)
