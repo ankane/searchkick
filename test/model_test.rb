@@ -39,4 +39,10 @@ class ModelTest < Minitest::Test
     store_names ["Product B"], Store
     assert_equal Product.all + Store.all, Searchkick.search("product", index_name: [Product, Store], order: "name").to_a
   end
+
+  def test_disable_callbacks_model
+    attribute_names = Animal.attribute_names rescue Animal.fields.keys
+    attributes_to_expect = attribute_names - ["_type", "type"]
+    assert_equal Animal.searchkick_indexed_fields, attributes_to_expect.map(&:to_sym)
+  end
 end

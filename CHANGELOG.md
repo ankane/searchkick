@@ -1,5 +1,6 @@
 ## 1.3.5 [unreleased]
 
+- Added `Searchkick::Model#searchkick_indexed_fields` to get which fields are indexed for a model
 - Added support for Elasticsearch 5.0 beta
 - Added `request_params` option
 - Added `filterable` option
