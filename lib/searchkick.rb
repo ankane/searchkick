@@ -30,13 +30,16 @@ module Searchkick
   self.models = []
 
   def self.client
-    @client ||=
+    @client ||= begin
+      require "typhoeus/adapters/faraday" if defined?(Typhoeus)
+
       Elasticsearch::Client.new(
         url: ENV["ELASTICSEARCH_URL"],
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       ) do |f|
         f.use Searchkick::Middleware
       end
+    end
   end
 
   def self.env
