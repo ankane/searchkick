@@ -12,14 +12,6 @@ require "searchkick/tasks"
 require "searchkick/middleware"
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
-# background jobs
-begin
-  require "active_job"
-rescue LoadError
-  # do nothing
-end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob)
-
 module Searchkick
   class Error < StandardError; end
   class MissingIndexError < Error; end
@@ -157,6 +149,13 @@ module Searchkick
   end
 end
 
+ActiveSupport.on_load(:active_job) do
+  require "searchkick/reindex_v2_job"
+end
+
 # TODO find better ActiveModel hook
 ActiveModel::Callbacks.send(:include, Searchkick::Model)
-ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)
+
+ActiveSupport.on_load(:active_record) do
+  ActiveRecord::Base.send(:extend, Searchkick::Model)
+end
