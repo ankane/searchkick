@@ -1328,7 +1328,7 @@ products = Product.search("carrots", execute: false)
 products.each { ... } # search not executed until here
 ```
 
-Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html), like `search_type` and `query_cache` [master]
+Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html), like `search_type` and `query_cache`
 
 ```ruby
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})

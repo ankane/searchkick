@@ -1,4 +1,4 @@
-## 1.3.5 [unreleased]
+## 1.3.5
 
 - Added support for Elasticsearch 5.0 beta
 - Added `request_params` option
