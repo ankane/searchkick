@@ -374,10 +374,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
-By default, all records are indexed.  To control which records are indexed, use the `should_index?` method.
+By default, all records are indexed.  To control which records are indexed, use the `should_index?` method together with the `search_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
+  scope :search_import, -> { where(active: true) }
+
   def should_index?
     active # only index active records
   end
