@@ -1,3 +1,25 @@
+## 1.3.5
+
+- Added support for Elasticsearch 5.0 beta
+- Added `request_params` option
+- Added `filterable` option
+
+## 1.3.4
+
+- Added `resume` option to reindex
+- Added search timeout to payload
+
+## 1.3.3
+
+- Fix for namespaced models (broken in 1.3.2)
+
+## 1.3.2
+
+- Added `body_options` option
+- Added `date_histogram` aggregation
+- Added `indices_boost` option
+- Added support for multiple conversions
+
 ## 1.3.1
 
 - Fixed error with Ruby 2.0

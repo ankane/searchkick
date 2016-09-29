@@ -93,6 +93,12 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Speaker
+    include Mongoid::Document
+
+    field :name
+  end
+
   class Animal
     include Mongoid::Document
 
@@ -137,6 +143,13 @@ elsif defined?(NoBrainer)
     field :name, type: String
   end
 
+  class Speaker
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+  end
+
   class Animal
     include NoBrainer::Document
 
@@ -162,7 +175,7 @@ else
   # migrations
   ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+  ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::VERSION::STRING.start_with?("4.2.")
 
   if defined?(Apartment)
     class Rails
@@ -221,6 +234,10 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :speakers do |t|
+    t.string :name
+  end
+
   ActiveRecord::Migration.create_table :animals do |t|
     t.string :name
     t.string :type
@@ -231,6 +248,9 @@ else
 
   class Store < ActiveRecord::Base
     has_many :products
+  end
+
+  class Speaker < ActiveRecord::Base
   end
 
   class Animal < ActiveRecord::Base
@@ -257,9 +277,9 @@ class Product
     ],
     autocomplete: [:name],
     suggest: [:name, :color],
-    conversions: "conversions",
-    personalize: "user_ids",
-    locations: ["location", "multiple_locations"],
+    conversions: [:conversions],
+    personalize: :user_ids,
+    locations: [:location, :multiple_locations],
     text_start: [:name],
     text_middle: [:name],
     text_end: [:name],
@@ -267,12 +287,13 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    # unsearchable: [:description],
     searchable: [:name, :color],
-    only_analyzed: [:alt_description],
+    filterable: [:name, :color, :description],
+    # unsearchable: [:description],
+    # only_analyzed: [:alt_description],
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
-  attr_accessor :conversions, :user_ids, :aisle
+  attr_accessor :conversions, :user_ids, :aisle, :details
 
   def search_data
     serializable_hash.except("id").merge(
@@ -280,7 +301,8 @@ class Product
       user_ids: user_ids,
       location: {lat: latitude, lon: longitude},
       multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
-      aisle: aisle
+      aisle: aisle,
+      details: details
     )
   end
 
@@ -310,6 +332,20 @@ class Store
   end
 end
 
+class Speaker
+  searchkick \
+    conversions: ["conversions_a", "conversions_b"]
+
+  attr_accessor :conversions_a, :conversions_b
+
+  def search_data
+    serializable_hash.except("id").merge(
+      conversions_a: conversions_a,
+      conversions_b: conversions_b
+    )
+  end
+end
+
 class Animal
   searchkick \
     autocomplete: [:name],
@@ -325,12 +361,14 @@ Product.create!(name: "Set mapping")
 
 Store.reindex
 Animal.reindex
+Speaker.reindex
 
 class Minitest::Test
   def setup
     Product.destroy_all
     Store.destroy_all
     Animal.destroy_all
+    Speaker.destroy_all
   end
 
   protected
@@ -353,6 +391,10 @@ class Minitest::Test
 
   def assert_order(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, options).map(&:name)
+  end
+
+  def assert_equal_scores(term, options = {}, klass = Product)
+    assert_equal 1, klass.search(term, options).hits.map { |a| a["_score"] }.uniq.size
   end
 
   def assert_first(term, expected, options = {}, klass = Product)

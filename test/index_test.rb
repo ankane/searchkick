@@ -92,7 +92,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_unsupported_version
-    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error.new("[500] No query registered for [multi_match]") }
+    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error, "[500] No query registered for [multi_match]" }
     Searchkick.client.stub :search, raises_exception do
       assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
     end
@@ -112,6 +112,14 @@ class IndexTest < Minitest::Test
   end
 
   def test_analyzed_only
+    # skip for 5.0 since it throws
+    # Cannot search on field [alt_description] since it is not indexed.
+    skip unless elasticsearch_below50?
+    store [{name: "Product A", alt_description: "Hello"}]
+    assert_search "*", [], where: {alt_description: "Hello"}
+  end
+
+  def test_analyzed_only_large_value
     skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", alt_description: large_value}]

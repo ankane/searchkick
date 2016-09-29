@@ -14,7 +14,7 @@ notifications:
     on_failure: change
 gemfile:
   - Gemfile
-  - test/gemfiles/activerecord50.gemfile
+  - test/gemfiles/activerecord42.gemfile
   - test/gemfiles/activerecord41.gemfile
   - test/gemfiles/activerecord40.gemfile
   - test/gemfiles/activerecord32.gemfile
@@ -24,7 +24,7 @@ gemfile:
   - test/gemfiles/mongoid4.gemfile
   - test/gemfiles/mongoid5.gemfile
 env:
-  - ELASTICSEARCH_VERSION=2.3.0
+  - ELASTICSEARCH_VERSION=2.4.0
 matrix:
   include:
     - gemfile: Gemfile
@@ -34,11 +34,11 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=2.0.0
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0-alpha2
+      env: ELASTICSEARCH_VERSION=5.0.0-beta1
     # - gemfile: test/gemfiles/nobrainer.gemfile
     #   env: NOBRAINER=true
   allow_failures:
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0-alpha2
+      env: ELASTICSEARCH_VERSION=5.0.0-beta1
     # - gemfile: test/gemfiles/nobrainer.gemfile
     #   env: NOBRAINER=true

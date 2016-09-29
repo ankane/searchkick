@@ -10,6 +10,24 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
+    assert_equal_scores "tomato", conversions: false
+  end
+
+  def test_multiple_conversions
+    skip if elasticsearch_below14?
+
+    store [
+      {name: "Speaker A", conversions_a: {"speaker" => 1}, conversions_b: {"speaker" => 6}},
+      {name: "Speaker B", conversions_a: {"speaker" => 2}, conversions_b: {"speaker" => 5}},
+      {name: "Speaker C", conversions_a: {"speaker" => 3}, conversions_b: {"speaker" => 4}}
+    ], Speaker
+
+    assert_equal_scores "speaker", {conversions: false}, Speaker
+    assert_equal_scores "speaker", {}, Speaker
+    assert_equal_scores "speaker", {conversions: ["conversions_a", "conversions_b"]}, Speaker
+    assert_equal_scores "speaker", {conversions: ["conversions_b", "conversions_a"]}, Speaker
+    assert_order "speaker", ["Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a"}, Speaker
+    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C"], {conversions: "conversions_b"}, Speaker
   end
 
   def test_conversions_stemmed
@@ -140,5 +158,12 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, scale: "1000mi"}
+  end
+
+  def test_boost_by_indices
+    store_names ["Rex"], Animal
+    store_names ["Rexx"], Product
+
+    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}}, Store
   end
 end

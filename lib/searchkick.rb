@@ -2,6 +2,7 @@ require "active_model"
 require "elasticsearch"
 require "hashie"
 require "searchkick/version"
+require "searchkick/index_options"
 require "searchkick/index"
 require "searchkick/results"
 require "searchkick/query"
@@ -10,14 +11,6 @@ require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
-
-# background jobs
-begin
-  require "active_job"
-rescue LoadError
-  # do nothing
-end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob)
 
 module Searchkick
   class Error < StandardError; end
@@ -37,13 +30,16 @@ module Searchkick
   self.models = []
 
   def self.client
-    @client ||=
+    @client ||= begin
+      require "typhoeus/adapters/faraday" if defined?(Typhoeus)
+
       Elasticsearch::Client.new(
         url: ENV["ELASTICSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}}
+        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       ) do |f|
         f.use Searchkick::Middleware
       end
+    end
   end
 
   def self.env
@@ -107,8 +103,10 @@ module Searchkick
     if items.any?
       response = client.bulk(body: items)
       if response["errors"]
-        first_item = response["items"].first
-        raise Searchkick::ImportError, (first_item["index"] || first_item["delete"])["error"]
+        first_with_error = response["items"].map do |item|
+          (item["index"] || item["delete"])
+        end.find { |item| item["error"] }
+        raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
       end
     end
   end
@@ -154,6 +152,13 @@ module Searchkick
   end
 end
 
+ActiveSupport.on_load(:active_job) do
+  require "searchkick/reindex_v2_job"
+end
+
 # TODO find better ActiveModel hook
 ActiveModel::Callbacks.send(:include, Searchkick::Model)
-ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)
+
+ActiveSupport.on_load(:active_record) do
+  ActiveRecord::Base.send(:extend, Searchkick::Model)
+end

@@ -1,5 +1,7 @@
 module Searchkick
   class Index
+    include IndexOptions
+
     attr_reader :name, :options
 
     def initialize(name, options = {})
@@ -95,8 +97,10 @@ module Searchkick
       if Searchkick.callbacks_value.nil?
         if defined?(Searchkick::ReindexV2Job)
           Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
-        else
+        elsif defined?(Delayed::Job)
           Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
+        else
+          raise Searchkick::Error, "Job adapter not found"
         end
       else
         reindex_record(record)
@@ -123,7 +127,7 @@ module Searchkick
 
     def search_model(searchkick_klass, term = nil, options = {}, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
-      block.call(query.body) if block
+      yield(query.body) if block
       if options[:execute] == false
         query
       else
@@ -140,34 +144,60 @@ module Searchkick
       index
     end
 
-    # remove old indices that start w/ index_name
-    def clean_indices
-      all_indices =
+    def all_indices(options = {})
+      indices =
         begin
           client.indices.get_aliases
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           {}
         end
-      indices = all_indices.select { |k, v| (v.empty? || v["aliases"].empty?) && k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
+      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if options[:unaliased]
+      indices.select { |k, _v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
+    end
+
+    # remove old indices that start w/ index_name
+    def clean_indices
+      indices = all_indices(unaliased: true)
       indices.each do |index|
         Searchkick::Index.new(index).delete
       end
       indices
     end
 
+    def total_docs
+      response =
+        client.search(
+          index: name,
+          body: {
+            fields: [],
+            query: {match_all: {}},
+            size: 0
+          }
+        )
+
+      response["hits"]["total"]
+    end
+
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex_scope(scope, options = {})
       skip_import = options[:import] == false
+      resume = options[:resume]
 
-      clean_indices
+      if resume
+        index_name = all_indices.sort.last
+        raise Searchkick::Error, "No index to resume" unless index_name
+        index = Searchkick::Index.new(index_name)
+      else
+        clean_indices
 
-      index = create_index(index_options: scope.searchkick_index_options)
+        index = create_index(index_options: scope.searchkick_index_options)
+      end
 
       # check if alias exists
       if alias_exists?
         # import before swap
-        index.import_scope(scope) unless skip_import
+        index.import_scope(scope, resume: resume) unless skip_import
 
         # get existing indices to remove
         swap(index.name)
@@ -177,7 +207,7 @@ module Searchkick
         swap(index.name)
 
         # import after swap
-        index.import_scope(scope) unless skip_import
+        index.import_scope(scope, resume: resume) unless skip_import
       end
 
       index.refresh
@@ -185,12 +215,20 @@ module Searchkick
       true
     end
 
-    def import_scope(scope)
+    def import_scope(scope, options = {})
       batch_size = @options[:batch_size] || 1000
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
+        if options[:resume]
+          # use total docs instead of max id since there's not a great way
+          # to get the max _id without scripting since it's a string
+
+          # TODO use primary key and prefix with table name
+          scope = scope.where("id > ?", total_docs)
+        end
+
         scope.find_in_batches batch_size: batch_size do |batch|
           import batch.select(&:should_index?)
         end
@@ -198,6 +236,7 @@ module Searchkick
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
         # use cursor for Mongoid
         items = []
+        # TODO add resume
         scope.all.each do |item|
           items << item if item.should_index?
           if items.length == batch_size
@@ -207,357 +246,6 @@ module Searchkick
         end
         import items
       end
-    end
-
-    def index_options
-      options = @options
-      language = options[:language]
-      language = language.call if language.respond_to?(:call)
-
-      if options[:mappings] && !options[:merge_mappings]
-        settings = options[:settings] || {}
-        mappings = options[:mappings]
-      else
-        below22 = Searchkick.server_below?("2.2.0")
-        below50 = Searchkick.server_below?("5.0.0-alpha1")
-        default_type = below50 ? "string" : "text"
-        default_analyzer = below50 ? :default_index : :default
-        keyword_mapping =
-          if below50
-            {
-              type: default_type,
-              index: "not_analyzed"
-            }
-          else
-            {
-              type: "keyword"
-            }
-          end
-
-        keyword_mapping[:ignore_above] = 256 unless below22
-
-        settings = {
-          analysis: {
-            analyzer: {
-              searchkick_keyword: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase"] + (options[:stem_conversions] == false ? [] : ["searchkick_stemmer"])
-              },
-              default_analyzer => {
-                type: "custom",
-                # character filters -> tokenizer -> token filters
-                # https://www.elastic.co/guide/en/elasticsearch/guide/current/analysis-intro.html
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                # synonym should come last, after stemming and shingle
-                # shingle must come before searchkick_stemmer
-                filter: ["standard", "lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
-              },
-              searchkick_search: {
-                type: "custom",
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
-              },
-              searchkick_search2: {
-                type: "custom",
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
-              },
-              # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
-              searchkick_autocomplete_index: {
-                type: "custom",
-                tokenizer: "searchkick_autocomplete_ngram",
-                filter: ["lowercase", "asciifolding"]
-              },
-              searchkick_autocomplete_search: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding"]
-              },
-              searchkick_word_search: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding"]
-              },
-              searchkick_suggest_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
-              },
-              searchkick_text_start_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
-              },
-              searchkick_text_middle_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
-              },
-              searchkick_text_end_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
-              },
-              searchkick_word_start_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
-              },
-              searchkick_word_middle_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
-              },
-              searchkick_word_end_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
-              }
-            },
-            filter: {
-              searchkick_index_shingle: {
-                type: "shingle",
-                token_separator: ""
-              },
-              # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
-              searchkick_search_shingle: {
-                type: "shingle",
-                token_separator: "",
-                output_unigrams: false,
-                output_unigrams_if_no_shingles: true
-              },
-              searchkick_suggest_shingle: {
-                type: "shingle",
-                max_shingle_size: 5
-              },
-              searchkick_edge_ngram: {
-                type: "edgeNGram",
-                min_gram: 1,
-                max_gram: 50
-              },
-              searchkick_ngram: {
-                type: "nGram",
-                min_gram: 1,
-                max_gram: 50
-              },
-              searchkick_stemmer: {
-                # use stemmer if language is lowercase, snowball otherwise
-                # TODO deprecate language option in favor of stemmer
-                type: language == language.to_s.downcase ? "stemmer" : "snowball",
-                language: language || "English"
-              }
-            },
-            char_filter: {
-              # https://www.elastic.co/guide/en/elasticsearch/guide/current/custom-analyzers.html
-              # &_to_and
-              ampersand: {
-                type: "mapping",
-                mappings: ["&=> and "]
-              }
-            },
-            tokenizer: {
-              searchkick_autocomplete_ngram: {
-                type: "edgeNGram",
-                min_gram: 1,
-                max_gram: 50
-              }
-            }
-          }
-        }
-
-        if Searchkick.env == "test"
-          settings.merge!(number_of_shards: 1, number_of_replicas: 0)
-        end
-
-        if options[:similarity]
-          settings[:similarity] = {default: {type: options[:similarity]}}
-        end
-
-        settings.deep_merge!(options[:settings] || {})
-
-        # synonyms
-        synonyms = options[:synonyms] || []
-
-        synonyms = synonyms.call if synonyms.respond_to?(:call)
-
-        if synonyms.any?
-          settings[:analysis][:filter][:searchkick_synonym] = {
-            type: "synonym",
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.join(",") }
-          }
-          # choosing a place for the synonym filter when stemming is not easy
-          # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
-          # TODO use a snowball stemmer on synonyms when creating the token filter
-
-          # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
-          # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
-          # - Only apply the synonym expansion at index time
-          # - Don't have the synonym filter applied search
-          # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_synonym")
-          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_synonym"
-
-          %w(word_start word_middle word_end).each do |type|
-            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
-          end
-        end
-
-        if options[:wordnet]
-          settings[:analysis][:filter][:searchkick_wordnet] = {
-            type: "synonym",
-            format: "wordnet",
-            synonyms_path: Searchkick.wordnet_path
-          }
-
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_wordnet")
-          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_wordnet"
-
-          %w(word_start word_middle word_end).each do |type|
-            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
-          end
-        end
-
-        if options[:special_characters] == false
-          settings[:analysis][:analyzer].each do |_, analyzer_settings|
-            analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
-          end
-        end
-
-        mapping = {}
-
-        # conversions
-        if (conversions_field = options[:conversions])
-          mapping[conversions_field] = {
-            type: "nested",
-            properties: {
-              query: {type: default_type, analyzer: "searchkick_keyword"},
-              count: {type: "integer"}
-            }
-          }
-        end
-
-        mapping_options = Hash[
-          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :only_analyzed]
-            .map { |type| [type, (options[type] || []).map(&:to_s)] }
-        ]
-
-        word = options[:word] != false && (!options[:match] || options[:match] == :word)
-
-        mapping_options.values.flatten.uniq.each do |field|
-          fields = {}
-
-          if mapping_options[:only_analyzed].include?(field)
-            fields[field] = {type: default_type, index: "no"}
-          else
-            fields[field] = keyword_mapping
-          end
-
-          if !options[:searchable] || mapping_options[:searchable].include?(field)
-            if word
-              fields["analyzed"] = {type: default_type, index: "analyzed", analyzer: default_analyzer}
-
-              if mapping_options[:highlight].include?(field)
-                fields["analyzed"][:term_vector] = "with_positions_offsets"
-              end
-            end
-
-            mapping_options.except(:highlight, :searchable, :only_analyzed).each do |type, f|
-              if options[:match] == type || f.include?(field)
-                fields[type] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{type}_index"}
-              end
-            end
-          end
-
-          mapping[field] =
-            if below50
-              {
-                type: "multi_field",
-                fields: fields
-              }
-            elsif fields[field]
-              fields[field].merge(fields: fields.except(field))
-           end
-        end
-
-        (options[:locations] || []).map(&:to_s).each do |field|
-          mapping[field] = {
-            type: "geo_point"
-          }
-        end
-
-        (options[:unsearchable] || []).map(&:to_s).each do |field|
-          mapping[field] = {
-            type: default_type,
-            index: "no"
-          }
-        end
-
-        routing = {}
-        if options[:routing]
-          routing = {required: true}
-          unless options[:routing] == true
-            routing[:path] = options[:routing].to_s
-          end
-        end
-
-        dynamic_fields = {
-          # analyzed field must be the default field for include_in_all
-          # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-          # however, we can include the not_analyzed field in _all
-          # and the _all index analyzer will take care of it
-          "{name}" => keyword_mapping.merge(include_in_all: !options[:searchable])
-        }
-
-        dynamic_fields["{name}"][:ignore_above] = 256 unless below22
-
-        unless options[:searchable]
-          if options[:match] && options[:match] != :word
-            dynamic_fields[options[:match]] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
-          end
-
-          if word
-            dynamic_fields["analyzed"] = {type: default_type, index: "analyzed"}
-          end
-        end
-
-        # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-        multi_field =
-          if below50
-            {
-              type: "multi_field",
-              fields: dynamic_fields
-            }
-          else
-            dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
-          end
-
-        mappings = {
-          _default_: {
-            _all: {type: default_type, index: "analyzed", analyzer: default_analyzer},
-            properties: mapping,
-            _routing: routing,
-            # https://gist.github.com/kimchy/2898285
-            dynamic_templates: [
-              {
-                string_template: {
-                  match: "*",
-                  match_mapping_type: "string",
-                  mapping: multi_field
-                }
-              }
-            ]
-          }
-        }.deep_merge(options[:mappings] || {})
-      end
-
-      {
-        settings: settings,
-        mappings: mappings
-      }
     end
 
     # other
@@ -599,12 +287,13 @@ module Searchkick
 
       # stringify fields
       # remove _id since search_id is used instead
-      source = source.inject({}) { |memo, (k, v)| memo[k.to_s] = v; memo }.except("_id")
+      source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id")
 
       # conversions
-      conversions_field = options[:conversions]
-      if conversions_field && source[conversions_field]
-        source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+      Array(options[:conversions]).map(&:to_s).each do |conversions_field|
+        if source[conversions_field]
+          source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+        end
       end
 
       # hack to prevent generator field doesn't exist error

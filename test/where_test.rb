@@ -168,4 +168,11 @@ class WhereTest < Minitest::Test
     ]
     assert_search "san", ["San Francisco"], where: {multiple_locations: {near: {lat: 37.5, lon: -122.5}}}
   end
+
+  def test_nested
+    store [
+      {name: "Product A", details: {year: 2016}}
+    ]
+    assert_search "product", ["Product A"], where: {"details.year" => 2016}
+  end
 end

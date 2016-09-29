@@ -2,7 +2,7 @@
 
 :rocket: Intelligent search made easy
 
-Searchkick learns what **your users** are looking for.  As more people search, it gets smarter and the results get better.  It’s friendly for developers - and magical for your users.
+Searchkick learns what **your users** are looking for. As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
 
 Searchkick handles:
 
@@ -116,6 +116,12 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
+Select
+
+```ruby
+select_v2: ["name"]
+```
+
 ### Results
 
 Searches return a `Searchkick::Results` object. This responds like an array to most methods.
@@ -125,6 +131,12 @@ results = Product.search("milk")
 results.size
 results.any?
 results.each { |result| ... }
+```
+
+By default, ids are fetched from Elasticsearch and records are fetched from your database. To fetch everything from Elasticsearch, use:
+
+```ruby
+Product.search("apples", load: false)
 ```
 
 Get total results
@@ -253,7 +265,7 @@ User.search "fresh honey", match: :phrase
 
 ### Language
 
-Searchkick defaults to English for stemming.  To change this, use:
+Searchkick defaults to English for stemming. To change this, use:
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -354,7 +366,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Searchkick uses `find_in_batches` to import documents.  To eager load associations, use the `search_import` scope.
+Searchkick uses `find_in_batches` to import documents. To eager load associations, use the `search_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -362,14 +374,22 @@ class Product < ActiveRecord::Base
 end
 ```
 
-By default, all records are indexed.  To control which records are indexed, use the `should_index?` method.
+By default, all records are indexed. To control which records are indexed, use the `should_index?` method together with the `search_import` scope.
 
 ```ruby
 class Product < ActiveRecord::Base
+  scope :search_import, -> { where(active: true) }
+
   def should_index?
     active # only index active records
   end
 end
+```
+
+If a reindex is interrupted, you can resume it with:
+
+```ruby
+Product.reindex(resume: true)
 ```
 
 ### To Reindex, or Not to Reindex
@@ -432,7 +452,7 @@ end
 
 #### Associations
 
-Data is **not** automatically synced when an association is updated.  If this is desired, add a callback to reindex:
+Data is **not** automatically synced when an association is updated. If this is desired, add a callback to reindex:
 
 ```ruby
 class Image < ActiveRecord::Base
@@ -460,19 +480,19 @@ Product.search "apple", track: {user_id: current_user.id}
 
 ### Keep Getting Better
 
-Searchkick can use conversion data to learn what users are looking for.  If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
+Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
-The first step is to define your conversion metric and start tracking conversions.  The database works well for low volume, but feel free to use Redis or another datastore.
+The first step is to define your conversion metric and start tracking conversions. The database works well for low volume, but feel free to use Redis or another datastore.
 
-You do **not** need to clean up the search queries.  Searchkick automatically treats `apple` and `APPLES` the same.
+You do **not** need to clean up the search queries. Searchkick automatically treats `apple` and `APPLES` the same.
 
 Next, add conversions to the index.
 
 ```ruby
 class Product < ActiveRecord::Base
-  has_many :searches, class_name: "Searchjoy::Search"
+  has_many :searches, class_name: "Searchjoy::Search", as: :convertable
 
-  searchkick conversions: "conversions" # name of field
+  searchkick conversions: ["conversions"] # name of field
 
   def search_data
     {
@@ -492,7 +512,7 @@ rake searchkick:reindex CLASS=Product
 
 ### Personalized Results
 
-Order results differently for each user.  For example, show a user’s previously purchased products before other results.
+Order results differently for each user. For example, show a user’s previously purchased products before other results.
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -519,7 +539,7 @@ Autocomplete predicts what a user will type, making the search experience faster
 
 **Note:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
 
-First, specify which fields use this feature.  This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
+First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
 
 ```ruby
 class Book < ActiveRecord::Base
@@ -587,7 +607,7 @@ products.suggestions # ["peanut butter"]
 
 ### Aggregations
 
-[Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-facets.html) provide aggregated search data.
+[Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
 ![Aggregations](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/facets.png)
 
@@ -641,6 +661,12 @@ Minimum document count
 
 ```ruby
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
+```
+
+Date histogram
+
+```ruby
+Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
 #### Moving From Facets
@@ -925,7 +951,7 @@ See the [complete list of analyzers](lib/searchkick/index.rb#L209).
 
 ## Deployment
 
-Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server.  This defaults to `http://localhost:9200`.
+Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
 
 ### Heroku
 
@@ -1068,6 +1094,7 @@ class Product < ActiveRecord::Base
   }
 end
 ```
+**Note:** If you use a custom mapping, you'll need to use [custom searching](#advanced-search) as well.
 
 To keep the mappings and settings generated by Searchkick, use:
 
@@ -1096,13 +1123,19 @@ products.response
 To modify the query generated by Searchkick, use:
 
 ```ruby
+products = Product.search "milk", body_options: {min_score: 1}
+```
+
+or
+
+```ruby
 products =
   Product.search "apples" do |body|
-    body[:query] = {match_all: {}}
+    body[:min_score] = 1
   end
 ```
 
-### Multi Search
+## Multi Search
 
 To batch search requests for performance, use:
 
@@ -1115,6 +1148,28 @@ Searchkick.multi_search([fresh_products, frozen_products])
 Then use `fresh_products` and `frozen_products` as typical results.
 
 **Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
+
+## Multiple Indices
+
+Search across multiple indices with:
+
+```ruby
+Searchkick.search "milk", index_name: [Product, Category]
+```
+
+Boost specific indices with:
+
+```ruby
+indices_boost: {Category => 2, Product => 1}
+```
+
+## Nested Data
+
+To query nested data, use dot notation.
+
+```ruby
+User.search "*", where: {"address.zip_code" => 12345}
+```
 
 ## Reference
 
@@ -1184,6 +1239,35 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Multiple conversion fields
+
+```ruby
+class Product < ActiveRecord::Base
+  has_many :searches, class_name: "Searchjoy::Search"
+
+  # searchkick also supports multiple "conversions" fields
+  searchkick conversions: ["unique_user_conversions", "total_conversions"]
+
+  def search_data
+    {
+      name: name,
+      unique_user_conversions: searches.group(:query).uniq.count(:user_id)
+      # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
+      total_conversions: searches.group(:query).count
+      # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
+    }
+  end
+end
+```
+
+and during query time:
+
+```ruby
+Product.search("banana") # boost by both fields (default)
+Product.search("banana", conversions: "total_conversions") # only boost by total_conversions
+Product.search("banana", conversions: false) # no conversion boosting
+```
+
 Change timeout
 
 ```ruby
@@ -1205,13 +1289,7 @@ Searchkick.search_method_name = :lookup
 Eager load associations
 
 ```ruby
-Product.search "milk", include: [:brand, :stores]
-```
-
-Do not load models
-
-```ruby
-Product.search "milk", load: false
+Product.search "milk", includes: [:brand, :stores]
 ```
 
 Turn off special characters
@@ -1252,6 +1330,12 @@ products = Product.search("carrots", execute: false)
 products.each { ... } # search not executed until here
 ```
 
+Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html), like `search_type` and `query_cache`
+
+```ruby
+Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
+```
+
 Make fields unsearchable but include in the source
 
 ```ruby
@@ -1274,12 +1358,6 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Search multiple models
-
-```ruby
-Searchkick.search "milk", index_name: [Product, Category]
-```
-
 Reindex all models - Rails only
 
 ```sh
@@ -1300,7 +1378,7 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Large Data Sets
 
-For large data sets, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).  Searchkick will make this easy in the future.
+For large data sets, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync). Searchkick will make this easy in the future.
 
 ## Testing
 
@@ -1400,7 +1478,7 @@ Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to r
 
 ### Inconsistent Scores
 
-Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low.  You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch).  To fix this, do:
+Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low. You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch). To fix this, do:
 
 ```ruby
 class Product < ActiveRecord::Base
