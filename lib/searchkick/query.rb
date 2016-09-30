@@ -741,6 +741,8 @@ module Searchkick
               case op
               when :within, :bottom_right, :distance_type
                 # do nothing
+              when :script
+                filters << {script: value}
               when :near
                 geo_distance = {
                     field => location_value(op_value),
