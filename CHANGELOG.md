@@ -1,3 +1,7 @@
+## 1.3.6
+
+- Fixed `Job adapter not found` error
+
 ## 1.3.5
 
 - Added support for Elasticsearch 5.0 beta
