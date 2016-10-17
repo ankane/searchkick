@@ -1046,7 +1046,7 @@ And create an initializer with:
 
 ```ruby
 require "typhoeus/adapters/faraday"
-Ethon.logger = Logger.new("/dev/null")
+Ethon.logger.level = Logger::WARN
 ```
 
 **Note:** Typhoeus is not available for Windows.
