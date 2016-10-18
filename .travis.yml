@@ -24,7 +24,7 @@ gemfile:
   - test/gemfiles/mongoid4.gemfile
   - test/gemfiles/mongoid5.gemfile
 env:
-  - ELASTICSEARCH_VERSION=2.4.0
+  - ELASTICSEARCH_VERSION=2.4.1
 matrix:
   include:
     - gemfile: Gemfile
@@ -34,7 +34,7 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=2.0.0
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0-beta1
+      env: ELASTICSEARCH_VERSION=5.0.0-rc1
     # - gemfile: test/gemfiles/nobrainer.gemfile
     #   env: NOBRAINER=true
   allow_failures:

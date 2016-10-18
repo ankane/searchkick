@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
+set -e
+
 gem install bundler
 
 sudo apt-get purge elasticsearch
 if [[ $ELASTICSEARCH_VERSION == 1* ]]; then
   wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
-else
+elif [[ $ELASTICSEARCH_VERSION == 2* ]]; then
   wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.deb
+else
+  wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
 fi
 sudo dpkg -i elasticsearch-$ELASTICSEARCH_VERSION.deb
 sudo service elasticsearch start
