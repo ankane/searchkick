@@ -4,7 +4,8 @@ set -e
 
 gem install bundler
 
-# from https://docs.travis-ci.com/user/database-setup/#ElasticSearch
+# https://docs.travis-ci.com/user/database-setup/#ElasticSearch
+sudo apt-get purge elasticsearch
 if [[ $ELASTICSEARCH_VERSION == 1* ]]; then
   curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.deb
 elif [[ $ELASTICSEARCH_VERSION == 2* ]]; then
