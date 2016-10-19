@@ -739,15 +739,17 @@ module Searchkick
           if value.is_a?(Hash)
             value.each do |op, op_value|
               case op
-              when :within, :bottom_right
+              when :within, :bottom_right, :distance_type
                 # do nothing
+              when :script
+                filters << {script: value}
               when :near
-                filters << {
-                  geo_distance: {
+                geo_distance = {
                     field => location_value(op_value),
-                    distance: value[:within] || "50mi"
-                  }
+                    distance: value[:within] || "50mi",
                 }
+                geo_distance[:distance_type] = value[:distance_type] if value[:distance_type]
+                filters << {geo_distance: geo_distance}
               when :top_left
                 filters << {
                   geo_bounding_box: {
