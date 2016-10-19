@@ -351,6 +351,7 @@ Product.search "🍨🍰", emoji: true
 ### Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
+Call `Product.indexed_fields` to find out which fields are indexed for a model. In this case, it will return `[:name, :department_name, :on_sale]`.
 
 ```ruby
 class Product < ActiveRecord::Base

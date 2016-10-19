@@ -69,6 +69,11 @@ module Searchkick
           def searchkick_index_options
             searchkick_index.index_options
           end
+
+          def searchkick_indexed_fields
+            new.search_data.keys.map(&:to_sym)
+          end
+          alias_method :indexed_fields, :searchkick_indexed_fields unless method_defined?(:indexed_fields)
         end
         extend Searchkick::Reindex # legacy for Searchjoy
 
