@@ -852,6 +852,12 @@ Bounded by a box
 City.search "san", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
 
+Bounded by a polygon
+
+```ruby
+City.search "san", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
+```
+
 ### Boost By Distance
 
 Boost results by distance - closer results are boosted more
