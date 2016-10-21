@@ -1,3 +1,7 @@
+## 1.3.7 [unreleased]
+
+- Added `geo_polygon` filter
+
 ## 1.3.6
 
 - Fixed `Job adapter not found` error
