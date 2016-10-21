@@ -72,15 +72,17 @@ module Searchkick
 
           def searchkick_debug
             require "pp"
+            results = search("*", load: false, limit: 3)
             pp ({
               ruby_code: {
                 searchkick_options: searchkick_options,
-                search_data: first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
+                sample_search_data: first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
               },
               elasticsearch_server: {
                 settings: searchkick_index.settings,
                 mapping: searchkick_index.mapping,
-                hits: search("*", load: false, limit: 3).hits
+                sample_hits: results.hits,
+                total_hits: results.total_count
               }
             })
             nil # do not return anything, as this is strictly used for manual debugging
