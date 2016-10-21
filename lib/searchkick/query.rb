@@ -748,6 +748,12 @@ module Searchkick
                     distance: value[:within] || "50mi"
                   }
                 }
+              when :geo_polygon
+                filters << {
+                  geo_polygon: {
+                    field => op_value
+                  }
+                }
               when :top_left
                 filters << {
                   geo_bounding_box: {

@@ -137,6 +137,21 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: {lat: 37, lon: -122}, within: "2000mi"}}
   end
 
+  def test_geo_polygon
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    polygon = [
+      {lat: 42.185695, lon: -125.496146},
+      {lat: 42.185695, lon: -94.125535},
+      {lat: 27.122789, lon: -94.125535},
+      {lat: 27.12278, lon: -125.496146}
+    ]
+    assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
+  end
+
   def test_top_left_bottom_right
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
