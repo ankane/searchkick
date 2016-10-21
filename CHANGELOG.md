@@ -1,5 +1,6 @@
 ## 1.3.7 [unreleased]
 
+- Added `searchkick_debug` method
 - Added `geo_polygon` filter
 
 ## 1.3.6

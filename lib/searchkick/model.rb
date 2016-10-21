@@ -69,6 +69,16 @@ module Searchkick
           def searchkick_index_options
             searchkick_index.index_options
           end
+
+          def searchkick_debug
+            require "pp"
+            pp ({
+              searchkick_options: searchkick_options,
+              mapping: searchkick_index.mapping,
+              search_data: first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
+            })
+            nil # do not return anything, as this is strictly used for manual debugging
+          end
         end
         extend Searchkick::Reindex # legacy for Searchjoy
 
