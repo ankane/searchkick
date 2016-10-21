@@ -33,6 +33,10 @@ module Searchkick
       client.indices.get_mapping index: name
     end
 
+    def settings
+      client.indices.get_settings index: name
+    end
+
     def swap(new_name)
       old_indices =
         begin
