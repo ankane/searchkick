@@ -1,5 +1,6 @@
-## 1.3.7 [unreleased]
+## 1.4.0 [unreleased]
 
+- Boost exact matches for partial matching
 - Added `searchkick_debug` method
 - Added `geo_polygon` filter
 

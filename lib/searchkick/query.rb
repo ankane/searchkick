@@ -271,7 +271,21 @@ module Searchkick
                 qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
               end
 
-              queries.concat(qs.map { |q| {match_type => {field => q}} })
+              # boost exact matches more
+              if field =~ /\.word_(start|middle|end)\z/ && searchkick_options[:word] != false
+                queries << {
+                  bool: {
+                    must: {
+                      bool: {
+                        should: qs.map { |q| {match_type => {field => q}} }
+                      }
+                    },
+                    should: {match_type => {field.sub(/\.word_(start|middle|end)\z/, ".analyzed") => qs.first}}
+                  }
+                }
+              else
+                queries.concat(qs.map { |q| {match_type => {field => q}} })
+              end
             end
 
             payload = {
