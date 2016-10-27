@@ -44,7 +44,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For Elasticsearch 2.0, use the version `1.0` and above. For Elasticsearch 0.90, use version `0.6.3` and [this readme](https://github.com/ankane/searchkick/blob/v0.6.3/README.md).
+For Elasticsearch 5.0, use the version `1.4` and above. For Elasticsearch 2.0, use the version `1.0` and above.
 
 Add searchkick to models you want to search.
 

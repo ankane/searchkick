@@ -1,4 +1,4 @@
-## 1.4.0 [unreleased]
+## 1.4.0
 
 - Boost exact matches for partial matching
 - Added `searchkick_debug` method
