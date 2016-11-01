@@ -577,10 +577,7 @@ Then add the search box and JavaScript code to a view.
 (Works for typeahead.js version 0.11.1)
 
 ```html
-<input class="typeahead" type="text" placeholder="Choose the book">
-
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+<input class="typeahead" type="text">
 
 <script>
   var books = new Bloodhound({
