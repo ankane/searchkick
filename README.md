@@ -579,11 +579,18 @@ Then add the search box and JavaScript code to a view.
 <input type="text" id="query" name="query" />
 
 <script src="jquery.js"></script>
-<script src="typeahead.js"></script>
+<script src="typeahead.bundle.js"></script>
 <script>
-  $("#query").typeahead({
-    name: "book",
-    remote: "/books/autocomplete?query=%QUERY"
+  var books = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+      url: '/books/autocomplete?query=%QUERY',
+      wildcard: '%QUERY'
+    }
+  });
+  $('#query').typeahead(null, {
+    source: books
   });
 </script>
 ```
