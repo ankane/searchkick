@@ -543,7 +543,7 @@ First, specify which fields use this feature. This is necessary since autocomple
 
 ```ruby
 class Book < ActiveRecord::Base
-  searchkick match: :word_start, searchable: [:title, :author]
+  searchkick word_start: [:title, :author]
 end
 ```
 
@@ -565,6 +565,7 @@ class BooksController < ApplicationController
   def autocomplete
     render json: Book.search(params[:query], {
       fields: ["title^5", "author"],
+      match: :word_start,
       limit: 10,
       load: false,
       misspellings: {below: 5}
