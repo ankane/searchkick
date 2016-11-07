@@ -1063,8 +1063,6 @@ require "typhoeus/adapters/faraday"
 Ethon.logger.level = Logger::WARN
 ```
 
-**Note:** Typhoeus is not available for Windows.
-
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
