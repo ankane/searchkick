@@ -1063,6 +1063,8 @@ require "typhoeus/adapters/faraday"
 Ethon.logger.level = Logger::WARN
 ```
 
+If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
+
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
