@@ -112,10 +112,45 @@ module Searchkick
         padding: @padding,
         load: @load,
         includes: options[:include] || options[:includes],
-        json: !options[:json].nil?,
+        json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || []
       }
+
+      if options[:debug]
+        require "pp"
+
+        puts "Searchkick Version: #{Searchkick::VERSION}"
+        puts "Elasticsearch Version: #{Searchkick.server_version}"
+        puts
+
+        puts "Model Searchkick Options"
+        pp searchkick_options
+        puts
+
+        puts "Search Options"
+        pp options
+        puts
+
+        puts "Model Search Data"
+        begin
+          pp klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
+        rescue => e
+          puts "#{e.class.name}: #{e.message}"
+        end
+        puts
+
+        puts "Elasticsearch Mapping"
+        puts JSON.pretty_generate(searchkick_index.mapping)
+        puts
+
+        puts "Elasticsearch Settings"
+        puts JSON.pretty_generate(searchkick_index.settings)
+        puts
+
+        puts "Elasticsearch Results"
+        puts JSON.pretty_generate(response)
+      end
 
       # set execute for multi search
       @execute = Searchkick::Results.new(searchkick_klass, response, opts)
@@ -173,9 +208,9 @@ module Searchkick
 
       all = term == "*"
 
-      options[:json] ||= options[:body]
-      if options[:json]
-        payload = options[:json]
+      @json = options[:json] || options[:body]
+      if @json
+        payload = @json
       else
         if options[:query]
           payload = options[:query]

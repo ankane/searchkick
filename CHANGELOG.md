@@ -1,3 +1,7 @@
+## 1.4.1 [unreleased]
+
+- Added `debug` option to `search` method
+
 ## 1.4.0
 
 - Boost exact matches for partial matching

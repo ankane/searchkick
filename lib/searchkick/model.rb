@@ -71,30 +71,7 @@ module Searchkick
           end
 
           def searchkick_debug
-            require "pp"
-
-            puts "Model Searchkick Options"
-            pp searchkick_options
-            puts
-
-            puts "Model Sample Search Data"
-            begin
-              pp first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
-            rescue => e
-              puts "#{e.class.name}: #{e.message}"
-            end
-            puts
-
-            puts "Elasticsearch Mapping"
-            puts JSON.pretty_generate(searchkick_index.mapping)
-            puts
-
-            puts "Elasticsearch Settings"
-            puts JSON.pretty_generate(searchkick_index.settings)
-            puts
-
-            puts "Elasticsearch Sample Results"
-            puts JSON.pretty_generate(search("*", load: false, limit: 3).response)
+            warn "Use debug option with search method instead"
 
             nil # do not return anything, as this is strictly used for manual debugging
           end
