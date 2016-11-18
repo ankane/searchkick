@@ -1218,7 +1218,10 @@ Reindex a subset of attributes [master]
 ```ruby
 class Product < ActiveRecord::Base
   def search_prices
-    {price: price}
+    {
+      price: price,
+      sale_price: sale_price
+    }
   end
 end
 
