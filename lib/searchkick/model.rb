@@ -54,6 +54,13 @@ module Searchkick
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
+          def searchkick_partial_reindex(method_name)
+            searchkick_index.import_scope(searchkick_klass, method_name: method_name)
+            searchkick_index.refresh
+            true
+          end
+          alias_method :partial_reindex, :searchkick_partial_reindex unless method_defined?(:partial_reindex)
+
           def clean_indices
             searchkick_index.clean_indices
           end

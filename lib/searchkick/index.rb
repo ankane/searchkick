@@ -67,6 +67,10 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
+    def bulk_update(records, method_name)
+      Searchkick.queue_items(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+    end
+
     def record_data(r)
       data = {
         _index: name,
@@ -221,6 +225,7 @@ module Searchkick
 
     def import_scope(scope, options = {})
       batch_size = @options[:batch_size] || 1000
+      method_name = options[:method_name]
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
@@ -234,7 +239,7 @@ module Searchkick
         end
 
         scope.find_in_batches batch_size: batch_size do |batch|
-          import batch.select(&:should_index?)
+          import_or_update batch.select(&:should_index?), method_name
         end
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
@@ -244,12 +249,16 @@ module Searchkick
         scope.all.each do |item|
           items << item if item.should_index?
           if items.length == batch_size
-            import items
+            import_or_update items, method_name
             items = []
           end
         end
-        import items
+        import_or_update items, method_name
       end
+    end
+
+    def import_or_update(records, method_name)
+      method_name ? bulk_update(records, method_name) : import(records)
     end
 
     # other
@@ -285,8 +294,9 @@ module Searchkick
       id.is_a?(Numeric) ? id : id.to_s
     end
 
-    def search_data(record)
-      source = record.search_data
+    def search_data(record, method_name = nil)
+      partial_reindex = !method_name.nil?
+      source = record.send(method_name || :search_data)
       options = record.class.searchkick_options
 
       # stringify fields
@@ -302,7 +312,7 @@ module Searchkick
 
       # hack to prevent generator field doesn't exist error
       (options[:suggest] || []).map(&:to_s).each do |field|
-        source[field] = nil unless source[field]
+        source[field] = nil if !source[field] && !partial_reindex
       end
 
       # locations

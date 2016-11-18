@@ -1,5 +1,6 @@
 ## 1.4.1 [unreleased]
 
+- Added `partial_reindex` method
 - Added `debug` option to `search` method
 
 ## 1.4.0

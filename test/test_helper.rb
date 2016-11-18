@@ -309,6 +309,12 @@ class Product
   def should_index?
     name != "DO NOT INDEX"
   end
+
+  def search_name
+    {
+      name: name
+    }
+  end
 end
 
 class Store
