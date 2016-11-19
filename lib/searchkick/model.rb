@@ -101,6 +101,12 @@ module Searchkick
           self.class.searchkick_index.reindex_record_async(self)
         end unless method_defined?(:reindex_async)
 
+        def partial_reindex(method_name)
+          self.class.searchkick_index.bulk_update([self], method_name)
+          self.class.searchkick_index.refresh
+          true
+        end unless method_defined?(:partial_reindex)
+
         def similar(options = {})
           self.class.searchkick_index.similar_record(self, options)
         end unless method_defined?(:similar)
