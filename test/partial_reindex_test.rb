@@ -9,8 +9,12 @@ class PartialReindexTest < Minitest::Test
     assert_search "blue", ["Hi"], fields: [:color], load: false
 
     # update
-    Product.first.update_column :name, "Bye"
-    Product.first.update_column :color, "Red"
+    product = Product.first
+    product.name = "Bye"
+    product.color = "Red"
+    Searchkick.callbacks(false) do
+      product.save!
+    end
     Product.searchkick_index.refresh
 
     # index not updated
