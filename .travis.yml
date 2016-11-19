@@ -1,7 +1,7 @@
+sudo: false
 language: ruby
 rvm: 2.2.5
 services:
-  - elasticsearch
   - mongodb
 before_install:
   - ./test/ci/before_install.sh
@@ -34,7 +34,5 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=2.0.0
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0
-  allow_failures:
-    - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.0
+      env: ELASTICSEARCH_VERSION=5.0.1
+      jdk: oraclejdk8
