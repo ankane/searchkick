@@ -1116,6 +1116,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+By default, if you are using Elasticsearch 2.2 or above fields above `256` charaters are ignored. To customize this settings modify the `ignore_above` setting:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick ignore_above: 1000 # max = 32766
+end
+```
+
 ### Advanced Search
 
 And use the `body` option to search:
