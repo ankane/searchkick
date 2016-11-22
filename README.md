@@ -1116,7 +1116,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-By default, if you are using Elasticsearch 2.2 or above fields above `256` charaters are ignored. To customize this settings modify the `ignore_above` setting:
+By default, if you are using Elasticsearch 2.2 or above fields above `256` charaters are ignored in `where` statements and exact matches. To customize this settings modify the `ignore_above` setting:
 
 ```ruby
 class Product < ActiveRecord::Base
