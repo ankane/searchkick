@@ -55,7 +55,7 @@ class SqlTest < Minitest::Test
   # body_options
 
   def test_body_options_should_merge_into_body
-    query = Product.search({query: {name: "milk"}, body_options: {min_score: 1.0}}, execute: false)
+    query = Product.search("*", body_options: {min_score: 1.0}, execute: false)
     assert_equal 1.0, query.body[:min_score]
   end
 
