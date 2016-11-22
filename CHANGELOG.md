@@ -5,6 +5,7 @@
 
 ## 1.4.0
 
+- Official support for Elasticsearch 5.0
 - Boost exact matches for partial matching
 - Added `searchkick_debug` method
 - Added `geo_polygon` filter
