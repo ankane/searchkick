@@ -81,6 +81,12 @@ class SqlTest < Minitest::Test
     assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first
   end
 
+  def test_load_false_nested_object
+    aisle = {"id" => 1, "name" => "Frozen"}
+    store [{name: "Product A", aisle: aisle}]
+    assert_equal aisle, Product.search("product", load: false).first.aisle.to_hash
+  end
+
   # select
 
   def test_select
@@ -218,13 +224,15 @@ class SqlTest < Minitest::Test
     assert_nil result.user_ids
   end
 
-  # other tests
+  # nested
 
-  def test_nested_object
-    aisle = {"id" => 1, "name" => "Frozen"}
-    store [{name: "Product A", aisle: aisle}]
-    assert_equal aisle, Product.search("product", load: false).first.aisle.to_hash
+  def test_nested_search
+    skip
+    store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}]
+    assert_search "frozen", ["Product A"], fields: ["aisle.name"], debug: true
   end
+
+  # other tests
 
   def test_include
     skip unless defined?(ActiveRecord)
