@@ -25,7 +25,7 @@ module Searchkick
             }
           end
 
-        keyword_mapping[:ignore_above] = 256 unless below22
+        keyword_mapping[:ignore_above] = (options[:ignore_above] || 256) unless below22
 
         settings = {
           analysis: {
@@ -308,7 +308,7 @@ module Searchkick
           dynamic_fields["{name}"] = {type: default_type, index: "no"}
         end
 
-        dynamic_fields["{name}"][:ignore_above] = 256 unless below22
+        dynamic_fields["{name}"][:ignore_above] = (options[:ignore_above] || 256) unless below22
 
         unless options[:searchable]
           if options[:match] && options[:match] != :word
