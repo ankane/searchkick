@@ -301,7 +301,7 @@ module Searchkick
 
       # stringify fields
       # remove _id since search_id is used instead
-      source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id")
+      source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id", "_type")
 
       # conversions
       Array(options[:conversions]).map(&:to_s).each do |conversions_field|
