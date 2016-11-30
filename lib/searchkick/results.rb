@@ -181,7 +181,11 @@ module Searchkick
       if options[:includes]
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
-            records.preload(options[:includes])
+            if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
+              records.eager_load(options[:includes])
+            else
+              records.preload(options[:includes])
+            end
           else
             records.includes(options[:includes])
           end
@@ -196,7 +200,7 @@ module Searchkick
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
         records.queryable.for_ids(ids)
-      elsif records.respond_to?(:unscoped) && records.all.respond_to?(:preload)
+      elsif records.respond_to?(:unscoped) && [:preload, :eager_load].any? { |m| records.all.respond_to?(m) }
         # Nobrainer
         records.unscoped.where(:id.in => ids)
       else
