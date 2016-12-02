@@ -148,6 +148,10 @@ module Searchkick
         puts JSON.pretty_generate(searchkick_index.settings)
         puts
 
+        puts "Elasticsearch Query"
+        puts to_curl
+        puts
+
         puts "Elasticsearch Results"
         puts JSON.pretty_generate(response)
       end
