@@ -2,6 +2,7 @@
 
 - Added `partial_reindex` method
 - Added `debug` option to `search` method
+- Added `profile` option
 
 ## 1.4.0
 

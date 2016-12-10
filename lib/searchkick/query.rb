@@ -404,6 +404,7 @@ module Searchkick
           from: offset
         }
         payload[:explain] = options[:explain] if options[:explain]
+        payload[:profile] = options[:profile] if options[:profile]
 
         # order
         set_order(payload) if options[:order]
