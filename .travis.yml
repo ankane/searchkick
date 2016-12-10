@@ -24,15 +24,22 @@ gemfile:
   - test/gemfiles/mongoid4.gemfile
   - test/gemfiles/mongoid5.gemfile
 env:
-  - ELASTICSEARCH_VERSION=2.4.1
+  - ELASTICSEARCH_VERSION=5.1.1
+jdk: oraclejdk8
 matrix:
   include:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=1.0.0
+      jdk: oraclejdk7
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=1.7.0
+      jdk: oraclejdk7
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=2.0.0
+      jdk: oraclejdk7
+    - gemfile: Gemfile
+      env: ELASTICSEARCH_VERSION=2.4.1
+      jdk: oraclejdk7
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=5.0.1
       jdk: oraclejdk8
