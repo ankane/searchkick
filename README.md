@@ -858,7 +858,7 @@ Bounded by a box
 City.search "san", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
 
-Bounded by a polygon [master]
+Bounded by a polygon
 
 ```ruby
 City.search "san", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
@@ -1213,7 +1213,7 @@ Product.where("id > 100000").find_in_batches do |batch|
 end
 ```
 
-Reindex a subset of attributes [master]
+Reindex a subset of attributes
 
 ```ruby
 class Product < ActiveRecord::Base
