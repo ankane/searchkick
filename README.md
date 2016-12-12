@@ -1121,7 +1121,7 @@ end
 And use the `body` option to search:
 
 ```ruby
-products = Product.search body: {match: {name: "milk"}}
+products = Product.search query: {match: {name: "milk"}}
 ```
 
 **Note:** This replaces the entire body, so other options are ignored.
