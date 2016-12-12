@@ -186,6 +186,11 @@ class MatchTest < Minitest::Test
     assert_search "ben and jerrys", ["Ben and Jerry's"]
   end
 
+  def test_apostrophe_search
+    store_names ["Ben and Jerrys"]
+    assert_search "ben and jerry's", ["Ben and Jerrys"]
+  end
+
   def test_ampersand_index
     store_names ["Ben & Jerry's"]
     assert_search "ben and jerrys", ["Ben & Jerry's"]
