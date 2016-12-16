@@ -930,6 +930,14 @@ Dog.search "airbudd", suggest: true # suggestions for all animals
 
 ## Debugging Queries
 
+To help with debugging queries, you can use:
+
+```ruby
+Product.search("soap", debug: true)
+```
+
+Info is printed to `stdout`.
+
 See how Elasticsearch scores your queries with:
 
 ```ruby
