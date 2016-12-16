@@ -936,7 +936,7 @@ To help with debugging queries, you can use:
 Product.search("soap", debug: true)
 ```
 
-Info is printed to `stdout`.
+This prints info to `stdout`.
 
 See how Elasticsearch scores your queries with:
 
