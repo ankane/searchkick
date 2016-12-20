@@ -93,6 +93,14 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Region
+    include Mongoid::Document
+
+    field :name
+    field :text
+    field :territory
+  end
+
   class Speaker
     include Mongoid::Document
 
@@ -141,6 +149,15 @@ elsif defined?(NoBrainer)
 
     field :id,   type: Object
     field :name, type: String
+  end
+
+  class Region
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+    field :text, type: Text
+    field :territory, type: Text
   end
 
   class Speaker
@@ -234,6 +251,12 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :regions do |t|
+    t.string :name
+    t.text :text
+    t.text :territory
+  end
+
   ActiveRecord::Migration.create_table :speakers do |t|
     t.string :name
   end
@@ -248,6 +271,9 @@ else
 
   class Store < ActiveRecord::Base
     has_many :products
+  end
+
+  class Region < ActiveRecord::Base
   end
 
   class Speaker < ActiveRecord::Base
@@ -338,6 +364,33 @@ class Store
   end
 end
 
+class Region
+  searchkick \
+    geo_shapes: {
+      territory: {tree: "quadtree", precision: "10km"}
+    }
+
+  def search_data
+    {
+      name: name,
+      text: text,
+      territory: as_geo_json
+    }
+  end
+
+  def as_geo_json
+    {
+      type: "polygon",
+      coordinates: [territory_path] # enclosing array because polygon can also have exclusion paths.
+    }
+  end
+
+  def territory_path
+    path = territory.split(',').map(&:to_f).each_slice(2).to_a
+    path
+  end
+end
+
 class Speaker
   searchkick \
     conversions: ["conversions_a", "conversions_b"]
@@ -368,6 +421,9 @@ Product.create!(name: "Set mapping")
 Store.reindex
 Animal.reindex
 Speaker.reindex
+
+Region.searchkick_index.delete if Region.searchkick_index.exists?
+Region.reindex
 
 class Minitest::Test
   def setup

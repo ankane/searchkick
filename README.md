@@ -834,7 +834,9 @@ product = Product.first
 product.similar(fields: ["name"], where: {size: "12 oz"})
 ```
 
-### Geospatial Searches
+### Simple Geospatial Indexing: geo_points
+
+If your data consists of point values, searchkick offers a useful shorthand:
 
 ```ruby
 class City < ActiveRecord::Base
@@ -846,7 +848,9 @@ class City < ActiveRecord::Base
 end
 ```
 
-Reindex and search with:
+Elasticsearch supports a range of useful search types for geo_point data:
+
+Within a radius
 
 ```ruby
 City.search "san", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
@@ -877,6 +881,81 @@ Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch
 ```ruby
 City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
+
+
+### Complex Geospatial Indexing: geo_shapes
+
+You can also pass through complex or varied shapes as GeoJSON objects.
+
+```ruby
+class City < ActiveRecord::Base
+  searchkick geo_shapes: {
+    bounds: {tree: "geohash", precision: "1km"}
+    perimeter: {tree: "quadtree", precision: "10m"}
+  }
+
+  def search_data
+    attributes.merge {
+      bounds: {
+        type: "envelope",
+        coordinates: [{lat: 4, lon: 1}, {lat: 2, lon: 3}]
+      },
+      perimeter: {
+        type: "polygon",
+        coordinates: [[{lat: 1, lon: 2}, {lat: 3, lon: 4}, {lat: 5, lon: 6}, ...]]
+      }
+    }
+  end
+end
+```
+
+The `geo_shapes` hash is passed through to elasticsearch without modification. Please see the [geo_shape data type documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for options.
+
+Any geospatial data type can be used in the index or in the search. It is up to you to ensure that it is a valid geoJSON representation. The possible shapes are:
+
+* **point**: single lat/lon pair
+* **multipoint**: array of points
+* **linestring**: array of at least two lat/lon pairs
+* **multilinestring**: array of lines
+* **polygon**: an array of paths, each being an array of at least four lat/lon pairs whose first and last points are the same. Paths after the first represent exclusions.
+* **multipolygon**: array of polygons
+* **envelope**: a bounding box defined by top left and bottom right points
+* **circle**: a bounding circle defined by center point and radius
+* **geometrycollection**: an array of separate geoJSON objects possibly of various types
+
+See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for details. GeoJSON coordinates are usually given as an array of `[lon, lat]` points but this often causes swapping errors so searchkick can also take objects with `lon` and `lat` keys.
+
+Elasticsearch is sensitive about geo_shape validity. For example it will throw an exception if a polygon contains two consecutive identical points, or is not properly closed. You probably want to validate the data during indexing.
+
+
+### Geospatial searching
+
+Once a geo_shape index is established, you can apply a geo_shape filter to any search. This also takes a geoJSON shape, and will return a list of items based on their overlap with that shape.
+
+Intersecting with the query shape:
+
+```ruby
+City.search "san", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
+```
+
+Falling entirely within the query shape:
+
+```ruby
+City.search "san", where: {relation: "within", bounds: {geo_shape: {type: "circle", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}}
+```
+
+Not touching the query shape:
+
+```ruby
+City.search "san", where: {relation: "disjoint", bounds: {geo_shape: {type: "envelope", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
+```
+
+Envelope is a special case. For consistency, searchkick also understands coordinates given as top_left and bottom_right:
+
+```ruby
+City.search "san", where: {relation: "within", bounds: {geo_shape: {type: "envelope", top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}}
+```
+
 
 ### Routing
 

@@ -808,6 +808,25 @@ module Searchkick
                     field => op_value
                   }
                 }
+              when :geo_shape
+                if op_value[:type] == "envelope" && op_value[:top_left].present? && op_value[:bottom_right].present?
+                  op_value[:coordinates] = [coordinate_array(op_value[:top_left]), coordinate_array(op_value[:bottom_right])]
+                  op_value.delete(:top_left)
+                  op_value.delete(:bottom_right)
+                elsif op_value[:type] == "circle"
+                  op_value[:coordinates] = coordinate_array(op_value[:coordinates] || [])
+                else
+                  op_value[:coordinates] = (op_value[:coordinates] || []).map { |loc| coordinate_array(loc) }
+                end
+                relation = op_value.delete(:relation) || 'intersects'
+                filters << {
+                  geo_shape: {
+                    field => {
+                      relation: relation,
+                      shape: op_value
+                    }
+                  }
+                }
               when :top_left
                 filters << {
                   geo_bounding_box: {
@@ -920,6 +939,21 @@ module Searchkick
             }
           }
         }.merge(script_score)
+      end
+    end
+
+    # Recursively descend through nesting of arrays until we reach either a lat/lon object or an array of numbers,
+    # eventually returning the same structure with all values transformed to [lon, lat]. Question: should we reverse
+    # the array order so that arguments can be given as [lat, lon], as happens elsewhere in searchkick? We are moving
+    # GeoJSON around so it seems better to stick to that specification, though the lat/lon objects are already a deviation.
+    #
+    def coordinate_array(value)
+      if value.is_a?(Hash)
+        [value[:lon], value[:lat]]
+      elsif value.is_a?(Array) and !value[0].is_a?(Numeric)
+        value.map {|a| coordinate_array(a) }
+      else
+        value
       end
     end
 
