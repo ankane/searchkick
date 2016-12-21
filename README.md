@@ -925,7 +925,7 @@ Any geospatial data type can be used in the index or in the search. It is up to 
 
 See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for details. GeoJSON coordinates are usually given as an array of `[lon, lat]` points but this often causes swapping errors so searchkick can also take objects with `lon` and `lat` keys.
 
-Elasticsearch is sensitive about geo_shape validity. For example it will throw an exception if a polygon contains two consecutive identical points, or is not properly closed. You probably want to validate the data during indexing.
+Elasticsearch is sensitive about geo_shape validity. For example it will throw an exception if a polygon contains two consecutive identical points, intersects itself or is not properly closed.
 
 
 ### Geospatial searching

@@ -102,19 +102,6 @@ class GeoShapeTest < Minitest::Test
       }
     }, Region
 
-    # contains
-    assert_search "*", ["Region A"], {
-      where: {
-        territory: {
-          geo_shape: {
-            type: "envelope",
-            relation: "contains",
-            coordinates: [[32, 33], [33, 32]]
-          }
-        }
-      }
-    }, Region
-
     # with search
     assert_search "witch", ["Region A"], {
       where: {
@@ -137,7 +124,22 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
-
   end
 
+  def test_geo_shape_contains
+    skip if elasticsearch_below22?
+
+    assert_search "*", ["Region A"], {
+      where: {
+        territory: {
+          geo_shape: {
+            type: "envelope",
+            relation: "contains",
+            coordinates: [[32, 33], [33, 32]]
+          }
+        }
+      }
+    }, Region
+
+  end
 end
