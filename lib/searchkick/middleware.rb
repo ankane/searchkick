@@ -6,7 +6,10 @@ module Searchkick
       if env[:method] == :get && env[:url].path.to_s.end_with?("/_search")
         env[:request][:timeout] = Searchkick.search_timeout
       end
-      @app.call(env)
+      started_at = Time.now
+      r = @app.call(env)
+      puts (Time.now - started_at).round(1)
+      r
     end
   end
 end

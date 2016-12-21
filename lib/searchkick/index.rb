@@ -190,6 +190,7 @@ module Searchkick
     def reindex_scope(scope, options = {})
       skip_import = options[:import] == false
       resume = options[:resume]
+      import_options = options.slice(:resume, :threads)
 
       if resume
         index_name = all_indices.sort.last
@@ -204,7 +205,7 @@ module Searchkick
       # check if alias exists
       if alias_exists?
         # import before swap
-        index.import_scope(scope, resume: resume) unless skip_import
+        index.import_scope(scope, import_options) unless skip_import
 
         # get existing indices to remove
         swap(index.name)
@@ -214,7 +215,7 @@ module Searchkick
         swap(index.name)
 
         # import after swap
-        index.import_scope(scope, resume: resume) unless skip_import
+        index.import_scope(scope, import_options) unless skip_import
       end
 
       index.refresh
@@ -237,9 +238,22 @@ module Searchkick
           scope = scope.where("id > ?", total_docs)
         end
 
+        pool =
+          if options[:threads]
+            require "thread/pool"
+            Thread.pool(options[:threads])
+          end
+
         scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch.select(&:should_index?), method_name
+          process_batch(pool) do
+            # puts "Boom"
+            # sleep(1)
+            puts Thread.current.object_id
+            import_or_update batch.select(&:should_index?), method_name
+          end
         end
+
+        pool.shutdown if pool
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
         # use cursor for Mongoid
@@ -358,6 +372,14 @@ module Searchkick
         end
       else
         obj
+      end
+    end
+
+    def process_batch(pool)
+      if pool
+        pool.process { yield }
+      else
+        yield
       end
     end
   end
