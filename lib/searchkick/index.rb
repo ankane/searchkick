@@ -177,7 +177,6 @@ module Searchkick
         client.search(
           index: name,
           body: {
-            fields: [],
             query: {match_all: {}},
             size: 0
           }
