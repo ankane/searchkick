@@ -31,6 +31,7 @@ module Searchkick
   class << self
     attr_accessor :search_method_name, :wordnet_path, :timeout, :models
     attr_writer :client, :env, :search_timeout
+    attr_reader :aws_credentials
   end
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
@@ -46,6 +47,11 @@ module Searchkick
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       ) do |f|
         f.use Searchkick::Middleware
+        f.request :aws_signers_v4, {
+          credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
+          service_name: "es",
+          region: aws_credentials[:region] || "us-east-1"
+        } if aws_credentials
       end
     end
   end
@@ -91,6 +97,12 @@ module Searchkick
     else
       self.callbacks_value = value
     end
+  end
+
+  def self.aws_credentials=(creds)
+    require "faraday_middleware/aws_signers_v4"
+    @aws_credentials = creds
+    @client = nil # reset client
   end
 
   # private

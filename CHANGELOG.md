@@ -1,3 +1,7 @@
+## 1.4.2 [unreleased]
+
+- Easier AWS setup
+
 ## 1.4.1
 
 - Added `partial_reindex` method
