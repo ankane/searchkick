@@ -22,7 +22,7 @@ class HighlightTest < Minitest::Test
     store [{name: "Two Door Cinema Club", color: "Cinema Orange"}]
     highlight = Product.search("cinema", fields: [:name, :color], highlight: {fields: [:name]}).with_details.first[1][:highlight]
     assert_equal "Two Door <em>Cinema</em> Club", highlight[:name]
-    assert_equal nil, highlight[:color]
+    assert_nil highlight[:color]
   end
 
   def test_field_options
