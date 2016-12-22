@@ -836,8 +836,6 @@ product.similar(fields: ["name"], where: {size: "12 oz"})
 
 ### Geospatial Searches
 
-If your data consists of point values, searchkick offers a useful shorthand:
-
 ```ruby
 class City < ActiveRecord::Base
   searchkick locations: ["location"]
@@ -848,9 +846,7 @@ class City < ActiveRecord::Base
 end
 ```
 
-Elasticsearch supports a range of useful search types for geo_point data:
-
-Within a radius
+Reindex and search with:
 
 ```ruby
 City.search "san", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
@@ -881,7 +877,6 @@ Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch
 ```ruby
 City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
-
 
 ### Geo Shapes
 
