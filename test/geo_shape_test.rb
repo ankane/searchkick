@@ -4,9 +4,30 @@ class GeoShapeTest < Minitest::Test
   def setup
     super
     store [
-      {name: "Region A", text: "The witch had a cat", territory: "30,40,35,45,40,40,40,30,30,30,30,40"},
-      {name: "Region B", text: "and a very tall hat", territory: "50,60,55,65,60,60,60,50,50,50,50,60"},
-      {name: "Region C", text: "and long ginger hair which she wore in a plait",  territory: "10,20,15,25,20,20,20,10,10,10,10,20"}
+      {
+        name: "Region A",
+        text: "The witch had a cat",
+        territory: {
+          type: "polygon",
+          coordinates: [[[30,40],[35,45],[40,40],[40,30],[30,30],[30,40]]]
+        }
+      },
+      {
+        name: "Region B",
+        text: "and a very tall hat",
+        territory: {
+          type: "polygon",
+          coordinates: [[[50,60],[55,65],[60,60],[60,50],[50,50],[50,60]]]
+        }
+      },
+      {
+        name: "Region C",
+        text: "and long ginger hair which she wore in a plait",
+        territory: {
+          type: "polygon",
+          coordinates: [[[10,20],[15,25],[20,20],[20,10],[10,10],[10,20]]]
+        }
+      }
     ], Region
   end
 
@@ -87,7 +108,7 @@ class GeoShapeTest < Minitest::Test
           geo_shape: {
             type: "envelope",
             relation: "within",
-            coordinates: [[20, 50], [50, 20]]
+            coordinates: [[20,50], [50,20]]
           }
         }
       }
@@ -134,4 +155,18 @@ class GeoShapeTest < Minitest::Test
       }
     }, Region
   end
+
+  def test_latlon
+    assert_search "*", ["Region A"], {
+      where: {
+        territory: {
+          geo_shape: {
+            type: "envelope",
+            coordinates: [{lat: 42, lon: 28}, {lat: 38, lon: 32}]
+          }
+        }
+      }
+    }, Region
+  end
+
 end

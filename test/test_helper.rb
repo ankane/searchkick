@@ -102,7 +102,6 @@ if defined?(Mongoid)
 
     field :name
     field :text
-    field :territory
   end
 
   class Speaker
@@ -161,7 +160,6 @@ elsif defined?(NoBrainer)
     field :id,   type: Object
     field :name, type: String
     field :text, type: Text
-    field :territory, type: Text
   end
 
   class Speaker
@@ -258,7 +256,6 @@ else
   ActiveRecord::Migration.create_table :regions do |t|
     t.string :name
     t.text :text
-    t.text :territory
   end
 
   ActiveRecord::Migration.create_table :speakers do |t|
@@ -374,24 +371,14 @@ class Region
       territory: {tree: "quadtree", precision: "10km"}
     }
 
+  attr_accessor :territory
+
   def search_data
     {
       name: name,
       text: text,
-      territory: as_geo_json
+      territory: territory
     }
-  end
-
-  def as_geo_json
-    {
-      type: "polygon",
-      coordinates: [territory_path] # enclosing array because polygon can also have exclusion paths.
-    }
-  end
-
-  def territory_path
-    path = territory.split(',').map(&:to_f).each_slice(2).to_a
-    path
   end
 end
 
