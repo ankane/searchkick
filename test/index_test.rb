@@ -28,6 +28,11 @@ class IndexTest < Minitest::Test
     assert !old_index.exists?
   end
 
+  def test_total_docs
+    store_names ["Product A"]
+    assert_equal 1, Product.searchkick_index.total_docs
+  end
+
   def test_mapping
     store_names ["Dollar Tree"], Store
     assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
