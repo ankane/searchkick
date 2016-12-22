@@ -285,6 +285,12 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+For directional synonyms, use:
+
+```ruby
+synonyms: ["lightbulb => halogenlamp"]
+```
+
 ### Tags and Dynamic Synonyms
 
 The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms or tags without a full reindex. You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
@@ -1043,18 +1049,11 @@ gem 'faraday_middleware-aws-signers-v4'
 and add to your initializer:
 
 ```ruby
-require "faraday_middleware/aws_signers_v4"
-Searchkick.client =
-  Elasticsearch::Client.new(
-    url: ENV["ELASTICSEARCH_URL"],
-    transport_options: {request: {timeout: 10}}
-  ) do |f|
-    f.request :aws_signers_v4, {
-      credentials: Aws::Credentials.new(ENV["AWS_ACCESS_KEY_ID"], ENV["AWS_SECRET_ACCESS_KEY"]),
-      service_name: "es",
-      region: "us-east-1"
-    }
-  end
+Searchkick.aws_credentials = {
+  access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+  secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+  region: "us-east-1"
+}
 ```
 
 Then deploy and reindex:

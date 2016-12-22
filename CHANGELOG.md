@@ -1,7 +1,9 @@
-## 1.4.2 [unreleased]
+## 1.4.2
 
 - Added support for directional synonyms
 - Easier AWS setup
+- Fixed `total_docs` method for ES 5+
+- Fixed exception on update errors
 
 ## 1.4.1
 
