@@ -1,3 +1,7 @@
+## 1.4.3 [unreleased]
+
+- Added `_and`, `_or`, `_not` to `where` option
+
 ## 1.4.2
 
 - Added support for directional synonyms

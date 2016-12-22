@@ -784,6 +784,24 @@ module Searchkick
               filters << {bool: {should: or_clause.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
             end
           end
+        elsif field == :_or
+          if below20?
+            filters << {or: value.map { |or_statement| {and: where_filters(or_statement)} }}
+          else
+            filters << {bool: {should: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
+          end
+        elsif field == :_not
+          if below20?
+            filters << {not: {and: where_filters(value)}}
+          else
+            filters << {bool: {must_not: where_filters(value)}}
+          end
+        elsif field == :_and
+          if below20?
+            filters << {and: value.map { |or_statement| {and: where_filters(or_statement)} }}
+          else
+            filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
+          end
         else
           # expand ranges
           if value.is_a?(Range)
