@@ -273,7 +273,9 @@ class Product
       ["saranwrap", "plasticwrap"],
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
-      ["bandaid", "bandag"]
+      ["bandaid", "bandag"],
+      "lightbulb => led,lightbulb",
+      "lightbulb => halogenlamp"
     ],
     autocomplete: [:name],
     suggest: [:name, :color],

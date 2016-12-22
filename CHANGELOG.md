@@ -1,5 +1,6 @@
 ## 1.4.2 [unreleased]
 
+- Added support for directional synonyms
 - Easier AWS setup
 
 ## 1.4.1
