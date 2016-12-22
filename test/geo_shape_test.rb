@@ -1,17 +1,16 @@
-require "pp"
 require_relative "test_helper"
 
 class GeoShapeTest < Minitest::Test
-
-  def test_geo_shape
-    regions = [
+  def setup
+    super
+    store [
       {name: "Region A", text: "The witch had a cat", territory: "30,40,35,45,40,40,40,30,30,30,30,40"},
       {name: "Region B", text: "and a very tall hat", territory: "50,60,55,65,60,60,60,50,50,50,50,60"},
-      {name: "Region C", text: "and long ginger hair which she wore in a plait.",  territory: "10,20,15,25,20,20,20,10,10,10,10,20"},
-    ]
-    store regions, Region
+      {name: "Region C", text: "and long ginger hair which she wore in a plait",  territory: "10,20,15,25,20,20,20,10,10,10,10,20"}
+    ], Region
+  end
 
-    # circle
+  def test_circle
     assert_search "*", ["Region A"], {
       where: {
         territory: {
@@ -23,8 +22,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # envelope
+  def test_envelope
     assert_search "*", ["Region A"], {
       where: {
         territory: {
@@ -35,21 +35,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # envelope as corners
-    assert_search "*", ["Region A"], {
-      where: {
-        territory: {
-          geo_shape: {
-            type: "envelope",
-            top_left: {lat: 42.0, lon: 28.0},
-            bottom_right: {lat: 38.0, lon: 32.0}
-          }
-        }
-      }
-    }, Region
-
-    # polygon
+  def test_polygon
     assert_search "*", ["Region A"], {
       where: {
         territory: {
@@ -60,8 +48,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # multipolygon
+  def test_multipolygon
     assert_search "*", ["Region A", "Region B"], {
       where: {
         territory: {
@@ -75,8 +64,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # disjoint
+  def test_disjoint
     assert_search "*", ["Region B", "Region C"], {
       where: {
         territory: {
@@ -88,8 +78,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # within
+  def test_within
     assert_search "*", ["Region A"], {
       where: {
         territory: {
@@ -101,8 +92,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
-    # with search
+  def test_search_math
     assert_search "witch", ["Region A"], {
       where: {
         territory: {
@@ -113,7 +105,9 @@ class GeoShapeTest < Minitest::Test
         }
       }
     }, Region
+  end
 
+  def test_search_no_match
     assert_search "ginger hair", [], {
       where: {
         territory: {
@@ -126,20 +120,18 @@ class GeoShapeTest < Minitest::Test
     }, Region
   end
 
-  def test_geo_shape_contains
+  def test_contains
     skip if elasticsearch_below22?
-
-    assert_search "*", ["Region A"], {
+    assert_search "*", ["Region C"], {
       where: {
         territory: {
           geo_shape: {
             type: "envelope",
             relation: "contains",
-            coordinates: [[32, 33], [33, 32]]
+            coordinates: [[12, 13], [13,12]]
           }
         }
       }
     }, Region
-
   end
 end

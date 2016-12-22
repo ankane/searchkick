@@ -435,6 +435,7 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Region.destroy_all
   end
 
   protected
