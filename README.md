@@ -285,6 +285,29 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+### Tags and Dynamic Synonyms
+
+The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms or tags without a full reindex. You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
+
+```ruby
+class Product < ActiveRecord::Base
+  acts_as_taggable_on
+  scope :search_import, -> { includes(:tags) }
+
+  def search_data
+    {
+      name_tagged: "#{name} #{tags.map(&:name).join(" ")}"
+    }
+  end
+end
+```
+
+Search with:
+
+```ruby
+Product.search query, fields: [:name_tagged]
+```
+
 ### WordNet
 
 Prepopulate English synonyms with the [WordNet database](https://en.wikipedia.org/wiki/WordNet).
