@@ -132,21 +132,23 @@ module Searchkick
         pp options
         puts
 
-        puts "Model Search Data"
-        begin
-          pp klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
-        rescue => e
-          puts "#{e.class.name}: #{e.message}"
+        if searchkick_index
+          puts "Model Search Data"
+          begin
+            pp klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
+          rescue => e
+            puts "#{e.class.name}: #{e.message}"
+          end
+          puts
+
+          puts "Elasticsearch Mapping"
+          puts JSON.pretty_generate(searchkick_index.mapping)
+          puts
+
+          puts "Elasticsearch Settings"
+          puts JSON.pretty_generate(searchkick_index.settings)
+          puts
         end
-        puts
-
-        puts "Elasticsearch Mapping"
-        puts JSON.pretty_generate(searchkick_index.mapping)
-        puts
-
-        puts "Elasticsearch Settings"
-        puts JSON.pretty_generate(searchkick_index.settings)
-        puts
 
         puts "Elasticsearch Query"
         puts to_curl
