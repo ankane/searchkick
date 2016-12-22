@@ -124,7 +124,7 @@ module Searchkick
       response = client.bulk(body: items)
       if response["errors"]
         first_with_error = response["items"].map do |item|
-          (item["index"] || item["delete"] || items['update'])
+          (item["index"] || item["delete"] || item["update"])
         end.find { |item| item["error"] }
         raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
       end
