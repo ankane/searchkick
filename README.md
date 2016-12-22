@@ -291,7 +291,7 @@ The above approach works well when your synonym list is static, but in practice,
 
 ```ruby
 class Product < ActiveRecord::Base
-  acts_as_taggable_on
+  acts_as_taggable
   scope :search_import, -> { includes(:tags) }
 
   def search_data
