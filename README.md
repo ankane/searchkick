@@ -926,25 +926,9 @@ class City < ActiveRecord::Base
 end
 ```
 
-The `geo_shape` hash is passed through to Elasticsearch without modification. Please see the [geo shape documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for options.
+See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for details.
 
-Any geospatial data type can be held in the index or give as a search query. It is up to you to ensure that it is a valid GeoJSON representation. Possible shapes are:
-
-* **point**: single lat/lon pair
-* **multipoint**: array of points
-* **linestring**: array of at least two lat/lon pairs
-* **multilinestring**: array of lines
-* **polygon**: an array of paths, each being an array of at least four lat/lon pairs whose first and last points are the same. Paths after the first represent exclusions. Elasticsearch will return an error if a polygon contains two consecutive identical points, intersects itself or is not closed.
-* **multipolygon**: array of polygons
-* **envelope**: a bounding box defined by top left and bottom right points
-* **circle**: a bounding circle defined by center point and radius
-* **geometrycollection**: an array of separate GeoJSON objects possibly of various types
-
-See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for details. GeoJSON coordinates are usually given as an array of `[lon, lat]` points but searchkick can also take objects with `lon` and `lat` keys.
-
-Once a geo shape index is established, you can include a geo shape filter in any search. This also takes a GeoJSON shape and will return a list of items based on their overlap with that shape.
-
-Find shapes (of any kind) intersecting with the query shape
+Find shapes intersecting with the query shape
 
 ```ruby
 City.search "san", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
