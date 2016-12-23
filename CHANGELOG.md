@@ -1,4 +1,4 @@
-## 1.4.3 [unreleased]
+## 1.5.0
 
 - Added support for geo shape indexing and queries
 - Added `_and`, `_or`, `_not` to `where` option
