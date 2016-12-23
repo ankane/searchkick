@@ -913,7 +913,7 @@ You can also pass through complex or varied shapes as GeoJSON objects.
 
 ```ruby
 class City < ActiveRecord::Base
-  searchkick geo_shapes: {
+  searchkick geo_shape: {
     bounds: {tree: "geohash", precision: "1km"}
     perimeter: {tree: "quadtree", precision: "10m"}
   }
@@ -933,7 +933,7 @@ class City < ActiveRecord::Base
 end
 ```
 
-The `geo_shapes` hash is passed through to elasticsearch without modification. Please see the [geo_shape data type documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for options.
+The `geo_shape` hash is passed through to elasticsearch without modification. Please see the [geo_shape data type documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html) for options.
 
 Any geospatial data type can be held in the index or give as a search query. It is up to you to ensure that it is a valid geoJSON representation. The possible shapes are:
 

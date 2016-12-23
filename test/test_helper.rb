@@ -369,7 +369,7 @@ end
 
 class Region
   searchkick \
-    geo_shapes: {
+    geo_shape: {
       territory: {tree: "quadtree", precision: "10km"}
     }
 

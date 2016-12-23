@@ -281,8 +281,8 @@ module Searchkick
           }
         end
 
-        options[:geo_shapes] = options[:geo_shapes].product([{}]).to_h if options[:geo_shapes].is_a?(Array)
-        (options[:geo_shapes] || {}).each do |field, shape_options|
+        options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
+        (options[:geo_shape] || {}).each do |field, shape_options|
           mapping[field] = shape_options.merge(type: "geo_shape")
         end
 
