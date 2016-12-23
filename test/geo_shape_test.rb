@@ -2,14 +2,14 @@ require_relative "test_helper"
 
 class GeoShapeTest < Minitest::Test
   def setup
-    super
+    Region.destroy_all
     store [
       {
         name: "Region A",
         text: "The witch had a cat",
         territory: {
           type: "polygon",
-          coordinates: [[[30,40],[35,45],[40,40],[40,30],[30,30],[30,40]]]
+          coordinates: [[[30, 40], [35, 45], [40, 40], [40, 30], [30, 30], [30, 40]]]
         }
       },
       {
@@ -17,7 +17,7 @@ class GeoShapeTest < Minitest::Test
         text: "and a very tall hat",
         territory: {
           type: "polygon",
-          coordinates: [[[50,60],[55,65],[60,60],[60,50],[50,50],[50,60]]]
+          coordinates: [[[50, 60], [55, 65], [60, 60], [60, 50], [50, 50], [50, 60]]]
         }
       },
       {
@@ -25,7 +25,7 @@ class GeoShapeTest < Minitest::Test
         text: "and long ginger hair which she wore in a plait",
         territory: {
           type: "polygon",
-          coordinates: [[[10,20],[15,25],[20,20],[20,10],[10,10],[10,20]]]
+          coordinates: [[[10, 20], [15, 25], [20, 20], [20, 10], [10, 10], [10, 20]]]
         }
       }
     ], Region
@@ -149,7 +149,7 @@ class GeoShapeTest < Minitest::Test
           geo_shape: {
             type: "envelope",
             relation: "contains",
-            coordinates: [[12, 13], [13,12]]
+            coordinates: [[12, 13], [13, 12]]
           }
         }
       }

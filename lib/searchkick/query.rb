@@ -829,13 +829,13 @@ module Searchkick
                   }
                 }
               when :geo_shape
-                op_value[:coordinates] = coordinate_array(op_value[:coordinates]) if op_value[:coordinates]
-                relation = op_value.delete(:relation) || 'intersects'
+                shape = op_value.except(:relation)
+                shape[:coordinates] = coordinate_array(shape[:coordinates]) if shape[:coordinates]
                 filters << {
                   geo_shape: {
                     field => {
-                      relation: relation,
-                      shape: op_value
+                      relation: op_value[:relation] || "intersects",
+                      shape: shape
                     }
                   }
                 }

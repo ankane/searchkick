@@ -414,8 +414,6 @@ Product.create!(name: "Set mapping")
 Store.reindex
 Animal.reindex
 Speaker.reindex
-
-Region.searchkick_index.delete if Region.searchkick_index.exists?
 Region.reindex
 
 class Minitest::Test
@@ -424,7 +422,6 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
-    Region.destroy_all
   end
 
   protected
