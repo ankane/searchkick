@@ -828,6 +828,17 @@ module Searchkick
                     field => op_value
                   }
                 }
+              when :geo_shape
+                op_value[:coordinates] = coordinate_array(op_value[:coordinates]) if op_value[:coordinates]
+                relation = op_value.delete(:relation) || 'intersects'
+                filters << {
+                  geo_shape: {
+                    field => {
+                      relation: relation,
+                      shape: op_value
+                    }
+                  }
+                }
               when :top_left
                 filters << {
                   geo_bounding_box: {
@@ -940,6 +951,19 @@ module Searchkick
             }
           }
         }.merge(script_score)
+      end
+    end
+
+    # Recursively descend through nesting of arrays until we reach either a lat/lon object or an array of numbers,
+    # eventually returning the same structure with all values transformed to [lon, lat].
+    #
+    def coordinate_array(value)
+      if value.is_a?(Hash)
+        [value[:lon], value[:lat]]
+      elsif value.is_a?(Array) and !value[0].is_a?(Numeric)
+        value.map {|a| coordinate_array(a) }
+      else
+        value
       end
     end
 

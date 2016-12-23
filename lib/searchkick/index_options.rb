@@ -281,6 +281,11 @@ module Searchkick
           }
         end
 
+        options[:geo_shapes] = options[:geo_shapes].product([{}]).to_h if options[:geo_shapes].is_a? Array
+        (options[:geo_shapes] || {}).each do |field, shape_options|
+          mapping[field] = shape_options.merge(type: "geo_shape")
+        end
+
         (options[:unsearchable] || []).map(&:to_s).each do |field|
           mapping[field] = {
             type: default_type,
