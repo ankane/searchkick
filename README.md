@@ -918,12 +918,12 @@ class City < ActiveRecord::Base
   }
 
   def search_data
-    attributes.merge {
+    attributes.merge(
       bounds: {
         type: "envelope",
         coordinates: [{lat: 4, lon: 1}, {lat: 2, lon: 3}]
       }
-    }
+    )
   end
 end
 ```
