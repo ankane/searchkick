@@ -176,7 +176,7 @@ module Searchkick
     private
 
     def results_query(records, hits)
-      ids = hits.map { |hit| hit["_id"] }
+      ids = hits.map { |hit| hit['_id'] }
 
       if options[:includes]
         records =
@@ -193,7 +193,16 @@ module Searchkick
 
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
-        records.where(records.primary_key => ids)
+        if Searchkick.db_sorting_function
+          # Since PostgreSQL doesn't return records in the same order as the
+          # ElasticSearch query, we use a database function to do so.
+          # See the link for a more in-depth description
+          # https://www.chrissearle.org/2014/05/02/postgresql-sort-where-id-in-by-original-id-list-order/
+          records.where(records.primary_key => ids)
+                 .reorder("#{Searchkick.db_sorting_function}(#{@klass.table_name}.id, #{postgres_array(ids)})")
+        else
+          records.where(records.primary_key => ids)
+        end
       elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
         records.all.for_ids(ids)
@@ -204,12 +213,23 @@ module Searchkick
         # Nobrainer
         records.unscoped.where(:id.in => ids)
       else
-        raise "Not sure how to load records"
+        raise 'Not sure how to load records'
       end
     end
 
     def base_field(k)
       k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
+    end
+
+    def postgres_sql_escape(str)
+      str.gsub(/[%_'\\"]/, "\\\\\\0")
+    end
+
+    def postgres_array(arry)
+      "'{" + arry.inject([]) do |mem, val|
+        mem << (val.is_a?(String) ? "\"#{postgres_sql_escape(val)}\"" : val)
+        mem
+      end.join(", ") + "}'"
     end
   end
 end

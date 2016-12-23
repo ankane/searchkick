@@ -29,7 +29,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :db_sorting_function
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -37,6 +37,7 @@ module Searchkick
   self.wordnet_path = "/var/lib/wn_s.pl"
   self.timeout = 10
   self.models = []
+  self.db_sorting_function = nil
 
   def self.client
     @client ||= begin
