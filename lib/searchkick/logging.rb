@@ -176,9 +176,9 @@ module Searchkick
     end
   end
 end
-Searchkick::Query.send(:prepend, Searchkick::QueryWithInstrumentation)
-Searchkick::Index.send(:prepend, Searchkick::IndexWithInstrumentation)
-Searchkick.singleton_class.send(:prepend, Searchkick::SearchkickWithInstrumentation)
+Searchkick::Query.send(:include, Searchkick::QueryWithInstrumentation)
+Searchkick::Index.send(:include, Searchkick::IndexWithInstrumentation)
+Searchkick.singleton_class.send(:include, Searchkick::SearchkickWithInstrumentation)
 Searchkick::LogSubscriber.attach_to :searchkick
 ActiveSupport.on_load(:action_controller) do
   include Searchkick::ControllerRuntime
