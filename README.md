@@ -915,7 +915,6 @@ You can also pass through complex or varied shapes as GeoJSON objects.
 class City < ActiveRecord::Base
   searchkick geo_shape: {
     bounds: {tree: "geohash", precision: "1km"}
-    perimeter: {tree: "quadtree", precision: "10m"}
   }
 
   def search_data
@@ -923,10 +922,6 @@ class City < ActiveRecord::Base
       bounds: {
         type: "envelope",
         coordinates: [{lat: 4, lon: 1}, {lat: 2, lon: 3}]
-      },
-      perimeter: {
-        type: "polygon",
-        coordinates: [[{lat: 1, lon: 2}, {lat: 3, lon: 4}, {lat: 5, lon: 6}, ...]]
       }
     }
   end
