@@ -907,7 +907,7 @@ Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch
 City.search "san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, function: :linear, scale: "30mi", decay: 0.5}
 ```
 
-### Geo Shapes
+### Geo Shapes [master]
 
 You can also pass through complex or varied shapes as GeoJSON objects.
 
@@ -951,25 +951,25 @@ See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsea
 
 Once a geo_shape index is established, you can include a geo_shape filter in any search. This also takes a geoJSON shape, and will return a list of items based on their overlap with that shape.
 
-Find shapes (of any kind) intersecting with the query shape:
+Find shapes (of any kind) intersecting with the query shape
 
 ```ruby
 City.search "san", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
 ```
 
-Falling entirely within the query shape:
+Falling entirely within the query shape
 
 ```ruby
 City.search "san", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}}
 ```
 
-Not touching the query shape:
+Not touching the query shape
 
 ```ruby
 City.search "san", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
-Containing the query shape (ElasticSearch 2.2+):
+Containing the query shape (ElasticSearch 2.2+)
 
 ```ruby
 City.search "san", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
