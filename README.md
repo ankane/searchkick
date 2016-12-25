@@ -1123,7 +1123,7 @@ rake searchkick:reindex CLASS=Product
 
 ### Performance
 
-For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
+Searchkick uses [Typhoeus](https://github.com/typhoeus/typhoeus) for better HTTP performance if it is available. To add it to your gemfile:
 
 ```ruby
 gem 'typhoeus'
@@ -1132,7 +1132,6 @@ gem 'typhoeus'
 And create an initializer with:
 
 ```ruby
-require "typhoeus/adapters/faraday"
 Ethon.logger.level = Logger::WARN
 ```
 
