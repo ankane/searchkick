@@ -1143,16 +1143,6 @@ Ethon.logger = Logger.new("/dev/null")
 
 If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
 
-### _all Field [master]
-
-Speed up indexing and reduce index size by disabling the `_all` field if you don’t need it. Do this by specifying default fields to search.
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick default_fields: [:name]
-end
-```
-
 ### Searchable Fields
 
 By default, all string fields are searchable. Speed up indexing and reduce index size by only making some fields searchable.
