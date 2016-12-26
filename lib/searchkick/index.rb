@@ -59,16 +59,16 @@ module Searchkick
     end
 
     def bulk_delete(records)
-      Searchkick.queue_items(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
     end
 
     def bulk_index(records)
-      Searchkick.queue_items(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
+      Searchkick.indexer.queue(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
     end
     alias_method :import, :bulk_index
 
     def bulk_update(records, method_name)
-      Searchkick.queue_items(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+      Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
     end
 
     def record_data(r)

@@ -4,6 +4,7 @@ require "hashie"
 require "searchkick/version"
 require "searchkick/index_options"
 require "searchkick/index"
+require "searchkick/indexer"
 require "searchkick/results"
 require "searchkick/query"
 require "searchkick/reindex_job"
@@ -91,7 +92,7 @@ module Searchkick
       begin
         self.callbacks_value = value
         yield
-        perform_bulk if callbacks_value == :bulk
+        indexer.perform if callbacks_value == :bulk
       ensure
         self.callbacks_value = previous_value
       end
@@ -107,39 +108,8 @@ module Searchkick
   end
 
   # private
-  def self.queue_items(items)
-    queued_items.concat(items)
-    perform_bulk unless callbacks_value == :bulk
-  end
-
-  # private
-  def self.perform_bulk
-    items = queued_items
-    clear_queued_items
-    perform_items(items)
-  end
-
-  # private
-  def self.perform_items(items)
-    if items.any?
-      response = client.bulk(body: items)
-      if response["errors"]
-        first_with_error = response["items"].map do |item|
-          (item["index"] || item["delete"] || item["update"])
-        end.find { |item| item["error"] }
-        raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
-      end
-    end
-  end
-
-  # private
-  def self.queued_items
-    Thread.current[:searchkick_queued_items] ||= []
-  end
-
-  # private
-  def self.clear_queued_items
-    Thread.current[:searchkick_queued_items] = []
+  def self.indexer
+    Thread.current[:searchkick_indexer] ||= Searchkick::Indexer.new
   end
 
   # private
