@@ -76,9 +76,9 @@ class SqlTest < Minitest::Test
     assert_equal "Product A", Product.search("product", load: false).first.name
   end
 
-  def test_load_false_with_include
+  def test_load_false_with_includes
     store_names ["Product A"]
-    assert_kind_of Hash, Product.search("product", load: false, include: [:store]).first
+    assert_kind_of Hash, Product.search("product", load: false, includes: [:store]).first
   end
 
   def test_load_false_nested_object
@@ -233,9 +233,9 @@ class SqlTest < Minitest::Test
 
   # other tests
 
-  def test_include
+  def test_includes
     skip unless defined?(ActiveRecord)
     store_names ["Product A"]
-    assert Product.search("product", include: [:store]).first.association(:store).loaded?
+    assert Product.search("product", includes: [:store]).first.association(:store).loaded?
   end
 end

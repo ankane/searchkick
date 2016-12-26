@@ -41,10 +41,10 @@ class HighlightTest < Minitest::Test
     assert_equal "&lt;b&gt;<em>Hello</em>&lt;&#x2F;b&gt;", Product.search("hello", fields: [:name], highlight: {encoder: "html"}, misspellings: false).with_details.first[1][:highlight][:name]
   end
 
-  def test_json
+  def test_body
     skip if ENV["MATCH"] == "word_start"
     store_names ["Two Door Cinema Club"]
-    json = {
+    body = {
       query: {
         match: {
           "name.analyzed" => "cinema"
@@ -58,6 +58,6 @@ class HighlightTest < Minitest::Test
         }
       }
     }
-    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(json: json).with_details.first[1][:highlight][:"name.analyzed"]
+    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search(body: body).with_details.first[1][:highlight][:"name.analyzed"]
   end
 end

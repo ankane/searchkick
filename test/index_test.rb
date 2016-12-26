@@ -93,7 +93,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_missing_index
-    assert_raises(Searchkick::MissingIndexError) { Product.search "test", index_name: "not_found" }
+    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found") }
   end
 
   def test_unsupported_version
@@ -103,8 +103,8 @@ class IndexTest < Minitest::Test
     end
   end
 
-  def test_invalid_query
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {boom: true}) }
+  def test_invalid_body
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}) }
   end
 
   def test_transaction
