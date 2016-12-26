@@ -257,7 +257,16 @@ module Searchkick
     end
 
     def import_or_update(records, method_name)
-      method_name ? bulk_update(records, method_name) : import(records)
+      retries = 0
+      begin
+        method_name ? bulk_update(records, method_name) : import(records)
+      rescue Faraday::ClientError => e
+        if retries < 1
+          retries += 1
+          retry
+        end
+        raise e
+      end
     end
 
     # other
