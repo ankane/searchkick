@@ -227,9 +227,8 @@ class SqlTest < Minitest::Test
   # nested
 
   def test_nested_search
-    skip
-    store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}]
-    assert_search "frozen", ["Product A"], fields: ["aisle.name"], debug: true
+    store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}], Speaker
+    assert_search "frozen", ["Product A"], {fields: ["aisle.name"], debug: true}, Speaker
   end
 
   # other tests
