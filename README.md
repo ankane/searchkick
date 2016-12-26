@@ -1255,7 +1255,7 @@ indices_boost: {Category => 2, Product => 1}
 To query nested data, use dot notation.
 
 ```ruby
-User.search "*", where: {"address.zip_code" => 12345}
+User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345}
 ```
 
 ## Reference
