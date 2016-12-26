@@ -29,7 +29,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -37,15 +37,16 @@ module Searchkick
   self.wordnet_path = "/var/lib/wn_s.pl"
   self.timeout = 10
   self.models = []
+  self.client_options = {}
 
   def self.client
     @client ||= begin
       require "typhoeus/adapters/faraday" if defined?(Typhoeus)
 
-      Elasticsearch::Client.new(
+      Elasticsearch::Client.new({
         url: ENV["ELASTICSEARCH_URL"],
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
-      ) do |f|
+      }.merge(client_options)) do |f|
         f.use Searchkick::Middleware
         f.request :aws_signers_v4, {
           credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
