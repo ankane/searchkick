@@ -1153,13 +1153,23 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Indexed Fields
+### Searchable Fields
 
 By default, all string fields are searchable. Speed up indexing and reduce index size by only making some fields searchable.
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick searchable: [:name]
+end
+```
+
+### Filterable Fields
+
+By default, all fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick filterable: [:store_id]
 end
 ```
 
