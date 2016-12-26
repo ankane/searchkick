@@ -1384,7 +1384,7 @@ class Product < ActiveRecord::Base
   def search_data
     {
       name: name,
-      unique_user_conversions: searches.group(:query).uniq.count(:user_id)
+      unique_user_conversions: searches.group(:query).uniq.count(:user_id),
       # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
       total_conversions: searches.group(:query).count
       # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
