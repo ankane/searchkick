@@ -93,8 +93,9 @@ module Searchkick
           after_destroy callback_name, if: proc { self.class.search_callbacks? }
         end
 
-        def reindex
+        def reindex(options = {})
           self.class.searchkick_index.reindex_record(self)
+          self.class.searchkick_index.refresh if options[:refresh]
         end unless method_defined?(:reindex)
 
         def reindex_async

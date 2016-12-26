@@ -1492,7 +1492,6 @@ This section could use some love.
 describe Product do
   it "searches" do
     Product.reindex
-    Product.searchkick_index.refresh # don't forget this
     # test goes here...
   end
 end
