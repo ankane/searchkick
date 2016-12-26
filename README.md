@@ -1129,11 +1129,10 @@ For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) t
 gem 'typhoeus'
 ```
 
-And create an initializer with:
+And create an initializer to reduce log noise with:
 
 ```ruby
-require "typhoeus/adapters/faraday"
-Ethon.logger.level = Logger::WARN
+Ethon.logger = Logger.new("/dev/null")
 ```
 
 If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
