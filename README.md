@@ -1145,11 +1145,21 @@ If you run into issues on Windows, check out [this post](https://www.rastating.c
 
 ### _all Field [master]
 
-Disable the `_all` field by specifying default fields to search.
+Speed up indexing by disabling the `_all` field if you don’t need it. Do this by specifying default fields to search.
 
 ```ruby
 class Product < ActiveRecord::Base
   searchkick default_fields: [:name]
+end
+```
+
+### Indexed Fields
+
+By default, all string fields are indexed. Speed up indexing by only indexing specific fields with:
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick searchable: [:name]
 end
 ```
 
