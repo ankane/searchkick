@@ -268,6 +268,7 @@ else
   end
 
   class Product < ActiveRecord::Base
+    belongs_to :store
   end
 
   class Store < ActiveRecord::Base
@@ -291,8 +292,6 @@ else
 end
 
 class Product
-  belongs_to :store
-
   searchkick \
     synonyms: [
       ["clorox", "bleach"],

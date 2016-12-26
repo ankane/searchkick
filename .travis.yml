@@ -23,6 +23,7 @@ gemfile:
   - test/gemfiles/mongoid3.gemfile
   - test/gemfiles/mongoid4.gemfile
   - test/gemfiles/mongoid5.gemfile
+  - test/gemfiles/mongoid6.gemfile
 env:
   - ELASTICSEARCH_VERSION=5.1.1
 jdk: oraclejdk8
