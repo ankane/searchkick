@@ -479,7 +479,7 @@ module Searchkick
 
     def set_fields
       boost_fields = {}
-      fields = options[:fields] || searchkick_options[:searchable]
+      fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
       fields =
         if fields
           if options[:autocomplete]

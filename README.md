@@ -952,26 +952,6 @@ Containing the query shape (Elasticsearch 2.2+)
 City.search "san", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
-### Routing
-
-Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
-
-```ruby
-class Business < ActiveRecord::Base
-  searchkick routing: true
-
-  def search_routing
-    city_id
-  end
-end
-```
-
-Reindex and search with:
-
-```ruby
-Business.search "ice cream", routing: params[:city_id]
-```
-
 ## Inheritance
 
 Searchkick supports single table inheritance.
@@ -1121,22 +1101,6 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
-### Performance
-
-For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
-
-```ruby
-gem 'typhoeus'
-```
-
-And create an initializer to reduce log noise with:
-
-```ruby
-Ethon.logger = Logger.new("/dev/null")
-```
-
-If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
-
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
@@ -1160,6 +1124,54 @@ end
 ```
 
 See [Production Rails](https://github.com/ankane/production_rails) for other good practices.
+
+## Performance
+
+### Persistent HTTP Connections
+
+For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
+
+```ruby
+gem 'typhoeus'
+```
+
+And create an initializer to reduce log noise with:
+
+```ruby
+Ethon.logger = Logger.new("/dev/null")
+```
+
+If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
+
+### _all Field [master]
+
+Disable the `_all` field by specifying default fields to search.
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick default_fields: [:name]
+end
+```
+
+### Routing
+
+Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
+
+```ruby
+class Business < ActiveRecord::Base
+  searchkick routing: true
+
+  def search_routing
+    city_id
+  end
+end
+```
+
+Reindex and search with:
+
+```ruby
+Business.search "ice cream", routing: params[:city_id]
+```
 
 ## Advanced
 

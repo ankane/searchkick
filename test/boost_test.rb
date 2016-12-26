@@ -164,6 +164,6 @@ class BoostTest < Minitest::Test
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
 
-    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}}, Store
+    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Store
   end
 end

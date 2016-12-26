@@ -1,3 +1,7 @@
+## 1.5.1 [unreleased]
+
+- Added `default_fields` option
+
 ## 1.5.0
 
 - Added support for geo shape indexing and queries

@@ -317,6 +317,7 @@ class Product
     word_end: [:name],
     highlight: [:name],
     searchable: [:name, :color],
+    default_fields: [:name, :color],
     filterable: [:name, :color, :description],
     # unsearchable: [:description],
     # only_analyzed: [:alt_description],
