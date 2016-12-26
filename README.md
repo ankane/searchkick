@@ -575,7 +575,7 @@ end
 Reindex and search with:
 
 ```ruby
-Book.search "tipping poi"
+Book.search "tipping poi", match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
