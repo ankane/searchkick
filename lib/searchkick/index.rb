@@ -133,7 +133,7 @@ module Searchkick
 
     # search
 
-    def search_model(searchkick_klass, term = nil, options = {}, &block)
+    def search_model(searchkick_klass, term = "*", **options, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
       yield(query.body) if block
       if options[:execute] == false

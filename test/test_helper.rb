@@ -303,10 +303,8 @@ class Product
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
     ],
-    autocomplete: [:name],
     suggest: [:name, :color],
     conversions: [:conversions],
-    personalize: :user_ids,
     locations: [:location, :multiple_locations],
     text_start: [:name],
     text_middle: [:name],
@@ -316,10 +314,7 @@ class Product
     word_end: [:name],
     highlight: [:name],
     searchable: [:name, :color],
-    # default_fields: [:name, :color],
     filterable: [:name, :color, :description],
-    # unsearchable: [:description],
-    # only_analyzed: [:alt_description],
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
@@ -349,7 +344,6 @@ end
 class Store
   searchkick \
     routing: true,
-    merge_mappings: true,
     mappings: {
       store: {
         properties: {
@@ -401,7 +395,7 @@ end
 
 class Animal
   searchkick \
-    autocomplete: [:name],
+    word_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}" }
     # wordnet: true

@@ -2,7 +2,12 @@ module Searchkick
   module Reindex; end # legacy for Searchjoy
 
   module Model
-    def searchkick(options = {})
+    def searchkick(**options)
+      unknown_keywords = options.keys - [:conversions, :filterable, :geo_shape, :highlight, :index_name, :index_prefix,
+        :locations, :mappings, :match, :routing, :searchable, :settings, :suggest, :synonyms, :text_end,
+        :text_middle, :text_start, :word_end, :word_middle, :word_start]
+      raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
+
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 
       Searchkick.models << self
@@ -20,7 +25,7 @@ module Searchkick
           [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
 
         class << self
-          def searchkick_search(term = nil, options = {}, &block)
+          def searchkick_search(term = "*", **options, &block)
             searchkick_index.search_model(self, term, options, &block)
           end
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
