@@ -437,25 +437,14 @@ module Searchkick
         # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
         # doc for :select_v2 - https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
         if options[:select]
-          payload[:fields] = options[:select] if options[:select] != true
-        elsif options[:select_v2]
-          if options[:select_v2] == []
+          if options[:select] == []
             # intuitively [] makes sense to return no fields, but ES by default returns all fields
-            if below50?
-              payload[:fields] = []
-            else
-              payload[:_source] = false
-            end
+            payload[:_source] = false
           else
-            payload[:_source] = options[:select_v2]
+            payload[:_source] = options[:select]
           end
         elsif load
-          # don't need any fields since we're going to load them from the DB anyways
-          if below50?
-            payload[:fields] = []
-          else
-            payload[:_source] = false
-          end
+          payload[:_source] = false
         end
 
         if options[:type] || (klass != searchkick_klass && searchkick_index)
