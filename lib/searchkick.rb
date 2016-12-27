@@ -91,7 +91,7 @@ module Searchkick
         query.handle_response(responses[i])
       end
     end
-    nil
+    queries
   end
 
   # callbacks
