@@ -1,6 +1,4 @@
 module Searchkick
-  module Reindex; end # legacy for Searchjoy
-
   module Model
     def searchkick(**options)
       unknown_keywords = options.keys - [:conversions, :default_mappings, :filterable, :geo_shape, :highlight, :index_name, :index_prefix,
@@ -65,34 +63,10 @@ module Searchkick
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
-          def searchkick_partial_reindex(method_name)
-            searchkick_reindex(method_name)
-          end
-          alias_method :partial_reindex, :searchkick_partial_reindex unless method_defined?(:partial_reindex)
-
-          def clean_indices
-            searchkick_index.clean_indices
-          end
-
-          def searchkick_import(options = {})
-            (options[:index] || searchkick_index).import_scope(searchkick_klass)
-          end
-
-          def searchkick_create_index
-            searchkick_index.create_index
-          end
-
           def searchkick_index_options
             searchkick_index.index_options
           end
-
-          def searchkick_debug
-            warn "Use debug option with search method instead"
-
-            nil # do not return anything, as this is strictly used for manual debugging
-          end
         end
-        extend Searchkick::Reindex # legacy for Searchjoy
 
         callback_name = callbacks == :async ? :reindex_async : :reindex
         if respond_to?(:after_commit)
@@ -114,11 +88,6 @@ module Searchkick
         def reindex_async
           self.class.searchkick_index.reindex_record_async(self)
         end unless method_defined?(:reindex_async)
-
-        def partial_reindex(method_name)
-          reindex(method_name, refresh: true)
-          true
-        end unless method_defined?(:partial_reindex)
 
         def similar(options = {})
           self.class.searchkick_index.similar_record(self, options)

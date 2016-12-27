@@ -12,7 +12,7 @@ class IndexTest < Minitest::Test
     old_index.create
     different_index.create
 
-    Product.clean_indices
+    Product.searchkick_index.clean_indices
 
     assert Product.searchkick_index.exists?
     assert different_index.exists?
@@ -23,7 +23,7 @@ class IndexTest < Minitest::Test
     old_index = Searchkick::Index.new("products_test_20130801000000")
     old_index.create
 
-    Product.clean_indices
+    Product.searchkick_index.clean_indices
 
     assert !old_index.exists?
   end

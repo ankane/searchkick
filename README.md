@@ -1293,11 +1293,6 @@ product.reindex_async
 Reindex more than one record without recreating the index
 
 ```ruby
-# do this ...
-some_company.products.each { |p| p.reindex }
-# or this ...
-Product.searchkick_index.import(some_company.products)
-# don't do the following as it will recreate the index with some_company's products only
 some_company.products.reindex
 ```
 
@@ -1321,13 +1316,13 @@ class Product < ActiveRecord::Base
   end
 end
 
-Product.partial_reindex(:search_prices)
+Product.reindex(:search_prices)
 ```
 
 Remove old indices
 
 ```ruby
-Product.clean_indices
+Product.searchkick_index.clean_indices
 ```
 
 Use custom settings
