@@ -3,7 +3,7 @@ module Searchkick
 
   module Model
     def searchkick(**options)
-      unknown_keywords = options.keys - [:conversions, :filterable, :geo_shape, :highlight, :index_name, :index_prefix,
+      unknown_keywords = options.keys - [:conversions, :default_mappings, :filterable, :geo_shape, :highlight, :index_name, :index_prefix,
         :locations, :mappings, :match, :routing, :searchable, :settings, :suggest, :synonyms, :text_end,
         :text_middle, :text_start, :word_end, :word_middle, :word_start]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
