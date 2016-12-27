@@ -1,12 +1,6 @@
 require_relative "test_helper"
 
 class SqlTest < Minitest::Test
-  def test_partial
-    store_names ["Honey"]
-    assert_search "fresh honey", []
-    assert_search "fresh honey", ["Honey"], partial: true
-  end
-
   def test_operator
     store_names ["Honey"]
     assert_search "fresh honey", []

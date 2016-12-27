@@ -16,7 +16,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :emoji, :execute,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :offset, :operator, :order, :page, :per_page,
+        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -191,7 +191,7 @@ module Searchkick
     def prepare
       boost_fields, fields = set_fields
 
-      operator = options[:operator] || (options[:partial] ? "or" : "and")
+      operator = options[:operator] || "and"
 
       # pagination
       page = [options[:page].to_i, 1].max
@@ -497,12 +497,6 @@ module Searchkick
 
     def set_boost_where(custom_filters, personalize_field)
       boost_where = options[:boost_where] || {}
-      if options[:user_id] && personalize_field
-        boost_where[personalize_field] = options[:user_id]
-      end
-      if options[:personalize]
-        boost_where = boost_where.merge(options[:personalize])
-      end
       boost_where.each do |field, value|
         if value.is_a?(Array) && value.first.is_a?(Hash)
           value.each do |value_factor|

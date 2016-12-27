@@ -35,19 +35,13 @@ class IndexTest < Minitest::Test
 
   def test_mapping
     store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
-    assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
-  end
-
-  def test_json
-    store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
-    assert_equal ["Dollar Tree"], Store.search(json: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
+    assert_equal [], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}).map(&:name)
   end
 
   def test_body
     store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
+    assert_equal [], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
   end
 

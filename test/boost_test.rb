@@ -64,26 +64,6 @@ class BoostTest < Minitest::Test
     assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
   end
 
-  def test_user_id
-    store [
-      {name: "Tomato A"},
-      {name: "Tomato B", user_ids: [1, 2, 3]},
-      {name: "Tomato C"},
-      {name: "Tomato D"}
-    ]
-    assert_first "tomato", "Tomato B", user_id: 2
-  end
-
-  def test_personalize
-    store [
-      {name: "Tomato A"},
-      {name: "Tomato B", user_ids: [1, 2, 3]},
-      {name: "Tomato C"},
-      {name: "Tomato D"}
-    ]
-    assert_first "tomato", "Tomato B", personalize: {user_ids: 2}
-  end
-
   def test_boost_fields
     store [
       {name: "Red", color: "White"},
