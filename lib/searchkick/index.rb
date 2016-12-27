@@ -341,9 +341,7 @@ module Searchkick
     end
 
     def location_value(value)
-      if value.is_a?(Array)
-        value.map(&:to_f).reverse
-      elsif value.is_a?(Hash)
+      if value.is_a?(Hash)
         {lat: value[:lat].to_f, lon: value[:lon].to_f}
       else
         value
