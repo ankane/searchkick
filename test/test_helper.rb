@@ -29,24 +29,8 @@ def elasticsearch_below22?
   Searchkick.server_below?("2.2.0")
 end
 
-def elasticsearch_below20?
-  Searchkick.server_below?("2.0.0")
-end
-
-def elasticsearch_below14?
-  Searchkick.server_below?("1.4.0")
-end
-
-def mongoid2?
-  defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
-end
-
 def nobrainer?
   defined?(NoBrainer)
-end
-
-def activerecord_below41?
-  defined?(ActiveRecord) && Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("4.1.0")
 end
 
 if defined?(Mongoid)

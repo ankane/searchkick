@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class DangerousReindexTest < Minitest::Test
   def setup
-    skip if mongoid2? || nobrainer? || activerecord_below41?
+    skip if nobrainer?
     super
   end
 

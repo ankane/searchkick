@@ -245,8 +245,6 @@ module Searchkick
             transpositions =
               if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
                 {fuzzy_transpositions: misspellings[:transpositions]}
-              elsif below14?
-                {}
               else
                 {fuzzy_transpositions: true}
               end
@@ -319,12 +317,7 @@ module Searchkick
             shoulds = []
             conversions_fields.each do |conversions_field|
               # wrap payload in a bool query
-              script_score =
-                if below12?
-                  {script_score: {script: "doc['count'].value"}}
-                else
-                  {field_value_factor: {field: "#{conversions_field}.count"}}
-                end
+              script_score = {field_value_factor: {field: "#{conversions_field}.count"}}
 
               shoulds << {
                 nested: {
@@ -636,36 +629,19 @@ module Searchkick
 
     def set_filters(payload, filters)
       if options[:facets] || options[:aggs]
-        if below20?
-          payload[:filter] = {
-            and: filters
+        payload[:post_filter] = {
+          bool: {
+            filter: filters
           }
-        else
-          payload[:post_filter] = {
-            bool: {
-              filter: filters
-            }
-          }
-        end
+        }
       else
         # more efficient query if no facets
-        if below20?
-          payload[:query] = {
-            filtered: {
-              query: payload[:query],
-              filter: {
-                and: filters
-              }
-            }
+        payload[:query] = {
+          bool: {
+            must: payload[:query],
+            filter: filters
           }
-        else
-          payload[:query] = {
-            bool: {
-              must: payload[:query],
-              filter: filters
-            }
-          }
-        end
+        }
       end
     end
 
@@ -690,23 +666,11 @@ module Searchkick
             end
           end
         elsif field == :_or
-          if below20?
-            filters << {or: value.map { |or_statement| {and: where_filters(or_statement)} }}
-          else
-            filters << {bool: {should: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-          end
+          filters << {bool: {should: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :_not
-          if below20?
-            filters << {not: {and: where_filters(value)}}
-          else
-            filters << {bool: {must_not: where_filters(value)}}
-          end
+          filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
-          if below20?
-            filters << {and: value.map { |or_statement| {and: where_filters(or_statement)} }}
-          else
-            filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-          end
+          filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         else
           # expand ranges
           if value.is_a?(Range)
@@ -841,13 +805,13 @@ module Searchkick
       boost_by.map do |field, value|
         log = value.key?(:log) ? value[:log] : options[:log]
         value[:factor] ||= 1
-        script_score =
-          if below12?
-            script = log ? "log(doc['#{field}'].value + 2.718281828)" : "doc['#{field}'].value"
-            {script_score: {script: "#{value[:factor].to_f} * #{script}"}}
-          else
-            {field_value_factor: {field: field, factor: value[:factor].to_f, modifier: log ? "ln2p" : nil}}
-          end
+        script_score = {
+          field_value_factor: {
+            field: field,
+            factor: value[:factor].to_f,
+            modifier: log ? "ln2p" : nil
+          }
+        }
 
         {
           filter: {
@@ -878,18 +842,6 @@ module Searchkick
       else
         value
       end
-    end
-
-    def below12?
-      Searchkick.server_below?("1.2.0")
-    end
-
-    def below14?
-      Searchkick.server_below?("1.4.0")
-    end
-
-    def below20?
-      Searchkick.server_below?("2.0.0")
     end
 
     def below50?

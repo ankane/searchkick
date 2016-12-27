@@ -14,8 +14,6 @@ class BoostTest < Minitest::Test
   end
 
   def test_multiple_conversions
-    skip if elasticsearch_below14?
-
     store [
       {name: "Speaker A", conversions_a: {"speaker" => 1}, conversions_b: {"speaker" => 6}},
       {name: "Speaker B", conversions_a: {"speaker" => 2}, conversions_b: {"speaker" => 5}},
