@@ -99,15 +99,6 @@ module Searchkick
     end
 
     def handle_response(response)
-      # apply facet limit in client due to
-      # https://github.com/elasticsearch/elasticsearch/issues/1305
-      @facet_limits.each do |field, limit|
-        field = field.to_s
-        facet = response["facets"][field]
-        response["facets"][field]["terms"] = facet["terms"].first(limit)
-        response["facets"][field]["other"] = facet["total"] - facet["terms"].sum { |term| term["count"] }
-      end
-
       opts = {
         page: @page,
         per_page: @per_page,
@@ -406,9 +397,6 @@ module Searchkick
         filters = where_filters(options[:where])
         set_filters(payload, filters) if filters.any?
 
-        # facets
-        set_facets(payload) if options[:facets]
-
         # aggregations
         set_aggregations(payload) if options[:aggs]
 
@@ -447,7 +435,6 @@ module Searchkick
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]
 
       @body = payload
-      @facet_limits ||= {}
       @page = page
       @per_page = per_page
       @padding = padding
@@ -651,59 +638,6 @@ module Searchkick
           }
         end
       end
-    end
-
-    def set_facets(payload)
-      facets = options[:facets] || {}
-      facets = Hash[facets.map { |f| [f, {}] }] if facets.is_a?(Array) # convert to more advanced syntax
-      facet_limits = {}
-      payload[:facets] = {}
-
-      facets.each do |field, facet_options|
-        # ask for extra facets due to
-        # https://github.com/elasticsearch/elasticsearch/issues/1305
-        size = facet_options[:limit] ? facet_options[:limit] + 150 : 1_000
-
-        if facet_options[:ranges]
-          payload[:facets][field] = {
-            range: {
-              field.to_sym => facet_options[:ranges]
-            }
-          }
-        elsif facet_options[:stats]
-          payload[:facets][field] = {
-            terms_stats: {
-              key_field: field,
-              value_script: below14? ? "doc.score" : "_score",
-              size: size
-            }
-          }
-        else
-          payload[:facets][field] = {
-            terms: {
-              field: facet_options[:field] || field,
-              size: size
-            }
-          }
-        end
-
-        facet_limits[field] = facet_options[:limit] if facet_options[:limit]
-
-        # offset is not possible
-        # http://elasticsearch-users.115913.n3.nabble.com/Is-pagination-possible-in-termsStatsFacet-td3422943.html
-
-        facet_options.deep_merge!(where: options.fetch(:where, {}).reject { |k| k == field }) if options[:smart_facets] == true
-        facet_filters = where_filters(facet_options[:where])
-        if facet_filters.any?
-          payload[:facets][field][:facet_filter] = {
-            and: {
-              filters: facet_filters
-            }
-          }
-        end
-      end
-
-      @facet_limits = facet_limits
     end
 
     def set_filters(payload, filters)
