@@ -105,10 +105,8 @@ module Searchkick
       if Searchkick.callbacks_value.nil?
         if defined?(Searchkick::ReindexV2Job)
           Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
-        elsif defined?(Delayed::Job)
-          Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
         else
-          raise Searchkick::Error, "Job adapter not found"
+          raise Searchkick::Error, "ActiveJob not found"
         end
       else
         reindex_record(record)
