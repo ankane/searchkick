@@ -165,9 +165,7 @@ module Searchkick
           settings[:number_of_replicas] = 0
         end
 
-        if options[:similarity]
-          settings[:similarity] = {default: {type: options[:similarity]}}
-        end
+        settings[:similarity] = {default: {type: options[:similarity] || "BM25"}}
 
         settings.deep_merge!(options[:settings] || {})
 
