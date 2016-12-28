@@ -1,8 +1,6 @@
 ## 2.0.0 [unreleased]
 
 - Added support for `reindex` on associations
-- Added `client_options`
-- Added `refresh` option to `reindex` method
 
 Breaking changes
 
@@ -14,6 +12,11 @@ Breaking changes
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
 - `load: false` no longer returns an array in Elasticsearch 2
+
+## 1.5.1
+
+- Added `client_options`
+- Added `refresh` option to `reindex` method
 
 ## 1.5.0
 

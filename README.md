@@ -1380,7 +1380,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/similarity.html) for scoring
+Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) for scoring
 
 ```ruby
 class Product < ActiveRecord::Base
