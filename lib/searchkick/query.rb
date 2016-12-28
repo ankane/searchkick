@@ -164,13 +164,19 @@ module Searchkick
       elsif status_code == 500 && (
         e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
         e.message.include?("No query registered for [multi_match]") ||
-        e.message.include?("[match] query does not support [cutoff_frequency]]") ||
-        e.message.include?("No query registered for [function_score]]")
+        e.message.include?("[match] query does not support [cutoff_frequency]") ||
+        e.message.include?("No query registered for [function_score]")
       )
 
-        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 1.0 or greater"
+        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
       elsif status_code == 400
-        if e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+        if (
+          e.message.include?("bool query does not support [filter]") ||
+          e.message.include?("[bool] filter does not support [filter]")
+        )
+
+          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
+        elsif e.message.include?("[multi_match] analyzer [searchkick_search] not found")
           raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
         else
           raise InvalidQueryError, e.message
