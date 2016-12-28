@@ -1325,7 +1325,7 @@ class Product < ActiveRecord::Base
   end
 end
 
-Product.reindex(:search_prices)
+Product.partial_reindex(:search_prices)
 ```
 
 Remove old indices
