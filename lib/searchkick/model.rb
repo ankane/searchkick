@@ -2,10 +2,10 @@ module Searchkick
   module Model
     def searchkick(**options)
       unknown_keywords = options.keys - [:batch_size, :callbacks, :conversions, :default_mappings,
-        :filterable, :geo_shape, :highlight, :index_name, :index_prefix, :language,
-        :locations, :mappings, :match, :routing, :searchable, :settings,
-        :special_characters, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :word_end, :word_middle, :word_start]
+        :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :language,
+        :locations, :mappings, :match, :routing, :searchable, :settings, :similarity,
+        :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
+        :text_middle, :text_start, :word, :wordnet, :word_end, :word_middle, :word_start]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)

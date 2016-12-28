@@ -59,11 +59,6 @@ module Searchkick
                 filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
               },
               # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
-              searchkick_autocomplete_index: {
-                type: "custom",
-                tokenizer: "searchkick_autocomplete_ngram",
-                filter: ["lowercase", "asciifolding"]
-              },
               searchkick_autocomplete_search: {
                 type: "custom",
                 tokenizer: "keyword",
@@ -150,13 +145,6 @@ module Searchkick
                 type: "mapping",
                 mappings: ["&=> and "]
               }
-            },
-            tokenizer: {
-              searchkick_autocomplete_ngram: {
-                type: "edgeNGram",
-                min_gram: 1,
-                max_gram: 50
-              }
             }
           }
         }
@@ -232,7 +220,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
+          [:suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
             .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -283,13 +271,6 @@ module Searchkick
         options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
         (options[:geo_shape] || {}).each do |field, shape_options|
           mapping[field] = shape_options.merge(type: "geo_shape")
-        end
-
-        (options[:unsearchable] || []).map(&:to_s).each do |field|
-          mapping[field] = {
-            type: default_type,
-            index: "no"
-          }
         end
 
         routing = {}
