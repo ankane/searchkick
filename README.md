@@ -27,7 +27,7 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
-**Searchkick 2.0 was just released!** See [instructions for upgrading](#200).
+**Searchkick 2.0 was just released!** See [notable changes](#200).
 
 ## Get Started
 
