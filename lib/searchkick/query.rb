@@ -805,7 +805,7 @@ module Searchkick
       if value.is_a?(Hash)
         [value[:lon], value[:lat]]
       elsif value.is_a?(Array) and !value[0].is_a?(Numeric)
-        value.map {|a| coordinate_array(a) }
+        value.map { |a| coordinate_array(a) }
       else
         value
       end
