@@ -284,6 +284,7 @@ class Product
     highlight: [:name],
     searchable: [:name, :color],
     filterable: [:name, :color, :description],
+    similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details

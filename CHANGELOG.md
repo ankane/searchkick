@@ -1,5 +1,6 @@
 ## 2.0.0 [unreleased]
 
+- Added support for `reindex` on associations
 - Added `client_options`
 - Added `refresh` option to `reindex` method
 
@@ -7,11 +8,9 @@ Breaking changes
 
 - Removed support for Elasticsearch 1.x as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
-- Added support for `reindex` on associations
+- Invalid options now throw an `ArgumentError`
 - When passing coordinates as an array, `longitude` comes first (consistent with Elasticsearch)
 - Renamed `select_v2` to `select` (legacy `select` no longer available)
-- Invalid options now throw an `ArgumentError`
-- `BM25` is now the default similarity algorithm (consistent with Elasticsearch 5+)
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
