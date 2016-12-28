@@ -18,7 +18,7 @@ class ReindexTest < Minitest::Test
   def test_associations
     store_names ["Product A"]
     store = Store.create!(name: "Test")
-    store.products.create!(name: "Product B")
+    Product.create!(name: "Product B", store_id: store.id)
     store.products.reindex(refresh: true)
     assert_search "product", ["Product A", "Product B"]
   end
