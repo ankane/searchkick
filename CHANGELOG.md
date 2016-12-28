@@ -1,6 +1,5 @@
-## 1.5.1 [unreleased]
+## 2.0.0 [unreleased]
 
-- Added `default_fields` option
 - Added `client_options`
 - Added `refresh` option to `reindex` method
 
