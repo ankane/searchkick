@@ -37,23 +37,8 @@ if defined?(Mongoid)
   Mongoid.logger.level = Logger::INFO
   Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
 
-  if mongoid2?
-    # enable comparison of BSON::ObjectIds
-    module BSON
-      class ObjectId
-        def <=>(other)
-          data <=> other.data
-        end
-      end
-    end
-  end
-
   Mongoid.configure do |config|
-    if mongoid2?
-      config.master = Mongo::Connection.new.db("searchkick_test")
-    else
-      config.connect_to "searchkick_test"
-    end
+    config.connect_to "searchkick_test"
   end
 
   class Product
