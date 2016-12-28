@@ -755,20 +755,12 @@ module Searchkick
     def term_filters(field, value)
       if value.is_a?(Array) # in query
         if value.any?(&:nil?)
-          if below50?
-            {or: [term_filters(field, nil), term_filters(field, value.compact)]}
-          else
-            {bool: {should: [term_filters(field, nil), term_filters(field, value.compact)]}}
-          end
+          {bool: {should: [term_filters(field, nil), term_filters(field, value.compact)]}}
         else
           {in: {field => value}}
         end
       elsif value.nil?
-        if below50?
-          {missing: {field: field, existence: true, null_value: true}}
-        else
-          {bool: {must_not: {exists: {field: field}}}}
-        end
+        {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
         {regexp: {field => {value: value.source}}}
       else
