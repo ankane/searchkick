@@ -314,6 +314,7 @@ end
 class Store
   searchkick \
     routing: true,
+    merge_mappings: true,
     mappings: {
       store: {
         properties: {

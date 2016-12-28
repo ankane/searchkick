@@ -14,7 +14,7 @@ Breaking changes
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
-- `load: false` no longer returns an array in Elasticsearch < 2
+- `load: false` no longer returns an array in Elasticsearch < 5
 
 ## 1.5.0
 

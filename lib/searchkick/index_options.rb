@@ -4,9 +4,8 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
-      default_mappings = options.fetch(:default_mappings, true)
 
-      if options[:mappings] && !default_mappings
+      if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
