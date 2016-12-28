@@ -1513,6 +1513,8 @@ Important notes are listed below.
 
 ### 2.0.0
 
+#### Breaking Changes
+
 - Removed support for Elasticsearch below 2.0
 - Removed facets, legacy options, and legacy methods
 - Added support for `reindex` on associations
@@ -1523,7 +1525,7 @@ Important notes are listed below.
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
-- `load: false` no longer returns an array
+- `load: false` no longer returns an array in Elasticsearch below 5
 
 ### 1.0.0
 
