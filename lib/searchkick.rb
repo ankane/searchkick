@@ -73,7 +73,7 @@ module Searchkick
     Gem::Version.new(server_version.sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
   end
 
-  def self.search(term = nil, options = {}, &block)
+  def self.search(term = "*", **options, &block)
     query = Searchkick::Query.new(nil, term, options)
     block.call(query.body) if block
     if options[:execute] == false
