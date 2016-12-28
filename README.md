@@ -1515,7 +1515,7 @@ Important notes are listed below.
 
 #### Breaking Changes
 
-- Removed support for Elasticsearch below 2.0
+- Removed support for Elasticsearch 1.x as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
 - Added support for `reindex` on associations
 - When passing coordinates as an array, `longitude` comes first (consistent with Elasticsearch)
@@ -1525,7 +1525,7 @@ Important notes are listed below.
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
-- `load: false` no longer returns an array in Elasticsearch below 5
+- `load: false` no longer returns an array in Elasticsearch < 5
 
 ### 1.0.0
 
