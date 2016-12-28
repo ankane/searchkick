@@ -106,7 +106,7 @@ module Searchkick
         if defined?(Searchkick::ReindexV2Job)
           Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
         else
-          raise Searchkick::Error, "ActiveJob not found"
+          raise Searchkick::Error, "Active Job not found"
         end
       else
         reindex_record(record)
