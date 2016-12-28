@@ -336,9 +336,12 @@ module Searchkick
             dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
           end
 
+        # TODO make dynamic
+        all_enabled = true
+
         mappings = {
           _default_: {
-            _all: options[:default_fields] ? {enabled: false} : {type: default_type, index: "analyzed", analyzer: default_analyzer},
+            _all: all_enabled ? {type: default_type, index: "analyzed", analyzer: default_analyzer} : {enabled: false},
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285
