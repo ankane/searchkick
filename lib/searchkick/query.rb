@@ -269,7 +269,7 @@ module Searchkick
                 :match
               end
 
-            shared_options[:operator] = operator if match_type == :match || below50?
+            shared_options[:operator] = operator if match_type == :match
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
@@ -285,7 +285,7 @@ module Searchkick
               qs << shared_options.merge(analyzer: analyzer)
             end
 
-            if misspellings != false && (match_type == :match || below50?)
+            if misspellings != false && match_type == :match
               qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
             end
 
@@ -650,11 +650,7 @@ module Searchkick
 
         if field == :or
           value.each do |or_clause|
-            if below50?
-              filters << {or: or_clause.map { |or_statement| {and: where_filters(or_statement)} }}
-            else
-              filters << {bool: {should: or_clause.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-            end
+            filters << {bool: {should: or_clause.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
           end
         elsif field == :_or
           filters << {bool: {should: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
@@ -711,11 +707,7 @@ module Searchkick
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
-                if below50?
-                  filters << {not: {filter: term_filters(field, op_value)}}
-                else
-                  filters << {bool: {must_not: term_filters(field, op_value)}}
-                end
+                filters << {bool: {must_not: term_filters(field, op_value)}}
               when :all
                 op_value.each do |val|
                   filters << term_filters(field, val)
