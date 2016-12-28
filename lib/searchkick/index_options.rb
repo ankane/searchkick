@@ -13,7 +13,7 @@ module Searchkick
         below22 = Searchkick.server_below?("2.2.0")
         below50 = Searchkick.server_below?("5.0.0-alpha1")
         default_type = below50 ? "string" : "text"
-        default_analyzer = below50 ? :default_index : :default
+        default_analyzer = :searchkick_index
         keyword_mapping =
           if below50
             {

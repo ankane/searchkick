@@ -956,7 +956,7 @@ Product.search("soap", explain: true).response
 See how Elasticsearch tokenizes your queries with:
 
 ```ruby
-Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "default_index")
+Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "searchkick_index")
 # ["dish", "dishwash", "washer", "washersoap", "soap"]
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search")
