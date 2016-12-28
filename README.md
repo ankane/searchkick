@@ -343,7 +343,7 @@ You can change this with:
 Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
 ```
 
-To improve performance for correctly spelled queries (which should be a majority for most applications), Searchkick can first perform a search without misspellings, and if there are too few results, perform another with them.
+To prevent poor precision and improve performance for correctly spelled queries (which should be a majority for most applications), Searchkick can first perform a search without misspellings, and if there are too few results, perform another with them.
 
 ```ruby
 Product.search "zuchini", misspellings: {below: 5}
@@ -1106,7 +1106,11 @@ rake searchkick:reindex CLASS=Product
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
 
 ```ruby
-Searchkick.client = Elasticsearch::Client.new(hosts: ["localhost:9200", "localhost:9201"], retry_on_failure: true)
+ENV["ELASTICSEARCH_URL"] = "http://localhost:9200,http://localhost:9201"
+
+Searchkick.client_options = {
+  retry_on_failure: true
+}
 ```
 
 See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
@@ -1321,13 +1325,13 @@ class Product < ActiveRecord::Base
   end
 end
 
-Product.partial_reindex(:search_prices)
+Product.reindex(:search_prices)
 ```
 
 Remove old indices
 
 ```ruby
-Product.clean_indices
+Product.searchkick_index.clean_indices
 ```
 
 Use custom settings
@@ -1424,11 +1428,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use [Okapi BM25](https://www.elastic.co/guide/en/elasticsearch/guide/current/pluggable-similarites.html) for ranking
+Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) for scoring
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick similarity: "BM25"
+  searchkick similarity: "classic"
 end
 ```
 
@@ -1459,14 +1463,6 @@ Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
 ```
 
-Make fields unsearchable but include in the source
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick unsearchable: [:color]
-end
-```
-
 Reindex conditionally
 
 **Note:** With ActiveRecord, use this feature with caution - [transaction rollbacks can cause data inconsistencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks)
@@ -1476,7 +1472,7 @@ class Product < ActiveRecord::Base
   searchkick callbacks: false
 
   # add the callbacks manually
-  after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
+  after_save :reindex, if: -> (model) { model.name_changed? } # use your own condition
   after_destroy :reindex
 end
 ```
@@ -1522,43 +1518,12 @@ end
 
 ```ruby
 product = FactoryGirl.create(:product)
-product.reindex # don't forget this
-Product.searchkick_index.refresh # or this
+product.reindex(refresh: true)
 ```
 
 ## Multi-Tenancy
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
-
-## Migrating from Tire
-
-1. Change `search` methods to `tire.search` and add index name in existing search calls
-
-  ```ruby
-  Product.search "fruit"
-  ```
-
-  should be replaced with
-
-  ```ruby
-  Product.tire.search "fruit", index: "products"
-  ```
-
-2. Replace tire mapping w/ searchkick method
-
-  ```ruby
-  class Product < ActiveRecord::Base
-    searchkick
-  end
-  ```
-
-3. Deploy and reindex
-
-  ```ruby
-  rake searchkick:reindex CLASS=Product # or Product.reindex in the console
-  ```
-
-4. Once it finishes, replace search calls w/ searchkick calls
 
 ## Upgrading
 

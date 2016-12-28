@@ -9,8 +9,8 @@ module Searchkick
       @options = options
     end
 
-    def create(options = {})
-      client.indices.create index: name, body: options
+    def create(body = {})
+      client.indices.create index: name, body: body
     end
 
     def delete
