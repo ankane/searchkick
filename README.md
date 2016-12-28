@@ -115,7 +115,7 @@ limit: 20, offset: 40
 Select
 
 ```ruby
-select_v2: ["name"]
+select: ["name"]
 ```
 
 ### Results
