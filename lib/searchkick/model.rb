@@ -46,7 +46,7 @@ module Searchkick
             class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
           end
 
-          def searchkick_reindex(method_name = nil, **options)
+          def searchkick_reindex(method_name = nil, full: false, **options)
             scoped = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
               (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
 
@@ -56,7 +56,7 @@ module Searchkick
               # update
               searchkick_index.import_scope(searchkick_klass, method_name: method_name)
               searchkick_index.refresh if refresh
-            elsif scoped
+            elsif scoped && !full
               # reindex association
               searchkick_index.import_scope(searchkick_klass)
               searchkick_index.refresh if refresh
