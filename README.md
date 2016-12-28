@@ -1477,36 +1477,6 @@ product.reindex(refresh: true)
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
-## Migrating from Tire
-
-1. Change `search` methods to `tire.search` and add index name in existing search calls
-
-  ```ruby
-  Product.search "fruit"
-  ```
-
-  should be replaced with
-
-  ```ruby
-  Product.tire.search "fruit", index: "products"
-  ```
-
-2. Replace tire mapping w/ searchkick method
-
-  ```ruby
-  class Product < ActiveRecord::Base
-    searchkick
-  end
-  ```
-
-3. Deploy and reindex
-
-  ```ruby
-  rake searchkick:reindex CLASS=Product # or Product.reindex in the console
-  ```
-
-4. Once it finishes, replace search calls w/ searchkick calls
-
 ## Upgrading
 
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
