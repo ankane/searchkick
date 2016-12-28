@@ -1407,14 +1407,6 @@ Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
 ```
 
-Make fields unsearchable but include in the source
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick unsearchable: [:color]
-end
-```
-
 Reindex conditionally
 
 **Note:** With ActiveRecord, use this feature with caution - [transaction rollbacks can cause data inconsistencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks)
@@ -1424,7 +1416,7 @@ class Product < ActiveRecord::Base
   searchkick callbacks: false
 
   # add the callbacks manually
-  after_save :reindex, if: proc{|model| model.name_changed? } # use your own condition
+  after_save :reindex, if: -> (model) { model.name_changed? } # use your own condition
   after_destroy :reindex
 end
 ```
@@ -1524,6 +1516,7 @@ Important notes are listed below.
 - `BM25` is now the default similarity algorithm (consistent with Elasticsearch 5+)
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
+- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
 - `load: false` no longer returns an array
 
 ### 1.0.0
