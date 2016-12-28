@@ -1470,8 +1470,7 @@ end
 
 ```ruby
 product = FactoryGirl.create(:product)
-product.reindex # don't forget this
-Product.searchkick_index.refresh # or this
+product.reindex(refresh: true)
 ```
 
 ## Multi-Tenancy
@@ -1522,8 +1521,9 @@ Important notes are listed below.
 - When passing coordinates as an array, `longitude` comes first (consistent with Elasticsearch)
 - Renamed `select_v2` to `select` (legacy `select` no longer available)
 - Invalid options now throw an `ArgumentError`
-- BM25 is used by default (consistent with Elasticsearch 5+)
-- The `_all` field is disabled if `searchable` option is used - for performance
+- `BM25` is now the default similarity algorithm (consistent with Elasticsearch 5+)
+- The `_all` field is disabled if `searchable` option is used (for performance)
+- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
 - `load: false` no longer returns an array
 
 ### 1.0.0
