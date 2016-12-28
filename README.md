@@ -1419,11 +1419,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use [Okapi BM25](https://www.elastic.co/guide/en/elasticsearch/guide/current/pluggable-similarites.html) for ranking
+Use a different similarity algorithm for scoring
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick similarity: "BM25"
+  searchkick similarity: "classic"
 end
 ```
 
@@ -1560,6 +1560,18 @@ Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenan
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 Important notes are listed below.
+
+### 2.0.0
+
+- Removed support for Elasticsearch below 2.0
+- Removed facets, legacy options, and legacy methods
+- Added support for `reindex` on associations
+- When passing coordinates as an array, `longitude` comes first (consistent with Elasticsearch)
+- Renamed `select_v2` to `select` (legacy `select` no longer available)
+- Invalid options now throw an `ArgumentError`
+- BM25 is used by default (consistent with Elasticsearch 5+)
+- The `_all` field is disabled if `searchable` option is used - for performance
+- `load: false` no longer returns an array
 
 ### 1.0.0
 
