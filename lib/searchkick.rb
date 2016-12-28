@@ -12,6 +12,7 @@ require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
+require "active_support/core_ext/hash/deep_merge"
 
 # background jobs
 begin
