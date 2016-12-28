@@ -81,10 +81,6 @@ module Searchkick
       end
     end
 
-    def facets
-      response["facets"]
-    end
-
     def aggregations
       response["aggregations"]
     end

@@ -759,53 +759,6 @@ Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :creat
   aggs: {date_field: {date_ranges: date_ranges}}
   ```
 
-### Facets [deprecated]
-
-Facets have been deprecated in favor of aggregations as of Searchkick 1.0. See [how to upgrade](#moving-from-facets).
-
-```ruby
-products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
-p products.facets
-```
-
-By default, `where` conditions are not applied to facets (for backward compatibility).
-
-```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size]
-# facets *not* filtered by color :(
-```
-
-Change this with:
-
-```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size], smart_facets: true
-```
-
-or set `where` conditions for each facet separately:
-
-```ruby
-Product.search "wingtips", facets: {size: {where: {color: "brandy"}}}
-```
-
-Limit
-
-```ruby
-Product.search "apples", facets: {store_id: {limit: 10}}
-```
-
-Ranges
-
-```ruby
-price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
-Product.search "*", facets: {price: {ranges: price_ranges}}
-```
-
-Use the `stats` option to get to max, min, mean, and total scores for each facet
-
-```ruby
-Product.search "*", facets: {store_id: {stats: true}}
-```
-
 ### Highlight
 
 Specify which fields to index with highlighting.

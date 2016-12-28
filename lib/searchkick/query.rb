@@ -6,7 +6,7 @@ module Searchkick
     attr_accessor :body
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
-      :records, :results, :suggestions, :each_with_hit, :with_details, :facets, :aggregations, :aggs,
+      :records, :results, :suggestions, :each_with_hit, :with_details, :aggregations, :aggs,
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
@@ -14,9 +14,9 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_where, :conversions, :emoji, :execute,
+        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page,
+        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -203,7 +203,6 @@ module Searchkick
       load = options[:load].nil? ? true : options[:load]
 
       conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
-      personalize_field  = searchkick_options[:personalize]
 
       all = term == "*"
 
@@ -349,7 +348,7 @@ module Searchkick
         multiply_filters = []
 
         set_boost_by(multiply_filters, custom_filters)
-        set_boost_where(custom_filters, personalize_field)
+        set_boost_where(custom_filters)
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
 
         if custom_filters.any?
@@ -488,7 +487,7 @@ module Searchkick
       multiply_filters.concat boost_filters(multiply_by || {})
     end
 
-    def set_boost_where(custom_filters, personalize_field)
+    def set_boost_where(custom_filters)
       boost_where = options[:boost_where] || {}
       boost_where.each do |field, value|
         if value.is_a?(Array) && value.first.is_a?(Hash)
@@ -628,14 +627,14 @@ module Searchkick
     end
 
     def set_filters(payload, filters)
-      if options[:facets] || options[:aggs]
+      if options[:aggs]
         payload[:post_filter] = {
           bool: {
             filter: filters
           }
         }
       else
-        # more efficient query if no facets
+        # more efficient query if no aggs
         payload[:query] = {
           bool: {
             must: payload[:query],
