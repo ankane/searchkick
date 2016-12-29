@@ -21,7 +21,7 @@ puts "Imported"
 
 time =
   Benchmark.realtime do
-    Product.reindex #(threads: 3)
+    Product.reindex(threads: 3)
   end
 
 puts time.round(1)

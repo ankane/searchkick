@@ -45,14 +45,14 @@ module Searchkick
       end
     end
 
-    def import(records)
+    def import(records, *args)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",
           count: records.size
         }
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+          super(records, *args)
         end
       end
     end
