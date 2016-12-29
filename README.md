@@ -1245,24 +1245,18 @@ User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345
 Reindex one record
 
 ```ruby
-product = Product.find 10
+product = Product.find(1)
 product.reindex
 # or to reindex in the background
 product.reindex_async
 ```
 
-Reindex more than one record without recreating the index
+Reindex multiple records
 
 ```ruby
-some_company.products.reindex
-```
-
-Reindex large set of records in batches
-
-```ruby
-Product.where("id > 100000").find_in_batches do |batch|
-  Product.searchkick_index.import(batch)
-end
+Product.where(store_id: 1).reindex
+# or
+store.products.reindex
 ```
 
 Reindex a subset of attributes (partial reindex)
