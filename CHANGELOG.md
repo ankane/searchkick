@@ -17,6 +17,7 @@ Breaking changes
 
 - Added `client_options`
 - Added `refresh` option to `reindex` method
+- Improved syntax for partial reindex
 
 ## 1.5.0
 
