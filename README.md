@@ -254,7 +254,7 @@ Available options are:
 ### Exact Matches
 
 ```ruby
-User.search params[:q], fields: [{email: :exact}, :name]
+User.search query, fields: [{email: :exact}, :name]
 ```
 
 ### Phrase Matches
