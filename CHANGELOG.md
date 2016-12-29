@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Added `search_hit` and `search_highlights` methods to models
+
 ## 2.0.0
 
 - Added support for `reindex` on associations

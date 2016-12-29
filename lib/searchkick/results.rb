@@ -32,7 +32,22 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]][hit["_id"].to_s]
+            result = results[hit["_type"]][hit["_id"].to_s]
+            if result
+              unless result.respond_to?(:search_hit)
+                result.define_singleton_method(:search_hit) do
+                  hit
+                end
+              end
+
+              if hit["highlight"] && !result.respond_to?(:search_highlights)
+                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                result.define_singleton_method(:search_highlights) do
+                  highlights
+                end
+              end
+            end
+            result
           end.compact
         else
           hits.map do |hit|
