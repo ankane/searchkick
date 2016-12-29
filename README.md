@@ -1126,7 +1126,7 @@ end
 
 ### Routing
 
-Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing).
+Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing), which can significantly speed up searches.
 
 ```ruby
 class Business < ActiveRecord::Base
