@@ -1255,7 +1255,11 @@ Reindex multiple records
 
 ```ruby
 Product.where(store_id: 1).reindex
-# or
+```
+
+Reindex associations
+
+```ruby
 store.products.reindex
 ```
 
