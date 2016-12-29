@@ -25,47 +25,20 @@ def elasticsearch_below50?
   Searchkick.server_below?("5.0.0-alpha1")
 end
 
-def elasticsearch_below20?
-  Searchkick.server_below?("2.0.0")
-end
-
-def elasticsearch_below14?
-  Searchkick.server_below?("1.4.0")
-end
-
-def mongoid2?
-  defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
+def elasticsearch_below22?
+  Searchkick.server_below?("2.2.0")
 end
 
 def nobrainer?
   defined?(NoBrainer)
 end
 
-def activerecord_below41?
-  defined?(ActiveRecord) && Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("4.1.0")
-end
-
 if defined?(Mongoid)
   Mongoid.logger.level = Logger::INFO
   Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
 
-  if mongoid2?
-    # enable comparison of BSON::ObjectIds
-    module BSON
-      class ObjectId
-        def <=>(other)
-          data <=> other.data
-        end
-      end
-    end
-  end
-
   Mongoid.configure do |config|
-    if mongoid2?
-      config.master = Mongo::Connection.new.db("searchkick_test")
-    else
-      config.connect_to "searchkick_test"
-    end
+    config.connect_to "searchkick_test"
   end
 
   class Product
@@ -91,6 +64,13 @@ if defined?(Mongoid)
     has_many :products
 
     field :name
+  end
+
+  class Region
+    include Mongoid::Document
+
+    field :name
+    field :text
   end
 
   class Speaker
@@ -141,6 +121,14 @@ elsif defined?(NoBrainer)
 
     field :id,   type: Object
     field :name, type: String
+  end
+
+  class Region
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+    field :text, type: Text
   end
 
   class Speaker
@@ -234,6 +222,11 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :regions do |t|
+    t.string :name
+    t.text :text
+  end
+
   ActiveRecord::Migration.create_table :speakers do |t|
     t.string :name
   end
@@ -244,10 +237,14 @@ else
   end
 
   class Product < ActiveRecord::Base
+    belongs_to :store
   end
 
   class Store < ActiveRecord::Base
     has_many :products
+  end
+
+  class Region < ActiveRecord::Base
   end
 
   class Speaker < ActiveRecord::Base
@@ -264,8 +261,6 @@ else
 end
 
 class Product
-  belongs_to :store
-
   searchkick \
     synonyms: [
       ["clorox", "bleach"],
@@ -273,12 +268,12 @@ class Product
       ["saranwrap", "plasticwrap"],
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
-      ["bandaid", "bandag"]
+      ["bandaid", "bandag"],
+      "lightbulb => led,lightbulb",
+      "lightbulb => halogenlamp"
     ],
-    autocomplete: [:name],
     suggest: [:name, :color],
     conversions: [:conversions],
-    personalize: :user_ids,
     locations: [:location, :multiple_locations],
     text_start: [:name],
     text_middle: [:name],
@@ -289,8 +284,7 @@ class Product
     highlight: [:name],
     searchable: [:name, :color],
     filterable: [:name, :color, :description],
-    # unsearchable: [:description],
-    # only_analyzed: [:alt_description],
+    similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
@@ -338,23 +332,41 @@ class Store
   end
 end
 
+class Region
+  searchkick \
+    geo_shape: {
+      territory: {tree: "quadtree", precision: "10km"}
+    }
+
+  attr_accessor :territory
+
+  def search_data
+    {
+      name: name,
+      text: text,
+      territory: territory
+    }
+  end
+end
+
 class Speaker
   searchkick \
     conversions: ["conversions_a", "conversions_b"]
 
-  attr_accessor :conversions_a, :conversions_b
+  attr_accessor :conversions_a, :conversions_b, :aisle
 
   def search_data
     serializable_hash.except("id").merge(
       conversions_a: conversions_a,
-      conversions_b: conversions_b
+      conversions_b: conversions_b,
+      aisle: aisle
     )
   end
 end
 
 class Animal
   searchkick \
-    autocomplete: [:name],
+    text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}" }
     # wordnet: true
@@ -368,6 +380,7 @@ Product.create!(name: "Set mapping")
 Store.reindex
 Animal.reindex
 Speaker.reindex
+Region.reindex
 
 class Minitest::Test
   def setup

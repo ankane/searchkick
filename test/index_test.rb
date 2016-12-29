@@ -12,7 +12,7 @@ class IndexTest < Minitest::Test
     old_index.create
     different_index.create
 
-    Product.clean_indices
+    Product.searchkick_index.clean_indices
 
     assert Product.searchkick_index.exists?
     assert different_index.exists?
@@ -23,26 +23,25 @@ class IndexTest < Minitest::Test
     old_index = Searchkick::Index.new("products_test_20130801000000")
     old_index.create
 
-    Product.clean_indices
+    Product.searchkick_index.clean_indices
 
     assert !old_index.exists?
   end
 
-  def test_mapping
-    store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
-    assert_equal ["Dollar Tree"], Store.search(query: {match: {name: "Dollar Tree"}}).map(&:name)
+  def test_total_docs
+    store_names ["Product A"]
+    assert_equal 1, Product.searchkick_index.total_docs
   end
 
-  def test_json
+  def test_mapping
     store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
-    assert_equal ["Dollar Tree"], Store.search(json: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
+    assert_equal [], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}).map(&:name)
   end
 
   def test_body
     store_names ["Dollar Tree"], Store
-    assert_equal [], Store.search(query: {match: {name: "dollar"}}).map(&:name)
+    assert_equal [], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
   end
 
@@ -56,7 +55,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_tokens
-    assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree")
+    assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree", analyzer: "searchkick_index")
   end
 
   def test_tokens_analyzer
@@ -88,7 +87,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_missing_index
-    assert_raises(Searchkick::MissingIndexError) { Product.search "test", index_name: "not_found" }
+    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found") }
   end
 
   def test_unsupported_version
@@ -98,8 +97,8 @@ class IndexTest < Minitest::Test
     end
   end
 
-  def test_invalid_query
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(query: {boom: true}) }
+  def test_invalid_body
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}) }
   end
 
   def test_transaction

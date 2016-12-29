@@ -22,7 +22,7 @@ class PartialReindexTest < Minitest::Test
     assert_search "blue", ["Hi"], fields: [:color], load: false
 
     # partial reindex
-    Product.partial_reindex(:search_name)
+    Product.reindex(:search_name)
 
     # name updated, but not color
     assert_search "bye", ["Bye"], fields: [:name], load: false
@@ -49,7 +49,7 @@ class PartialReindexTest < Minitest::Test
     assert_search "hi", ["Hi"], fields: [:name], load: false
     assert_search "blue", ["Hi"], fields: [:color], load: false
 
-    product.partial_reindex(:search_name)
+    product.reindex(:search_name, refresh: true)
 
     # name updated, but not color
     assert_search "bye", ["Bye"], fields: [:name], load: false
