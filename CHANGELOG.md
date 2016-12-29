@@ -1,7 +1,8 @@
-## 1.5.1 [unreleased]
+## 1.5.1
 
 - Added `client_options`
 - Added `refresh` option to `reindex` method
+- Improved syntax for partial reindex
 
 ## 1.5.0
 
