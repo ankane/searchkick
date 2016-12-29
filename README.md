@@ -431,7 +431,7 @@ Product.reindex(resume: true)
 
 #### No need to reindex
 
-- App starts
+- app starts
 
 ### Stay Synced
 
@@ -1013,7 +1013,7 @@ heroku run rake searchkick:reindex CLASS=Product
 Include `elasticsearch 1.0.15` or greater in your Gemfile.
 
 ```ruby
-gem "elasticsearch", ">= 1.0.15"
+gem 'elasticsearch', '>= 1.0.15'
 ```
 
 Create an initializer `config/initializers/elasticsearch.rb` with:
