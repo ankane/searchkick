@@ -112,14 +112,12 @@ class MatchTest < Minitest::Test
   end
 
   def test_misspelling_zucchini_transposition
-    skip if elasticsearch_below14?
     store_names ["zucchini"]
     assert_search "zuccihni", ["zucchini"]
     assert_search "zuccihni", [], misspellings: {transpositions: false}
   end
 
   def test_misspelling_lasagna
-    skip if elasticsearch_below14?
     store_names ["lasagna"]
     assert_search "lasanga", ["lasagna"], misspellings: {transpositions: true}
     assert_search "lasgana", ["lasagna"], misspellings: {transpositions: true}
@@ -128,7 +126,6 @@ class MatchTest < Minitest::Test
   end
 
   def test_misspelling_lasagna_pasta
-    skip if elasticsearch_below14?
     store_names ["lasagna pasta"]
     assert_search "lasanga", ["lasagna pasta"], misspellings: {transpositions: true}
     assert_search "lasanga pasta", ["lasagna pasta"], misspellings: {transpositions: true}

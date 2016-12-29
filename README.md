@@ -27,6 +27,8 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
+**Searchkick 2.0 was just released!** See [notable changes](#200).
+
 ## Get Started
 
 [Install Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
@@ -43,6 +45,8 @@ Add this line to your application’s Gemfile:
 ```ruby
 gem 'searchkick'
 ```
+
+The latest version works with Elasticsearch 2 and 5. For Elasticsearch 1, use version 1.5.1 and [this readme](https://github.com/ankane/searchkick/blob/v1.5.1/README.md).
 
 Add searchkick to models you want to search.
 
@@ -115,7 +119,7 @@ limit: 20, offset: 40
 Select
 
 ```ruby
-select_v2: ["name"]
+select: ["name"]
 ```
 
 ### Results
@@ -759,53 +763,6 @@ Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :creat
   aggs: {date_field: {date_ranges: date_ranges}}
   ```
 
-### Facets [deprecated]
-
-Facets have been deprecated in favor of aggregations as of Searchkick 1.0. See [how to upgrade](#moving-from-facets).
-
-```ruby
-products = Product.search "chuck taylor", facets: [:product_type, :gender, :brand]
-p products.facets
-```
-
-By default, `where` conditions are not applied to facets (for backward compatibility).
-
-```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size]
-# facets *not* filtered by color :(
-```
-
-Change this with:
-
-```ruby
-Product.search "wingtips", where: {color: "brandy"}, facets: [:size], smart_facets: true
-```
-
-or set `where` conditions for each facet separately:
-
-```ruby
-Product.search "wingtips", facets: {size: {where: {color: "brandy"}}}
-```
-
-Limit
-
-```ruby
-Product.search "apples", facets: {store_id: {limit: 10}}
-```
-
-Ranges
-
-```ruby
-price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
-Product.search "*", facets: {price: {ranges: price_ranges}}
-```
-
-Use the `stats` option to get to max, min, mean, and total scores for each facet
-
-```ruby
-Product.search "*", facets: {store_id: {stats: true}}
-```
-
 ### Highlight
 
 Specify which fields to index with highlighting.
@@ -1001,7 +958,7 @@ Product.search("soap", explain: true).response
 See how Elasticsearch tokenizes your queries with:
 
 ```ruby
-Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "default_index")
+Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "searchkick_index")
 # ["dish", "dishwash", "washer", "washersoap", "soap"]
 
 Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search")
@@ -1297,11 +1254,6 @@ product.reindex_async
 Reindex more than one record without recreating the index
 
 ```ruby
-# do this ...
-some_company.products.each { |p| p.reindex }
-# or this ...
-Product.searchkick_index.import(some_company.products)
-# don't do the following as it will recreate the index with some_company's products only
 some_company.products.reindex
 ```
 
@@ -1530,6 +1482,21 @@ Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenan
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 Important notes are listed below.
+
+### 2.0.0
+
+- Added support for `reindex` on associations
+
+#### Breaking Changes
+
+- Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
+- Removed facets, legacy options, and legacy methods
+- Invalid options now throw an `ArgumentError`
+- Renamed `select_v2` to `select` (legacy `select` no longer available)
+- The `_all` field is disabled if `searchable` option is used (for performance)
+- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
+- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
+- `load: false` no longer returns an array in Elasticsearch 2
 
 ### 1.0.0
 

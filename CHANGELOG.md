@@ -1,3 +1,18 @@
+## 2.0.0 [unreleased]
+
+- Added support for `reindex` on associations
+
+Breaking changes
+
+- Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
+- Removed facets, legacy options, and legacy methods
+- Invalid options now throw an `ArgumentError`
+- Renamed `select_v2` to `select` (legacy `select` no longer available)
+- The `_all` field is disabled if `searchable` option is used (for performance)
+- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
+- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
+- `load: false` no longer returns an array in Elasticsearch 2
+
 ## 1.5.1
 
 - Added `client_options`

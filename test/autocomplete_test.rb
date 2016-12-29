@@ -3,17 +3,17 @@ require_relative "test_helper"
 class AutocompleteTest < Minitest::Test
   def test_autocomplete
     store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], autocomplete: true
+    assert_search "hum", ["Hummus"], match: :text_start
   end
 
   def test_autocomplete_two_words
     store_names ["Organic Hummus"]
-    assert_search "hum", [], autocomplete: true
+    assert_search "hum", [], match: :text_start
   end
 
   def test_autocomplete_fields
     store_names ["Hummus"]
-    assert_search "hum", ["Hummus"], autocomplete: true, fields: [:name]
+    assert_search "hum", ["Hummus"], match: :text_start, fields: [:name]
   end
 
   def test_text_start

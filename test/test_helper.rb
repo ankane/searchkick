@@ -29,47 +29,16 @@ def elasticsearch_below22?
   Searchkick.server_below?("2.2.0")
 end
 
-def elasticsearch_below20?
-  Searchkick.server_below?("2.0.0")
-end
-
-def elasticsearch_below14?
-  Searchkick.server_below?("1.4.0")
-end
-
-def mongoid2?
-  defined?(Mongoid) && Mongoid::VERSION.starts_with?("2.")
-end
-
 def nobrainer?
   defined?(NoBrainer)
-end
-
-def activerecord_below41?
-  defined?(ActiveRecord) && Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("4.1.0")
 end
 
 if defined?(Mongoid)
   Mongoid.logger.level = Logger::INFO
   Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
 
-  if mongoid2?
-    # enable comparison of BSON::ObjectIds
-    module BSON
-      class ObjectId
-        def <=>(other)
-          data <=> other.data
-        end
-      end
-    end
-  end
-
   Mongoid.configure do |config|
-    if mongoid2?
-      config.master = Mongo::Connection.new.db("searchkick_test")
-    else
-      config.connect_to "searchkick_test"
-    end
+    config.connect_to "searchkick_test"
   end
 
   class Product
@@ -303,10 +272,8 @@ class Product
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
     ],
-    autocomplete: [:name],
     suggest: [:name, :color],
     conversions: [:conversions],
-    personalize: :user_ids,
     locations: [:location, :multiple_locations],
     text_start: [:name],
     text_middle: [:name],
@@ -316,10 +283,8 @@ class Product
     word_end: [:name],
     highlight: [:name],
     searchable: [:name, :color],
-    default_fields: [:name, :color],
     filterable: [:name, :color, :description],
-    # unsearchable: [:description],
-    # only_analyzed: [:alt_description],
+    similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
@@ -401,7 +366,7 @@ end
 
 class Animal
   searchkick \
-    autocomplete: [:name],
+    text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}" }
     # wordnet: true

@@ -12,7 +12,7 @@ module Searchkick
         below22 = Searchkick.server_below?("2.2.0")
         below50 = Searchkick.server_below?("5.0.0-alpha1")
         default_type = below50 ? "string" : "text"
-        default_analyzer = below50 ? :default_index : :default
+        default_analyzer = :searchkick_index
         keyword_mapping =
           if below50
             {
@@ -58,11 +58,6 @@ module Searchkick
                 filter: ["standard", "lowercase", "asciifolding", "searchkick_stemmer"]
               },
               # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
-              searchkick_autocomplete_index: {
-                type: "custom",
-                tokenizer: "searchkick_autocomplete_ngram",
-                filter: ["lowercase", "asciifolding"]
-              },
               searchkick_autocomplete_search: {
                 type: "custom",
                 tokenizer: "keyword",
@@ -149,13 +144,6 @@ module Searchkick
                 type: "mapping",
                 mappings: ["&=> and "]
               }
-            },
-            tokenizer: {
-              searchkick_autocomplete_ngram: {
-                type: "edgeNGram",
-                min_gram: 1,
-                max_gram: 50
-              }
             }
           }
         }
@@ -233,7 +221,7 @@ module Searchkick
         end
 
         mapping_options = Hash[
-          [:autocomplete, :suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable, :only_analyzed]
+          [:suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
             .map { |type| [type, (options[type] || []).map(&:to_s)] }
         ]
 
@@ -242,7 +230,7 @@ module Searchkick
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
-          if mapping_options[:only_analyzed].include?(field) || (options.key?(:filterable) && !mapping_options[:filterable].include?(field))
+          if options.key?(:filterable) && !mapping_options[:filterable].include?(field)
             fields[field] = {type: default_type, index: "no"}
           else
             fields[field] = keyword_mapping
@@ -257,7 +245,7 @@ module Searchkick
               end
             end
 
-            mapping_options.except(:highlight, :searchable, :filterable, :only_analyzed, :word).each do |type, f|
+            mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
               if options[:match] == type || f.include?(field)
                 fields[type] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{type}_index"}
               end
@@ -284,13 +272,6 @@ module Searchkick
         options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
         (options[:geo_shape] || {}).each do |field, shape_options|
           mapping[field] = shape_options.merge(type: "geo_shape")
-        end
-
-        (options[:unsearchable] || []).map(&:to_s).each do |field|
-          mapping[field] = {
-            type: default_type,
-            index: "no"
-          }
         end
 
         routing = {}
@@ -336,8 +317,7 @@ module Searchkick
             dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
           end
 
-        # TODO make dynamic
-        all_enabled = true
+        all_enabled = !options[:searchable] || options[:searchable].to_a.include?("_all")
 
         mappings = {
           _default_: {

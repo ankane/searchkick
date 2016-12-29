@@ -14,8 +14,6 @@ class BoostTest < Minitest::Test
   end
 
   def test_multiple_conversions
-    skip if elasticsearch_below14?
-
     store [
       {name: "Speaker A", conversions_a: {"speaker" => 1}, conversions_b: {"speaker" => 6}},
       {name: "Speaker B", conversions_a: {"speaker" => 2}, conversions_b: {"speaker" => 5}},
@@ -62,26 +60,6 @@ class BoostTest < Minitest::Test
       {name: "Product Conversions", conversions: {"product" => 10}}
     ]
     assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
-  end
-
-  def test_user_id
-    store [
-      {name: "Tomato A"},
-      {name: "Tomato B", user_ids: [1, 2, 3]},
-      {name: "Tomato C"},
-      {name: "Tomato D"}
-    ]
-    assert_first "tomato", "Tomato B", user_id: 2
-  end
-
-  def test_personalize
-    store [
-      {name: "Tomato A"},
-      {name: "Tomato B", user_ids: [1, 2, 3]},
-      {name: "Tomato C"},
-      {name: "Tomato D"}
-    ]
-    assert_first "tomato", "Tomato B", personalize: {user_ids: 2}
   end
 
   def test_boost_fields

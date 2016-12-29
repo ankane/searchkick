@@ -42,7 +42,7 @@ class AggsTest < Minitest::Test
     agg = Product.search("Product", aggs: {store_id: {limit: 1}}).aggs["store_id"]
     assert_equal 1, agg["buckets"].size
     # assert_equal 3, agg["doc_count"]
-    assert_equal(1, agg["sum_other_doc_count"]) unless Searchkick.server_below?("1.4.0")
+    assert_equal(1, agg["sum_other_doc_count"])
   end
 
   def test_ranges
@@ -110,11 +110,7 @@ class AggsTest < Minitest::Test
               }
     ).aggs
 
-    if elasticsearch_below20?
-      assert_equal 2, aggs["products_per_year"]["buckets"].size
-    else
-      assert_equal 4, aggs["products_per_year"]["buckets"].size
-    end
+    assert_equal 4, aggs["products_per_year"]["buckets"].size
   end
 
   protected

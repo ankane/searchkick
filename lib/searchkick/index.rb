@@ -105,17 +105,15 @@ module Searchkick
       if Searchkick.callbacks_value.nil?
         if defined?(Searchkick::ReindexV2Job)
           Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
-        elsif defined?(Delayed::Job)
-          Delayed::Job.enqueue Searchkick::ReindexJob.new(record.class.name, record.id.to_s)
         else
-          raise Searchkick::Error, "Job adapter not found"
+          raise Searchkick::Error, "Active Job not found"
         end
       else
         reindex_record(record)
       end
     end
 
-    def similar_record(record, options = {})
+    def similar_record(record, **options)
       like_text = retrieve(record).to_hash
         .keep_if { |k, _| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
@@ -133,7 +131,7 @@ module Searchkick
 
     # search
 
-    def search_model(searchkick_klass, term = nil, options = {}, &block)
+    def search_model(searchkick_klass, term = "*", **options, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
       yield(query.body) if block
       if options[:execute] == false
@@ -145,21 +143,21 @@ module Searchkick
 
     # reindex
 
-    def create_index(options = {})
-      index_options = options[:index_options] || self.index_options
+    def create_index(index_options: nil)
+      index_options ||= self.index_options
       index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
     end
 
-    def all_indices(options = {})
+    def all_indices(unaliased: false)
       indices =
         begin
           client.indices.get_aliases
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           {}
         end
-      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if options[:unaliased]
+      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if unaliased
       indices.select { |k, _v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
     end
 
@@ -187,10 +185,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, options = {})
-      skip_import = options[:import] == false
-      resume = options[:resume]
-
+    def reindex_scope(scope, import: true, resume: false)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
@@ -204,7 +199,7 @@ module Searchkick
       # check if alias exists
       if alias_exists?
         # import before swap
-        index.import_scope(scope, resume: resume) unless skip_import
+        index.import_scope(scope, resume: resume) if import
 
         # get existing indices to remove
         swap(index.name)
@@ -214,7 +209,7 @@ module Searchkick
         swap(index.name)
 
         # import after swap
-        index.import_scope(scope, resume: resume) unless skip_import
+        index.import_scope(scope, resume: resume) if import
       end
 
       index.refresh
@@ -222,14 +217,13 @@ module Searchkick
       true
     end
 
-    def import_scope(scope, options = {})
+    def import_scope(scope, resume: false, method_name: nil)
       batch_size = @options[:batch_size] || 1000
-      method_name = options[:method_name]
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
       if scope.respond_to?(:find_in_batches)
-        if options[:resume]
+        if resume
           # use total docs instead of max id since there's not a great way
           # to get the max _id without scripting since it's a string
 
