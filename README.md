@@ -1088,6 +1088,14 @@ See [Production Rails](https://github.com/ankane/production_rails) for other goo
 
 ## Performance
 
+### JSON Generation
+
+To significantly speed up indexing with faster JSON generation, add [Oj](https://github.com/ohler55/oj) to your Gemfile.
+
+```ruby
+gem 'oj'
+```
+
 ### Persistent HTTP Connections
 
 For the best performance, add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
