@@ -205,13 +205,10 @@ module Searchkick
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
         records.where(records.primary_key => ids)
-      elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
-        # Mongoid 2
-        records.all.for_ids(ids)
       elsif records.respond_to?(:queryable)
         # Mongoid 3+
         records.queryable.for_ids(ids)
-      elsif records.respond_to?(:unscoped) && [:preload, :eager_load].any? { |m| records.all.respond_to?(m) }
+      elsif records.respond_to?(:unscoped) && :id.respond_to?(:in)
         # Nobrainer
         records.unscoped.where(:id.in => ids)
       else
