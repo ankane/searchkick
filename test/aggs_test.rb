@@ -98,19 +98,22 @@ class AggsTest < Minitest::Test
 
   def test_aggs_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
-    aggs = Product.search(
-      "Product",
-              aggs: {
-                products_per_year: {
-                  date_histogram: {
-                    field: :created_at,
-                    interval: :year
-                  }
-                }
-              }
-    ).aggs
+    products =
+      Product.search("Product", {
+        where: {
+          created_at: {lt: Time.now}
+        },
+        aggs: {
+          products_per_year: {
+            date_histogram: {
+              field: :created_at,
+              interval: :year
+            }
+          }
+        }
+      })
 
-    assert_equal 4, aggs["products_per_year"]["buckets"].size
+    assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
   protected
