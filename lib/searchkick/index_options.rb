@@ -252,15 +252,7 @@ module Searchkick
             end
           end
 
-          mapping[field] =
-            if below50
-              {
-                type: "multi_field",
-                fields: fields
-              }
-            elsif fields[field]
-              fields[field].merge(fields: fields.except(field))
-            end
+          mapping[field] = fields[field].merge(fields: fields.except(field))
         end
 
         (options[:locations] || []).map(&:to_s).each do |field|
@@ -307,15 +299,7 @@ module Searchkick
         end
 
         # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-        multi_field =
-          if below50
-            {
-              type: "multi_field",
-              fields: dynamic_fields
-            }
-          else
-            dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
-          end
+        multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
         all_enabled = !options[:searchable] || options[:searchable].to_a.include?("_all")
 
