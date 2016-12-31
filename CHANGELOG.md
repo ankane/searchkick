@@ -1,6 +1,7 @@
-## 2.0.1
+## 2.0.1 [unreleased]
 
 - Added `search_hit` and `search_highlights` methods to models
+- Improved reindex performance
 
 ## 2.0.0
 
