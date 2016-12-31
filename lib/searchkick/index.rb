@@ -306,32 +306,38 @@ module Searchkick
       source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id", "_type")
 
       # conversions
-      Array(options[:conversions]).map(&:to_s).each do |conversions_field|
-        if source[conversions_field]
-          source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+      if options[:conversions]
+        Array(options[:conversions]).map(&:to_s).each do |conversions_field|
+          if source[conversions_field]
+            source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
+          end
         end
       end
 
       # hack to prevent generator field doesn't exist error
-      (options[:suggest] || []).map(&:to_s).each do |field|
-        source[field] = nil if !source[field] && !partial_reindex
+      if options[:suggest]
+        options[:suggest].map(&:to_s).each do |field|
+          source[field] = nil if !source[field] && !partial_reindex
+        end
       end
 
       # locations
-      (options[:locations] || []).map(&:to_s).each do |field|
-        if source[field]
-          if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
-            # multiple locations
-            source[field] = source[field].map { |a| location_value(a) }
-          else
-            source[field] = location_value(source[field])
+      if options[:locations]
+        options[:locations].map(&:to_s).each do |field|
+          if source[field]
+            if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
+              # multiple locations
+              source[field] = source[field].map { |a| location_value(a) }
+            else
+              source[field] = location_value(source[field])
+            end
           end
         end
       end
 
       cast_big_decimal(source)
 
-      source.as_json
+      source
     end
 
     def location_value(value)
