@@ -1104,7 +1104,7 @@ Significantly increase performance with persistent HTTP connections. Add [Typhoe
 gem 'typhoeus'
 ```
 
-And create an initializer to reduce log noise with:
+To reduce log noise, create an initializer with:
 
 ```ruby
 Ethon.logger = Logger.new("/dev/null")
