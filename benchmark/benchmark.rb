@@ -17,21 +17,28 @@ class Product < ActiveRecord::Base
   searchkick batch_size: 100
 end
 
-Product.import ["name", "color", "store_id"], 100000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+Product.import ["name", "color", "store_id"], 10000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
 puts "Imported"
 
 result = nil
 
+p GetProcessMem.new.mb
+
 time =
   Benchmark.realtime do
     # result = RubyProf.profile do
-      Product.reindex(refresh_interval: "30s")
+    # result = AllocationStats.trace do
+    Product.reindex
     # end
   end
 
+p GetProcessMem.new.mb
+
 puts time.round(1)
 puts Product.searchkick_index.total_docs
+
+# puts result.allocations(alias_paths: true).group_by(:sourcefile, :class).to_text
 
 # printer = RubyProf::GraphPrinter.new(result)
 # printer.print(STDOUT, min_percent: 2)
