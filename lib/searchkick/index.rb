@@ -7,6 +7,7 @@ module Searchkick
     def initialize(name, options = {})
       @name = name
       @options = options
+      @klass_document_type = {} # cache
     end
 
     def create(body = {})
@@ -270,10 +271,12 @@ module Searchkick
     end
 
     def klass_document_type(klass)
-      if klass.respond_to?(:document_type)
-        klass.document_type
-      else
-        klass.model_name.to_s.underscore
+      @klass_document_type[klass] ||= begin
+        if klass.respond_to?(:document_type)
+          klass.document_type
+        else
+          klass.model_name.to_s.underscore
+        end
       end
     end
 
