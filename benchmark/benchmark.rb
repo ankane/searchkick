@@ -30,13 +30,16 @@ Product.import ["name", "color", "store_id"], 20000.times.map { |i| ["Product #{
 puts "Imported"
 
 result = nil
+report = nil
+stats = nil
 
 # p GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
     # result = RubyProf.profile do
-    # result = AllocationStats.trace do
+    # report = MemoryProfiler.report do
+    # stats = AllocationStats.trace do
     Product.reindex
     # end
   end
@@ -46,11 +49,15 @@ time =
 puts time.round(1)
 puts Product.searchkick_index.total_docs
 
-# puts result.allocations(alias_paths: true).group_by(:sourcefile, :class).to_text
-
 if result
   printer = RubyProf::GraphPrinter.new(result)
   printer.print(STDOUT, min_percent: 5)
 end
 
-# puts Product.count
+if report
+  puts report.pretty_print
+end
+
+if stats
+  puts result.allocations(alias_paths: true).group_by(:sourcefile, :class).to_text
+end
