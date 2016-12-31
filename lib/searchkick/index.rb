@@ -339,6 +339,8 @@ module Searchkick
       end
 
       cast_big_decimal(source)
+
+      source
     end
 
     def location_value(value)
