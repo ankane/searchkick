@@ -186,7 +186,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, import: true, resume: false)
+    def reindex_scope(scope, import: true, resume: false, async: false)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
@@ -200,25 +200,27 @@ module Searchkick
       # check if alias exists
       if alias_exists?
         # import before swap
-        index.import_scope(scope, resume: resume) if import
+        index.import_scope(scope, resume: resume, async: async) if import
 
         # get existing indices to remove
-        swap(index.name)
-        clean_indices
+        # unless async
+          swap(index.name)
+          clean_indices
+        # end
       else
         delete if exists?
         swap(index.name)
 
         # import after swap
-        index.import_scope(scope, resume: resume) if import
+        index.import_scope(scope, resume: resume, async: async) if import
       end
 
-      index.refresh
+      index.refresh unless async
 
       true
     end
 
-    def import_scope(scope, resume: false, method_name: nil)
+    def import_scope(scope, resume: false, method_name: nil, async: false)
       batch_size = @options[:batch_size] || 1000
 
       # use scope for import
@@ -232,8 +234,10 @@ module Searchkick
           scope = scope.where("id > ?", total_docs)
         end
 
+        scope = scope.select("id") if async
+
         scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch.select(&:should_index?), method_name
+          import_or_update batch, method_name, async
         end
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
@@ -241,26 +245,33 @@ module Searchkick
         items = []
         # TODO add resume
         scope.all.each do |item|
-          items << item if item.should_index?
+          items << item
           if items.length == batch_size
-            import_or_update items, method_name
+            import_or_update items, method_name, async
             items = []
           end
         end
-        import_or_update items, method_name
+        import_or_update items, method_name, async
       end
     end
 
-    def import_or_update(records, method_name)
-      retries = 0
-      begin
-        method_name ? bulk_update(records, method_name) : import(records)
-      rescue Faraday::ClientError => e
-        if retries < 1
-          retries += 1
-          retry
+    def import_or_update(records, method_name, async)
+      if records.any?
+        if async
+          Searchkick::BulkReindexJob.perform_later(records.first.class.name, records.map(&:id), method_name, name, @options)
+        else
+          retries = 0
+          records = records.select(&:should_index?)
+          begin
+            method_name ? bulk_update(records, method_name) : import(records)
+          rescue Faraday::ClientError => e
+            if retries < 1
+              retries += 1
+              retry
+            end
+            raise e
+          end
         end
-        raise e
       end
     end
 

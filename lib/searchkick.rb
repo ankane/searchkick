@@ -19,7 +19,10 @@ begin
 rescue LoadError
   # do nothing
 end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob)
+if defined?(ActiveJob)
+  require "searchkick/bulk_reindex_job"
+  require "searchkick/reindex_v2_job"
+end
 
 module Searchkick
   class Error < StandardError; end

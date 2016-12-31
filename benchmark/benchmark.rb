@@ -2,12 +2,22 @@ require "bundler/setup"
 Bundler.require(:default)
 require "active_record"
 require "benchmark"
+require "active_support/notifications"
+
+# ActiveSupport::Notifications.subscribe "request.searchkick" do |*args|
+#   p args
+# end
+
+# ActiveJob::Base.queue_adapter = :inline
 
 ActiveRecord::Base.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
-ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
+# ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-ActiveRecord::Migration.create_table :products do |t|
+ActiveJob::Base.logger = nil
+
+ActiveRecord::Migration.create_table :products, force: :cascade do |t|
   t.string :name
   t.string :color
   t.integer :store_id
@@ -40,13 +50,16 @@ time =
     # result = RubyProf.profile do
     # report = MemoryProfiler.report do
     # stats = AllocationStats.trace do
-    Product.reindex
+    Product.reindex(async: true)
     # end
   end
 
 # p GetProcessMem.new.mb
 
 puts time.round(1)
+
+sleep(5)
+Product.searchkick_index.refresh
 puts Product.searchkick_index.total_docs
 
 if result
