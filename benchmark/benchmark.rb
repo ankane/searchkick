@@ -23,7 +23,7 @@ puts "Imported"
 
 result = nil
 
-p GetProcessMem.new.mb
+# p GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
@@ -33,14 +33,16 @@ time =
     # end
   end
 
-p GetProcessMem.new.mb
+# p GetProcessMem.new.mb
 
 puts time.round(1)
 puts Product.searchkick_index.total_docs
 
 # puts result.allocations(alias_paths: true).group_by(:sourcefile, :class).to_text
 
-# printer = RubyProf::GraphPrinter.new(result)
-# printer.print(STDOUT, min_percent: 2)
+if result
+  printer = RubyProf::GraphPrinter.new(result)
+  printer.print(STDOUT, min_percent: 2)
+end
 
 # puts Product.count
