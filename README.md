@@ -119,7 +119,7 @@ limit: 20, offset: 40
 Select
 
 ```ruby
-select: ["name"]
+select: [:name]
 ```
 
 ### Results
@@ -815,14 +815,14 @@ Find similar items.
 
 ```ruby
 product = Product.first
-product.similar(fields: ["name"], where: {size: "12 oz"})
+product.similar(fields: [:name], where: {size: "12 oz"})
 ```
 
 ### Geospatial Searches
 
 ```ruby
 class City < ActiveRecord::Base
-  searchkick locations: ["location"]
+  searchkick locations: [:location]
 
   def search_data
     attributes.merge location: {lat: latitude, lon: longitude}
