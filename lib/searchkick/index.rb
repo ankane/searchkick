@@ -299,14 +299,14 @@ module Searchkick
       id.is_a?(Numeric) ? id : id.to_s
     end
 
+    EXCLUDED_ATTRIBUTES = ["_id", "_type"]
+
     def search_data(record, method_name = nil)
       partial_reindex = !method_name.nil?
-      source = record.send(method_name || :search_data)
       options = record.class.searchkick_options
 
-      # stringify fields
       # remove _id since search_id is used instead
-      source = source.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except("_id", "_type")
+      source = record.send(method_name || :search_data).each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except(*EXCLUDED_ATTRIBUTES)
 
       # conversions
       if options[:conversions]
@@ -339,8 +339,6 @@ module Searchkick
       end
 
       cast_big_decimal(source)
-
-      source
     end
 
     def location_value(value)
