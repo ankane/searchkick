@@ -13,9 +13,9 @@ require "active_support/notifications"
 ActiveRecord::Base.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
-# ActiveRecord::Base.logger = Logger.new(STDOUT)
+ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-ActiveJob::Base.logger = nil
+# ActiveJob::Base.logger = nil
 
 ActiveRecord::Migration.create_table :products, force: :cascade do |t|
   t.string :name
@@ -35,7 +35,7 @@ class Product < ActiveRecord::Base
   end
 end
 
-Product.import ["name", "color", "store_id"], 20000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+Product.import ["name", "color", "store_id"], 100000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
 puts "Imported"
 
@@ -58,8 +58,8 @@ time =
 
 puts time.round(1)
 
-sleep(5)
-Product.searchkick_index.refresh
+# sleep(5)
+# Product.searchkick_index.refresh
 puts Product.searchkick_index.total_docs
 
 if result

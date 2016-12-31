@@ -203,10 +203,8 @@ module Searchkick
         index.import_scope(scope, resume: resume, async: async) if import
 
         # get existing indices to remove
-        # unless async
-          swap(index.name)
-          clean_indices
-        # end
+        swap(index.name)
+        clean_indices
       else
         delete if exists?
         swap(index.name)
@@ -215,13 +213,15 @@ module Searchkick
         index.import_scope(scope, resume: resume, async: async) if import
       end
 
-      index.refresh unless async
+      index.refresh
 
       true
     end
 
     def import_scope(scope, resume: false, method_name: nil, async: false)
       batch_size = @options[:batch_size] || 1000
+
+      klass = scope
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
@@ -236,8 +236,17 @@ module Searchkick
 
         scope = scope.select("id") if async
 
-        scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch, method_name, async
+        if async
+          require "thread/pool"
+          pool = Thread.pool(4)
+        end
+
+        if async
+          scope.find_in_batches batch_size: batch_size do |batch|
+            import_or_update batch, method_name, klass, pool
+          end
+        else
+          import_or_update scope.to_a, method_name, klass, pool
         end
       else
         # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
@@ -247,18 +256,24 @@ module Searchkick
         scope.all.each do |item|
           items << item
           if items.length == batch_size
-            import_or_update items, method_name, async
+            import_or_update items, method_name, pool
             items = []
           end
         end
-        import_or_update items, method_name, async
+        import_or_update items, method_name, pool
       end
+    ensure
+      pool.shutdown if pool
     end
 
-    def import_or_update(records, method_name, async)
+    def import_or_update(records, method_name, klass, pool)
       if records.any?
-        if async
-          Searchkick::BulkReindexJob.perform_later(records.first.class.name, records.map(&:id), method_name, name, @options)
+        if pool
+          pool.process do
+            klass.connection_pool.with_connection do
+              import_scope(klass.where(id: records.map(&:id)), method_name: method_name)
+            end
+          end
         else
           retries = 0
           records = records.select(&:should_index?)

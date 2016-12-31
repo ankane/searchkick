@@ -20,7 +20,6 @@ rescue LoadError
   # do nothing
 end
 if defined?(ActiveJob)
-  require "searchkick/bulk_reindex_job"
   require "searchkick/reindex_v2_job"
 end
 
