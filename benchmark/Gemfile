@@ -6,8 +6,12 @@ gemspec path: "../"
 gem "sqlite3"
 gem "activerecord", "~> 5.0.0"
 gem "activerecord-import"
+
+# performance
 gem "typhoeus"
 gem "oj"
+
+# profiling
 gem "ruby-prof"
 gem "allocation_stats"
 gem "get_process_mem"
