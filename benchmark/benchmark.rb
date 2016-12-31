@@ -15,9 +15,17 @@ end
 
 class Product < ActiveRecord::Base
   searchkick batch_size: 100
+
+  def search_data
+    {
+      name: name,
+      color: color,
+      store_id: store_id
+    }
+  end
 end
 
-Product.import ["name", "color", "store_id"], 10000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+Product.import ["name", "color", "store_id"], 20000.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
 puts "Imported"
 
@@ -42,7 +50,7 @@ puts Product.searchkick_index.total_docs
 
 if result
   printer = RubyProf::GraphPrinter.new(result)
-  printer.print(STDOUT, min_percent: 2)
+  printer.print(STDOUT, min_percent: 5)
 end
 
 # puts Product.count
