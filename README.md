@@ -784,8 +784,8 @@ bands = Band.search "cinema", fields: [:name], highlight: true
 View the highlighted fields with:
 
 ```ruby
-bands.with_details.each do |band, details|
-  puts details[:highlight][:name] # "Two Door <em>Cinema</em> Club"
+bands.each do |band|
+  band.search_highlights[:name] # "Two Door <em>Cinema</em> Club"
 end
 ```
 
