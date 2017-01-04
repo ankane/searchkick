@@ -1,7 +1,7 @@
 module Searchkick
   module Model
     def searchkick(**options)
-      unknown_keywords = options.keys - [:batch_size, :callbacks, :conversions,
+      unknown_keywords = options.keys - [:after_index, :batch_size, :before_index, :callbacks, :conversions,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
@@ -23,6 +23,10 @@ module Searchkick
         class_variable_set :@@searchkick_index, options[:index_name] ||
           (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env].compact.join("_") }) ||
           [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
+
+        define_model_callbacks :index
+        before_index options[:before_index] if options[:before_index]
+        after_index options[:after_index] if options[:after_index]
 
         class << self
           def searchkick_search(term = "*", **options, &block)
@@ -84,12 +88,14 @@ module Searchkick
         end
 
         def reindex(method_name = nil, refresh: false)
-          if method_name
-            self.class.searchkick_index.bulk_update([self], method_name)
-          else
-            self.class.searchkick_index.reindex_record(self)
+          run_callbacks :index do
+            if method_name
+              self.class.searchkick_index.bulk_update([self], method_name)
+            else
+              self.class.searchkick_index.reindex_record(self)
+            end
+            self.class.searchkick_index.refresh if refresh
           end
-          self.class.searchkick_index.refresh if refresh
         end unless method_defined?(:reindex)
 
         def reindex_async

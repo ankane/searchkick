@@ -73,6 +73,14 @@ if defined?(Mongoid)
     field :text
   end
 
+  class Topic
+    include Mongoid::Document
+
+    field :name
+    field :before_called, type: Boolean
+    field :after_called, type: Boolean
+  end
+
   class Speaker
     include Mongoid::Document
 
@@ -129,6 +137,15 @@ elsif defined?(NoBrainer)
     field :id,   type: Object
     field :name, type: String
     field :text, type: Text
+  end
+
+  class Topic
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+    field :before_called, type: Boolean
+    field :after_called, type: Boolean
   end
 
   class Speaker
@@ -236,6 +253,12 @@ else
     t.string :type
   end
 
+  ActiveRecord::Migration.create_table :topics do |t|
+    t.string :name
+    t.boolean :after_called
+    t.boolean :before_called
+  end
+
   class Product < ActiveRecord::Base
     belongs_to :store
   end
@@ -245,6 +268,9 @@ else
   end
 
   class Region < ActiveRecord::Base
+  end
+
+  class Topic < ActiveRecord::Base
   end
 
   class Speaker < ActiveRecord::Base
@@ -346,6 +372,30 @@ class Region
       text: text,
       territory: territory
     }
+  end
+end
+
+class Topic
+
+  searchkick \
+    before_index: :before_callback,
+    after_index: :after_callback
+
+  def search_data
+    {
+      name: name
+    }
+  end
+
+  protected
+
+  # This is extremely clunky, but still better than the stubbing support in minitest.
+  def before_callback
+    update_column :before_called, true
+  end
+
+  def after_callback
+    update_column :after_called, true
   end
 end
 
