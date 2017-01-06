@@ -497,7 +497,7 @@ end
 
 ### Analytics
 
-**The best starting point to improve your search by far is to track searches and conversions.**
+The best starting point to improve your search **by far** is to track searches and conversions.
 
 [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
 
