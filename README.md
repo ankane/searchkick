@@ -497,7 +497,7 @@ end
 
 ### Analytics
 
-We highly recommend tracking searches and conversions.
+The best way to improve your search **by far** is to track searches and conversions.
 
 [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
 
@@ -507,7 +507,7 @@ Product.search "apple", track: {user_id: current_user.id}
 
 [See the docs](https://github.com/ankane/searchjoy) for how to install and use.
 
-### Keep Getting Better
+### Getting Better
 
 Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
