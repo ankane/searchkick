@@ -507,7 +507,7 @@ Product.search "apple", track: {user_id: current_user.id}
 
 [See the docs](https://github.com/ankane/searchjoy) for how to install and use.
 
-### Getting Better
+### Keep Getting Better
 
 Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
