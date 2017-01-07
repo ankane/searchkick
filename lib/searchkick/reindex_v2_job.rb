@@ -4,7 +4,7 @@ module Searchkick
 
     def perform(klass, id)
       model = klass.constantize
-      record = model.find(id) rescue nil # TODO fix lazy coding
+      record = model.find_by(id: id)
       index = model.searchkick_index
       if !record || !record.should_index?
         # hacky
