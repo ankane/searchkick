@@ -28,6 +28,13 @@ class IndexTest < Minitest::Test
     assert !old_index.exists?
   end
 
+  def test_retain
+    Product.reindex
+    assert_equal 1, Product.searchkick_index.all_indices.size
+    Product.reindex(retain: true)
+    assert_equal 2, Product.searchkick_index.all_indices.size
+  end
+
   def test_total_docs
     store_names ["Product A"]
     assert_equal 1, Product.searchkick_index.total_docs

@@ -187,13 +187,13 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, import: true, resume: false)
+    def reindex_scope(scope, import: true, resume: false, retain: false)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
         index = Searchkick::Index.new(index_name)
       else
-        clean_indices
+        clean_indices unless retain
 
         index = create_index(index_options: scope.searchkick_index_options)
       end
@@ -205,7 +205,7 @@ module Searchkick
 
         # get existing indices to remove
         promote(index.name)
-        clean_indices
+        clean_indices unless retain
       else
         delete if exists?
         promote(index.name)
