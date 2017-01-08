@@ -1,3 +1,7 @@
+## 2.0.2 [unreleased]
+
+- Fixed potentially silent errors in reindex job
+
 ## 2.0.1
 
 - Added `search_hit` and `search_highlights` methods to models
