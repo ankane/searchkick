@@ -184,6 +184,15 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}}
   end
 
+  def test_multiple_locations_with_term_filter
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", [], where: {multiple_locations: {near: [37.5, -122.5]}, name: "San Antonio"}
+    assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}, name: "San Francisco"}
+  end
+
   def test_multiple_locations_hash
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
