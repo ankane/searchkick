@@ -18,7 +18,11 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 
 I18n.config.enforce_available_locales = true
 
-ActiveJob::Base.logger = nil if defined?(ActiveJob)
+if defined?(ActiveJob)
+  ActiveJob::Base.logger = nil
+  ActiveJob::Base.queue_adapter = :inline
+end
+
 ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch_below50?

@@ -1,10 +1,23 @@
 module Searchkick
   class ReindexV2Job < ActiveJob::Base
+    RECORD_NOT_FOUND_CLASSES = [
+      "ActiveRecord::RecordNotFound",
+      "Mongoid::Errors::DocumentNotFound",
+      "NoBrainer::Error::DocumentNotFound"
+    ]
+
     queue_as :searchkick
 
     def perform(klass, id)
       model = klass.constantize
-      record = model.find(id) rescue nil # TODO fix lazy coding
+      record =
+        begin
+          model.find(id)
+        rescue => e
+          raise e unless RECORD_NOT_FOUND_CLASSES.include?(e.class.name)
+          nil
+        end
+
       index = model.searchkick_index
       if !record || !record.should_index?
         # hacky

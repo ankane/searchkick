@@ -4,3 +4,4 @@ source 'https://rubygems.org'
 gemspec path: "../../"
 
 gem "nobrainer", ">= 0.21.0"
+gem "activejob"
