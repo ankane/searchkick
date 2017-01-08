@@ -770,7 +770,9 @@ module Searchkick
       if below50?
         {
           filter: {
-            and: where_filters(field => value)
+            bool: {
+              must: where_filters(field => value)
+            }
           },
           boost_factor: factor
         }
