@@ -1,6 +1,7 @@
 ## 2.0.2 [unreleased]
 
 - Fixed potentially silent errors in reindex job
+- Added support for attributes in highlight tags
 
 ## 2.0.1
 

@@ -542,7 +542,7 @@ module Searchkick
       if options[:highlight].is_a?(Hash)
         if (tag = options[:highlight][:tag])
           payload[:highlight][:pre_tags] = [tag]
-          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A<(\w+).+/, "</\\1>")]
         end
 
         if (fragment_size = options[:highlight][:fragment_size])
