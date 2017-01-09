@@ -38,6 +38,10 @@ module Searchkick
       client.indices.get_settings index: name
     end
 
+    def update_settings(settings)
+      client.indices.put_settings index: name, body: settings
+    end
+
     def promote(new_name)
       old_indices =
         begin
