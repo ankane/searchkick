@@ -114,10 +114,10 @@ class IndexTest < Minitest::Test
       store_names ["Product A"]
       raise ActiveRecord::Rollback
     end
-    assert_search "product", []
+    assert_search "*", []
   end
 
-  def test_analyzed_only
+  def test_filterable
     # skip for 5.0 since it throws
     # Cannot search on field [alt_description] since it is not indexed.
     skip unless elasticsearch_below50?
@@ -125,7 +125,7 @@ class IndexTest < Minitest::Test
     assert_search "*", [], where: {alt_description: "Hello"}
   end
 
-  def test_analyzed_only_large_value
+  def test_large_value
     skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", alt_description: large_value}]
