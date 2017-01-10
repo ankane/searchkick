@@ -253,11 +253,15 @@ Available options are:
 
 ### Exact Matches
 
+To match a field exactly (case-insensitive), use:
+
 ```ruby
 User.search query, fields: [{email: :exact}, :name]
 ```
 
 ### Phrase Matches
+
+To only match the exact order, use:
 
 ```ruby
 User.search "fresh honey", match: :phrase
