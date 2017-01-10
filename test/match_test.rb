@@ -203,6 +203,11 @@ class MatchTest < Minitest::Test
     assert_search "fresh honey", ["Fresh Honey"], match: :phrase
   end
 
+  def test_phrase_order
+    store_names ["Wheat Bread", "Whole Wheat Bread"]
+    assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
+  end
+
   def test_unsearchable
     store [
       {name: "Unsearchable", description: "Almond"}
