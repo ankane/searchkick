@@ -203,9 +203,16 @@ class MatchTest < Minitest::Test
     assert_search "fresh honey", ["Fresh Honey"], match: :phrase
   end
 
+
+  def test_another_phrase_order
+    store_names ["Ethics", "Normative Ethics", "Meta Ethics", "Ethics of Philosophy", "Descriptive Ethics"]
+    assert_order "ethics", ["Ethics", "Ethics of Philosophy", "Normative Ethics", "Meta Ethics", "Descriptive Ethics"], match: :phrase
+  end
+
+
   def test_phrase_order
-    store_names ["Wheat Bread", "Whole Wheat Bread"]
-    assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
+    store_names ["Wheat Bread", "Whole Wheat Bread", "Wheat Bread From Mars"]
+    assert_order "wheat bread", ["Wheat Bread", "Wheat Bread From Mars", "Whole Wheat Bread"], match: :phrase
   end
 
   def test_unsearchable
