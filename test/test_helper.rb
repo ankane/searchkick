@@ -372,7 +372,8 @@ class Animal
   searchkick \
     text_start: [:name],
     suggest: [:name],
-    index_name: -> { "#{name.tableize}-#{Date.today.year}" }
+    index_name: -> { "#{name.tableize}-#{Date.today.year}" },
+    callbacks: :async
     # wordnet: true
 end
 

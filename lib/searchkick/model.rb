@@ -84,17 +84,26 @@ module Searchkick
           after_destroy callback_name, if: proc { self.class.search_callbacks? }
         end
 
-        def reindex(method_name = nil, refresh: false)
-          if method_name
-            self.class.searchkick_index.bulk_update([self], method_name)
+        def reindex(method_name = nil, refresh: false, async: false)
+          if async
+            if method_name
+              raise Searchkick::Error, "Partial updates not yet supported with async"
+            else
+              self.class.searchkick_index.reindex_record_async(self)
+            end
           else
-            self.class.searchkick_index.reindex_record(self)
+            if method_name
+              self.class.searchkick_index.bulk_update([self], method_name)
+            else
+              self.class.searchkick_index.reindex_record(self)
+            end
+            self.class.searchkick_index.refresh if refresh
           end
-          self.class.searchkick_index.refresh if refresh
         end unless method_defined?(:reindex)
 
+        # TODO remove this method in next major version
         def reindex_async
-          self.class.searchkick_index.reindex_record_async(self)
+          reindex(async: true)
         end unless method_defined?(:reindex_async)
 
         def similar(options = {})
