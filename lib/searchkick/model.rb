@@ -87,7 +87,8 @@ module Searchkick
         def reindex(method_name = nil, refresh: false, async: false)
           if async
             if method_name
-              raise Searchkick::Error, "Partial updates not yet supported with async"
+              # TODO support Mongoid and NoBrainer and non-id primary keys
+              Searchkick::BulkReindexJob.perform_later(class_name: self.class.name, record_ids: [id.to_s], method_name: method_name ? method_name.to_s : nil)
             else
               self.class.searchkick_index.reindex_record_async(self)
             end
