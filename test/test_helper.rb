@@ -373,7 +373,7 @@ class Animal
     text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}" },
-    callbacks: :async
+    callbacks: defined?(ActiveJob) ? :async : true
     # wordnet: true
 end
 
