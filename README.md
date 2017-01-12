@@ -710,6 +710,13 @@ Date histogram
 Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
+Metrics aggregations and more! Specify a `body` to provide aggregation params manually.
+For example, to get an [average](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html) for a particular field:
+
+```
+Product.search "pear", aggs: {average_price: {body: {avg: {field: :price}}}}
+```
+
 #### Moving From Facets
 
 1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
