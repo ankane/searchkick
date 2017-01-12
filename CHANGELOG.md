@@ -1,3 +1,7 @@
+## 2.0.3 [unreleased]
+
+- Added `async` option to `reindex` [experimental]
+
 ## 2.0.2
 
 - Added `retain` option to `reindex`

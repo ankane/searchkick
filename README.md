@@ -1158,7 +1158,7 @@ Business.search "ice cream", routing: params[:city_id]
 
 ## Large Data Sets
 
-### Background Reindexing [experimental, ActiveRecord only]
+### Background Reindexing [master, experimental, ActiveRecord only]
 
 For large data sets, you can use background jobs to parallelize reindexing.
 
