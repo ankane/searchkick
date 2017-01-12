@@ -610,6 +610,8 @@ module Searchkick
               interval: interval
             }
           }
+        elsif agg_options[:body] # If body is specified, use it directly without any remapping
+          payload[:aggs][field] = agg_options[:body]
         else
           payload[:aggs][field] = {
             terms: {
