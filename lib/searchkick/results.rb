@@ -184,6 +184,10 @@ module Searchkick
       @response["hits"]["hits"]
     end
 
+    def misspellings?
+      @options[:misspellings]
+    end
+
     private
 
     def results_query(records, hits)

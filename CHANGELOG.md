@@ -1,6 +1,7 @@
 ## 2.0.3 [unreleased]
 
 - Added `async` option to `reindex` [experimental]
+- Added `misspellings?` method to results
 
 ## 2.0.2
 

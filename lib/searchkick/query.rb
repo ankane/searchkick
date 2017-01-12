@@ -34,6 +34,7 @@ module Searchkick
       # prevent Ruby warnings
       @type = nil
       @routing = nil
+      @misspellings = false
       @misspellings_below = nil
       @highlighted_fields = nil
 
@@ -107,7 +108,8 @@ module Searchkick
         includes: options[:includes],
         json: !@json.nil?,
         match_suffix: @match_suffix,
-        highlighted_fields: @highlighted_fields || []
+        highlighted_fields: @highlighted_fields || [],
+        misspellings: @misspellings
       }
 
       if options[:debug]
@@ -256,6 +258,9 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            @misspellings = true
+          else
+            @misspellings = false
           end
 
           fields.each do |field|
