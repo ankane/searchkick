@@ -1156,6 +1156,37 @@ Reindex and search with:
 Business.search "ice cream", routing: params[:city_id]
 ```
 
+## Large Data Sets
+
+### Background Reindexing [experimental, ActiveRecord only]
+
+For large data sets, you can use background jobs to parallelize reindexing.
+
+```ruby
+Product.reindex(async: true)
+# {index_name: "products_production_20170111210018065"}
+```
+
+Once the jobs complete, promote the new index with:
+
+```ruby
+Product.searchkick_index.promote(index_name)
+```
+
+You can optionally track the status with Redis:
+
+```ruby
+Searchkick.redis = Redis.new
+```
+
+And use:
+
+```ruby
+Searchkick.reindex_status(index_name)
+```
+
+For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
+
 ## Advanced
 
 Prefer to use the [Elasticsearch DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
@@ -1456,10 +1487,6 @@ Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 ```ruby
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
-
-## Large Data Sets
-
-For large data sets, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync). Searchkick will make this easy in the future.
 
 ## Testing
 

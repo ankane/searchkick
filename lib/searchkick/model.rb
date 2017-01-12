@@ -58,15 +58,16 @@ module Searchkick
               # update
               searchkick_index.import_scope(searchkick_klass, method_name: method_name)
               searchkick_index.refresh if refresh
+              true
             elsif scoped && !full
               # reindex association
               searchkick_index.import_scope(searchkick_klass)
               searchkick_index.refresh if refresh
+              true
             else
               # full reindex
               searchkick_index.reindex_scope(searchkick_klass, options)
             end
-            true
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 

@@ -19,7 +19,10 @@ begin
 rescue LoadError
   # do nothing
 end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob)
+if defined?(ActiveJob)
+  require "searchkick/bulk_reindex_job"
+  require "searchkick/reindex_v2_job"
+end
 
 module Searchkick
   class Error < StandardError; end
@@ -30,7 +33,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -127,6 +130,16 @@ module Searchkick
     require "faraday_middleware/aws_signers_v4"
     @aws_credentials = creds
     @client = nil # reset client
+  end
+
+  def self.reindex_status(index_name)
+    if redis
+      batches_left = Searchkick::Index.new(index_name).batches_left
+      {
+        completed: batches_left == 0,
+        batches_left: batches_left
+      }
+    end
   end
 
   # private
