@@ -20,19 +20,12 @@ module Searchkick
           nil
         end
 
-      index = model.searchkick_index
-      if !record || !record.should_index?
-        # hacky
+      unless record
         record ||= model.new
         record.id = id
-        begin
-          index.remove record
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
-        end
-      else
-        index.store record
       end
+
+      model.searchkick_index.reindex_record(record)
     end
   end
 end
