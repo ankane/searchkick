@@ -1,4 +1,4 @@
-## 2.0.3 [unreleased]
+## 2.0.3
 
 - Added `async` option to `reindex` [experimental]
 - Added `misspellings?` method to results
