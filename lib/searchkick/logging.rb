@@ -55,7 +55,7 @@ module Searchkick
           super
         else
           ActiveSupport::Notifications.instrument("request.searchkick", event) do
-            super(records)
+            super
           end
         end
       end
@@ -71,7 +71,7 @@ module Searchkick
           super
         else
           ActiveSupport::Notifications.instrument("request.searchkick", event) do
-            super(records, *args)
+            super
           end
         end
       end
@@ -87,7 +87,7 @@ module Searchkick
           super
         else
           ActiveSupport::Notifications.instrument("request.searchkick", event) do
-            super(records)
+            super
           end
         end
       end
