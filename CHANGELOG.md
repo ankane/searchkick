@@ -1,5 +1,6 @@
 ## 2.0.5 [unreleased]
 
+- Background reindexing and queues are officially supported
 - Log updates and deletes
 
 ## 2.0.4

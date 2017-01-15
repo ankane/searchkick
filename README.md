@@ -425,6 +425,8 @@ If a reindex is interrupted, you can resume it with:
 Product.reindex(resume: true)
 ```
 
+For large data sets, we recommended [background reindexing](#background-reindexing).
+
 ### To Reindex, or Not to Reindex
 
 #### Reindex
@@ -457,9 +459,9 @@ There are four strategies for keeping the index synced with your database.
 
   And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below. Jobs are added to a queue named `searchkick`.
 
-3. Queues [experimental]
+3. Queues
 
-  Push ids of records that need updated to a queue and reindex in the background in batches. This is more performant than the asynchronous method, which updates records individually. See [how to use](#queues-experimental).
+  Push ids of records that need updated to a queue and reindex in the background in batches. This is more performant than the asynchronous method, which updates records individually. See [how to use](#queues).
 
 4. Manual
 
@@ -1251,7 +1253,9 @@ ReindexConversionsJob.perform_later("Product")
 
 ## Large Data Sets
 
-### Background Reindexing [experimental, ActiveRecord only]
+### Background Reindexing
+
+*ActiveRecord only*
 
 For large data sets, you can use background jobs to parallelize reindexing.
 
@@ -1278,7 +1282,7 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-### Queues [experimental]
+### Queues
 
 You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
 
