@@ -1,3 +1,7 @@
+## 2.0.5 [unreleased]
+
+- Log updates and deletes
+
 ## 2.0.4
 
 - Added support for queuing updates [experimental]

@@ -56,6 +56,30 @@ module Searchkick
         end
       end
     end
+
+    def bulk_update(records, *args)
+      if records.any?
+        event = {
+          name: "#{records.first.searchkick_klass.name} Update",
+          count: records.size
+        }
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super(records, *args)
+        end
+      end
+    end
+
+    def bulk_delete(records)
+      if records.any?
+        event = {
+          name: "#{records.first.searchkick_klass.name} Delete",
+          count: records.size
+        }
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super(records)
+        end
+      end
+    end
   end
 
   module IndexerWithInstrumentation
