@@ -255,7 +255,7 @@ module Searchkick
 
       if batch
         import_or_update scope.to_a, method_name, async, delete_missing, record_ids, scope.model_name.name.constantize
-        Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
+        redis.srem(batches_key, batch_id) if batch_id && redis
       elsif full && async
         if scope.respond_to?(:primary_key)
           # TODO expire Redis key
@@ -274,7 +274,7 @@ module Searchkick
               index_name: name,
               batch_id: batch_id
             )
-            Searchkick.redis.sadd(batches_key, batch_id) if Searchkick.redis
+            redis.sadd(batches_key, batch_id) if redis
           end
         else
           raise Searchkick::Error, "async option only supported for ActiveRecord"
@@ -310,7 +310,7 @@ module Searchkick
     end
 
     def batches_left
-      Searchkick.redis.scard(batches_key) if Searchkick.redis
+      redis.scard(batches_key) if redis
     end
 
     # other
@@ -467,6 +467,10 @@ module Searchkick
         end
         raise e
       end
+    end
+
+    def redis
+      Searchkick.redis
     end
 
     # use bulk if no callbacks value set
