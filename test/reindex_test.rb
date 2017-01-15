@@ -41,7 +41,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_refresh_interval
-    reindex = Product.reindex(refresh_interval: "30s", async: true)
+    reindex = Product.reindex(refresh_interval: "30s", async: true, import: false)
     index = Searchkick::Index.new(reindex[:index_name])
     assert_nil Product.search_index.refresh_interval
     assert_equal "30s", index.refresh_interval
