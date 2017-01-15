@@ -247,14 +247,14 @@ module Searchkick
       end
     end
 
-    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, delete_missing: false, record_ids: nil)
+    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false)
       batch_size = @options[:batch_size] || 1000
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
 
       if batch
-        import_or_update scope.to_a, method_name, async, delete_missing, record_ids, scope.model_name.name.constantize
+        import_or_update scope.to_a, method_name, async
         redis.srem(batches_key, batch_id) if batch_id && redis
       elsif full && async
         if scope.respond_to?(:primary_key)
@@ -422,7 +422,7 @@ module Searchkick
       end
     end
 
-    def import_or_update(records, method_name, async, delete_missing = false, record_ids = nil, klass = nil)
+    def import_or_update(records, method_name, async)
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
@@ -433,22 +433,9 @@ module Searchkick
           )
         else
           records = records.select(&:should_index?)
-
-          delete_records =
-            if delete_missing
-              # determine which records to delete
-              (record_ids - records.map { |r| r.id.to_s }).map { |id| m = klass.new; m.id = id; m }
-            else
-              []
-            end
-
-          with_retries do
-            # bulk reindex
-            possibly_bulk(delete_records.any?) do
-              if records.any?
-                method_name ? bulk_update(records, method_name) : import(records)
-              end
-              bulk_delete(delete_records) if delete_records.any?
+          if records.any?
+            with_retries do
+              method_name ? bulk_update(records, method_name) : import(records)
             end
           end
         end
@@ -471,18 +458,6 @@ module Searchkick
 
     def redis
       Searchkick.redis
-    end
-
-    # use bulk if no callbacks value set and deleted records
-    # if no deleted records, we can show friendlier notifications
-    def possibly_bulk(deleted_records)
-      if Searchkick.callbacks_value || !deleted_records
-        yield
-      else
-        Searchkick.callbacks(:bulk) do
-          yield
-        end
-      end
     end
 
     def batches_key
