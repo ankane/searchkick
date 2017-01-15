@@ -247,16 +247,18 @@ module Searchkick
       end
     end
 
-    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false)
+    def import_batch(scope, method_name: nil, batch_id: nil)
+      import_or_update scope.to_a, method_name
+      Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
+    end
+
+    def import_scope(scope, resume: false, method_name: nil, async: false, full: false)
       batch_size = @options[:batch_size] || 1000
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
 
-      if batch
-        import_or_update scope.to_a, method_name, async
-        Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
-      elsif full && async
+      if full && async
         if scope.respond_to?(:primary_key)
           # TODO expire Redis key
           primary_key = scope.primary_key
@@ -422,7 +424,7 @@ module Searchkick
       end
     end
 
-    def import_or_update(records, method_name, async)
+    def import_or_update(records, method_name, async = false)
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
