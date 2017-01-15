@@ -434,15 +434,16 @@ module Searchkick
         else
           retries = 0
           records = records.select(&:should_index?)
-          begin
-            delete_records =
-              if delete
-                # determine which records to delete
-                (record_ids - records.map { |r| r.id.to_s }).map { |id| m = klass.new; m.id = id; m }
-              else
-                []
-              end
 
+          delete_records =
+            if delete
+              # determine which records to delete
+              (record_ids - records.map { |r| r.id.to_s }).map { |id| m = klass.new; m.id = id; m }
+            else
+              []
+            end
+
+          begin
             # bulk reindex
             method_name ? bulk_update(records, method_name) : import(records)
             bulk_delete(delete_records)
