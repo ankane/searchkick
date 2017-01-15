@@ -4,7 +4,7 @@ module Searchkick
 
     def perform(class_name:, record_ids:)
       klass = class_name.constantize
-      scope = klass.where(klass.primary_key => record_ids)
+      scope = Searchkick.load_records(klass, record_ids)
       scope = scope.search_import if scope.respond_to?(:search_import)
       records = scope.select(&:should_index?)
 

@@ -146,6 +146,25 @@ module Searchkick
   end
 
   # private
+  def self.load_records(records, ids)
+    records =
+      if records.respond_to?(:primary_key)
+        # ActiveRecord
+        records.where(records.primary_key => ids) if records.primary_key
+      elsif records.respond_to?(:queryable)
+        # Mongoid 3+
+        records.queryable.for_ids(ids)
+      elsif records.respond_to?(:unscoped) && :id.respond_to?(:in)
+        # Nobrainer
+        records.unscoped.where(:id.in => ids)
+      end
+
+    raise Searchkick::Error, "Not sure how to load records" if !records
+
+    records
+  end
+
+  # private
   def self.indexer
     Thread.current[:searchkick_indexer] ||= Searchkick::Indexer.new
   end

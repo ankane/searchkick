@@ -1185,7 +1185,7 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-### Queues [master, experimental, ActiveRecord only]
+### Queues [master, experimental]
 
 You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
 
