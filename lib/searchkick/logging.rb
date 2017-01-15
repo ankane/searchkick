@@ -51,8 +51,12 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} Import",
           count: records.size
         }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super(records)
+          end
         end
       end
     end
@@ -63,8 +67,12 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} Update",
           count: records.size
         }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records, *args)
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super(records, *args)
+          end
         end
       end
     end
@@ -75,8 +83,12 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} Delete",
           count: records.size
         }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super(records)
+          end
         end
       end
     end

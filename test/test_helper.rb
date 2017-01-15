@@ -25,7 +25,7 @@ if defined?(ActiveJob)
   ActiveJob::Base.queue_adapter = :inline
 end
 
-ActiveSupport::LogSubscriber.logger = Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
+ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch_below50?
   Searchkick.server_below?("5.0.0-alpha1")
