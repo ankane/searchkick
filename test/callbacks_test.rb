@@ -35,7 +35,7 @@ class CallbacksTest < Minitest::Test
       store_names ["Product A", "Product B"]
     end
     Product.searchkick_index.refresh
-    assert_search "product", [], load: false
+    assert_search "product", [], load: false, conversions: false
     assert_equal 2, reindex_queue.length
 
     Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
