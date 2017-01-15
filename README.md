@@ -1183,10 +1183,12 @@ Create a job to update the cache and reindex records with new conversions.
 ```ruby
 class ReindexConversionsJob < ActiveJob::Base
   def perform(class_name)
+    # get records that have a recent conversion
     recently_converted_ids =
       Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
       .order(:convertable_id).uniq.pluck(:convertable_id)
 
+    # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions and group by record
       conversions_by_record = {}
