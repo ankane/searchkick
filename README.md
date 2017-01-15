@@ -1207,6 +1207,12 @@ Then, set up a background job to run.
 Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
 ```
 
+You can check the queue size with:
+
+```ruby
+Product.searchkick_index.reindex_queue.length
+```
+
 For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
 
 ## Advanced

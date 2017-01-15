@@ -105,7 +105,7 @@ module Searchkick
             if method_name
               raise Searchkick::Error, "Partial reindex not supported with queue option"
             else
-              Searchkick::ReindexQueue.new(self.class.searchkick_index.name).push(id.to_s)
+              self.class.searchkick_index.reindex_queue.push(id.to_s)
             end
           when :async
             if method_name

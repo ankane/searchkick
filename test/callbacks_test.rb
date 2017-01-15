@@ -28,7 +28,7 @@ class CallbacksTest < Minitest::Test
   def test_queue
     skip unless defined?(ActiveJob) && defined?(Redis)
 
-    reindex_queue = Searchkick::ReindexQueue.new(Product.searchkick_index.name)
+    reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
     Searchkick.callbacks(:queue) do

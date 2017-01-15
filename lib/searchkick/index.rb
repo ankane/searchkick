@@ -146,6 +146,12 @@ module Searchkick
       search_model(record.class, like_text, options)
     end
 
+    # queue
+
+    def reindex_queue
+      Searchkick::ReindexQueue.new(name)
+    end
+
     # search
 
     def search_model(searchkick_klass, term = "*", **options, &block)
