@@ -1185,6 +1185,28 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
+### Queues [master, experimental, ActiveRecord only]
+
+You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
+
+```ruby
+Searchkick.redis = Redis.new
+```
+
+And ask your models to queue updates.
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: :queue
+end
+```
+
+Then, set up a background job to run.
+
+```ruby
+Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
+```
+
 For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
 
 ## Advanced

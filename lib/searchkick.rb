@@ -5,6 +5,7 @@ require "searchkick/version"
 require "searchkick/index_options"
 require "searchkick/index"
 require "searchkick/indexer"
+require "searchkick/reindex_queue"
 require "searchkick/results"
 require "searchkick/query"
 require "searchkick/model"
@@ -21,6 +22,8 @@ rescue LoadError
 end
 if defined?(ActiveJob)
   require "searchkick/bulk_reindex_job"
+  require "searchkick/process_queue_job"
+  require "searchkick/process_batch_job"
   require "searchkick/reindex_v2_job"
 end
 

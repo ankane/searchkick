@@ -3,6 +3,7 @@ language: ruby
 rvm: 2.3.1
 services:
   - mongodb
+  - redis-server
 before_install:
   - ./test/ci/before_install.sh
 script: RUBYOPT=W0 bundle exec rake test

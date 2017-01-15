@@ -14,6 +14,8 @@ File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 Searchkick.search_timeout = 5
 
+Searchkick.redis = Redis.new if defined?(Redis)
+
 puts "Running against Elasticsearch #{Searchkick.server_version}"
 
 I18n.config.enforce_available_locales = true

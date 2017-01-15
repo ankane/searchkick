@@ -1,3 +1,7 @@
+## 2.0.4 [unreleased]
+
+- Added support for queuing updates [experimental]
+
 ## 2.0.3
 
 - Added `async` option to `reindex` [experimental]

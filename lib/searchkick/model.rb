@@ -84,11 +84,36 @@ module Searchkick
           after_destroy callback_name, if: proc { self.class.search_callbacks? }
         end
 
-        def reindex(method_name = nil, refresh: false, async: false)
-          if async
+        def reindex(method_name = nil, refresh: false, async: false, mode: nil)
+          klass_options = self.class.searchkick_index.options
+
+          if mode.nil?
+            mode =
+              if async
+                :async
+              elsif Searchkick.callbacks_value
+                Searchkick.callbacks_value
+              elsif klass_options.key?(:callbacks) && klass_options[:callbacks] != :async
+                # TODO remove 2nd condition in next major version
+                klass_options[:callbacks]
+              end
+          end
+
+          case mode
+          when :queue
+            if method_name
+              raise Searchkick::Error, "Partial reindex not supported with queue option"
+            else
+              Searchkick::ReindexQueue.new(self.class.searchkick_index.name).push(id.to_s)
+            end
+          when :async
             if method_name
               # TODO support Mongoid and NoBrainer and non-id primary keys
-              Searchkick::BulkReindexJob.perform_later(class_name: self.class.name, record_ids: [id.to_s], method_name: method_name ? method_name.to_s : nil)
+              Searchkick::BulkReindexJob.perform_later(
+                class_name: self.class.name,
+                record_ids: [id.to_s],
+                method_name: method_name ? method_name.to_s : nil
+              )
             else
               self.class.searchkick_index.reindex_record_async(self)
             end
