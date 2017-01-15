@@ -1178,12 +1178,11 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Create a service to update the cache and reindex records with new conversions.
+Create a job to update the cache and reindex records with new conversions.
 
 ```ruby
-class ReindexConversions
-  def self.perform(model)
-    class_name = model.name
+class ReindexConversionsJob < ActiveJob::Base
+  def perform(class_name)
     recently_converted_ids =
       Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
       .pluck(:convertable_id).sort
@@ -1205,16 +1204,16 @@ class ReindexConversions
       end
 
       # partial reindex
-      model.where(id: ids).reindex(:search_conversions)
+      class_name.constantize.where(id: ids).reindex(:search_conversions)
     end
   end
 end
 ```
 
-Use the service with:
+Run the job with:
 
 ```ruby
-ReindexConversions.perform(Product)
+ReindexConversionsJob.perform_later("Product")
 ```
 
 ## Large Data Sets
