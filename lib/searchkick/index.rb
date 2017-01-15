@@ -257,23 +257,27 @@ module Searchkick
         import_or_update scope.to_a, method_name, async
         Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
       elsif full && async
-        # TODO expire Redis key
-        primary_key = scope.primary_key
-        starting_id = scope.minimum(primary_key) || 0
-        max_id = scope.maximum(primary_key) || 0
-        batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
+        if scope.respond_to?(:primary_key)
+          # TODO expire Redis key
+          primary_key = scope.primary_key
+          starting_id = scope.minimum(primary_key) || 0
+          max_id = scope.maximum(primary_key) || 0
+          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
-        batches_count.times do |i|
-          batch_id = i + 1
-          min_id = starting_id + (i * batch_size)
-          Searchkick::BulkReindexJob.perform_later(
-            class_name: scope.model_name.name,
-            min_id: min_id,
-            max_id: min_id + batch_size - 1,
-            index_name: name,
-            batch_id: batch_id
-          )
-          Searchkick.redis.sadd(batches_key, batch_id) if Searchkick.redis
+          batches_count.times do |i|
+            batch_id = i + 1
+            min_id = starting_id + (i * batch_size)
+            Searchkick::BulkReindexJob.perform_later(
+              class_name: scope.model_name.name,
+              min_id: min_id,
+              max_id: min_id + batch_size - 1,
+              index_name: name,
+              batch_id: batch_id
+            )
+            Searchkick.redis.sadd(batches_key, batch_id) if Searchkick.redis
+          end
+        else
+          raise Searchkick::Error, "async option only supported for ActiveRecord"
         end
       elsif scope.respond_to?(:find_in_batches)
         if resume
