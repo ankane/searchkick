@@ -1185,7 +1185,7 @@ class ReindexConversions
   def self.perform(model)
     class_name = model.name
     recently_converted_ids =
-      Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.days.ago)
+      Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
       .pluck(:convertable_id).sort
 
     recently_converted_ids.in_groups_of(1000, false) do |ids|
@@ -1205,7 +1205,7 @@ class ReindexConversions
       end
 
       # partial reindex
-      class_name.constantize.where(id: ids).reindex(:search_conversions)
+      model.where(id: ids).reindex(:search_conversions)
     end
   end
 end
