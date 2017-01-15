@@ -6,16 +6,14 @@ module Searchkick
       klass = class_name.constantize
       index = index_name ? Searchkick::Index.new(index_name) : klass.searchkick_index
       record_ids ||= min_id..max_id
-      Searchkick.callbacks(:bulk) do
-        index.import_scope(
-          Searchkick.load_records(klass, record_ids),
-          method_name: method_name,
-          batch: true,
-          batch_id: batch_id,
-          delete_missing: delete_missing,
-          record_ids: record_ids
-        )
-      end
+      index.import_scope(
+        Searchkick.load_records(klass, record_ids),
+        method_name: method_name,
+        batch: true,
+        batch_id: batch_id,
+        delete_missing: delete_missing,
+        record_ids: record_ids
+      )
     end
   end
 end

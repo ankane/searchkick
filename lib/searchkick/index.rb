@@ -445,8 +445,12 @@ module Searchkick
 
           begin
             # bulk reindex
-            method_name ? bulk_update(records, method_name) : import(records)
-            bulk_delete(delete_records)
+            possibly_bulk do
+              if records.any?
+                method_name ? bulk_update(records, method_name) : import(records)
+              end
+              bulk_delete(delete_records) if delete_records.any?
+            end
           rescue Faraday::ClientError => e
             if retries < 1
               retries += 1
@@ -454,6 +458,17 @@ module Searchkick
             end
             raise e
           end
+        end
+      end
+    end
+
+    # use bulk if no callbacks value set
+    def possibly_bulk
+      if Searchkick.callbacks_value
+        yield
+      else
+        Searchkick.callbacks(:bulk) do
+          yield
         end
       end
     end
