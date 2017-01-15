@@ -432,7 +432,6 @@ module Searchkick
             method_name: method_name ? method_name.to_s : nil
           )
         else
-          retries = 0
           records = records.select(&:should_index?)
 
           delete_records =
@@ -443,7 +442,7 @@ module Searchkick
               []
             end
 
-          begin
+          with_retries do
             # bulk reindex
             possibly_bulk do
               if records.any?
@@ -451,14 +450,22 @@ module Searchkick
               end
               bulk_delete(delete_records) if delete_records.any?
             end
-          rescue Faraday::ClientError => e
-            if retries < 1
-              retries += 1
-              retry
-            end
-            raise e
           end
         end
+      end
+    end
+
+    def with_retries
+      retries = 0
+
+      begin
+        yield
+      rescue Faraday::ClientError => e
+        if retries < 1
+          retries += 1
+          retry
+        end
+        raise e
       end
     end
 
