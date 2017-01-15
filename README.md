@@ -1158,6 +1158,33 @@ Reindex and search with:
 Business.search "ice cream", routing: params[:city_id]
 ```
 
+### Partial Reindexing
+
+Reindex a subset of attributes to reduce time spent generating search data and cut down on network traffic.
+
+```ruby
+class Product < ActiveRecord::Base
+  def search_data
+    {
+      name: name
+    }.merge(search_prices)
+  end
+
+  def search_prices
+    {
+      price: price,
+      sale_price: sale_price
+    }
+  end
+end
+```
+
+And use:
+
+```ruby
+Product.reindex(:search_prices)
+```
+
 ### Performant Conversions
 
 Split out conversions into a separate method so you can use partial reindexing, and cache conversions to prevent N+1 queries. Be sure to use a centralized cache store like Memcached or Redis.
@@ -1394,21 +1421,6 @@ Reindex associations
 
 ```ruby
 store.products.reindex
-```
-
-Reindex a subset of attributes (partial reindex)
-
-```ruby
-class Product < ActiveRecord::Base
-  def search_prices
-    {
-      price: price,
-      sale_price: sale_price
-    }
-  end
-end
-
-Product.reindex(:search_prices)
 ```
 
 Remove old indices
