@@ -444,7 +444,7 @@ module Searchkick
 
           with_retries do
             # bulk reindex
-            possibly_bulk do
+            possibly_bulk(delete_records.any?) do
               if records.any?
                 method_name ? bulk_update(records, method_name) : import(records)
               end
@@ -473,9 +473,10 @@ module Searchkick
       Searchkick.redis
     end
 
-    # use bulk if no callbacks value set
-    def possibly_bulk
-      if Searchkick.callbacks_value
+    # use bulk if no callbacks value set and deleted records
+    # if no deleted records, we can show friendlier notifications
+    def possibly_bulk(deleted_records)
+      if Searchkick.callbacks_value || !deleted_records
         yield
       else
         Searchkick.callbacks(:bulk) do
