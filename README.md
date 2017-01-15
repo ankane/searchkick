@@ -1185,7 +1185,7 @@ class ReindexConversionsJob < ActiveJob::Base
   def perform(class_name)
     recently_converted_ids =
       Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
-      .pluck(:convertable_id).sort
+      .order(:convertable_id).uniq.pluck(:convertable_id)
 
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions and group by record
