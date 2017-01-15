@@ -543,7 +543,7 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
-**Note:** For a more performant (but slightly more advanced) approach, check out [performant conversions](#performant-conversions).
+**Note:** For a more performant (but more advanced) approach, check out [performant conversions](#performant-conversions).
 
 ### Personalized Results
 
@@ -1160,7 +1160,7 @@ Business.search "ice cream", routing: params[:city_id]
 
 ### Performant Conversions
 
-Split out conversions into a separate method so you can use partial reindexing, and cache conversions to prevent N+1 queries.
+Split out conversions into a separate method so you can use partial reindexing, and cache conversions to prevent N+1 queries. Be sure to use a centralized cache store like Memcached or Redis.
 
 ```ruby
 class Product < ActiveRecord::Base
