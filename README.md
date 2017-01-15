@@ -1207,7 +1207,7 @@ Then, set up a background job to run.
 Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
 ```
 
-You can check the queue size with:
+You can check the queue length with:
 
 ```ruby
 Product.searchkick_index.reindex_queue.length
