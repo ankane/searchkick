@@ -8,9 +8,10 @@ module Searchkick
       limit = model.searchkick_index.options[:batch_size] || 1000
       record_ids = Searchkick::ReindexQueue.new(model.searchkick_index.name).reserve(limit: limit)
       if record_ids.any?
-        Searchkick::ProcessBatchJob.perform_later(
+        Searchkick::BulkReindexJob.perform_later(
           class_name: model.name,
-          record_ids: record_ids
+          record_ids: record_ids,
+          delete: true
         )
         # TODO when moving to reliable queuing, mark as complete
 
