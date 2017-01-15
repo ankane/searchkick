@@ -248,6 +248,7 @@ module Searchkick
     end
 
     def import_batch(scope, method_name: nil, batch_id: nil)
+      scope = scope.search_import if scope.respond_to?(:search_import)
       import_or_update scope.to_a, method_name
       Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
     end
