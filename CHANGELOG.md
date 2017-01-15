@@ -2,6 +2,7 @@
 
 - Added support for queuing updates [experimental]
 - Added `refresh_interval` option to `reindex`
+- Prefer `search_index` over `searchkick_index`
 
 ## 2.0.3
 
