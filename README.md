@@ -543,7 +543,7 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
-**Note:** For better performance, check out [this gist](https://gist.github.com/ankane/09af4746076112fc64f684fcb0d5b6da).
+**Note:** For a more performant (but slightly more advanced) approach, check out [performant conversions](#performant-conversions).
 
 ### Personalized Results
 
@@ -1156,6 +1156,65 @@ Reindex and search with:
 
 ```ruby
 Business.search "ice cream", routing: params[:city_id]
+```
+
+### Performant Conversions
+
+Split out conversions into a separate method so you can use partial reindexing, and cache conversions to prevent N+1 queries.
+
+```ruby
+class Product < ActiveRecord::Base
+  def search_data
+    {
+      name: name
+    }.merge(search_conversions)
+  end
+
+  def search_conversions
+    {
+      conversions: Rails.cache.read("search_conversions:#{self.class.name}:#{id}") || {}
+    }
+  end
+end
+```
+
+Create a service to update the cache and reindex records with new conversions.
+
+```ruby
+class ReindexConversions
+  def self.perform(model)
+    class_name = model.name
+    recently_converted_ids =
+      Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.days.ago)
+      .pluck(:convertable_id).sort
+
+    recently_converted_ids.in_groups_of(1000, false) do |ids|
+      # fetch conversions and group by record
+      conversions_by_record = {}
+      conversions =
+        Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
+        .group(:convertable_id, :query).uniq.count(:user_id)
+
+      conversions.each do |(id, query), count|
+        (conversions_by_record[id] ||= {})[query] = count
+      end
+
+      # write to cache
+      conversions_by_record.each do |id, conversions|
+        Rails.cache.write("search_conversions:#{class_name}:#{id}", conversions)
+      end
+
+      # partial reindex
+      class_name.constantize.where(id: ids).reindex(:search_conversions)
+    end
+  end
+end
+```
+
+Use the service with:
+
+```ruby
+ReindexConversions.perform(Product)
 ```
 
 ## Large Data Sets
