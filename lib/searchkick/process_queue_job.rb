@@ -11,7 +11,7 @@ module Searchkick
         Searchkick::BulkReindexJob.perform_later(
           class_name: model.name,
           record_ids: record_ids,
-          delete: true
+          delete_missing: true
         )
         # TODO when moving to reliable queuing, mark as complete
 

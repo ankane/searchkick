@@ -254,7 +254,7 @@ module Searchkick
       scope = scope.search_import if scope.respond_to?(:search_import)
 
       if batch
-        import_or_update scope.to_a, method_name, async, delete_missing, record_ids, scope.model
+        import_or_update scope.to_a, method_name, async, delete_missing, record_ids, scope.model_name.name.constantize
         Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
       elsif full && async
         if scope.respond_to?(:primary_key)
