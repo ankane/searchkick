@@ -30,7 +30,7 @@ class ReindexTest < Minitest::Test
       store_names ["Product A"]
     end
     reindex = Product.reindex(async: true)
-    assert_search "product", []
+    assert_search "product", [], conversions: false
 
     index = Searchkick::Index.new(reindex[:index_name])
     index.refresh
