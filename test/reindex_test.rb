@@ -39,4 +39,17 @@ class ReindexTest < Minitest::Test
     Product.searchkick_index.promote(reindex[:index_name])
     assert_search "product", ["Product A"]
   end
+
+  def test_refresh_interval
+    reindex = Product.reindex(refresh_interval: "30s", async: true)
+    index = Searchkick::Index.new(reindex[:index_name])
+    assert_nil Product.searchkick_index.refresh_interval
+    assert_equal "30s", index.refresh_interval
+
+    Product.searchkick_index.promote(index.name, update_refresh_interval: true)
+    assert_equal "1s", index.refresh_interval
+    assert_equal "1s", Product.searchkick_index.refresh_interval
+  ensure
+    Product.reindex
+  end
 end

@@ -1,6 +1,7 @@
 ## 2.0.4 [unreleased]
 
 - Added support for queuing updates [experimental]
+- Added `refresh_interval` option to `reindex`
 
 ## 2.0.3
 

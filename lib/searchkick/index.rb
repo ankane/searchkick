@@ -38,11 +38,22 @@ module Searchkick
       client.indices.get_settings index: name
     end
 
+    def refresh_interval
+      settings.values.first["settings"]["index"]["refresh_interval"]
+    end
+
     def update_settings(settings)
       client.indices.put_settings index: name, body: settings
     end
 
-    def promote(new_name)
+    def promote(new_name, update_refresh_interval: false)
+      if update_refresh_interval
+        new_index = Searchkick::Index.new(new_name)
+        settings = options[:settings] || {}
+        refresh_interval = (settings[:index] && settings[:index][:refresh_interval]) || "1s"
+        new_index.update_settings(index: {refresh_interval: refresh_interval})
+      end
+
       old_indices =
         begin
           client.indices.get_alias(name: name).keys
@@ -191,7 +202,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, import: true, resume: false, retain: false, async: false)
+    def reindex_scope(scope, import: true, resume: false, retain: false, async: false, refresh_interval: nil)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
@@ -199,7 +210,9 @@ module Searchkick
       else
         clean_indices unless retain
 
-        index = create_index(index_options: scope.searchkick_index_options)
+        index_options = scope.searchkick_index_options
+        index_options.deep_merge!(settings: {index: {refresh_interval: refresh_interval}}) if refresh_interval
+        index = create_index(index_options: index_options)
       end
 
       # check if alias exists
@@ -209,12 +222,12 @@ module Searchkick
 
         # get existing indices to remove
         unless async
-          promote(index.name)
+          promote(index.name, update_refresh_interval: !refresh_interval.nil?)
           clean_indices unless retain
         end
       else
         delete if exists?
-        promote(index.name)
+        promote(index.name, update_refresh_interval: !refresh_interval.nil?)
 
         # import after promotion
         index.import_scope(scope, resume: resume, async: async, full: true) if import
@@ -240,8 +253,8 @@ module Searchkick
       elsif full && async
         # TODO expire Redis key
         primary_key = scope.primary_key
-        starting_id = scope.minimum(primary_key)
-        max_id = scope.maximum(primary_key)
+        starting_id = scope.minimum(primary_key) || 0
+        max_id = scope.maximum(primary_key) || 0
         batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
         batches_count.times do |i|
