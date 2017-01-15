@@ -962,23 +962,23 @@ Product.search("soap", explain: true).response
 See how Elasticsearch tokenizes your queries with:
 
 ```ruby
-Product.searchkick_index.tokens("Dish Washer Soap", analyzer: "searchkick_index")
+Product.search_index.tokens("Dish Washer Soap", analyzer: "searchkick_index")
 # ["dish", "dishwash", "washer", "washersoap", "soap"]
 
-Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search")
+Product.search_index.tokens("dishwasher soap", analyzer: "searchkick_search")
 # ["dishwashersoap"] - no match
 
-Product.searchkick_index.tokens("dishwasher soap", analyzer: "searchkick_search2")
+Product.search_index.tokens("dishwasher soap", analyzer: "searchkick_search2")
 # ["dishwash", "soap"] - match!!
 ```
 
 Partial matches
 
 ```ruby
-Product.searchkick_index.tokens("San Diego", analyzer: "searchkick_word_start_index")
+Product.search_index.tokens("San Diego", analyzer: "searchkick_word_start_index")
 # ["s", "sa", "san", "d", "di", "die", "dieg", "diego"]
 
-Product.searchkick_index.tokens("dieg", analyzer: "searchkick_word_search")
+Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
@@ -1170,7 +1170,7 @@ Product.reindex(async: true)
 Once the jobs complete, promote the new index with:
 
 ```ruby
-Product.searchkick_index.promote(index_name)
+Product.search_index.promote(index_name)
 ```
 
 You can optionally track the status with Redis:
@@ -1210,7 +1210,7 @@ Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
 You can check the queue length with:
 
 ```ruby
-Product.searchkick_index.reindex_queue.length
+Product.search_index.reindex_queue.length
 ```
 
 For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
@@ -1352,7 +1352,7 @@ Product.reindex(:search_prices)
 Remove old indices
 
 ```ruby
-Product.searchkick_index.clean_indices
+Product.search_index.clean_indices
 ```
 
 Use custom settings
