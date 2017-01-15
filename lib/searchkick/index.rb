@@ -247,14 +247,14 @@ module Searchkick
       end
     end
 
-    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, delete: false, record_ids: nil)
+    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, delete_missing: false, record_ids: nil)
       batch_size = @options[:batch_size] || 1000
 
       # use scope for import
       scope = scope.search_import if scope.respond_to?(:search_import)
 
       if batch
-        import_or_update scope.to_a, method_name, async, delete, record_ids, scope.model
+        import_or_update scope.to_a, method_name, async, delete_missing, record_ids, scope.model
         Searchkick.redis.srem(batches_key, batch_id) if batch_id && Searchkick.redis
       elsif full && async
         if scope.respond_to?(:primary_key)
@@ -422,7 +422,7 @@ module Searchkick
       end
     end
 
-    def import_or_update(records, method_name, async, delete = false, record_ids = nil, klass = nil)
+    def import_or_update(records, method_name, async, delete_missing = false, record_ids = nil, klass = nil)
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
@@ -436,7 +436,7 @@ module Searchkick
           records = records.select(&:should_index?)
 
           delete_records =
-            if delete
+            if delete_missing
               # determine which records to delete
               (record_ids - records.map { |r| r.id.to_s }).map { |id| m = klass.new; m.id = id; m }
             else

@@ -2,7 +2,7 @@ module Searchkick
   class BulkReindexJob < ActiveJob::Base
     queue_as :searchkick
 
-    def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil, delete: false)
+    def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil, delete_missing: false)
       klass = class_name.constantize
       index = index_name ? Searchkick::Index.new(index_name) : klass.searchkick_index
       record_ids ||= min_id..max_id
@@ -12,7 +12,7 @@ module Searchkick
           method_name: method_name,
           batch: true,
           batch_id: batch_id,
-          delete: delete,
+          delete_missing: delete_missing,
           record_ids: record_ids
         )
       end

@@ -7,7 +7,7 @@ module Searchkick
       Searchkick::BulkReindexJob.perform_now(
         class_name: class_name,
         record_ids: record_ids,
-        delete: true
+        delete_missing: true
       )
     end
   end
