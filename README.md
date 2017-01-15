@@ -543,6 +543,8 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
+**Note:** For better performance, check out [this gist](https://gist.github.com/ankane/09af4746076112fc64f684fcb0d5b6da).
+
 ### Personalized Results
 
 Order results differently for each user. For example, show a user’s previously purchased products before other results.
