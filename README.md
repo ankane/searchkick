@@ -436,7 +436,7 @@ If a reindex is interrupted, you can resume it with:
 Product.reindex(resume: true)
 ```
 
-For large data sets, try [background reindexing](#background-reindexing).
+For large data sets, try [parallel reindexing](#parallel-reindexing).
 
 ### To Reindex, or Not to Reindex
 
@@ -1155,9 +1155,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-### Background Reindexing
-
-*ActiveRecord only*
+### Parallel Reindexing
 
 For large data sets, you can use background jobs to parallelize reindexing.
 
@@ -1186,7 +1184,7 @@ Searchkick.reindex_status(index_name)
 
 ### Queuing
 
-You can also queue ids of records that need reindexed and reindex in bulk for better performance. First, set up Redis in an initializer.
+Push ids of records needing reindexed to a queue and reindex in bulk for better performance. First, set up Redis in an initializer.
 
 ```ruby
 Searchkick.redis = Redis.new
