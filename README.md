@@ -1182,6 +1182,20 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
+### Refresh Interval
+
+Specify a longer refresh interval while indexing to increase performance.
+
+```ruby
+Product.reindex(async: true, refresh_interval: "30s")
+```
+
+When promoting, have it restored to the value specified in your mapping (defaults to `1s`).
+
+```ruby
+Product.search_index.promote(index_name, update_refresh_interval: true)
+```
+
 ### Queuing
 
 Push ids of records needing reindexed to a queue and reindex in bulk for better performance. First, set up Redis in an initializer.
