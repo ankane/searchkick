@@ -16,36 +16,7 @@ module Searchkick
   end
 
   module IndexWithInstrumentation
-    def store(record)
-      event = {
-        name: "#{record.searchkick_klass.name} Store",
-        id: search_id(record)
-      }
-      if Searchkick.callbacks_value == :bulk
-        super
-      else
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super
-        end
-      end
-    end
-
-    def remove(record)
-      name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
-      event = {
-        name: name,
-        id: search_id(record)
-      }
-      if Searchkick.callbacks_value == :bulk
-        super
-      else
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super
-        end
-      end
-    end
-
-    def import(records)
+    def bulk_index(records)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",

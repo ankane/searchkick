@@ -1,3 +1,7 @@
+## 2.1.1 [unreleased]
+
+- Fixed duplicate notifications
+
 ## 2.1.0
 
 - Background reindexing and queues are officially supported
