@@ -1184,15 +1184,15 @@ Searchkick.reindex_status(index_name)
 
 ### Refresh Interval
 
-You can specify a longer refresh interval while reindexing to increase performance.
+You can set a longer refresh interval while reindexing to increase performance.
 
 ```ruby
 Product.reindex(refresh_interval: "30s")
 ```
 
-Once completed, it’ll be restored to the value specified in your mapping (defaults to `1s`).
+Once completed, it’ll be restored to the value in your mapping (defaults to `1s`).
 
-For parallel reindexing, specify this during promotion.
+For parallel reindexing, during promotion, use:
 
 ```ruby
 Product.search_index.promote(index_name, update_refresh_interval: true)
