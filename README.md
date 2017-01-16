@@ -1186,7 +1186,7 @@ Searchkick.reindex_status(index_name)
 
 ### Queuing
 
-You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
+You can also queue ids of records that need reindexed and reindex in bulk for better performance. First, set up Redis in an initializer.
 
 ```ruby
 Searchkick.redis = Redis.new
