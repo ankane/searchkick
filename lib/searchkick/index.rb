@@ -425,6 +425,7 @@ module Searchkick
         end
       else
         batch_id = 1
+        # TODO remove any eager loading
         scope = scope.only(:_id) if scope.respond_to?(:only)
         each_batch(scope) do |items|
           bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
