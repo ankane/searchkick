@@ -4,6 +4,8 @@ module Searchkick
 
     def initialize(name)
       @name = name
+
+      raise Searchkick::Error, "Searchkick.redis not set" unless redis
     end
 
     def push(record_id)
