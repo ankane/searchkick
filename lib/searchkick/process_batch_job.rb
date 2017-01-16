@@ -15,8 +15,8 @@ module Searchkick
       # bulk reindex
       index = klass.searchkick_index
       Searchkick.callbacks(:bulk) do
-        index.bulk_index(records)
-        index.bulk_delete(delete_records)
+        index.bulk_index(records) if records.any?
+        index.bulk_delete(delete_records) if delete_records.any?
       end
     end
   end
