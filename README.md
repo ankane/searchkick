@@ -1325,7 +1325,7 @@ For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/
 
 ## Advanced
 
-Searchkick supports the [Elasticsearch DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html) and makes it easy to use.
+Searchkick makes it easy to use the Elasticsearch DSL on its own.
 
 ### Advanced Mapping
 
