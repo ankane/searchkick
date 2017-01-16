@@ -19,9 +19,10 @@ module Searchkick
     def bulk_index(records)
       if records.any?
         event = {
-          name: "#{records.first.searchkick_klass.name} Import",
+          name: "#{records.first.searchkick_klass.name} Index",
           count: records.size
         }
+        event[:id] = search_id(records.first) if records.size == 1
         if Searchkick.callbacks_value == :bulk
           super
         else
@@ -31,6 +32,7 @@ module Searchkick
         end
       end
     end
+    alias_method :import, :bulk_index
 
     def bulk_update(records, *args)
       if records.any?
@@ -38,6 +40,7 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} Update",
           count: records.size
         }
+        event[:id] = search_id(records.first) if records.size == 1
         if Searchkick.callbacks_value == :bulk
           super
         else
@@ -54,6 +57,7 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} Delete",
           count: records.size
         }
+        event[:id] = search_id(records.first) if records.size == 1
         if Searchkick.callbacks_value == :bulk
           super
         else
