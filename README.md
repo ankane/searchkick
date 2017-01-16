@@ -470,9 +470,9 @@ There are four strategies for keeping the index synced with your database.
 
   And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below. Jobs are added to a queue named `searchkick`.
 
-3. Queues
+3. Queuing
 
-  Push ids of records that need updated to a queue and reindex in the background in batches. This is more performant than the asynchronous method, which updates records individually. See [how to use](#queues).
+  Push ids of records that need updated to a queue and reindex in the background in batches. This is more performant than the asynchronous method, which updates records individually. See [how to set up](#queuing).
 
 4. Manual
 
@@ -1293,7 +1293,7 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-### Queues
+### Queuing
 
 You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
 
