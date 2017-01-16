@@ -1575,15 +1575,12 @@ Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
 
 Reindex conditionally
 
-**Note:** With ActiveRecord, use this feature with caution - [transaction rollbacks can cause data inconsistencies](https://github.com/elasticsearch/elasticsearch-rails/blob/master/elasticsearch-model/README.md#custom-callbacks)
-
 ```ruby
 class Product < ActiveRecord::Base
   searchkick callbacks: false
 
   # add the callbacks manually
-  after_save :reindex, if: -> (model) { model.name_changed? } # use your own condition
-  after_destroy :reindex
+  after_commit :reindex, if: -> (model) { model.previous_changes.key?("name") } # use your own condition
 end
 ```
 
