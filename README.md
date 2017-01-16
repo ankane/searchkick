@@ -1182,7 +1182,7 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-#### Refresh Interval
+### Refresh Interval
 
 You can specify a longer refresh interval while reindexing to increase performance.
 
