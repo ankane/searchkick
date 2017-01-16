@@ -1325,7 +1325,7 @@ For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/
 
 ## Advanced
 
-Prefer to use the [Elasticsearch DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html) but still want awesome features like zero-downtime reindexing?
+Searchkick supports the entire [Elasticsearch DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html) and makes it easy to use.
 
 ### Advanced Mapping
 
