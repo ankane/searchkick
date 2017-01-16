@@ -16,10 +16,53 @@ module Searchkick
   end
 
   module IndexWithInstrumentation
+    def store(record)
+      event = {
+        name: "#{record.searchkick_klass.name} Store",
+        id: search_id(record)
+      }
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
+      end
+    end
+
+    def remove(record)
+      name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
+      event = {
+        name: name,
+        id: search_id(record)
+      }
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
+      end
+    end
+
+    def update_record(record, method_name)
+      event = {
+        name: "#{record.searchkick_klass.name} Update",
+        id: search_id(record)
+      }
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
+      end
+    end
+
     def bulk_index(records)
       if records.any?
         event = {
-          name: "#{records.first.searchkick_klass.name} Index",
+          name: "#{records.first.searchkick_klass.name} Import",
           count: records.size
         }
         event[:id] = search_id(records.first) if records.size == 1
@@ -51,7 +94,7 @@ module Searchkick
       end
     end
 
-    def bulk_delete_helper(records)
+    def bulk_delete(records)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Delete",

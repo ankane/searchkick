@@ -66,26 +66,31 @@ module Searchkick
     alias_method :swap, :promote
 
     # record based
+    # use helpers for notifications
 
     def store(record)
-      bulk_index([record])
+      bulk_index_helper([record])
     end
 
     def remove(record)
-      bulk_delete([record])
+      bulk_delete_helper([record])
+    end
+
+    def update_record(record, method_name)
+      bulk_update_helper([record], method_name)
     end
 
     def bulk_delete(records)
-      bulk_delete_helper(records.reject { |r| r.id.blank? })
+      bulk_delete_helper(records)
     end
 
     def bulk_index(records)
-      Searchkick.indexer.queue(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
+      bulk_index_helper(records)
     end
     alias_method :import, :bulk_index
 
     def bulk_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+      bulk_update_helper(records, method_name)
     end
 
     def record_data(r)
@@ -475,8 +480,16 @@ module Searchkick
       end
     end
 
+    def bulk_index_helper(records)
+      Searchkick.indexer.queue(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
+    end
+
     def bulk_delete_helper(records)
-      Searchkick.indexer.queue(records.map { |r| {delete: record_data(r)} })
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
+    end
+
+    def bulk_update_helper(records, method_name)
+      Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
     end
 
     def redis

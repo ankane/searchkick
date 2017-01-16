@@ -120,7 +120,7 @@ module Searchkick
             end
           else
             if method_name
-              self.class.searchkick_index.bulk_update([self], method_name)
+              self.class.searchkick_index.update_record(self, method_name)
             else
               self.class.searchkick_index.reindex_record(self)
             end
