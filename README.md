@@ -1155,6 +1155,65 @@ class Product < ActiveRecord::Base
 end
 ```
 
+### Background Reindexing
+
+*ActiveRecord only*
+
+For large data sets, you can use background jobs to parallelize reindexing.
+
+```ruby
+Product.reindex(async: true)
+# {index_name: "products_production_20170111210018065"}
+```
+
+Once the jobs complete, promote the new index with:
+
+```ruby
+Product.search_index.promote(index_name)
+```
+
+You can optionally track the status with Redis:
+
+```ruby
+Searchkick.redis = Redis.new
+```
+
+And use:
+
+```ruby
+Searchkick.reindex_status(index_name)
+```
+
+### Queuing
+
+You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
+
+```ruby
+Searchkick.redis = Redis.new
+```
+
+And ask your models to queue updates.
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick callbacks: :queue
+end
+```
+
+Then, set up a background job to run.
+
+```ruby
+Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
+```
+
+You can check the queue length with:
+
+```ruby
+Product.search_index.reindex_queue.length
+```
+
+For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
+
 ### Routing
 
 Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing), which can significantly speed up searches.
@@ -1261,65 +1320,6 @@ Run the job with:
 ```ruby
 ReindexConversionsJob.perform_later("Product")
 ```
-
-### Background Reindexing
-
-*ActiveRecord only*
-
-For large data sets, you can use background jobs to parallelize reindexing.
-
-```ruby
-Product.reindex(async: true)
-# {index_name: "products_production_20170111210018065"}
-```
-
-Once the jobs complete, promote the new index with:
-
-```ruby
-Product.search_index.promote(index_name)
-```
-
-You can optionally track the status with Redis:
-
-```ruby
-Searchkick.redis = Redis.new
-```
-
-And use:
-
-```ruby
-Searchkick.reindex_status(index_name)
-```
-
-### Queuing
-
-You can also queue updates and do them in bulk for better performance. First, set up Redis in an initializer.
-
-```ruby
-Searchkick.redis = Redis.new
-```
-
-And ask your models to queue updates.
-
-```ruby
-class Product < ActiveRecord::Base
-  searchkick callbacks: :queue
-end
-```
-
-Then, set up a background job to run.
-
-```ruby
-Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
-```
-
-You can check the queue length with:
-
-```ruby
-Product.search_index.reindex_queue.length
-```
-
-For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/blog/found-keeping-elasticsearch-in-sync).
 
 ## Advanced
 
