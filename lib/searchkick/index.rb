@@ -76,7 +76,7 @@ module Searchkick
     end
 
     def bulk_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
+      bulk_delete_helper(records.reject { |r| r.id.blank? })
     end
 
     def bulk_index(records)
@@ -473,6 +473,10 @@ module Searchkick
         end
         raise e
       end
+    end
+
+    def bulk_delete_helper(records)
+      Searchkick.indexer.queue(records.map { |r| {delete: record_data(r)} })
     end
 
     def redis

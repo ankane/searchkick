@@ -48,7 +48,7 @@ module Searchkick
       end
     end
 
-    def bulk_delete(records)
+    def bulk_delete_helper(records)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Delete",
