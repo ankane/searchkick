@@ -1262,8 +1262,6 @@ Run the job with:
 ReindexConversionsJob.perform_later("Product")
 ```
 
-## Large Data Sets
-
 ### Background Reindexing
 
 *ActiveRecord only*
