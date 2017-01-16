@@ -436,7 +436,7 @@ If a reindex is interrupted, you can resume it with:
 Product.reindex(resume: true)
 ```
 
-For large data sets, we recommended [background reindexing](#background-reindexing).
+For large data sets, try [background reindexing](#background-reindexing).
 
 ### To Reindex, or Not to Reindex
 
