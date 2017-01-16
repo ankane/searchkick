@@ -1291,12 +1291,13 @@ class ReindexConversionsJob < ActiveJob::Base
 
     # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
-      # fetch conversions and group by record
-      conversions_by_record = {}
+      # fetch conversions
       conversions =
         Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
         .group(:convertable_id, :query).uniq.count(:user_id)
 
+      # group conversions by record
+      conversions_by_record = {}
       conversions.each do |(id, query), count|
         (conversions_by_record[id] ||= {})[query] = count
       end
