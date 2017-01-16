@@ -1,4 +1,4 @@
-## 2.0.5 [unreleased]
+## 2.1.0 [unreleased]
 
 - Background reindexing and queues are officially supported
 - Log updates and deletes

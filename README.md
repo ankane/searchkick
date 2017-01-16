@@ -29,7 +29,18 @@ Plus:
 
 **Searchkick 2.0 was just released!** See [notable changes](#200).
 
-## Get Started
+## Contents
+
+- [Getting Started](#getting-started)
+- [Querying](#querying)
+- [Indexing](#indexing)
+- [Aggregations](#aggregations)
+- [Deployment](#deployment)
+- [Performance](#performance)
+- [Elasticsearch DSL](#advanced)
+- [Reference](#reference)
+
+## Getting Started
 
 [Install Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
 
@@ -73,7 +84,7 @@ end
 
 Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
 
-### Queries
+## Querying
 
 Query like SQL
 
@@ -381,7 +392,7 @@ And use:
 Product.search "🍨🍰", emoji: true
 ```
 
-### Indexing
+## Indexing
 
 Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
 
