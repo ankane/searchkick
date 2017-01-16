@@ -1,12 +1,9 @@
 require_relative "test_helper"
 
 class ReindexTest < Minitest::Test
-  def setup
-    skip if nobrainer?
-    super
-  end
-
   def test_scoped
+    skip if nobrainer?
+
     store_names ["Product A"]
     Searchkick.callbacks(false) do
       store_names ["Product B", "Product C"]
@@ -16,6 +13,8 @@ class ReindexTest < Minitest::Test
   end
 
   def test_associations
+    skip if nobrainer?
+
     store_names ["Product A"]
     store = Store.create!(name: "Test")
     Product.create!(name: "Product B", store_id: store.id)
@@ -24,7 +23,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_async
-    skip unless defined?(ActiveJob) && defined?(ActiveRecord)
+    skip if !defined?(ActiveJob)
 
     Searchkick.callbacks(false) do
       store_names ["Product A"]

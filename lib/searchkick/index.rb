@@ -267,17 +267,21 @@ module Searchkick
           batches_count.times do |i|
             batch_id = i + 1
             min_id = starting_id + (i * batch_size)
-            Searchkick::BulkReindexJob.perform_later(
-              class_name: scope.model_name.name,
-              min_id: min_id,
-              max_id: min_id + batch_size - 1,
-              index_name: name,
-              batch_id: batch_id
-            )
-            redis.sadd(batches_key, batch_id) if redis
+            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
           end
         else
-          raise Searchkick::Error, "async option only supported for ActiveRecord"
+          batch_id = 1
+          items = []
+          scope = scope.only(:_id) if scope.respond_to?(:only)
+          scope.each do |item|
+            items << item
+            if items.length == batch_size
+              bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
+              items = []
+              batch_id += 1
+            end
+          end
+          bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
         end
       elsif scope.respond_to?(:find_in_batches)
         if resume
@@ -440,6 +444,15 @@ module Searchkick
           end
         end
       end
+    end
+
+    def bulk_reindex_job(scope, batch_id, options)
+      Searchkick::BulkReindexJob.perform_later({
+        class_name: scope.model_name.name,
+        index_name: name,
+        batch_id: batch_id
+      }.merge(options))
+      redis.sadd(batches_key, batch_id) if redis
     end
 
     def with_retries
