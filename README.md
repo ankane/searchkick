@@ -851,7 +851,7 @@ product.similar(fields: [:name], where: {size: "12 oz"})
 ### Geospatial Searches
 
 ```ruby
-class City < ActiveRecord::Base
+class Restaurant < ActiveRecord::Base
   searchkick locations: [:location]
 
   def search_data
@@ -863,19 +863,19 @@ end
 Reindex and search with:
 
 ```ruby
-City.search "san", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
+Restaurant.search "pizza", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
 ```
 
 Bounded by a box
 
 ```ruby
-City.search "san", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
+Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
 
 Bounded by a polygon
 
 ```ruby
-City.search "san", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
+Restaurant.search "dessert", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
 ```
 
 ### Boost By Distance
@@ -883,13 +883,13 @@ City.search "san", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123
 Boost results by distance - closer results are boosted more
 
 ```ruby
-City.search "san", boost_by_distance: {location: {origin: {lat: 37, lon: -122}}}
+Restaurant.search "noodles", boost_by_distance: {location: {origin: {lat: 37, lon: -122}}}
 ```
 
 Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
 
 ```ruby
-City.search "san", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, function: "linear", scale: "30mi", decay: 0.5}}
+Restaurant.search "wings", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, function: "linear", scale: "30mi", decay: 0.5}}
 ```
 
 ### Geo Shapes
@@ -897,7 +897,7 @@ City.search "san", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, 
 You can also index and search geo shapes.
 
 ```ruby
-class City < ActiveRecord::Base
+class Restaurant < ActiveRecord::Base
   searchkick geo_shape: {
     bounds: {tree: "geohash", precision: "1km"}
   }
@@ -918,25 +918,25 @@ See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsea
 Find shapes intersecting with the query shape
 
 ```ruby
-City.search "san", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
+Restaurant.search "soup", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
 ```
 
 Falling entirely within the query shape
 
 ```ruby
-City.search "san", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}}
+Restaurant.search "salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}}
 ```
 
 Not touching the query shape
 
 ```ruby
-City.search "san", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
+Restaurant.search "burger", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
 Containing the query shape (Elasticsearch 2.2+)
 
 ```ruby
-City.search "san", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
+Restaurant.search "fries", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
 ## Inheritance
