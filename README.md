@@ -34,6 +34,7 @@ Plus:
 - [Getting Started](#getting-started)
 - [Querying](#querying)
 - [Indexing](#indexing)
+- [Instant Search / Autocomplete](#instant-search--autocomplete)
 - [Aggregations](#aggregations)
 - [Deployment](#deployment)
 - [Performance](#performance)
