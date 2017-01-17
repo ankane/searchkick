@@ -633,6 +633,8 @@ class MoviesController < ApplicationController
 end
 ```
 
+**Note:** Use `load: false` and `misspellings: {below: n}` (or `misspellings: false`) for best performance.
+
 Then add the search box and JavaScript code to a view.
 
 ```html
