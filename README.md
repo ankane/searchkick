@@ -528,6 +528,11 @@ Product.search "apple", track: {user_id: current_user.id}
 
 [See the docs](https://github.com/ankane/searchjoy) for how to install and use.
 
+Focus on:
+
+- top searches with low conversions
+- top searches with no results
+
 ### Keep Getting Better
 
 Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
@@ -1431,6 +1436,20 @@ To query nested data, use dot notation.
 ```ruby
 User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345}
 ```
+
+## Search Concepts
+
+### Precision and Recall
+
+[Precision and recall](https://en.wikipedia.org/wiki/Precision_and_recall) are two key concepts in search (also known as *information retrieval*). To help illustrate, let’s walk through an example.
+
+You have a store with 16 types of apples. A user searches for `apples` gets 10 results. 8 of the results are for apples, and 2 are for apple juice.
+
+**Precision** is the fraction of documents in the results that are relevant. There are 10 results and 8 are relevant, so precision is 80%.
+
+**Recall** is the fraction of relevant documents in the results out of all relevant documents. There are 16 apples and only 8 in the results, so recall is 50%.
+
+There’s typically a trade-off between the two. As you tweak your search to increase precision (not return irrelevant documents), there’s are greater chance a relevant document also isn’t returned, which decreases recall. The opposite also applies. As you try to increase recall (return a higher number of relevent documents), there’s a greater chance you also return an irrelevant document, decreasing precision.
 
 ## Reference
 
