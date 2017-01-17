@@ -48,7 +48,5 @@ class ReindexTest < Minitest::Test
     Product.search_index.promote(index.name, update_refresh_interval: true)
     assert_equal "1s", index.refresh_interval
     assert_equal "1s", Product.search_index.refresh_interval
-  ensure
-    Product.reindex
   end
 end
