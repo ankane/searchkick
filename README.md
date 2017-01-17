@@ -602,15 +602,15 @@ Before getting started, a few good things to know:
 If the above situations don’t apply, let’s continue. First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
 
 ```ruby
-class Book < ActiveRecord::Base
-  searchkick word_start: [:title, :author]
+class Movie < ActiveRecord::Base
+  searchkick word_start: [:title, :director]
 end
 ```
 
 Reindex and search with:
 
 ```ruby
-Book.search "tipping poi", match: :word_start
+Movie.search "jurassic pa", match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -620,11 +620,10 @@ Typically, you want to use a JavaScript library like [typeahead.js](http://twitt
 First, add a route and controller action.
 
 ```ruby
-# app/controllers/books_controller.rb
-class BooksController < ApplicationController
+class MoviesController < ApplicationController
   def autocomplete
-    render json: Book.search(params[:query], {
-      fields: ["title^5", "author"],
+    render json: Movie.search(params[:query], {
+      fields: ["title^5", "director"],
       match: :word_start,
       limit: 10,
       load: false,
@@ -642,16 +641,16 @@ Then add the search box and JavaScript code to a view.
 <script src="jquery.js"></script>
 <script src="typeahead.bundle.js"></script>
 <script>
-  var books = new Bloodhound({
+  var movies = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.whitespace,
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     remote: {
-      url: '/books/autocomplete?query=%QUERY',
+      url: '/movies/autocomplete?query=%QUERY',
       wildcard: '%QUERY'
     }
   });
   $('#query').typeahead(null, {
-    source: books
+    source: movies
   });
 </script>
 ```
