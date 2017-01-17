@@ -594,9 +594,12 @@ Autocomplete predicts what a user will type, making the search experience faster
 
 ![Autocomplete](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/autocomplete.png)
 
-**Note:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
+Before getting started, a few good things to know:
 
-First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
+1. If users are mostly typing general categories (like `cereal` rather than product names), check out [Autosuggest](https://github.com/ankane/autosuggest).
+2. If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
+
+If the above situations don’t apply, let’s continue. First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
 
 ```ruby
 class Book < ActiveRecord::Base
