@@ -377,6 +377,14 @@ Turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
+### Bad Matches [master]
+
+If a user searches `butter`, they may also get results for `peanut butter`. To prevent this, use:
+
+```ruby
+Product.search "butter", exclude: ["peanut butter"]
+```
+
 ### Emoji
 
 Search :ice_cream::cake: and get `ice cream cake`!

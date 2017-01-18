@@ -159,6 +159,25 @@ class MatchTest < Minitest::Test
     assert_search "almondmilks", ["Almond Milk"]
   end
 
+  # butter
+
+  def test_butter
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
+  end
+
+  def test_butter_word_start
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"], match: :word_start
+  end
+
+  def test_butter_exact
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", [], exclude: ["peanut butter"], match: :exact
+  end
+
+  # other
+
   def test_all
     store_names ["Product A", "Product B"]
     assert_search "*", ["Product A", "Product B"]

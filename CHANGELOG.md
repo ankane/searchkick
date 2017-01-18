@@ -2,6 +2,7 @@
 
 - Fixed duplicate notifications
 - Added support for `connection_pool`
+- Added `exclude` option
 
 ## 2.1.0
 

@@ -14,7 +14,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :execute, :explain,
+        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
@@ -264,6 +264,7 @@ module Searchkick
           end
 
           fields.each do |field|
+            queries_to_add = []
             qs = []
 
             factor = boost_fields[field] || 1
@@ -290,7 +291,7 @@ module Searchkick
               ]
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")
-              queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
+              queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
@@ -300,21 +301,43 @@ module Searchkick
               qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
             end
 
+            q2 = qs.map { |q| {match_type => {field => q}} }
+
             # boost exact matches more
             if field =~ /\.word_(start|middle|end)\z/ && searchkick_options[:word] != false
-              queries << {
+              queries_to_add << {
                 bool: {
                   must: {
                     bool: {
-                      should: qs.map { |q| {match_type => {field => q}} }
+                      should: q2
                     }
                   },
                   should: {match_type => {field.sub(/\.word_(start|middle|end)\z/, ".analyzed") => qs.first}}
                 }
               }
             else
-              queries.concat(qs.map { |q| {match_type => {field => q}} })
+              queries_to_add.concat(q2)
             end
+
+            if options[:exclude]
+              must_not =
+                options[:exclude].map do |phrase|
+                  {
+                    match_phrase: {
+                      field => phrase
+                    }
+                  }
+                end
+
+              queries_to_add = [{
+                bool: {
+                  should: queries_to_add,
+                  must_not: must_not
+                }
+              }]
+            end
+
+            queries.concat(queries_to_add)
           end
 
           payload = {
