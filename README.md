@@ -1405,6 +1405,14 @@ products =
   end
 ```
 
+### Elasticsearch Gem
+
+Searchkick is built on top of the [elasticsearch](https://github.com/elastic/elasticsearch-ruby) gem. To access the client directly, use:
+
+```ruby
+Searchkick.client
+```
+
 ## Multi Search
 
 To batch search requests for performance, use:
