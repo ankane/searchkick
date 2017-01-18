@@ -1199,6 +1199,23 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
+You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem and create an initializer with:
+
+```ruby
+require "active_job/traffic_control"
+
+Searchkick.redis = Redis.new
+ActiveJob::TrafficControl.client = Searchkick.redis
+
+class Searchkick::BulkReindexJob
+  include ActiveJob::TrafficControl::Concurrency
+
+  concurrency 3, drop: false
+end
+```
+
+This will allow only 3 jobs to run at once.
+
 ### Refresh Interval
 
 You can specify a longer refresh interval while reindexing to increase performance.
