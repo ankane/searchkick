@@ -377,7 +377,7 @@ Turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
-### Bad Matches [master]
+### Bad Matches
 
 If a user searches `butter`, they may also get results for `peanut butter`. To prevent this, use:
 

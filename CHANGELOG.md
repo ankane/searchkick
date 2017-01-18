@@ -1,4 +1,4 @@
-## 2.1.1 [unreleased]
+## 2.1.1
 
 - Fixed duplicate notifications
 - Added support for `connection_pool`
