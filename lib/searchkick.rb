@@ -145,6 +145,18 @@ module Searchkick
     end
   end
 
+  def self.with_redis
+    if redis
+      if redis.respond_to?(:with)
+        redis.with do |r|
+          yield r
+        end
+      else
+        yield redis
+      end
+    end
+  end
+
   # private
   def self.load_records(records, ids)
     records =

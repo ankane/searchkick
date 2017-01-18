@@ -258,7 +258,7 @@ module Searchkick
 
       if batch
         import_or_update scope.to_a, method_name, async
-        redis.srem(batches_key, batch_id) if batch_id && redis
+        Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
       elsif full && async
         full_reindex_async(scope)
       elsif scope.respond_to?(:find_in_batches)
@@ -283,7 +283,7 @@ module Searchkick
     end
 
     def batches_left
-      redis.scard(batches_key) if redis
+      Searchkick.with_redis { |r| r.scard(batches_key) }
     end
 
     # other
@@ -459,7 +459,7 @@ module Searchkick
         index_name: name,
         batch_id: batch_id
       }.merge(options))
-      redis.sadd(batches_key, batch_id) if redis
+      Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
     end
 
     def batch_size
@@ -490,10 +490,6 @@ module Searchkick
 
     def bulk_update_helper(records, method_name)
       Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
-    end
-
-    def redis
-      Searchkick.redis
     end
 
     def batches_key

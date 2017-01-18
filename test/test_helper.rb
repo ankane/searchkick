@@ -14,7 +14,13 @@ File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 Searchkick.search_timeout = 5
 
-Searchkick.redis = Redis.new if defined?(Redis)
+if defined?(Redis)
+  if defined?(ConnectionPool)
+    Searchkick.redis = ConnectionPool.new { Redis.new }
+  else
+    Searchkick.redis = Redis.new
+  end
+end
 
 puts "Running against Elasticsearch #{Searchkick.server_version}"
 
