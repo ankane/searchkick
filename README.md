@@ -1136,9 +1136,11 @@ Significantly increase performance with faster JSON generation. Add [Oj](https:/
 gem 'oj'
 ```
 
+This speeds up all JSON generation and parsing in your application (automatically!)
+
 ### Persistent HTTP Connections
 
-Significantly increase performance with persistent HTTP connections. Add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile.
+Significantly increase performance with persistent HTTP connections. Add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile and it’ll automatically be used.
 
 ```ruby
 gem 'typhoeus'
