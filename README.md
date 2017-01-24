@@ -383,6 +383,17 @@ If a user searches `butter`, they may also get results for `peanut butter`. To p
 Product.search "butter", exclude: ["peanut butter"]
 ```
 
+You can map queries and terms to exclude with:
+
+```ruby
+exclude_queries = {
+  "butter" => ["peanut butter"],
+  "cream" => ["ice cream"]
+}
+
+Product.search query, exclude: exclude_queries[query]
+```
+
 ### Emoji
 
 Search :ice_cream::cake: and get `ice cream cake`!
