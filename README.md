@@ -1210,18 +1210,19 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem and create an initializer with:
+You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
 
 ```ruby
-require "active_job/traffic_control"
+gem 'activejob-traffic_control', '>= 0.1.3'
+```
 
-Searchkick.redis = Redis.new
+And create an initializer with:
+
+```ruby
 ActiveJob::TrafficControl.client = Searchkick.redis
 
 class Searchkick::BulkReindexJob
-  include ActiveJob::TrafficControl::Concurrency
-
-  concurrency 3, drop: false
+  concurrency 3
 end
 ```
 
