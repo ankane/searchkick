@@ -18,6 +18,14 @@ module Searchkick
     # experimental: may not make next release
     def records
       @records ||= results_query(klass, hits)
+      # Handle order preservation in ActiveRecord
+      if @records.respond_to?(:primary_key) && @records.primary_key
+        @order_by ||= hits.map do |hit|
+          "#{klass.table_name}.#{klass.primary_key}='#{hit['_id']}' DESC"
+        end.join(", ")
+        @records = @records.reorder(@order_by)
+      end
+      @records
     end
 
     def results
