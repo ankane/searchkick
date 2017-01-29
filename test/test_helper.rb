@@ -174,6 +174,7 @@ elsif defined?(Cequel)
       keyspace: "searchkick_test",
       default_consistency: :all
     )
+  # cequel.logger = ActiveSupport::Logger.new(STDOUT)
   cequel.schema.drop! if cequel.schema.exists?
   cequel.schema.create!
   Cequel::Record.connection = cequel
