@@ -12,6 +12,8 @@ class OrderTest < Minitest::Test
   end
 
   def test_order_id
+    skip if cequel?
+
     store_names ["Product A", "Product B"]
     product_a = Product.where(name: "Product A").first
     product_b = Product.where(name: "Product B").first

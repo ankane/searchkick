@@ -144,6 +144,12 @@ module Searchkick
         def should_index?
           true
         end unless method_defined?(:should_index?)
+
+        if defined?(Cequel) && self < Cequel::Record && !method_defined?(:destroyed?)
+          def destroyed?
+            transient?
+          end
+        end
       end
     end
   end

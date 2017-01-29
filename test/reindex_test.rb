@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class ReindexTest < Minitest::Test
   def test_scoped
-    skip if nobrainer?
+    skip if nobrainer? || cequel?
 
     store_names ["Product A"]
     Searchkick.callbacks(false) do
@@ -13,7 +13,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_associations
-    skip if nobrainer?
+    skip if nobrainer? || cequel?
 
     store_names ["Product A"]
     store = Store.create!(name: "Test")

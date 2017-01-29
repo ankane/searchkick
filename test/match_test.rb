@@ -184,6 +184,7 @@ class MatchTest < Minitest::Test
   end
 
   def test_no_arguments
+    store_names []
     assert_equal [], Product.search.to_a
   end
 

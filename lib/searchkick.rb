@@ -169,6 +169,8 @@ module Searchkick
       elsif records.respond_to?(:unscoped) && :id.respond_to?(:in)
         # Nobrainer
         records.unscoped.where(:id.in => ids)
+      elsif records.respond_to?(:key_column_names)
+        records.where(records.key_column_names.first => ids)
       end
 
     raise Searchkick::Error, "Not sure how to load records" if !records

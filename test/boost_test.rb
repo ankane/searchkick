@@ -157,6 +157,8 @@ class BoostTest < Minitest::Test
   end
 
   def test_boost_by_indices
+    skip if cequel?
+
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
 

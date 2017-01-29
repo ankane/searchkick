@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class InheritanceTest < Minitest::Test
+  def setup
+    skip if defined?(Cequel)
+    super
+  end
+
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex

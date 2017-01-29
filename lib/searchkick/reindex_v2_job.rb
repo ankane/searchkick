@@ -3,7 +3,8 @@ module Searchkick
     RECORD_NOT_FOUND_CLASSES = [
       "ActiveRecord::RecordNotFound",
       "Mongoid::Errors::DocumentNotFound",
-      "NoBrainer::Error::DocumentNotFound"
+      "NoBrainer::Error::DocumentNotFound",
+      "Cequel::Record::RecordNotFound"
     ]
 
     queue_as :searchkick
