@@ -16,7 +16,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
+        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile, :query,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -218,7 +218,9 @@ module Searchkick
       if @json
         payload = @json
       else
-        if options[:similar]
+        if options[:query]
+          payload = options[:query]
+        elsif options[:similar]
           payload = {
             more_like_this: {
               fields: fields,
