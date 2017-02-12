@@ -46,6 +46,11 @@ class HighlightTest < Minitest::Test
     assert_equal "&lt;b&gt;<em>Hello</em>&lt;&#x2F;b&gt;", Product.search("hello", fields: [:name], highlight: {encoder: "html"}, misspellings: false).first.search_highlights[:name]
   end
 
+  def test_word_middle
+    store_names ["Two Door Cinema Club"]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine", fields: [:name], match: :word_middle, highlight: true).first.search_highlights[:name]
+  end
+
   def test_body
     skip if ENV["MATCH"] == "word_start"
     store_names ["Two Door Cinema Club"]
