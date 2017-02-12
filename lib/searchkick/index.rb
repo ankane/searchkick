@@ -159,6 +159,7 @@ module Searchkick
 
     # search
 
+    # TODO remove in next major version
     def search_model(searchkick_klass, term = "*", **options, &block)
       query = Searchkick::Query.new(searchkick_klass, term, options)
       yield(query.body) if block
