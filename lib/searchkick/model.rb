@@ -30,7 +30,7 @@ module Searchkick
 
         class << self
           def searchkick_search(term = "*", **options, &block)
-            searchkick_index.search_model(self, term, options, &block)
+            Searchkick.search(term, {model: self}.merge(options), &block)
           end
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
@@ -39,6 +39,7 @@ module Searchkick
             index = index.call if index.respond_to? :call
             Searchkick::Index.new(index, searchkick_options)
           end
+          alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
           def enable_search_callbacks
             class_variable_set :@@searchkick_callbacks, true
@@ -62,15 +63,16 @@ module Searchkick
               # update
               searchkick_index.import_scope(searchkick_klass, method_name: method_name)
               searchkick_index.refresh if refresh
+              true
             elsif scoped && !full
               # reindex association
               searchkick_index.import_scope(searchkick_klass)
               searchkick_index.refresh if refresh
+              true
             else
               # full reindex
               searchkick_index.reindex_scope(searchkick_klass, options)
             end
-            true
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
@@ -87,10 +89,42 @@ module Searchkick
           after_destroy callback_name, if: proc { self.class.search_callbacks? }
         end
 
-        def reindex(method_name = nil, refresh: false)
-          run_callbacks :index do
+        def reindex(method_name = nil, refresh: false, async: false, mode: nil)
+          klass_options = self.class.searchkick_index.options
+
+          if mode.nil?
+            mode =
+              if async
+                :async
+              elsif Searchkick.callbacks_value
+                Searchkick.callbacks_value
+              elsif klass_options.key?(:callbacks) && klass_options[:callbacks] != :async
+                # TODO remove 2nd condition in next major version
+                klass_options[:callbacks]
+              end
+          end
+
+          case mode
+          when :queue
             if method_name
-              self.class.searchkick_index.bulk_update([self], method_name)
+              raise Searchkick::Error, "Partial reindex not supported with queue option"
+            else
+              self.class.searchkick_index.reindex_queue.push(id.to_s)
+            end
+          when :async
+            if method_name
+              # TODO support Mongoid and NoBrainer and non-id primary keys
+              Searchkick::BulkReindexJob.perform_later(
+                class_name: self.class.name,
+                record_ids: [id.to_s],
+                method_name: method_name ? method_name.to_s : nil
+              )
+            else
+              self.class.searchkick_index.reindex_record_async(self)
+            end
+          else
+            if method_name
+              self.class.searchkick_index.update_record(self, method_name)
             else
               self.class.searchkick_index.reindex_record(self)
             end
@@ -98,8 +132,9 @@ module Searchkick
           end
         end unless method_defined?(:reindex)
 
+        # TODO remove this method in next major version
         def reindex_async
-          self.class.searchkick_index.reindex_record_async(self)
+          reindex(async: true)
         end unless method_defined?(:reindex_async)
 
         def similar(options = {})
@@ -113,6 +148,12 @@ module Searchkick
         def should_index?
           true
         end unless method_defined?(:should_index?)
+
+        if defined?(Cequel) && self < Cequel::Record && !method_defined?(:destroyed?)
+          def destroyed?
+            transient?
+          end
+        end
       end
     end
   end

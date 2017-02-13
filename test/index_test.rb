@@ -28,6 +28,13 @@ class IndexTest < Minitest::Test
     assert !old_index.exists?
   end
 
+  def test_retain
+    Product.reindex
+    assert_equal 1, Product.searchkick_index.all_indices.size
+    Product.reindex(retain: true)
+    assert_equal 2, Product.searchkick_index.all_indices.size
+  end
+
   def test_total_docs
     store_names ["Product A"]
     assert_equal 1, Product.searchkick_index.total_docs
@@ -80,7 +87,7 @@ class IndexTest < Minitest::Test
 
   def test_remove_blank_id
     store_names ["Product A"]
-    Product.searchkick_index.remove(OpenStruct.new)
+    Product.searchkick_index.remove(Product.new)
     assert_search "product", ["Product A"]
   ensure
     Product.reindex
@@ -107,10 +114,10 @@ class IndexTest < Minitest::Test
       store_names ["Product A"]
       raise ActiveRecord::Rollback
     end
-    assert_search "product", []
+    assert_search "*", []
   end
 
-  def test_analyzed_only
+  def test_filterable
     # skip for 5.0 since it throws
     # Cannot search on field [alt_description] since it is not indexed.
     skip unless elasticsearch_below50?
@@ -118,7 +125,7 @@ class IndexTest < Minitest::Test
     assert_search "*", [], where: {alt_description: "Hello"}
   end
 
-  def test_analyzed_only_large_value
+  def test_large_value
     skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", alt_description: large_value}]

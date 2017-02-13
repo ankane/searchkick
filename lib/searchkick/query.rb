@@ -14,7 +14,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :execute, :explain,
+        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
@@ -34,6 +34,7 @@ module Searchkick
       # prevent Ruby warnings
       @type = nil
       @routing = nil
+      @misspellings = false
       @misspellings_below = nil
       @highlighted_fields = nil
 
@@ -107,7 +108,8 @@ module Searchkick
         includes: options[:includes],
         json: !@json.nil?,
         match_suffix: @match_suffix,
-        highlighted_fields: @highlighted_fields || []
+        highlighted_fields: @highlighted_fields || [],
+        misspellings: @misspellings
       }
 
       if options[:debug]
@@ -256,9 +258,13 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            @misspellings = true
+          else
+            @misspellings = false
           end
 
           fields.each do |field|
+            queries_to_add = []
             qs = []
 
             factor = boost_fields[field] || 1
@@ -285,7 +291,7 @@ module Searchkick
               ]
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")
-              queries << {match: {f => shared_options.merge(analyzer: "keyword")}}
+              queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
@@ -295,21 +301,43 @@ module Searchkick
               qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
             end
 
+            q2 = qs.map { |q| {match_type => {field => q}} }
+
             # boost exact matches more
             if field =~ /\.word_(start|middle|end)\z/ && searchkick_options[:word] != false
-              queries << {
+              queries_to_add << {
                 bool: {
                   must: {
                     bool: {
-                      should: qs.map { |q| {match_type => {field => q}} }
+                      should: q2
                     }
                   },
                   should: {match_type => {field.sub(/\.word_(start|middle|end)\z/, ".analyzed") => qs.first}}
                 }
               }
             else
-              queries.concat(qs.map { |q| {match_type => {field => q}} })
+              queries_to_add.concat(q2)
             end
+
+            if options[:exclude]
+              must_not =
+                options[:exclude].map do |phrase|
+                  {
+                    match_phrase: {
+                      field => phrase
+                    }
+                  }
+                end
+
+              queries_to_add = [{
+                bool: {
+                  should: queries_to_add,
+                  must_not: must_not
+                }
+              }]
+            end
+
+            queries.concat(queries_to_add)
           end
 
           payload = {
@@ -459,17 +487,25 @@ module Searchkick
 
     def set_boost_by_distance(custom_filters)
       boost_by_distance = options[:boost_by_distance] || {}
-      boost_by_distance = {function: :gauss, scale: "5mi"}.merge(boost_by_distance)
-      if !boost_by_distance[:field] || !boost_by_distance[:origin]
-        raise ArgumentError, "boost_by_distance requires :field and :origin"
+
+      # legacy format
+      if boost_by_distance[:field]
+        boost_by_distance = {boost_by_distance[:field] => boost_by_distance.except(:field)}
       end
-      function_params = boost_by_distance.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
-      function_params[:origin] = location_value(function_params[:origin])
-      custom_filters << {
-        boost_by_distance[:function] => {
-          boost_by_distance[:field] => function_params
+
+      boost_by_distance.each do |field, attributes|
+        attributes = {function: :gauss, scale: "5mi"}.merge(attributes)
+        unless attributes[:origin]
+          raise ArgumentError, "boost_by_distance requires :origin"
+        end
+        function_params = attributes.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
+        function_params[:origin] = location_value(function_params[:origin])
+        custom_filters << {
+          attributes[:function] => {
+            field => function_params
+          }
         }
-      }
+      end
     end
 
     def set_boost_by(multiply_filters, custom_filters)
@@ -542,7 +578,7 @@ module Searchkick
       if options[:highlight].is_a?(Hash)
         if (tag = options[:highlight][:tag])
           payload[:highlight][:pre_tags] = [tag]
-          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A</, "</")]
+          payload[:highlight][:post_tags] = [tag.to_s.gsub(/\A<(\w+).+/, "</\\1>")]
         end
 
         if (fragment_size = options[:highlight][:fragment_size])
@@ -770,7 +806,9 @@ module Searchkick
       if below50?
         {
           filter: {
-            and: where_filters(field => value)
+            bool: {
+              must: where_filters(field => value)
+            }
           },
           boost_factor: factor
         }

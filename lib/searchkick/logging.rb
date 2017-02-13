@@ -45,14 +45,68 @@ module Searchkick
       end
     end
 
-    def import(records)
+    def update_record(record, method_name)
+      event = {
+        name: "#{record.searchkick_klass.name} Update",
+        id: search_id(record)
+      }
+      if Searchkick.callbacks_value == :bulk
+        super
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          super
+        end
+      end
+    end
+
+    def bulk_index(records)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",
           count: records.size
         }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+        event[:id] = search_id(records.first) if records.size == 1
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super
+          end
+        end
+      end
+    end
+    alias_method :import, :bulk_index
+
+    def bulk_update(records, *args)
+      if records.any?
+        event = {
+          name: "#{records.first.searchkick_klass.name} Update",
+          count: records.size
+        }
+        event[:id] = search_id(records.first) if records.size == 1
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super
+          end
+        end
+      end
+    end
+
+    def bulk_delete(records)
+      if records.any?
+        event = {
+          name: "#{records.first.searchkick_klass.name} Delete",
+          count: records.size
+        }
+        event[:id] = search_id(records.first) if records.size == 1
+        if Searchkick.callbacks_value == :bulk
+          super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super
+          end
         end
       end
     end

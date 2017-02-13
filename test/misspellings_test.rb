@@ -39,8 +39,18 @@ class MisspellingsTest < Minitest::Test
     assert_search "abc", ["abc", "abd"], misspellings: {below: 2}
   end
 
+  def test_misspellings_below_unmet_result
+    store_names ["abc", "abd", "aee"]
+    assert Product.search("abc", misspellings: {below: 2}).misspellings?
+  end
+
   def test_misspellings_below_met
     store_names ["abc", "abd", "aee"]
     assert_search "abc", ["abc"], misspellings: {below: 1}
+  end
+
+  def test_misspellings_below_met_result
+    store_names ["abc", "abd", "aee"]
+    assert !Product.search("abc", misspellings: {below: 1}).misspellings?
   end
 end

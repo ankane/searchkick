@@ -3,6 +3,7 @@ language: ruby
 rvm: 2.3.1
 services:
   - mongodb
+  - redis-server
 before_install:
   - ./test/ci/before_install.sh
 script: RUBYOPT=W0 bundle exec rake test
@@ -18,7 +19,7 @@ gemfile:
   - test/gemfiles/mongoid5.gemfile
   - test/gemfiles/mongoid6.gemfile
 env:
-  - ELASTICSEARCH_VERSION=5.1.1
+  - ELASTICSEARCH_VERSION=5.2.0
 jdk: oraclejdk8
 matrix:
   include:

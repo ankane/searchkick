@@ -11,6 +11,11 @@ class HighlightTest < Minitest::Test
     assert_equal "Two Door <strong>Cinema</strong> Club", Product.search("cinema", fields: [:name], highlight: {tag: "<strong>"}).first.search_highlights[:name]
   end
 
+  def test_tag_class
+    store_names ["Two Door Cinema Club"]
+    assert_equal "Two Door <strong class='classy'>Cinema</strong> Club", Product.search("cinema", fields: [:name], highlight: {tag: "<strong class='classy'>"}).first.search_highlights[:name]
+  end
+
   def test_multiple_fields
     store [{name: "Two Door Cinema Club", color: "Cinema Orange"}]
     highlights = Product.search("cinema", fields: [:name, :color], highlight: true).first.search_highlights
@@ -39,6 +44,11 @@ class HighlightTest < Minitest::Test
   def test_encoder
     store_names ["<b>Hello</b>"]
     assert_equal "&lt;b&gt;<em>Hello</em>&lt;&#x2F;b&gt;", Product.search("hello", fields: [:name], highlight: {encoder: "html"}, misspellings: false).first.search_highlights[:name]
+  end
+
+  def test_word_middle
+    store_names ["Two Door Cinema Club"]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine", fields: [:name], match: :word_middle, highlight: true).first.search_highlights[:name]
   end
 
   def test_body

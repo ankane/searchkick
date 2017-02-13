@@ -2,8 +2,8 @@ require_relative "test_helper"
 
 class ErrorsTest < Minitest::Test
   def test_bulk_import_raises_error
-    valid_dog = Dog.new(name: "2016-01-02")
-    invalid_dog = Dog.new(name: "Ol' One-Leg")
+    valid_dog = Product.new(name: "2016-01-02")
+    invalid_dog = Product.new(name: "Ol' One-Leg")
     index = Searchkick::Index.new "dogs", mappings: {
       dog: {
         properties: {

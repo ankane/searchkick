@@ -5,6 +5,7 @@ require "searchkick/version"
 require "searchkick/index_options"
 require "searchkick/index"
 require "searchkick/indexer"
+require "searchkick/reindex_queue"
 require "searchkick/results"
 require "searchkick/query"
 require "searchkick/model"
@@ -19,7 +20,12 @@ begin
 rescue LoadError
   # do nothing
 end
-require "searchkick/reindex_v2_job" if defined?(ActiveJob)
+if defined?(ActiveJob)
+  require "searchkick/bulk_reindex_job"
+  require "searchkick/process_queue_job"
+  require "searchkick/process_batch_job"
+  require "searchkick/reindex_v2_job"
+end
 
 module Searchkick
   class Error < StandardError; end
@@ -30,7 +36,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -75,7 +81,17 @@ module Searchkick
   end
 
   def self.search(term = "*", **options, &block)
-    query = Searchkick::Query.new(nil, term, options)
+    klass = options[:model]
+
+    # TODO add in next major version
+    # if !klass
+    #   index_name = Array(options[:index_name])
+    #   if index_name.size == 1 && index_name.first.respond_to?(:searchkick_index)
+    #     klass = index_name.first
+    #   end
+    # end
+
+    query = Searchkick::Query.new(klass, term, options.except(:model))
     block.call(query.body) if block
     if options[:execute] == false
       query
@@ -127,6 +143,49 @@ module Searchkick
     require "faraday_middleware/aws_signers_v4"
     @aws_credentials = creds
     @client = nil # reset client
+  end
+
+  def self.reindex_status(index_name)
+    if redis
+      batches_left = Searchkick::Index.new(index_name).batches_left
+      {
+        completed: batches_left == 0,
+        batches_left: batches_left
+      }
+    end
+  end
+
+  def self.with_redis
+    if redis
+      if redis.respond_to?(:with)
+        redis.with do |r|
+          yield r
+        end
+      else
+        yield redis
+      end
+    end
+  end
+
+  # private
+  def self.load_records(records, ids)
+    records =
+      if records.respond_to?(:primary_key)
+        # ActiveRecord
+        records.where(records.primary_key => ids) if records.primary_key
+      elsif records.respond_to?(:queryable)
+        # Mongoid 3+
+        records.queryable.for_ids(ids)
+      elsif records.respond_to?(:unscoped) && :id.respond_to?(:in)
+        # Nobrainer
+        records.unscoped.where(:id.in => ids)
+      elsif records.respond_to?(:key_column_names)
+        records.where(records.key_column_names.first => ids)
+      end
+
+    raise Searchkick::Error, "Not sure how to load records" if !records
+
+    records
   end
 
   # private

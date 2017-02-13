@@ -1,3 +1,32 @@
+## 2.1.1
+
+- Fixed duplicate notifications
+- Added support for `connection_pool`
+- Added `exclude` option
+
+## 2.1.0
+
+- Background reindexing and queues are officially supported
+- Log updates and deletes
+
+## 2.0.4
+
+- Added support for queuing updates [experimental]
+- Added `refresh_interval` option to `reindex`
+- Prefer `search_index` over `searchkick_index`
+
+## 2.0.3
+
+- Added `async` option to `reindex` [experimental]
+- Added `misspellings?` method to results
+
+## 2.0.2
+
+- Added `retain` option to `reindex`
+- Added support for attributes in highlight tags
+- Fixed potentially silent errors in reindex job
+- Improved syntax for `boost_by_distance`
+
 ## 2.0.1
 
 - Added `search_hit` and `search_highlights` methods to models

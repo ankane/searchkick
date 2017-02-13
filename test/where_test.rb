@@ -10,16 +10,22 @@ class WhereTest < Minitest::Test
       {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1}
     ]
     assert_search "product", ["Product A", "Product B"], where: {in_stock: true}
-    # date
-    assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
-    assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
-    assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
-    assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
+
+    # due to precision
+    unless cequel?
+      # date
+      assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
+      assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
+      assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
+      assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
+    end
+
     # integer
     assert_search "product", ["Product A"], where: {store_id: {lt: 2}}
     assert_search "product", ["Product A", "Product B"], where: {store_id: {lte: 2}}
     assert_search "product", ["Product D"], where: {store_id: {gt: 3}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {gte: 3}}
+
     # range
     assert_search "product", ["Product A", "Product B"], where: {store_id: 1..2}
     assert_search "product", ["Product A"], where: {store_id: 1...2}
@@ -27,23 +33,30 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
     assert_search "product", ["Product A"], where: {user_ids: {lte: 2, gte: 2}}
+
     # or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{orders_count: [2, 4]}, {store_id: [1, 2]}]]}
     assert_search "product", ["Product A", "Product D"], where: {or: [[{orders_count: 1}, {created_at: {gte: now - 1}, backordered: true}]]}
+
     # _or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {_or: [{in_stock: true}, {store_id: 3}]}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {_or: [{orders_count: [2, 4]}, {store_id: [1, 2]}]}
     assert_search "product", ["Product A", "Product D"], where: {_or: [{orders_count: 1}, {created_at: {gte: now - 1}, backordered: true}]}
+
     # _and
     assert_search "product", ["Product A"], where: {_and: [{in_stock: true}, {backordered: true}]}
+
     # _not
     assert_search "product", ["Product B", "Product C"], where: {_not: {_or: [{orders_count: 1}, {created_at: {gte: now - 1}, backordered: true}]}}
+
     # all
     assert_search "product", ["Product A", "Product C"], where: {user_ids: {all: [1, 3]}}
     assert_search "product", [], where: {user_ids: {all: [1, 2, 3, 4]}}
+
     # any / nested terms
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1, 3]}}
+
     # not / exists
     assert_search "product", ["Product D"], where: {user_ids: nil}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
@@ -78,7 +91,7 @@ class WhereTest < Minitest::Test
 
   def test_where_id
     store_names ["Product A"]
-    product = Product.last
+    product = Product.first
     assert_search "product", ["Product A"], where: {id: product.id.to_s}
   end
 
@@ -182,6 +195,15 @@ class WhereTest < Minitest::Test
       {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
     ]
     assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}}
+  end
+
+  def test_multiple_locations_with_term_filter
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", [], where: {multiple_locations: {near: [37.5, -122.5]}, name: "San Antonio"}
+    assert_search "san", ["San Francisco"], where: {multiple_locations: {near: [37.5, -122.5]}, name: "San Francisco"}
   end
 
   def test_multiple_locations_hash
