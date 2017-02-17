@@ -1,3 +1,7 @@
+## 2.1.2 [unreleased]
+
+- Fixed issue with `_all` field in `searchable`
+
 ## 2.1.1
 
 - Fixed duplicate notifications

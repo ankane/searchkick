@@ -227,6 +227,8 @@ module Searchkick
 
         word = options[:word] != false && (!options[:match] || options[:match] == :word)
 
+        mapping_options[:searchable].delete("_all")
+
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
@@ -301,7 +303,7 @@ module Searchkick
         # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
-        all_enabled = !options[:searchable] || options[:searchable].to_a.include?("_all")
+        all_enabled = !options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all")
 
         mappings = {
           _default_: {
