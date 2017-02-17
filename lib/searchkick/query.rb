@@ -17,7 +17,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
+        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :slop, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -112,6 +112,10 @@ module Searchkick
         misspellings: @misspellings
       }
 
+      Rails.logger.warn "\n\n~~~> handle_response: #{response.inspect}"
+      Rails.logger.warn "\n\n~~~> opts: #{opts.inspect}"
+      Rails.logger.warn "\n\n~~~> debug?: #{options[:debug].inspect}"
+
       if options[:debug]
         require "pp"
 
@@ -200,6 +204,7 @@ module Searchkick
       boost_fields, fields = set_fields
 
       operator = options[:operator] || "and"
+      slop = options[:slop] || 0
 
       # pagination
       page = [options[:page].to_i, 1].max
@@ -282,6 +287,7 @@ module Searchkick
               end
 
             shared_options[:operator] = operator if match_type == :match
+            shared_options[:slop] = slop if match_type == :match_phrase
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
