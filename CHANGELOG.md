@@ -45,6 +45,10 @@ Breaking changes
 - Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
 - Invalid options now throw an `ArgumentError`
+- The `query` and `json` options have been removed in favor of `body`
+- The `include` option has been removed in favor of `includes`
+- The `personalize` option has been removed in favor of `boost_where`
+- The `partial` option has been removed in favor of `operator`
 - Renamed `select_v2` to `select` (legacy `select` no longer available)
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
