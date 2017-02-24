@@ -1772,7 +1772,7 @@ Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to r
 
 ### Consistency
 
-Elasticsearch is eventually consistent, which means it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
+Elasticsearch is eventually consistent, meaning it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
 
 ```ruby
 product.save!
