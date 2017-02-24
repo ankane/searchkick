@@ -1770,6 +1770,15 @@ Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to r
 
 ## Elasticsearch Gotchas
 
+### Consistency
+
+Elasticsearch is eventually consistent, which means it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
+
+```ruby
+product.save!
+Product.search_index.refresh
+```
+
 ### Inconsistent Scores
 
 Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low. You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch). To fix this, do:
