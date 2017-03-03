@@ -1689,20 +1689,75 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Testing
 
-This section could use some love.
+For performance, only enable Searchkick callbacks for the tests that need it.
+
+### Minitest
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+Searchkick.disable_callbacks
+
+# and reindex models
+Product.reindex
+```
+
+And use:
+
+```ruby
+class ProductTest < Minitest::Test
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
 
 ### RSpec
 
+Add to your `spec/spec_helper.rb`:
+
 ```ruby
-describe Product do
-  it "searches" do
+RSpec.configure do |config|
+  config.before(:suite) do
+    Searchkick.disable_callbacks
+
+    # and reindex models
     Product.reindex
-    # test goes here...
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.enable_callbacks
+    example.run
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+describe Product, search: true do
+  it "searches" do
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
   end
 end
 ```
 
 ### Factory Girl
+
+Manually reindex after an instance is created.
 
 ```ruby
 product = FactoryGirl.create(:product)
