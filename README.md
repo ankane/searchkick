@@ -1696,10 +1696,11 @@ For performance, only enable Searchkick callbacks for the tests that need it.
 Add to your `test/test_helper.rb`:
 
 ```ruby
-Searchkick.disable_callbacks
-
-# and reindex models
+# reindex models
 Product.reindex
+
+# and disable callbacks
+Searchkick.disable_callbacks
 ```
 
 And use:
@@ -1729,10 +1730,11 @@ Add to your `spec/spec_helper.rb`:
 ```ruby
 RSpec.configure do |config|
   config.before(:suite) do
-    Searchkick.disable_callbacks
-
-    # and reindex models
+    # reindex models
     Product.reindex
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
   end
 
   config.around(:each, search: true) do |example|
