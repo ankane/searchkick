@@ -176,6 +176,17 @@ class MatchTest < Minitest::Test
     assert_search "butter", [], exclude: ["peanut butter"], match: :exact
   end
 
+  # custom_query_options
+  def test_custom_query_options_minimum_should_match_1
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "peanut butter", ["Peanut Butter Tub"], {operator: 'or', fields: [{'name.analyzed^10': :custom}], custom_query_options: [{analyzer: 'searchkick_word_search', minimum_should_match: '100%'}]}
+  end
+
+  def test_custom_query_options_minimum_should_match_2
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "peanut butter", ["Butter Tub", "Peanut Butter Tub"], {operator: 'or', fields: [{'name.analyzed^10': :custom}], custom_query_options: [{analyzer: 'searchkick_word_search', minimum_should_match: '50%'}]}
+  end
+
   # other
 
   def test_all
