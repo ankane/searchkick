@@ -1027,7 +1027,7 @@ Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](lib/searchkick/index.rb#L209).
+See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/31780ddac7a89eab1e0552a32b403f2040a37931/lib/searchkick/index_options.rb#L32).
 
 ## Deployment
 
@@ -1689,20 +1689,77 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Testing
 
-This section could use some love.
+For performance, only enable Searchkick callbacks for the tests that need it.
+
+### Minitest
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+# reindex models
+Product.reindex
+
+# and disable callbacks
+Searchkick.disable_callbacks
+```
+
+And use:
+
+```ruby
+class ProductTest < Minitest::Test
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
 
 ### RSpec
 
+Add to your `spec/spec_helper.rb`:
+
 ```ruby
-describe Product do
-  it "searches" do
+RSpec.configure do |config|
+  config.before(:suite) do
+    # reindex models
     Product.reindex
-    # test goes here...
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.enable_callbacks
+    example.run
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+describe Product, search: true do
+  it "searches" do
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
   end
 end
 ```
 
 ### Factory Girl
+
+Manually reindex after an instance is created.
 
 ```ruby
 product = FactoryGirl.create(:product)
@@ -1769,6 +1826,15 @@ If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend 
 Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
 
 ## Elasticsearch Gotchas
+
+### Consistency
+
+Elasticsearch is eventually consistent, meaning it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
+
+```ruby
+product.save!
+Product.search_index.refresh
+```
 
 ### Inconsistent Scores
 

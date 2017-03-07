@@ -86,6 +86,14 @@ class BoostTest < Minitest::Test
     assert_order "red", ["Red", "White"], fields: [{"name^10" => :word_start}, "color"]
   end
 
+  # for issue #855
+  def test_apostrophes
+    store_names ["Valentine's Day Special"]
+    assert_search "Valentines", ["Valentine's Day Special"], fields: ["name^5"]
+    assert_search "Valentine's", ["Valentine's Day Special"], fields: ["name^5"]
+    assert_search "Valentine", ["Valentine's Day Special"], fields: ["name^5"]
+  end
+
   def test_boost_by
     store [
       {name: "Tomato A"},
