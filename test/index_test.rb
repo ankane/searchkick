@@ -140,7 +140,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_very_large_value
-    skip if nobrainer?
+    skip if nobrainer? || elasticsearch_below22?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
