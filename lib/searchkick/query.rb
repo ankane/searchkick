@@ -17,7 +17,8 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
+        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where,
+        :custom_query_options]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -292,6 +293,12 @@ module Searchkick
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")
               queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
+            elsif field.end_with?(".custom")
+                #example usage: fields: [{'field1.analyzed^10': :custom}, {'field2.analyzed^5': :custom}], custom_query_options: [{analyzer: 'searchkick_word_search', minimum_should_match: '40%'}, {analyzer: 'searchkick_search', minimum_should_match: '40%'}, {analyzer: 'searchkick_search2', minimum_should_match: '40%'}]
+                f = field.split(".")[0..-2].join(".")
+                options[:custom_query_options].each do |co|
+                    queries_to_add << {match: {f => shared_options.merge(co) }} unless co.nil?
+                end
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
