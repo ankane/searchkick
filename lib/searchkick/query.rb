@@ -283,18 +283,22 @@ module Searchkick
 
             shared_options[:operator] = operator if match_type == :match
 
+            exclude_analyzer = nil
+
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
               qs.concat [
                 shared_options.merge(analyzer: "searchkick_search"),
                 shared_options.merge(analyzer: "searchkick_search2")
               ]
+              exclude_analyzer = "searchkick_search2"
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")
               queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
+              exclude_analyzer = analyzer
             end
 
             if misspellings != false && match_type == :match
@@ -319,12 +323,15 @@ module Searchkick
               queries_to_add.concat(q2)
             end
 
-            if options[:exclude]
+            if options[:exclude] && exclude_analyzer
               must_not =
                 options[:exclude].map do |phrase|
                   {
                     match_phrase: {
-                      field => phrase
+                      field => {
+                        query: phrase,
+                        analyzer: exclude_analyzer
+                      }
                     }
                   }
                 end

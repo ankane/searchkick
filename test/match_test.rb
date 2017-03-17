@@ -161,19 +161,24 @@ class MatchTest < Minitest::Test
 
   # butter
 
-  def test_butter
+  def test_exclude_butter
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
   end
 
-  def test_butter_word_start
+  def test_exclude_butter_word_start
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"], match: :word_start
   end
 
-  def test_butter_exact
+  def test_exclude_butter_exact
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", [], exclude: ["peanut butter"], match: :exact
+  end
+
+  def test_exclude_egg_word_start
+    store_names ["eggs", "eggplant"]
+    assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
   end
 
   # other
