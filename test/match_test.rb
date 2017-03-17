@@ -176,6 +176,11 @@ class MatchTest < Minitest::Test
     assert_search "butter", [], exclude: ["peanut butter"], match: :exact
   end
 
+  def test_exclude_same_exact
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "Butter Tub", [], exclude: ["Butter Tub"], match: :exact
+  end
+
   def test_exclude_egg_word_start
     store_names ["eggs", "eggplant"]
     assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
