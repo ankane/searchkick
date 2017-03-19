@@ -1,4 +1,4 @@
-## 2.2.0 [unreleased]
+## 2.2.0
 
 - Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
 - Fixed issue with `_all` field in `searchable`
