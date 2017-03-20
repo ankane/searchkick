@@ -7,6 +7,11 @@ class SqlTest < Minitest::Test
     assert_search "fresh honey", ["Honey"], operator: "or"
   end
 
+  def test_operator_scoring
+    store_names ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
+    assert_order "big red circle", ["Big Red Circle", "Big Green Circle", "Small Orange Circle"], operator: "or"
+  end
+
   def test_fields_operator
     store [
       {name: "red", color: "red"},
