@@ -294,12 +294,16 @@ end
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
-  # or
-  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
+
+To read synonyms from a file, use:
+
+```ruby
+synonyms: -> { CSV.read("/some/path/synonyms.csv") }
+```
 
 For directional synonyms, use:
 
