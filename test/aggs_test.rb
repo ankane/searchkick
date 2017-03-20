@@ -116,6 +116,14 @@ class AggsTest < Minitest::Test
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
+  def test_manual_agg_body
+    agg = Product.search("Product", aggs: {store_count: {body: {value_count: {field: :store_id}}}}).aggs["store_count"]
+    assert_equal 3, agg["value"]
+
+    agg = Product.search("Product", where: {in_stock: false}, aggs: {average_price: {body: {avg: {field: :price}}}}).aggs["average_price"]
+    assert_equal 15.0, agg["value"]
+  end
+
   protected
 
   def buckets_as_hash(agg)
