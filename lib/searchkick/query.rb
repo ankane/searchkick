@@ -328,7 +328,7 @@ module Searchkick
 
             if options[:exclude]
               must_not =
-                options[:exclude].map do |phrase|
+                Array(options[:exclude]).map do |phrase|
                   {
                     match_phrase: {
                       exclude_field => {

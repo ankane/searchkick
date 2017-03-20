@@ -1,3 +1,7 @@
+## 2.2.1 [unreleased]
+
+- Accept string for `exclude` option
+
 ## 2.2.0
 
 - Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)

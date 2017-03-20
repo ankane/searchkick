@@ -186,6 +186,11 @@ class MatchTest < Minitest::Test
     assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
   end
 
+  def test_exclude_string
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: "peanut butter"
+  end
+
   # other
 
   def test_all
