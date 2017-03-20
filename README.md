@@ -392,7 +392,7 @@ You can map queries and terms to exclude with:
 ```ruby
 exclude_queries = {
   "butter" => ["peanut butter"],
-  "cream" => ["ice cream"]
+  "cream" => ["ice cream", "whipped cream"]
 }
 
 Product.search query, exclude: exclude_queries[query]
