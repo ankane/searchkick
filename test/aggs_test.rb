@@ -116,6 +116,20 @@ class AggsTest < Minitest::Test
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
+  def test_aggs_cardinality
+    products =
+      Product.search("*", {
+        aggs: {
+          total_stores: {
+            cardinality: {
+              field: :store_id
+            }
+          }
+        }
+      })
+    assert_equal 3, products.aggs["total_stores"]["value"]
+  end
+
   protected
 
   def buckets_as_hash(agg)
