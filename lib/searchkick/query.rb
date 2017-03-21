@@ -643,6 +643,12 @@ module Searchkick
               interval: interval
             }
           }
+        elsif agg_options[:cardinality]
+          payload[:aggs][field] = {
+            cardinality: {
+              field: agg_options[:cardinality][:field] || field
+            }
+          }
         else
           payload[:aggs][field] = {
             terms: {
