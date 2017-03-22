@@ -116,6 +116,20 @@ class AggsTest < Minitest::Test
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
+  def test_aggs_avg
+    products =
+      Product.search("*", {
+        aggs: {
+          avg_price: {
+            avg: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 16.5, products.aggs["avg_price"]["value"]
+  end
+
   def test_aggs_cardinality
     products =
       Product.search("*", {
@@ -128,6 +142,40 @@ class AggsTest < Minitest::Test
         }
       })
     assert_equal 3, products.aggs["total_stores"]["value"]
+  end
+
+  def test_aggs_min_max
+    products =
+      Product.search("*", {
+        aggs: {
+          min_price: {
+            min: {
+              field: :price
+            }
+          },
+          max_price: {
+            max: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 5, products.aggs["min_price"]["value"]
+    assert_equal 25, products.aggs["max_price"]["value"]
+  end
+
+  def test_aggs_sum
+    products =
+      Product.search("*", {
+        aggs: {
+          sum_price: {
+            sum: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 66, products.aggs["sum_price"]["value"]
   end
 
   protected
