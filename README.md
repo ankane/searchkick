@@ -200,6 +200,16 @@ Use a `*` for the query.
 Product.search "*"
 ```
 
+### Select from
+
+If you need take collection with given size from any place use `:from`. This option better use with `:size`.
+
+```ruby
+# controller
+@products = Product.search "milk", from: 1234, size: 30
+```
+
+
 ### Pagination
 
 Plays nicely with kaminari and will_paginate.

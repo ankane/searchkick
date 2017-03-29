@@ -203,11 +203,16 @@ module Searchkick
 
       operator = options[:operator] || "and"
 
-      # pagination
-      page = [options[:page].to_i, 1].max
-      per_page = (options[:limit] || options[:per_page] || 1_000).to_i
-      padding = [options[:padding].to_i, 0].max
-      offset = options[:offset] || (page - 1) * per_page + padding
+      if options[:from].present?
+        # offsett from defined record
+        offset = options[:from]
+      else
+        # pagination
+        page = [options[:page].to_i, 1].max
+        per_page = (options[:limit] || options[:per_page] || 1_000).to_i
+        padding = [options[:padding].to_i, 0].max
+        offset = options[:offset] || (page - 1) * per_page + padding
+      end
 
       # model and eager loading
       load = options[:load].nil? ? true : options[:load]
