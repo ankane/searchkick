@@ -33,7 +33,7 @@ module Searchkick
           # sort
           hits.map do |hit|
             result = results[hit["_type"]][hit["_id"].to_s]
-            if result
+            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
               unless result.respond_to?(:search_hit)
                 result.define_singleton_method(:search_hit) do
                   hit
