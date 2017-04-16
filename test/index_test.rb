@@ -7,8 +7,9 @@ class IndexTest < Minitest::Test
   end
 
   def test_clean_indices
-    old_index = Searchkick::Index.new("products_test_20130801000000000")
-    different_index = Searchkick::Index.new("items_test_20130801000000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000000")
+    different_index = Searchkick::Index.new("items_test#{suffix}_20130801000000000")
 
     old_index.delete if old_index.exists?
     different_index.delete if different_index.exists?
@@ -25,7 +26,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_clean_indices_old_format
-    old_index = Searchkick::Index.new("products_test_20130801000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000")
     old_index.create
 
     Product.searchkick_index.clean_indices

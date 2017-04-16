@@ -2,6 +2,7 @@
 
 - Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
 - Added `load: {dumpable: true}` option
+- Added `index_suffix` option
 - Accept string for `exclude` option
 
 ## 2.2.0

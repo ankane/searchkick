@@ -1770,6 +1770,14 @@ product = FactoryGirl.create(:product)
 product.reindex(refresh: true)
 ```
 
+### Parallel Tests
+
+Set:
+
+```ruby
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
+```
+
 ## Multi-Tenancy
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.

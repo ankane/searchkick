@@ -6,11 +6,16 @@ require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
+
 ENV["RACK_ENV"] = "test"
 
 Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 
-File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
+if !defined?(ParallelTests) || ParallelTests.first_process?
+  File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
+end
+
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 Searchkick.search_timeout = 5
 
@@ -466,7 +471,7 @@ class Animal
   searchkick \
     text_start: [:name],
     suggest: [:name],
-    index_name: -> { "#{name.tableize}-#{Date.today.year}" },
+    index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
     callbacks: defined?(ActiveJob) ? :async : true
     # wordnet: true
 end

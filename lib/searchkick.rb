@@ -36,7 +36,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_suffix
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
