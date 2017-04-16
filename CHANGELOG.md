@@ -1,4 +1,4 @@
-## 2.2.1 [unreleased]
+## 2.2.1
 
 - Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
 - Added `load: {dumpable: true}` option
