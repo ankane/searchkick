@@ -49,6 +49,11 @@ Plus:
 brew install elasticsearch
 brew services start elasticsearch
 ```
+Don't forget to start elasticsearch. This command will show you how.  
+
+```sh
+brew info elasticsearch
+```
 
 Add this line to your application’s Gemfile:
 
