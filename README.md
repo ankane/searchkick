@@ -50,6 +50,8 @@ brew install elasticsearch
 brew services start elasticsearch
 ```
 
+When developing locally, be sure to have elasticsearch running before reindexing `$ bin/elasticsearch` (or use `$ bin/elasticsearch -d` to run in the background).
+
 Add this line to your application’s Gemfile:
 
 ```ruby
@@ -66,10 +68,10 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Add data to the search index.
+Add data to the search index.  From the command line, run:
 
 ```ruby
-Product.reindex
+rake searchkick:reindex CLASS=YourClassName
 ```
 
 And to query, use:
