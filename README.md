@@ -1769,11 +1769,18 @@ end
 
 ### Factory Girl
 
-Manually reindex after an instance is created.
+Use an after `create` hook for each indexed model:
 
 ```ruby
-product = FactoryGirl.create(:product)
-product.reindex(refresh: true)
+FactoryGirl.define do
+  factory :product do
+    # ...
+    
+    after(:create) do |product, evaluator|
+      Product.reindex
+    end
+  end
+end
 ```
 
 ### Parallel Tests
