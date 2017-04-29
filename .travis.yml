@@ -6,7 +6,7 @@ services:
   - redis-server
 before_install:
   - ./test/ci/before_install.sh
-script: RUBYOPT=W0 bundle exec rake test
+script: bundle exec rake test
 before_script:
   - psql -c 'create database searchkick_test;' -U postgres
 notifications:
