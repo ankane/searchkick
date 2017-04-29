@@ -7,7 +7,7 @@ module Searchkick
       "Cequel::Record::RecordNotFound"
     ]
 
-    queue_as :searchkick
+    queue_as { Searchkick.queue_name }
 
     def perform(klass, id)
       model = klass.constantize

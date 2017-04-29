@@ -1612,6 +1612,11 @@ Change the search method name in `config/initializers/searchkick.rb`
 Searchkick.search_method_name = :lookup
 ```
 
+Change search queue name in `config/initializers/searchkick.rb`
+```ruby
+Searchkick.queue_name = :search_reindex
+```
+
 Eager load associations
 
 ```ruby
