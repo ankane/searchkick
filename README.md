@@ -1606,13 +1606,14 @@ Set a lower timeout for searches
 Searchkick.search_timeout = 3
 ```
 
-Change the search method name in `config/initializers/searchkick.rb`
+Change the search method name
 
 ```ruby
 Searchkick.search_method_name = :lookup
 ```
 
-Change search queue name in `config/initializers/searchkick.rb`
+Change search queue name [master]
+
 ```ruby
 Searchkick.queue_name = :search_reindex
 ```

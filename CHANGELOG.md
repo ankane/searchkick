@@ -1,3 +1,7 @@
+## 2.2.2 [unreleased]
+
+- Added `queue_name` option
+
 ## 2.2.1
 
 - Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
