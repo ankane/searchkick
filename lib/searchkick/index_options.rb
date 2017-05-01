@@ -25,7 +25,7 @@ module Searchkick
             }
           end
 
-        keyword_mapping[:ignore_above] = (options[:ignore_above] || 256) unless below22
+        keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
 
         settings = {
           analysis: {

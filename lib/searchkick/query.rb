@@ -2,6 +2,8 @@ module Searchkick
   class Query
     extend Forwardable
 
+    @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
+
     attr_reader :klass, :term, :options
     attr_accessor :body
 
@@ -283,18 +285,25 @@ module Searchkick
 
             shared_options[:operator] = operator if match_type == :match
 
+            exclude_analyzer = nil
+            exclude_field = field
+
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator == "and" || misspellings == false
               qs.concat [
                 shared_options.merge(analyzer: "searchkick_search"),
                 shared_options.merge(analyzer: "searchkick_search2")
               ]
+              exclude_analyzer = "searchkick_search2"
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")
               queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
+              exclude_field = f
+              exclude_analyzer = "keyword"
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
+              exclude_analyzer = analyzer
             end
 
             if misspellings != false && match_type == :match
@@ -321,10 +330,13 @@ module Searchkick
 
             if options[:exclude]
               must_not =
-                options[:exclude].map do |phrase|
+                Array(options[:exclude]).map do |phrase|
                   {
                     match_phrase: {
-                      field => phrase
+                      exclude_field => {
+                        query: phrase,
+                        analyzer: exclude_analyzer
+                      }
                     }
                   }
                 end
@@ -631,6 +643,12 @@ module Searchkick
             date_histogram: {
               field: histogram[:field],
               interval: interval
+            }
+          }
+        elsif metric = @@metric_aggs.find { |k| agg_options.has_key?(k) }
+          payload[:aggs][field] = {
+            metric => {
+              field: agg_options[metric][:field] || field
             }
           }
         else

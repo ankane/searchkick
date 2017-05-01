@@ -294,12 +294,16 @@ end
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
-  # or
-  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
+
+To read synonyms from a file, use:
+
+```ruby
+synonyms: -> { CSV.read("/some/path/synonyms.csv") }
+```
 
 For directional synonyms, use:
 
@@ -388,7 +392,7 @@ You can map queries and terms to exclude with:
 ```ruby
 exclude_queries = {
   "butter" => ["peanut butter"],
-  "cream" => ["ice cream"]
+  "cream" => ["ice cream", "whipped cream"]
 }
 
 Product.search query, exclude: exclude_queries[query]
@@ -1027,7 +1031,7 @@ Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](lib/searchkick/index.rb#L209).
+See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/31780ddac7a89eab1e0552a32b403f2040a37931/lib/searchkick/index_options.rb#L32).
 
 ## Deployment
 
@@ -1602,10 +1606,16 @@ Set a lower timeout for searches
 Searchkick.search_timeout = 3
 ```
 
-Change the search method name in `config/initializers/searchkick.rb`
+Change the search method name
 
 ```ruby
 Searchkick.search_method_name = :lookup
+```
+
+Change search queue name [master]
+
+```ruby
+Searchkick.queue_name = :search_reindex
 ```
 
 Eager load associations
@@ -1689,24 +1699,89 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Testing
 
-This section could use some love.
+For performance, only enable Searchkick callbacks for the tests that need it.
+
+### Minitest
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+# reindex models
+Product.reindex
+
+# and disable callbacks
+Searchkick.disable_callbacks
+```
+
+And use:
+
+```ruby
+class ProductTest < Minitest::Test
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
 
 ### RSpec
 
+Add to your `spec/spec_helper.rb`:
+
 ```ruby
-describe Product do
-  it "searches" do
+RSpec.configure do |config|
+  config.before(:suite) do
+    # reindex models
     Product.reindex
-    # test goes here...
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.enable_callbacks
+    example.run
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+describe Product, search: true do
+  it "searches" do
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
   end
 end
 ```
 
 ### Factory Girl
 
+Manually reindex after an instance is created.
+
 ```ruby
 product = FactoryGirl.create(:product)
 product.reindex(refresh: true)
+```
+
+### Parallel Tests
+
+Set:
+
+```ruby
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 ```
 
 ## Multi-Tenancy

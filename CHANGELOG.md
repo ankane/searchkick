@@ -1,6 +1,19 @@
-## 2.1.2 [unreleased]
+## 2.2.2 [unreleased]
 
+- Added `queue_name` option
+
+## 2.2.1
+
+- Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
+- Added `load: {dumpable: true}` option
+- Added `index_suffix` option
+- Accept string for `exclude` option
+
+## 2.2.0
+
+- Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
 - Fixed issue with `_all` field in `searchable`
+- Fixed `exclude` option with `word_start`
 
 ## 2.1.1
 

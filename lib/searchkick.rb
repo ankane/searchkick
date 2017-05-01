@@ -37,7 +37,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_suffix, :queue_name
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -46,6 +46,7 @@ module Searchkick
   self.timeout = 10
   self.models = []
   self.client_options = {}
+  self.queue_name = :searchkick
 
   def self.client
     @client ||= begin
@@ -207,4 +208,7 @@ end
 
 # TODO find better ActiveModel hook
 ActiveModel::Callbacks.send(:include, Searchkick::Model)
-ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)
+
+ActiveSupport.on_load(:active_record) do
+  extend Searchkick::Model
+end
