@@ -70,7 +70,12 @@ class SuggestTest < Minitest::Test
   protected
 
   def assert_suggest(term, expected, options = {})
-    assert_equal expected, Product.search(term, options.merge(suggest: true)).suggestions.first
+    result = Product.search(term, options.merge(suggest: true)).suggestions.first
+    if expected.nil?
+      assert_nil result
+    else
+      assert_equal expected, result
+    end
   end
 
   # any order

@@ -32,20 +32,37 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]][hit["_id"].to_s]
+            result = results[hit["_type"]][hit["_id"].to_s]
+            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
+              unless result.respond_to?(:search_hit)
+                result.define_singleton_method(:search_hit) do
+                  hit
+                end
+              end
+
+              if hit["highlight"] && !result.respond_to?(:search_highlights)
+                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                result.define_singleton_method(:search_highlights) do
+                  highlights
+                end
+              end
+            end
+            result
           end.compact
         else
           hits.map do |hit|
             result =
               if hit["_source"]
                 hit.except("_source").merge(hit["_source"])
-              else
+              elsif hit["fields"]
                 hit.except("fields").merge(hit["fields"])
+              else
+                hit
               end
 
             if hit["highlight"]
               highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), v.first] }]
-              options[:highlighted_fields].map{ |k| base_field(k) }.each do |k|
+              options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
               end
             end
@@ -79,10 +96,6 @@ module Searchkick
       end
     end
 
-    def facets
-      response["facets"]
-    end
-
     def aggregations
       response["aggregations"]
     end
@@ -104,6 +117,10 @@ module Searchkick
 
     def took
       response["took"]
+    end
+
+    def error
+      response["error"]
     end
 
     def model_name
@@ -167,6 +184,10 @@ module Searchkick
       @response["hits"]["hits"]
     end
 
+    def misspellings?
+      @options[:misspellings]
+    end
+
     private
 
     def results_query(records, hits)
@@ -175,27 +196,17 @@ module Searchkick
       if options[:includes]
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
-            records.preload(options[:includes])
+            if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
+              records.eager_load(options[:includes])
+            else
+              records.preload(options[:includes])
+            end
           else
             records.includes(options[:includes])
           end
       end
 
-      if records.respond_to?(:primary_key) && records.primary_key
-        # ActiveRecord
-        records.where(records.primary_key => ids)
-      elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
-        # Mongoid 2
-        records.all.for_ids(ids)
-      elsif records.respond_to?(:queryable)
-        # Mongoid 3+
-        records.queryable.for_ids(ids)
-      elsif records.respond_to?(:unscoped) && records.all.respond_to?(:preload)
-        # Nobrainer
-        records.unscoped.where(:id.in => ids)
-      else
-        raise "Not sure how to load records"
-      end
+      Searchkick.load_records(records, ids)
     end
 
     def base_field(k)

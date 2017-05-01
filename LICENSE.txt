@@ -1,4 +1,4 @@
-Copyright (c) 2013 Andrew Kane
+Copyright (c) 2013-2016 Andrew Kane
 
 MIT License
 

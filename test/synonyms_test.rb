@@ -51,4 +51,12 @@ class SynonymsTest < Minitest::Test
     store_names ["Creature", "Beast", "Dragon"], Animal
     assert_search "animal", ["Creature", "Beast"], {}, Animal
   end
+
+  def test_directional
+    store_names ["Lightbulb", "Green Onions", "Led"]
+    assert_search "led", ["Lightbulb", "Led"]
+    assert_search "Lightbulb", ["Lightbulb"]
+    assert_search "Halogen Lamp", ["Lightbulb"]
+    assert_search "onions", ["Green Onions"]
+  end
 end

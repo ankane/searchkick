@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
+set -e
+
 gem install bundler
 
-sudo apt-get purge elasticsearch
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.3.deb
-sudo dpkg -i elasticsearch-1.7.3.deb
-sudo service elasticsearch start
-
-if [ -n "$NOBRAINER" ]; then
-  source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
-  wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
-  sudo apt-get update -q
-  sudo apt-get install rethinkdb
-  sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
-  sudo service rethinkdb restart
+if [[ $ELASTICSEARCH_VERSION == 1* ]]; then
+  curl -L -O https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
+elif [[ $ELASTICSEARCH_VERSION == 2* ]]; then
+  curl -L -O https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
+else
+  curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
 fi
+tar -xvf elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
+cd elasticsearch-$ELASTICSEARCH_VERSION/bin
+./elasticsearch -d
+wget -O- --waitretry=1 --tries=30 --retry-connrefused -v http://127.0.0.1:9200/

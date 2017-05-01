@@ -1,3 +1,157 @@
+## 2.2.2 [unreleased]
+
+- Added `queue_name` option
+
+## 2.2.1
+
+- Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
+- Added `load: {dumpable: true}` option
+- Added `index_suffix` option
+- Accept string for `exclude` option
+
+## 2.2.0
+
+- Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
+- Fixed issue with `_all` field in `searchable`
+- Fixed `exclude` option with `word_start`
+
+## 2.1.1
+
+- Fixed duplicate notifications
+- Added support for `connection_pool`
+- Added `exclude` option
+
+## 2.1.0
+
+- Background reindexing and queues are officially supported
+- Log updates and deletes
+
+## 2.0.4
+
+- Added support for queuing updates [experimental]
+- Added `refresh_interval` option to `reindex`
+- Prefer `search_index` over `searchkick_index`
+
+## 2.0.3
+
+- Added `async` option to `reindex` [experimental]
+- Added `misspellings?` method to results
+
+## 2.0.2
+
+- Added `retain` option to `reindex`
+- Added support for attributes in highlight tags
+- Fixed potentially silent errors in reindex job
+- Improved syntax for `boost_by_distance`
+
+## 2.0.1
+
+- Added `search_hit` and `search_highlights` methods to models
+- Improved reindex performance
+
+## 2.0.0
+
+- Added support for `reindex` on associations
+
+Breaking changes
+
+- Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
+- Removed facets, legacy options, and legacy methods
+- Invalid options now throw an `ArgumentError`
+- The `query` and `json` options have been removed in favor of `body`
+- The `include` option has been removed in favor of `includes`
+- The `personalize` option has been removed in favor of `boost_where`
+- The `partial` option has been removed in favor of `operator`
+- Renamed `select_v2` to `select` (legacy `select` no longer available)
+- The `_all` field is disabled if `searchable` option is used (for performance)
+- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
+- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
+- `load: false` no longer returns an array in Elasticsearch 2
+
+## 1.5.1
+
+- Added `client_options`
+- Added `refresh` option to `reindex` method
+- Improved syntax for partial reindex
+
+## 1.5.0
+
+- Added support for geo shape indexing and queries
+- Added `_and`, `_or`, `_not` to `where` option
+
+## 1.4.2
+
+- Added support for directional synonyms
+- Easier AWS setup
+- Fixed `total_docs` method for ES 5+
+- Fixed exception on update errors
+
+## 1.4.1
+
+- Added `partial_reindex` method
+- Added `debug` option to `search` method
+- Added `profile` option
+
+## 1.4.0
+
+- Official support for Elasticsearch 5
+- Boost exact matches for partial matching
+- Added `searchkick_debug` method
+- Added `geo_polygon` filter
+
+## 1.3.6
+
+- Fixed `Job adapter not found` error
+
+## 1.3.5
+
+- Added support for Elasticsearch 5.0 beta
+- Added `request_params` option
+- Added `filterable` option
+
+## 1.3.4
+
+- Added `resume` option to reindex
+- Added search timeout to payload
+
+## 1.3.3
+
+- Fix for namespaced models (broken in 1.3.2)
+
+## 1.3.2
+
+- Added `body_options` option
+- Added `date_histogram` aggregation
+- Added `indices_boost` option
+- Added support for multiple conversions
+
+## 1.3.1
+
+- Fixed error with Ruby 2.0
+- Fixed error with indexing large fields
+
+## 1.3.0
+
+- Added support for Elasticsearch 5.0 alpha
+- Added support for phrase matches
+- Added support for procs for `index_prefix` option
+
+## 1.2.1
+
+- Added `multi_search` method
+- Added support for routing for Elasticsearch 2
+- Added support for `search_document_id` and `search_document_type` in models
+- Fixed error with instrumentation for searching multiple models
+- Fixed instrumentation for bulk updates
+
+## 1.2.0
+
+- Fixed deprecation warnings with `alias_method_chain`
+- Added `analyzed_only` option for large text fields
+- Added `encoder` option to highlight
+- Fixed issue in `similar` method with `per_page` option
+- Added basic support for multiple models
+
 ## 1.1.2
 
 - Added bulk updates with `callbacks` method

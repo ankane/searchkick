@@ -1,0 +1,23 @@
+source "https://rubygems.org"
+
+# Specify your gem's dependencies in searchkick.gemspec
+gemspec path: "../"
+
+# gem "sqlite3"
+gem "pg"
+gem "activerecord", "~> 5.0.0"
+gem "activerecord-import"
+gem "activejob"
+gem "redis"
+gem "sidekiq"
+
+# performance
+gem "typhoeus"
+gem "oj"
+
+# profiling
+gem "ruby-prof"
+gem "allocation_stats"
+gem "get_process_mem"
+gem "memory_profiler"
+gem "allocation_tracer"
