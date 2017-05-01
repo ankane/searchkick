@@ -1,7 +1,6 @@
 require "active_model"
 require "elasticsearch"
 require "hashie"
-require "faraday/middleware"
 require "searchkick/version"
 require "searchkick/index"
 require "searchkick/results"
@@ -43,8 +42,10 @@ module Searchkick
         url: ENV["ELASTICSEARCH_URL"],
         transport_options: {request: {timeout: timeout}}
       ) do |f|
-        f.use Searchkick::Middleware
-        f.use FaradayMiddleware::Gzip
+        f.request  :url_encoded
+        f.use      Searchkick::Middleware
+        f.request  :gzip
+        f.response :utf_normalize, :nfc
       end
   end
 
