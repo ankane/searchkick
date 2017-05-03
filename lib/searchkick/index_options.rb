@@ -167,7 +167,7 @@ module Searchkick
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }
+            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }.map(&:downcase)
           }
           # choosing a place for the synonym filter when stemming is not easy
           # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8

@@ -1,6 +1,7 @@
 ## 2.2.2 [unreleased]
 
 - Added `queue_name` option
+- No longer require synonyms to be lowercase
 
 ## 2.2.1
 
