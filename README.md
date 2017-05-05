@@ -1769,18 +1769,25 @@ end
 
 ### Factory Girl
 
-Use an after `create` hook for each indexed model:
+Use a trait and an after `create` hook for each indexed model:
 
 ```ruby
 FactoryGirl.define do
   factory :product do
     # ...
-    
-    after(:create) do |product, evaluator|
-      Product.reindex
+
+    # Note: This should be the last trait in the list so `reindex` is called
+    # after all the other callbacks complete.
+    trait :reindex do
+      after(:create) do |product, _evaluator|
+        product.reindex(refresh: true)
+      end
     end
   end
 end
+
+# use it
+FactoryGirl.create(:product, :some_trait, :reindex, some_attribute: "foo")
 ```
 
 ### Parallel Tests
