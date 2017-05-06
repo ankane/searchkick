@@ -279,7 +279,13 @@ module Searchkick
 
             match_type =
               if field.end_with?(".phrase")
-                field = field.sub(/\.phrase\z/, ".analyzed")
+                field =
+                  if field == "_all.phrase"
+                    "_all"
+                  else
+                    field.sub(/\.phrase\z/, ".analyzed")
+                  end
+
                 :match_phrase
               else
                 :match
@@ -494,10 +500,12 @@ module Searchkick
             boost_fields[field] = boost.to_f if boost
             field
           end
-        elsif default_match != :word
-          raise ArgumentError, "Must specify fields"
-        else
+        elsif default_match == :word
           ["_all"]
+        elsif default_match == :phrase
+          ["_all.phrase"]
+        else
+          raise ArgumentError, "Must specify fields"
         end
       [boost_fields, fields]
     end
