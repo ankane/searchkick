@@ -223,13 +223,15 @@ module Searchkick
         if options[:similar]
           payload = {
             more_like_this: {
-              fields: fields,
               like_text: term,
               min_doc_freq: 1,
               min_term_freq: 1,
               analyzer: "searchkick_search2"
             }
           }
+          if fields != ["_all"]
+            payload[:more_like_this][:fields] = fields
+          end
         elsif all
           payload = {
             match_all: {}

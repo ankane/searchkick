@@ -2,6 +2,7 @@
 
 - Added `queue_name` option
 - No longer require synonyms to be lowercase
+- Fixed error with `similar` method and `_all` field
 
 ## 2.2.1
 
