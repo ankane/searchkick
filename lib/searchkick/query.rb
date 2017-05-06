@@ -484,15 +484,18 @@ module Searchkick
     def set_fields
       boost_fields = {}
       fields = options[:fields] || searchkick_options[:searchable]
+      default_match = options[:match] || searchkick_options[:match] || :word
       fields =
         if fields
           fields.map do |value|
-            k, v = value.is_a?(Hash) ? value.to_a.first : [value, options[:match] || searchkick_options[:match] || :word]
+            k, v = value.is_a?(Hash) ? value.to_a.first : [value, default_match]
             k2, boost = k.to_s.split("^", 2)
             field = "#{k2}.#{v == :word ? 'analyzed' : v}"
             boost_fields[field] = boost.to_f if boost
             field
           end
+        elsif default_match != :word
+          raise ArgumentError, "Must specify fields"
         else
           ["_all"]
         end
