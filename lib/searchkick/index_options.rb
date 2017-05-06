@@ -229,6 +229,8 @@ module Searchkick
 
         mapping_options[:searchable].delete("_all")
 
+        analyzed_field_options = {type: default_type, index: "analyzed", analyzer: default_analyzer}
+
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
@@ -240,7 +242,7 @@ module Searchkick
 
           if !options[:searchable] || mapping_options[:searchable].include?(field)
             if word
-              fields["analyzed"] = {type: default_type, index: "analyzed", analyzer: default_analyzer}
+              fields["analyzed"] = analyzed_field_options
 
               if mapping_options[:highlight].include?(field)
                 fields["analyzed"][:term_vector] = "with_positions_offsets"
@@ -294,7 +296,7 @@ module Searchkick
           end
 
           if word
-            dynamic_fields["analyzed"] = {type: default_type, index: "analyzed"}
+            dynamic_fields["analyzed"] = analyzed_field_options
           end
         end
 
@@ -305,7 +307,7 @@ module Searchkick
 
         mappings = {
           _default_: {
-            _all: all_enabled ? {type: default_type, index: "analyzed", analyzer: default_analyzer} : {enabled: false},
+            _all: all_enabled ? analyzed_field_options : {enabled: false},
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285

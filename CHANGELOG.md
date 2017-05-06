@@ -1,8 +1,9 @@
 ## 2.2.2 [unreleased]
 
+- Fixed analyzer on dynamically mapped fields
+- Fixed error with `similar` method and `_all` field
 - Added `queue_name` option
 - No longer require synonyms to be lowercase
-- Fixed error with `similar` method and `_all` field
 
 ## 2.2.1
 
