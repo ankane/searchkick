@@ -243,6 +243,11 @@ class MatchTest < Minitest::Test
     assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
   end
 
+  def test_dynamic_fields
+    store_names ["Red Bull"], Speaker
+    assert_search "redbull", ["Red Bull"], {fields: [:name]}, Speaker
+  end
+
   def test_unsearchable
     store [
       {name: "Unsearchable", description: "Almond"}
