@@ -27,8 +27,6 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
-**Searchkick 2.0 was just released!** See [notable changes](#200).
-
 ## Contents
 
 - [Getting Started](#getting-started)
@@ -1612,7 +1610,7 @@ Change the search method name
 Searchkick.search_method_name = :lookup
 ```
 
-Change search queue name [master]
+Change search queue name
 
 ```ruby
 Searchkick.queue_name = :search_reindex
