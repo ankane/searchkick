@@ -372,6 +372,7 @@ class Product
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"],
+      ["UPPERCASE", "lowercase"],
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
     ],
