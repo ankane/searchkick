@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activemodel", ">= 4.1"
   spec.add_dependency "elasticsearch", ">= 1"
   spec.add_dependency "hashie"
+  spec.add_dependency "ar-octopus"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
