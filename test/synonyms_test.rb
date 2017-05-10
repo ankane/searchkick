@@ -59,4 +59,9 @@ class SynonymsTest < Minitest::Test
     assert_search "Halogen Lamp", ["Lightbulb"]
     assert_search "onions", ["Green Onions"]
   end
+
+  def test_case
+    store_names ["Uppercase"]
+    assert_search "lowercase", ["Uppercase"]
+  end
 end
