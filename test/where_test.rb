@@ -81,6 +81,16 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {color: "RED"}
   end
 
+  def test_where_not_string
+    skip unless elasticsearch2?
+    store [
+      {name: "Product A"},
+    ]
+    assert_search "product", ["Product A"], where: {"name.analyzed" => {not: "Product"}}
+    assert_search "product", [], where: {"name.analyzed" => {not: "product"}}
+    assert_search "product", [], where: {"name.analyzed" => {not: {match: "Product"}}}
+  end
+
   def test_where_nil
     store [
       {name: "Product A"},
