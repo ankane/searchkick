@@ -629,7 +629,7 @@ end
 Reindex and search with:
 
 ```ruby
-Movie.search "jurassic pa", match: :word_start
+Movie.search "jurassic pa", fields: [:title], match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
