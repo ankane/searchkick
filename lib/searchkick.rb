@@ -2,6 +2,7 @@ require "active_model"
 require "elasticsearch"
 require "hashie"
 require "searchkick/version"
+require "searchkick/batch_extensions"
 require "searchkick/index_options"
 require "searchkick/index"
 require "searchkick/indexer"
@@ -210,4 +211,8 @@ ActiveModel::Callbacks.send(:include, Searchkick::Model)
 
 ActiveSupport.on_load(:active_record) do
   extend Searchkick::Model
+
+  if defined?(ActiveRecord::Batches::BatchEnumerator)
+    ActiveRecord::Batches::BatchEnumerator.send(:include, Searchkick::BatchExtensions)
+  end
 end

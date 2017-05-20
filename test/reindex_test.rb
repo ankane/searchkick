@@ -23,7 +23,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_async
-    skip if !defined?(ActiveJob)
+    skip unless defined?(ActiveJob)
 
     Searchkick.callbacks(false) do
       store_names ["Product A"]
@@ -48,5 +48,17 @@ class ReindexTest < Minitest::Test
     Product.search_index.promote(index.name, update_refresh_interval: true)
     assert_equal "1s", index.refresh_interval
     assert_equal "1s", Product.search_index.refresh_interval
+  end
+
+  def test_in_batches
+    skip unless defined?(ActiveRecord) && ActiveRecord::VERSION::MAJOR >= 5
+
+    Searchkick.callbacks(false) do
+      store_names ["Product A", "Product B"]
+    end
+    assert_search "product", []
+    Product.in_batches(of: 1).reindex
+    Product.search_index.refresh
+    assert_search "product", ["Product A", "Product B"]
   end
 end
