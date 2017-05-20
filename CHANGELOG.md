@@ -1,7 +1,3 @@
-## 2.3.1 [unreleased]
-
-- Added reindex to `in_batches`
-
 ## 2.3.0
 
 - Fixed analyzer on dynamically mapped fields
