@@ -1814,6 +1814,11 @@ Important notes are listed below.
 
 - Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
+- replace merge_mappings option with default_mappings
+- remove query and json search options (use body instead)
+- remove include option (use includes instead)
+- removed personalize option (use boost_where instead)
+- remove partial option (use operator instead)
 - Invalid options now throw an `ArgumentError`
 - The `query` and `json` options have been removed in favor of `body`
 - The `include` option has been removed in favor of `includes`
