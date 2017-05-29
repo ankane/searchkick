@@ -148,7 +148,7 @@ module Searchkick
           }
         }
 
-        if Searchkick.env == "test"
+        if Searchkick.env =~ /test/
           settings[:number_of_shards] = 1
           settings[:number_of_replicas] = 0
         end
