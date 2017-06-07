@@ -41,7 +41,7 @@ module Searchkick
     attr_reader :aws_credentials
   end
   self.search_method_name = :search
-  self.wordnet_path = "/var/lib/wn_s.pl"
+  self.wordnet_path = ENV['WORDNET_PATH'] ? ENV['WORDNET_PATH'] : "/var/lib/wn_s.pl"
   self.timeout = 10
   self.models = []
   self.client_options = {}
