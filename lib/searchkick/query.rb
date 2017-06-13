@@ -16,7 +16,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_where, :conversions, :debug, :emoji, :exclude, :execute, :explain,
+        :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
@@ -381,7 +381,7 @@ module Searchkick
                       boost_mode: "replace",
                       query: {
                         match: {
-                          "#{conversions_field}.query" => term
+                          "#{conversions_field}.query" => options[:conversions_term] || term
                         }
                       }
                     }.merge(script_score)
