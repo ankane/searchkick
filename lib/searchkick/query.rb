@@ -580,8 +580,6 @@ module Searchkick
 
       if suggest.is_a?(Array)
         suggest_fields = suggest
-      elsif !klass
-        raise ArgumentError, "Must pass fields to suggest option"
       else
         suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
 
@@ -600,6 +598,8 @@ module Searchkick
             }
           }
         end
+      else
+        raise ArgumentError, "Must pass fields to suggest option"
       end
     end
 
