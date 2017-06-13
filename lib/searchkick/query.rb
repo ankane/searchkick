@@ -447,7 +447,7 @@ module Searchkick
         set_aggregations(payload) if options[:aggs]
 
         # suggestions
-        set_suggestions(payload) if options[:suggest]
+        set_suggestions(payload, options[:suggest]) if options[:suggest]
 
         # highlight
         set_highlights(payload, fields) if options[:highlight]
@@ -575,12 +575,20 @@ module Searchkick
       payload[:indices_boost] = indices_boost
     end
 
-    def set_suggestions(payload)
-      suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
+    def set_suggestions(payload, suggest)
+      suggest_fields = nil
 
-      # intersection
-      if options[:fields]
-        suggest_fields &= options[:fields].map { |v| (v.is_a?(Hash) ? v.keys.first : v).to_s.split("^", 2).first }
+      if suggest.is_a?(Array)
+        suggest_fields = suggest
+      elsif !klass
+        raise ArgumentError, "Must pass fields to suggest option"
+      else
+        suggest_fields = (searchkick_options[:suggest] || []).map(&:to_s)
+
+        # intersection
+        if options[:fields]
+          suggest_fields &= options[:fields].map { |v| (v.is_a?(Hash) ? v.keys.first : v).to_s.split("^", 2).first }
+        end
       end
 
       if suggest_fields.any?

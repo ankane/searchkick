@@ -67,6 +67,11 @@ class SuggestTest < Minitest::Test
     assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [{"name^2" => :word_start}]
   end
 
+  def test_multiple_models
+    store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
+    assert_equal "how big is a tiger shark", Searchkick.search("How Big is a Tigre Shar", suggest: [:name]).suggestions.first
+  end
+
   protected
 
   def assert_suggest(term, expected, options = {})

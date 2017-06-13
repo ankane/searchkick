@@ -1,3 +1,7 @@
+## 2.3.1 [unreleased]
+
+- Added support for passing fields to `suggest` option
+
 ## 2.3.0
 
 - Fixed analyzer on dynamically mapped fields
