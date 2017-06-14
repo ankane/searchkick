@@ -28,6 +28,18 @@ class BoostTest < Minitest::Test
     assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C"], {conversions: "conversions_b"}, Speaker
   end
 
+  def test_multiple_conversions_with_boost_term
+    store [
+      {name: "Speaker A", conversions_a: {"speaker" => 4, "speaker_1" => 1}},
+      {name: "Speaker B", conversions_a: {"speaker" => 3, "speaker_1" => 2}},
+      {name: "Speaker C", conversions_a: {"speaker" => 2, "speaker_1" => 3}},
+      {name: "Speaker D", conversions_a: {"speaker" => 1, "speaker_1" => 4}}
+    ], Speaker
+
+    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C", "Speaker D"], {conversions: "conversions_a"}, Speaker
+    assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
+  end
+
   def test_conversions_stemmed
     store [
       {name: "Tomato A", conversions: {"tomato" => 1, "tomatos" => 1, "Tomatoes" => 1}},
