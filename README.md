@@ -1563,6 +1563,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Use a different term for boosting by conversions [master]
+
+```ruby
+Product.search("banana", conversions_term: "organic banana")
+```
+
 Multiple conversion fields
 
 ```ruby
@@ -1587,10 +1593,9 @@ end
 and during query time:
 
 ```ruby
-Product.search("banana") # boost by both fields (default) and term (banana) will be used for both matching and boosting.
+Product.search("banana") # boost by both fields (default)
 Product.search("banana", conversions: "total_conversions") # only boost by total_conversions
 Product.search("banana", conversions: false) # no conversion boosting
-Product.search("banana", conversions: "total_conversions", conversions_term: "organic banana") # Match banana but boost by organic banana
 ```
 
 Change timeout
