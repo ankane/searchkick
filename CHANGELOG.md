@@ -1,6 +1,7 @@
 ## 2.3.1 [unreleased]
 
 - Added support for passing fields to `suggest` option
+- Fixed `page_view_entries` for Kaminari
 
 ## 2.3.0
 

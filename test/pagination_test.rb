@@ -50,4 +50,21 @@ class PaginationTest < Minitest::Test
     assert_equal 1, products.current_page
     assert products.first_page?
   end
+
+  def test_kaminari
+    skip unless defined?(Kaminari)
+
+    require "action_view"
+
+    I18n.load_path = Dir["test/support/kaminari.yml"]
+    I18n.backend.load_translations
+
+    view = ActionView::Base.new
+
+    store_names ["Product A"]
+    assert_equal "Displaying <b>1</b> product", view.page_entries_info(Product.search("product"))
+
+    store_names ["Product B"]
+    assert_equal "Displaying <b>all 2</b> products", view.page_entries_info(Product.search("product"))
+  end
 end
