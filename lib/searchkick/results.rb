@@ -189,7 +189,7 @@ module Searchkick
 
       if records.respond_to?(:primary_key) && records.primary_key
         # ActiveRecord
-        records.where(records.primary_key => ids)
+        records.where(records.primary_key => ids).order("position(id::text in '#{ids.join(',')}')")
       elsif records.respond_to?(:all) && records.all.respond_to?(:for_ids)
         # Mongoid 2
         records.all.for_ids(ids)
