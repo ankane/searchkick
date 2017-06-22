@@ -6,8 +6,8 @@ class AggsTest < Minitest::Test
     store [
       {name: "Product Show", latitude: 37.7833, longitude: 12.4167, store_id: 1, in_stock: true, color: "blue", price: 21, created_at: 2.days.ago},
       {name: "Product Hide", latitude: 29.4167, longitude: -98.5000, store_id: 2, in_stock: false, color: "green", price: 25, created_at: 2.days.from_now},
-      {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5},
-      {name: "Foo", latitude: 43.9333, longitude: 12.4667, store_id: 3, in_stock: false, color: "yellow", price: 15}
+      {name: "Product B", latitude: 43.9333, longitude: -122.4667, store_id: 2, in_stock: false, color: "red", price: 5, created_at: Time.now},
+      {name: "Foo", latitude: 43.9333, longitude: 12.4667, store_id: 3, in_stock: false, color: "yellow", price: 15, created_at: Time.now}
     ]
   end
 
@@ -42,7 +42,7 @@ class AggsTest < Minitest::Test
     agg = Product.search("Product", aggs: {store_id: {limit: 1}}).aggs["store_id"]
     assert_equal 1, agg["buckets"].size
     # assert_equal 3, agg["doc_count"]
-    assert_equal(1, agg["sum_other_doc_count"]) unless Searchkick.server_below?("1.4.0")
+    assert_equal(1, agg["sum_other_doc_count"])
   end
 
   def test_ranges
@@ -94,6 +94,88 @@ class AggsTest < Minitest::Test
   def test_smart_aggs_false
     assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
+  end
+
+  def test_aggs_group_by_date
+    store [{name: "Old Product", created_at: 3.years.ago}]
+    products =
+      Product.search("Product", {
+        where: {
+          created_at: {lt: Time.now}
+        },
+        aggs: {
+          products_per_year: {
+            date_histogram: {
+              field: :created_at,
+              interval: :year
+            }
+          }
+        }
+      })
+
+    assert_equal 4, products.aggs["products_per_year"]["buckets"].size
+  end
+
+  def test_aggs_avg
+    products =
+      Product.search("*", {
+        aggs: {
+          avg_price: {
+            avg: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 16.5, products.aggs["avg_price"]["value"]
+  end
+
+  def test_aggs_cardinality
+    products =
+      Product.search("*", {
+        aggs: {
+          total_stores: {
+            cardinality: {
+              field: :store_id
+            }
+          }
+        }
+      })
+    assert_equal 3, products.aggs["total_stores"]["value"]
+  end
+
+  def test_aggs_min_max
+    products =
+      Product.search("*", {
+        aggs: {
+          min_price: {
+            min: {
+              field: :price
+            }
+          },
+          max_price: {
+            max: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 5, products.aggs["min_price"]["value"]
+    assert_equal 25, products.aggs["max_price"]["value"]
+  end
+
+  def test_aggs_sum
+    products =
+      Product.search("*", {
+        aggs: {
+          sum_price: {
+            sum: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 66, products.aggs["sum_price"]["value"]
   end
 
   protected

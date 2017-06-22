@@ -34,7 +34,9 @@ class MatchTest < Minitest::Test
   end
 
   def test_percent
-    store_names ["1% Milk", "2% Milk", "Whole Milk"]
+    # Note: "2% Milk" doesn't get matched in ES below 5.1.1
+    # This could be a bug since it has an edit distance of 1
+    store_names ["1% Milk", "Whole Milk"]
     assert_search "1%", ["1% Milk"]
   end
 
@@ -110,14 +112,12 @@ class MatchTest < Minitest::Test
   end
 
   def test_misspelling_zucchini_transposition
-    skip if elasticsearch_below14?
     store_names ["zucchini"]
     assert_search "zuccihni", ["zucchini"]
     assert_search "zuccihni", [], misspellings: {transpositions: false}
   end
 
   def test_misspelling_lasagna
-    skip if elasticsearch_below14?
     store_names ["lasagna"]
     assert_search "lasanga", ["lasagna"], misspellings: {transpositions: true}
     assert_search "lasgana", ["lasagna"], misspellings: {transpositions: true}
@@ -126,7 +126,6 @@ class MatchTest < Minitest::Test
   end
 
   def test_misspelling_lasagna_pasta
-    skip if elasticsearch_below14?
     store_names ["lasagna pasta"]
     assert_search "lasanga", ["lasagna pasta"], misspellings: {transpositions: true}
     assert_search "lasanga pasta", ["lasagna pasta"], misspellings: {transpositions: true}
@@ -160,12 +159,47 @@ class MatchTest < Minitest::Test
     assert_search "almondmilks", ["Almond Milk"]
   end
 
+  # butter
+
+  def test_exclude_butter
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
+  end
+
+  def test_exclude_butter_word_start
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"], match: :word_start
+  end
+
+  def test_exclude_butter_exact
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", [], exclude: ["peanut butter"], match: :exact
+  end
+
+  def test_exclude_same_exact
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "Butter Tub", [], exclude: ["Butter Tub"], match: :exact
+  end
+
+  def test_exclude_egg_word_start
+    store_names ["eggs", "eggplant"]
+    assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
+  end
+
+  def test_exclude_string
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: "peanut butter"
+  end
+
+  # other
+
   def test_all
     store_names ["Product A", "Product B"]
     assert_search "*", ["Product A", "Product B"]
   end
 
   def test_no_arguments
+    store_names []
     assert_equal [], Product.search.to_a
   end
 
@@ -184,6 +218,11 @@ class MatchTest < Minitest::Test
     assert_search "ben and jerrys", ["Ben and Jerry's"]
   end
 
+  def test_apostrophe_search
+    store_names ["Ben and Jerrys"]
+    assert_search "ben and jerry's", ["Ben and Jerrys"]
+  end
+
   def test_ampersand_index
     store_names ["Ben & Jerry's"]
     assert_search "ben and jerrys", ["Ben & Jerry's"]
@@ -197,6 +236,16 @@ class MatchTest < Minitest::Test
   def test_phrase
     store_names ["Fresh Honey", "Honey Fresh"]
     assert_search "fresh honey", ["Fresh Honey"], match: :phrase
+  end
+
+  def test_phrase_order
+    store_names ["Wheat Bread", "Whole Wheat Bread"]
+    assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
+  end
+
+  def test_dynamic_fields
+    store_names ["Red Bull"], Speaker
+    assert_search "redbull", ["Red Bull"], {fields: [:name]}, Speaker
   end
 
   def test_unsearchable

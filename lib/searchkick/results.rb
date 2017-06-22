@@ -32,7 +32,22 @@ module Searchkick
 
           # sort
           hits.map do |hit|
-            results[hit["_type"]][hit["_id"].to_s]
+            result = results[hit["_type"]][hit["_id"].to_s]
+            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
+              unless result.respond_to?(:search_hit)
+                result.define_singleton_method(:search_hit) do
+                  hit
+                end
+              end
+
+              if hit["highlight"] && !result.respond_to?(:search_highlights)
+                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                result.define_singleton_method(:search_highlights) do
+                  highlights
+                end
+              end
+            end
+            result
           end.compact
         else
           hits.map do |hit|
@@ -81,10 +96,6 @@ module Searchkick
       end
     end
 
-    def facets
-      response["facets"]
-    end
-
     def aggregations
       response["aggregations"]
     end
@@ -116,8 +127,14 @@ module Searchkick
       klass.model_name
     end
 
-    def entry_name
-      model_name.human.downcase
+    def entry_name(options = {})
+      if options.empty?
+        # backward compatibility
+        model_name.human.downcase
+      else
+        default = options[:count] == 1 ? model_name.human : model_name.human.pluralize
+        model_name.human(options.reverse_merge(default: default))
+      end
     end
 
     def total_count
@@ -173,6 +190,10 @@ module Searchkick
       @response["hits"]["hits"]
     end
 
+    def misspellings?
+      @options[:misspellings]
+    end
+
     private
 
     def results_query(records, hits)
@@ -181,7 +202,11 @@ module Searchkick
       if options[:includes]
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
-            records.preload(options[:includes])
+            if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
+              records.eager_load(options[:includes])
+            else
+              records.preload(options[:includes])
+            end
           else
             records.includes(options[:includes])
           end

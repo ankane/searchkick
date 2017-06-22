@@ -12,6 +12,8 @@ class OrderTest < Minitest::Test
   end
 
   def test_order_id
+    skip if cequel?
+
     store_names ["Product A", "Product B"]
     product_a = Product.where(name: "Product A").first
     product_b = Product.where(name: "Product B").first
@@ -29,12 +31,12 @@ class OrderTest < Minitest::Test
 
   def test_order_ignore_unmapped
     skip unless elasticsearch_below50?
-    assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}
+    assert_order "product", [], order: {not_mapped: {ignore_unmapped: true}}, conversions: false
   end
 
   def test_order_unmapped_type
     skip if elasticsearch_below50?
-    assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
+    assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}, conversions: false
   end
 
   def test_order_array
