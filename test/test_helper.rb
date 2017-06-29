@@ -339,6 +339,10 @@ else
     t.string :type
   end
 
+  ActiveRecord::Migration.create_table :skus, id: :uuid do |t|
+    t.string :name
+  end
+
   class Product < ActiveRecord::Base
     belongs_to :store
   end
@@ -360,6 +364,9 @@ else
   end
 
   class Cat < Animal
+  end
+
+  class Sku < ActiveRecord::Base
   end
 end
 
@@ -475,6 +482,14 @@ class Animal
     index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
     callbacks: defined?(ActiveJob) ? :async : true
     # wordnet: true
+end
+
+class Sku
+  searchkick \
+    text_start: [:name],
+    suggest: [:name],
+    index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
+    callbacks: defined?(ActiveJob) ? :async : true
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
