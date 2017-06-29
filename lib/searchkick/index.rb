@@ -420,14 +420,23 @@ module Searchkick
       if scope.respond_to?(:primary_key)
         # TODO expire Redis key
         primary_key = scope.primary_key
-        starting_id = scope.minimum(primary_key) || 0
-        max_id = scope.maximum(primary_key) || 0
-        batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
-        batches_count.times do |i|
-          batch_id = i + 1
-          min_id = starting_id + (i * batch_size)
-          bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+
+        if %i(integer float decimal).include?(scope.column_for_attribute(primary_key).sql_type_metadata)
+          starting_id = scope.minimum(primary_key) || 0
+          max_id = scope.maximum(primary_key) || 0
+          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
+
+          batches_count.times do |i|
+            batch_id = i + 1
+            min_id = starting_id + (i * batch_size)
+            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+          end
+        else
+          batch_id = 1
+          scope.in_batches(of: batch_size).each do |batch|
+            bulk_reindex_job scope, batch_id, record_ids: batch.pluck(primary_key)
+          end
         end
       else
         batch_id = 1

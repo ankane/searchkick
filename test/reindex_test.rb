@@ -43,8 +43,12 @@ class ReindexTest < Minitest::Test
     skip if !defined?(ActiveJob)
 
     Sku.create(id: SecureRandom.hex, name: "Test")
-
     reindex = Sku.reindex(async: true)
+    assert_search "sku", [], conversions: false
+
+    index = Searchkick::Index.new(reindex[:index_name])
+    index.refresh
+    assert_equal 1, index.total_docs
   end
 
   def test_refresh_interval

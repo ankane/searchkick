@@ -111,6 +111,12 @@ if defined?(Mongoid)
 
   class Cat < Animal
   end
+
+  class Sku
+    include Mongoid::Document
+
+    field :name
+  end
 elsif defined?(NoBrainer)
   NoBrainer.configure do |config|
     config.app_name = :searchkick
@@ -170,6 +176,13 @@ elsif defined?(NoBrainer)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include NoBrainer::Document
+
+    field :id,   type: String
+    field :name, type: String
   end
 elsif defined?(Cequel)
   cequel =
@@ -250,6 +263,13 @@ elsif defined?(Cequel)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include Cequel::Record
+
+    key :id, :uuid
+    column :name, :text
   end
 
   [Product, Store, Region, Speaker, Animal].each(&:synchronize_schema)
@@ -487,7 +507,6 @@ end
 class Sku
   searchkick \
     text_start: [:name],
-    suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
     callbacks: defined?(ActiveJob) ? :async : true
 end
@@ -508,6 +527,7 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Sku.destroy_all
   end
 
   protected
