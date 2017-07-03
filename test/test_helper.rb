@@ -505,10 +505,7 @@ class Animal
 end
 
 class Sku
-  searchkick \
-    text_start: [:name],
-    index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
-    callbacks: defined?(ActiveJob) ? :async : true
+  searchkick callbacks: defined?(ActiveJob) ? :async : true
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
