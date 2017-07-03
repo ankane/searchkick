@@ -433,8 +433,9 @@ module Searchkick
             bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
           end
         else
-          batch_id = 1
-          scope.in_batches(of: batch_size).each do |batch|
+          scope.in_batches(of: batch_size).each_with_index do |batch, i|
+            batch_id = i + 1
+
             bulk_reindex_job scope, batch_id, record_ids: batch.pluck(primary_key)
           end
         end
