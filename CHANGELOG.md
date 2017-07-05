@@ -1,3 +1,30 @@
+## 2.3.1 [unreleased]
+
+- Added `conversions_term` option
+- Added support for passing fields to `suggest` option
+- Fixed `page_view_entries` for Kaminari
+
+## 2.3.0
+
+- Fixed analyzer on dynamically mapped fields
+- Fixed error with `similar` method and `_all` field
+- Throw error when fields are needed
+- Added `queue_name` option
+- No longer require synonyms to be lowercase
+
+## 2.2.1
+
+- Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
+- Added `load: {dumpable: true}` option
+- Added `index_suffix` option
+- Accept string for `exclude` option
+
+## 2.2.0
+
+- Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
+- Fixed issue with `_all` field in `searchable`
+- Fixed `exclude` option with `word_start`
+
 ## 2.1.1
 
 - Fixed duplicate notifications
@@ -41,6 +68,10 @@ Breaking changes
 - Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
 - Invalid options now throw an `ArgumentError`
+- The `query` and `json` options have been removed in favor of `body`
+- The `include` option has been removed in favor of `includes`
+- The `personalize` option has been removed in favor of `boost_where`
+- The `partial` option has been removed in favor of `operator`
 - Renamed `select_v2` to `select` (legacy `select` no longer available)
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`

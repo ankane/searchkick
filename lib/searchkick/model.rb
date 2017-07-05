@@ -21,8 +21,8 @@ module Searchkick
         class_variable_set :@@searchkick_klass, self
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] ||
-          (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env].compact.join("_") }) ||
-          [options[:index_prefix], model_name.plural, Searchkick.env].compact.join("_")
+          (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }) ||
+          [options[:index_prefix], model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
 
         define_model_callbacks :index
         before_index options[:before_index] if options[:before_index]

@@ -33,7 +33,7 @@ module Searchkick
           # sort
           hits.map do |hit|
             result = results[hit["_type"]][hit["_id"].to_s]
-            if result
+            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
               unless result.respond_to?(:search_hit)
                 result.define_singleton_method(:search_hit) do
                   hit
@@ -127,8 +127,14 @@ module Searchkick
       klass.model_name
     end
 
-    def entry_name
-      model_name.human.downcase
+    def entry_name(options = {})
+      if options.empty?
+        # backward compatibility
+        model_name.human.downcase
+      else
+        default = options[:count] == 1 ? model_name.human : model_name.human.pluralize
+        model_name.human(options.reverse_merge(default: default))
+      end
     end
 
     def total_count

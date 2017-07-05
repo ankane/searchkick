@@ -1,9 +1,15 @@
 require_relative "test_helper"
 
 class IndexTest < Minitest::Test
+  def setup
+    super
+    Region.destroy_all
+  end
+
   def test_clean_indices
-    old_index = Searchkick::Index.new("products_test_20130801000000000")
-    different_index = Searchkick::Index.new("items_test_20130801000000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000000")
+    different_index = Searchkick::Index.new("items_test#{suffix}_20130801000000000")
 
     old_index.delete if old_index.exists?
     different_index.delete if different_index.exists?
@@ -20,7 +26,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_clean_indices_old_format
-    old_index = Searchkick::Index.new("products_test_20130801000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000")
     old_index.create
 
     Product.searchkick_index.clean_indices
@@ -127,8 +134,20 @@ class IndexTest < Minitest::Test
 
   def test_large_value
     skip if nobrainer?
+    large_value = 1000.times.map { "hello" }.join(" ")
+    store [{name: "Product A", text: large_value}], Region
+    assert_search "product", ["Product A"], {}, Region
+    assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
+    assert_search "hello", ["Product A"], {}, Region
+  end
+
+  def test_very_large_value
+    skip if nobrainer? || elasticsearch_below22?
     large_value = 10000.times.map { "hello" }.join(" ")
-    store [{name: "Product A", alt_description: large_value}]
-    assert_search "product", ["Product A"]
+    store [{name: "Product A", text: large_value}], Region
+    assert_search "product", ["Product A"], {}, Region
+    assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
+    # values that exceed ignore_above are not included in _all field :(
+    # assert_search "hello", ["Product A"], {}, Region
   end
 end

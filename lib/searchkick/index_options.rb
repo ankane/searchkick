@@ -25,7 +25,7 @@ module Searchkick
             }
           end
 
-        keyword_mapping[:ignore_above] = (options[:ignore_above] || 256) unless below22
+        keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
 
         settings = {
           analysis: {
@@ -167,7 +167,7 @@ module Searchkick
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }
+            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }.map(&:downcase)
           }
           # choosing a place for the synonym filter when stemming is not easy
           # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
@@ -227,6 +227,10 @@ module Searchkick
 
         word = options[:word] != false && (!options[:match] || options[:match] == :word)
 
+        mapping_options[:searchable].delete("_all")
+
+        analyzed_field_options = {type: default_type, index: "analyzed", analyzer: default_analyzer}
+
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
@@ -238,7 +242,7 @@ module Searchkick
 
           if !options[:searchable] || mapping_options[:searchable].include?(field)
             if word
-              fields["analyzed"] = {type: default_type, index: "analyzed", analyzer: default_analyzer}
+              fields["analyzed"] = analyzed_field_options
 
               if mapping_options[:highlight].include?(field)
                 fields["analyzed"][:term_vector] = "with_positions_offsets"
@@ -286,26 +290,24 @@ module Searchkick
           dynamic_fields["{name}"] = {type: default_type, index: "no"}
         end
 
-        dynamic_fields["{name}"][:ignore_above] = (options[:ignore_above] || 256) unless below22
-
         unless options[:searchable]
           if options[:match] && options[:match] != :word
             dynamic_fields[options[:match]] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
           end
 
           if word
-            dynamic_fields["analyzed"] = {type: default_type, index: "analyzed"}
+            dynamic_fields["analyzed"] = analyzed_field_options
           end
         end
 
         # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
-        all_enabled = !options[:searchable] || options[:searchable].to_a.include?("_all")
+        all_enabled = !options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all")
 
         mappings = {
           _default_: {
-            _all: all_enabled ? {type: default_type, index: "analyzed", analyzer: default_analyzer} : {enabled: false},
+            _all: all_enabled ? analyzed_field_options : {enabled: false},
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285

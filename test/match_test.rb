@@ -161,19 +161,34 @@ class MatchTest < Minitest::Test
 
   # butter
 
-  def test_butter
+  def test_exclude_butter
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
   end
 
-  def test_butter_word_start
+  def test_exclude_butter_word_start
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"], match: :word_start
   end
 
-  def test_butter_exact
+  def test_exclude_butter_exact
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", [], exclude: ["peanut butter"], match: :exact
+  end
+
+  def test_exclude_same_exact
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "Butter Tub", [], exclude: ["Butter Tub"], match: :exact
+  end
+
+  def test_exclude_egg_word_start
+    store_names ["eggs", "eggplant"]
+    assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
+  end
+
+  def test_exclude_string
+    store_names ["Butter Tub", "Peanut Butter Tub"]
+    assert_search "butter", ["Butter Tub"], exclude: "peanut butter"
   end
 
   # other
@@ -226,6 +241,11 @@ class MatchTest < Minitest::Test
   def test_phrase_order
     store_names ["Wheat Bread", "Whole Wheat Bread"]
     assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
+  end
+
+  def test_dynamic_fields
+    store_names ["Red Bull"], Speaker
+    assert_search "redbull", ["Red Bull"], {fields: [:name]}, Speaker
   end
 
   def test_unsearchable

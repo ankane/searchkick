@@ -6,7 +6,7 @@ module Searchkick
       model = class_name.constantize
 
       limit = model.searchkick_index.options[:batch_size] || 1000
-      record_ids = Searchkick::ReindexQueue.new(model.searchkick_index.name).reserve(limit: limit)
+      record_ids = model.searchkick_index.reindex_queue.reserve(limit: limit)
       if record_ids.any?
         Searchkick::ProcessBatchJob.perform_later(
           class_name: model.name,

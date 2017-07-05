@@ -27,8 +27,6 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
-**Searchkick 2.0 was just released!** See [notable changes](#200).
-
 ## Contents
 
 - [Getting Started](#getting-started)
@@ -294,12 +292,16 @@ end
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
-  # or
-  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
+
+To read synonyms from a file, use:
+
+```ruby
+synonyms: -> { CSV.read("/some/path/synonyms.csv") }
+```
 
 For directional synonyms, use:
 
@@ -388,7 +390,7 @@ You can map queries and terms to exclude with:
 ```ruby
 exclude_queries = {
   "butter" => ["peanut butter"],
-  "cream" => ["ice cream"]
+  "cream" => ["ice cream", "whipped cream"]
 }
 
 Product.search query, exclude: exclude_queries[query]
@@ -650,7 +652,7 @@ end
 Reindex and search with:
 
 ```ruby
-Movie.search "jurassic pa", match: :word_start
+Movie.search "jurassic pa", fields: [:title], match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -1050,7 +1052,7 @@ Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](lib/searchkick/index.rb#L209).
+See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/31780ddac7a89eab1e0552a32b403f2040a37931/lib/searchkick/index_options.rb#L32).
 
 ## Deployment
 
@@ -1584,6 +1586,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Use a different term for boosting by conversions [master]
+
+```ruby
+Product.search("banana", conversions_term: "organic banana")
+```
+
 Multiple conversion fields
 
 ```ruby
@@ -1625,10 +1633,16 @@ Set a lower timeout for searches
 Searchkick.search_timeout = 3
 ```
 
-Change the search method name in `config/initializers/searchkick.rb`
+Change the search method name
 
 ```ruby
 Searchkick.search_method_name = :lookup
+```
+
+Change search queue name
+
+```ruby
+Searchkick.queue_name = :search_reindex
 ```
 
 Eager load associations
@@ -1712,24 +1726,103 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 ## Testing
 
-This section could use some love.
+For performance, only enable Searchkick callbacks for the tests that need it.
+
+### Minitest
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+# reindex models
+Product.reindex
+
+# and disable callbacks
+Searchkick.disable_callbacks
+```
+
+And use:
+
+```ruby
+class ProductTest < Minitest::Test
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
 
 ### RSpec
 
+Add to your `spec/spec_helper.rb`:
+
 ```ruby
-describe Product do
-  it "searches" do
+RSpec.configure do |config|
+  config.before(:suite) do
+    # reindex models
     Product.reindex
-    # test goes here...
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.enable_callbacks
+    example.run
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+describe Product, search: true do
+  it "searches" do
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
   end
 end
 ```
 
 ### Factory Girl
 
+Use a trait and an after `create` hook for each indexed model:
+
 ```ruby
-product = FactoryGirl.create(:product)
-product.reindex(refresh: true)
+FactoryGirl.define do
+  factory :product do
+    # ...
+
+    # Note: This should be the last trait in the list so `reindex` is called
+    # after all the other callbacks complete.
+    trait :reindex do
+      after(:create) do |product, _evaluator|
+        product.reindex(refresh: true)
+      end
+    end
+  end
+end
+
+# use it
+FactoryGirl.create(:product, :some_trait, :reindex, some_attribute: "foo")
+```
+
+### Parallel Tests
+
+Set:
+
+```ruby
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 ```
 
 ## Multi-Tenancy
@@ -1751,6 +1844,10 @@ Important notes are listed below.
 - Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
 - Removed facets, legacy options, and legacy methods
 - Invalid options now throw an `ArgumentError`
+- The `query` and `json` options have been removed in favor of `body`
+- The `include` option has been removed in favor of `includes`
+- The `personalize` option has been removed in favor of `boost_where`
+- The `partial` option has been removed in favor of `operator`
 - Renamed `select_v2` to `select` (legacy `select` no longer available)
 - The `_all` field is disabled if `searchable` option is used (for performance)
 - The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
@@ -1788,6 +1885,15 @@ If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend 
 Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
 
 ## Elasticsearch Gotchas
+
+### Consistency
+
+Elasticsearch is eventually consistent, meaning it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
+
+```ruby
+product.save!
+Product.search_index.refresh
+```
 
 ### Inconsistent Scores
 
