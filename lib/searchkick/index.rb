@@ -422,7 +422,7 @@ module Searchkick
         primary_key = scope.primary_key
 
 
-        if %i(integer float decimal).include?(scope.column_for_attribute(primary_key).sql_type_metadata)
+        if scope.minimum(primary_key).is_a?(Numeric)
           starting_id = scope.minimum(primary_key) || 0
           max_id = scope.maximum(primary_key) || 0
           batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
@@ -433,10 +433,10 @@ module Searchkick
             bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
           end
         else
-          scope.in_batches(of: batch_size).each_with_index do |batch, i|
+          scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
             batch_id = i + 1
 
-            bulk_reindex_job scope, batch_id, record_ids: batch.pluck(primary_key)
+            bulk_reindex_job scope, batch_id, record_ids: batch.map { |record| record.id.to_s }
           end
         end
       else
