@@ -1185,6 +1185,8 @@ class Product < ActiveRecord::Base
 end
 ```
 
+**Note:** Non-string fields will always be filterable and should not be passed to this option.
+
 ### Parallel Reindexing
 
 For large data sets, you can use background jobs to parallelize reindexing.

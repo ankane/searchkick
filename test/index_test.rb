@@ -132,6 +132,11 @@ class IndexTest < Minitest::Test
     assert_search "*", [], where: {alt_description: "Hello"}
   end
 
+  def test_filterable_non_string
+    store [{name: "Product A", store_id: 1}]
+    assert_search "*", ["Product A"], where: {store_id: 1}
+  end
+
   def test_large_value
     skip if nobrainer?
     large_value = 1000.times.map { "hello" }.join(" ")
