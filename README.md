@@ -1565,7 +1565,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Use a different term for boosting by conversions [master]
+Use a different term for boosting by conversions
 
 ```ruby
 Product.search("banana", conversions_term: "organic banana")

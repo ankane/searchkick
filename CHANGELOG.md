@@ -1,4 +1,4 @@
-## 2.3.1 [unreleased]
+## 2.3.1
 
 - Added support for `reindex(async: true)` for non-numeric primary keys
 - Added `conversions_term` option
