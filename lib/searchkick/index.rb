@@ -421,10 +421,11 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
-
-        if scope.minimum(primary_key).is_a?(Numeric)
-          starting_id = scope.minimum(primary_key) || 0
-          max_id = scope.maximum(primary_key) || 0
+        starting_id = scope.minimum(primary_key)
+        if starting_id.nil?
+          # no records, do nothing
+        elsif starting_id.is_a?(Numeric)
+          max_id = scope.maximum(primary_key)
           batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
           batches_count.times do |i|
