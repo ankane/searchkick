@@ -111,6 +111,12 @@ if defined?(Mongoid)
 
   class Cat < Animal
   end
+
+  class Sku
+    include Mongoid::Document
+
+    field :name
+  end
 elsif defined?(NoBrainer)
   NoBrainer.configure do |config|
     config.app_name = :searchkick
@@ -170,6 +176,13 @@ elsif defined?(NoBrainer)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include NoBrainer::Document
+
+    field :id,   type: String
+    field :name, type: String
   end
 elsif defined?(Cequel)
   cequel =
@@ -250,6 +263,13 @@ elsif defined?(Cequel)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include Cequel::Record
+
+    key :id, :uuid
+    column :name, :text
   end
 
   [Product, Store, Region, Speaker, Animal].each(&:synchronize_schema)
@@ -339,6 +359,10 @@ else
     t.string :type
   end
 
+  ActiveRecord::Migration.create_table :skus, id: :uuid do |t|
+    t.string :name
+  end
+
   class Product < ActiveRecord::Base
     belongs_to :store
   end
@@ -360,6 +384,9 @@ else
   end
 
   class Cat < Animal
+  end
+
+  class Sku < ActiveRecord::Base
   end
 end
 
@@ -477,6 +504,10 @@ class Animal
     # wordnet: true
 end
 
+class Sku
+  searchkick callbacks: defined?(ActiveJob) ? :async : true
+end
+
 Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
@@ -493,6 +524,7 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Sku.destroy_all
   end
 
   protected
