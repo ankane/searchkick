@@ -506,7 +506,7 @@ module Searchkick
         elsif all && default_match == :phrase
           ["_all.phrase"]
         else
-          raise ArgumentError, "Must specify fields"
+          raise ArgumentError, "Must specify fields to search"
         end
       [boost_fields, fields]
     end
