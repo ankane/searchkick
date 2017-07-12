@@ -296,7 +296,7 @@ module Searchkick
           "{name}" => keyword_mapping
         }
 
-        if all
+        if below60 && all
           dynamic_fields["{name}"][:include_in_all] = !options[:searchable]
         end
 
