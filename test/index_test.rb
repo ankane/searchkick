@@ -143,7 +143,11 @@ class IndexTest < Minitest::Test
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
-    assert_search "hello", ["Product A"], {}, Region
+
+    # needs fields for ES 6
+    if elasticsearch_below60?
+      assert_search "hello", ["Product A"], {}, Region
+    end
   end
 
   def test_very_large_value

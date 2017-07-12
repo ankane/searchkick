@@ -489,7 +489,8 @@ module Searchkick
 
     def set_fields
       boost_fields = {}
-      fields = options[:fields] || searchkick_options[:searchable]
+      fields = options[:fields] || searchkick_options[:searchable] || searchkick_options[:default_fields]
+      all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : below60?
       default_match = options[:match] || searchkick_options[:match] || :word
       fields =
         if fields
@@ -500,9 +501,9 @@ module Searchkick
             boost_fields[field] = boost.to_f if boost
             field
           end
-        elsif default_match == :word
+        elsif all && default_match == :word
           ["_all"]
-        elsif default_match == :phrase
+        elsif all && default_match == :phrase
           ["_all.phrase"]
         else
           raise ArgumentError, "Must specify fields"
@@ -830,7 +831,7 @@ module Searchkick
         if value.any?(&:nil?)
           {bool: {should: [term_filters(field, nil), term_filters(field, value.compact)]}}
         else
-          {in: {field => value}}
+          {terms: {field => value}}
         end
       elsif value.nil?
         {bool: {must_not: {exists: {field: field}}}}
@@ -904,6 +905,10 @@ module Searchkick
 
     def below50?
       Searchkick.server_below?("5.0.0-alpha1")
+    end
+
+    def below60?
+      Searchkick.server_below?("6.0.0-alpha1")
     end
   end
 end

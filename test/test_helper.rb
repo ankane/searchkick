@@ -42,6 +42,10 @@ def elasticsearch_below50?
   Searchkick.server_below?("5.0.0-alpha1")
 end
 
+def elasticsearch_below60?
+  Searchkick.server_below?("6.0.0-alpha1")
+end
+
 def elasticsearch_below22?
   Searchkick.server_below?("2.2.0")
 end
@@ -444,6 +448,7 @@ end
 
 class Store
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     routing: true,
     merge_mappings: true,
     mappings: {
@@ -465,6 +470,7 @@ end
 
 class Region
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     geo_shape: {
       territory: {tree: "quadtree", precision: "10km"}
     }
@@ -482,6 +488,7 @@ end
 
 class Speaker
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     conversions: ["conversions_a", "conversions_b"]
 
   attr_accessor :conversions_a, :conversions_b, :aisle
@@ -497,6 +504,7 @@ end
 
 class Animal
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },

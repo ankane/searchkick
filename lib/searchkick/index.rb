@@ -290,7 +290,7 @@ module Searchkick
     # other
 
     def tokens(text, options = {})
-      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map { |t| t["token"] }
+      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
     end
 
     def klass_document_type(klass)

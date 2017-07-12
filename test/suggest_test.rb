@@ -69,7 +69,7 @@ class SuggestTest < Minitest::Test
 
   def test_multiple_models
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
-    assert_equal "how big is a tiger shark", Searchkick.search("How Big is a Tigre Shar", suggest: [:name]).suggestions.first
+    assert_equal "how big is a tiger shark", Searchkick.search("How Big is a Tigre Shar", suggest: [:name], fields: [:name]).suggestions.first
   end
 
   def test_multiple_models_no_fields
