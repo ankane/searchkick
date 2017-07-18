@@ -629,7 +629,7 @@ end
 Reindex and search with:
 
 ```ruby
-Movie.search "jurassic pa", match: :word_start
+Movie.search "jurassic pa", fields: [:title], match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -1177,13 +1177,15 @@ end
 
 ### Filterable Fields
 
-By default, all fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
+By default, all string fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick filterable: [:store_id]
+  searchkick filterable: [:brand]
 end
 ```
+
+**Note:** Non-string fields will always be filterable and should not be passed to this option.
 
 ### Parallel Reindexing
 
@@ -1561,6 +1563,12 @@ Prefix the index name
 class Product < ActiveRecord::Base
   searchkick index_prefix: "datakick"
 end
+```
+
+Use a different term for boosting by conversions
+
+```ruby
+Product.search("banana", conversions_term: "organic banana")
 ```
 
 Multiple conversion fields

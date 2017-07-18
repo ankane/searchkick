@@ -127,8 +127,14 @@ module Searchkick
       klass.model_name
     end
 
-    def entry_name
-      model_name.human.downcase
+    def entry_name(options = {})
+      if options.empty?
+        # backward compatibility
+        model_name.human.downcase
+      else
+        default = options[:count] == 1 ? model_name.human : model_name.human.pluralize
+        model_name.human(options.reverse_merge(default: default))
+      end
     end
 
     def total_count

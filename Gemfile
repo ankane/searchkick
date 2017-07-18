@@ -10,3 +10,7 @@ gem "typhoeus"
 gem "activejob"
 gem "redis"
 gem "connection_pool"
+
+# kaminari
+gem "actionpack"
+gem "kaminari"

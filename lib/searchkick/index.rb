@@ -290,7 +290,7 @@ module Searchkick
     # other
 
     def tokens(text, options = {})
-      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map { |t| t["token"] }
+      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
     end
 
     def klass_document_type(klass)
@@ -420,14 +420,25 @@ module Searchkick
       if scope.respond_to?(:primary_key)
         # TODO expire Redis key
         primary_key = scope.primary_key
-        starting_id = scope.minimum(primary_key) || 0
-        max_id = scope.maximum(primary_key) || 0
-        batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
-        batches_count.times do |i|
-          batch_id = i + 1
-          min_id = starting_id + (i * batch_size)
-          bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+        starting_id = scope.minimum(primary_key)
+        if starting_id.nil?
+          # no records, do nothing
+        elsif starting_id.is_a?(Numeric)
+          max_id = scope.maximum(primary_key)
+          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
+
+          batches_count.times do |i|
+            batch_id = i + 1
+            min_id = starting_id + (i * batch_size)
+            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+          end
+        else
+          scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
+            batch_id = i + 1
+
+            bulk_reindex_job scope, batch_id, record_ids: batch.map { |record| record.id.to_s }
+          end
         end
       else
         batch_id = 1

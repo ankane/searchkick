@@ -132,13 +132,22 @@ class IndexTest < Minitest::Test
     assert_search "*", [], where: {alt_description: "Hello"}
   end
 
+  def test_filterable_non_string
+    store [{name: "Product A", store_id: 1}]
+    assert_search "*", ["Product A"], where: {store_id: 1}
+  end
+
   def test_large_value
     skip if nobrainer?
     large_value = 1000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
-    assert_search "hello", ["Product A"], {}, Region
+
+    # needs fields for ES 6
+    if elasticsearch_below60?
+      assert_search "hello", ["Product A"], {}, Region
+    end
   end
 
   def test_very_large_value

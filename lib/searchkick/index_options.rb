@@ -11,6 +11,7 @@ module Searchkick
       else
         below22 = Searchkick.server_below?("2.2.0")
         below50 = Searchkick.server_below?("5.0.0-alpha1")
+        below60 = Searchkick.server_below?("6.0.0-alpha1")
         default_type = below50 ? "string" : "text"
         default_analyzer = :searchkick_index
         keyword_mapping =
@@ -24,6 +25,10 @@ module Searchkick
               type: "keyword"
             }
           end
+
+        all = options.key?(:_all) ? options[:_all] : below60
+        index_true_value = below50 ? "analyzed" : true
+        index_false_value = below50 ? "no" : false
 
         keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
 
@@ -157,6 +162,11 @@ module Searchkick
           settings[:similarity] = {default: {type: options[:similarity]}}
         end
 
+        unless below60
+          settings[:mapping] ||= {}
+          settings[:mapping][:single_type] = false
+        end
+
         settings.deep_merge!(options[:settings] || {})
 
         # synonyms
@@ -229,13 +239,13 @@ module Searchkick
 
         mapping_options[:searchable].delete("_all")
 
-        analyzed_field_options = {type: default_type, index: "analyzed", analyzer: default_analyzer}
+        analyzed_field_options = {type: default_type, index: index_true_value, analyzer: default_analyzer}
 
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
           if options.key?(:filterable) && !mapping_options[:filterable].include?(field)
-            fields[field] = {type: default_type, index: "no"}
+            fields[field] = {type: default_type, index: index_false_value}
           else
             fields[field] = keyword_mapping
           end
@@ -251,7 +261,7 @@ module Searchkick
 
             mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
               if options[:match] == type || f.include?(field)
-                fields[type] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{type}_index"}
+                fields[type] = {type: default_type, index: index_true_value, analyzer: "searchkick_#{type}_index"}
               end
             end
           end
@@ -283,16 +293,20 @@ module Searchkick
           # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
           # however, we can include the not_analyzed field in _all
           # and the _all index analyzer will take care of it
-          "{name}" => keyword_mapping.merge(include_in_all: !options[:searchable])
+          "{name}" => keyword_mapping
         }
 
+        if below60 && all
+          dynamic_fields["{name}"][:include_in_all] = !options[:searchable]
+        end
+
         if options.key?(:filterable)
-          dynamic_fields["{name}"] = {type: default_type, index: "no"}
+          dynamic_fields["{name}"] = {type: default_type, index: index_false_value}
         end
 
         unless options[:searchable]
           if options[:match] && options[:match] != :word
-            dynamic_fields[options[:match]] = {type: default_type, index: "analyzed", analyzer: "searchkick_#{options[:match]}_index"}
+            dynamic_fields[options[:match]] = {type: default_type, index: index_true_value, analyzer: "searchkick_#{options[:match]}_index"}
           end
 
           if word
@@ -303,11 +317,8 @@ module Searchkick
         # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
-        all_enabled = !options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all")
-
         mappings = {
           _default_: {
-            _all: all_enabled ? analyzed_field_options : {enabled: false},
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285
@@ -321,7 +332,14 @@ module Searchkick
               }
             ]
           }
-        }.deep_merge(options[:mappings] || {})
+        }
+
+        if below60
+          all_enabled = all && (!options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all"))
+          mappings[:_default_][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
+        end
+
+        mappings = mappings.deep_merge(options[:mappings] || {})
       end
 
       {
