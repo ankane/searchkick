@@ -6,3 +6,7 @@ gemspec path: "../../"
 gem "mongoid", "~> 6.0.0"
 gem "activejob"
 gem "redis"
+
+# kaminari
+gem "actionpack"
+gem "kaminari"
