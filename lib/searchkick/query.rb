@@ -683,7 +683,7 @@ module Searchkick
         end
 
         where = {}
-        where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
+        where = where_options_without(field) unless options[:smart_aggs] == false
         agg_filters = where_filters(where.merge(agg_options[:where] || {}))
         if agg_filters.any?
           payload[:aggs][field] = {
@@ -698,6 +698,22 @@ module Searchkick
           }
         end
       end
+    end
+
+    def where_options_without(field)
+      p = Proc.new do |key, hash, dup=true|
+        new_hash = dup ? hash.deep_dup : hash
+        if new_hash.present?
+          if new_hash.is_a?(Array)
+            new_hash.each{|h| p.call(key, h, false)}
+          elsif new_hash.is_a?(Hash)
+            [:or, :_or, :_and].each{|ext_key| p.call(key, new_hash[ext_key], false)}
+            new_hash.delete(key)
+          end
+        end
+        new_hash
+      end
+      p.call(field, options[:where] || {})
     end
 
     def set_filters(payload, filters)
