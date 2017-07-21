@@ -1,6 +1,7 @@
 ## 2.3.2 [unreleased]
 
 - Added `_all` and `default_fields` options
+- Added global `index_prefix` option
 
 ## 2.3.1
 
