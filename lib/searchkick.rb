@@ -104,8 +104,14 @@ module Searchkick
   def self.multi_search(queries)
     if queries.any?
       responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
+
       queries.each_with_index do |query, i|
-        query.handle_response(responses[i])
+        if query.misspellings_below && responses[i]["hits"]["total"] < query.misspellings_below
+          query.send(:prepare)
+          query.execute
+        else
+          query.handle_response(responses[i])
+        end
       end
     end
     queries
