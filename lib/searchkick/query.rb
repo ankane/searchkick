@@ -4,7 +4,7 @@ module Searchkick
 
     @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
 
-    attr_reader :klass, :term, :options
+    attr_reader :klass, :term, :options, :misspellings_below
     attr_accessor :body
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
