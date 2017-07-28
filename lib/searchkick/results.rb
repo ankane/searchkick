@@ -198,17 +198,23 @@ module Searchkick
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
-
       if options[:includes]
+
+        included_relations = if options[:includes].is_a? Hash
+          options[:includes][records]
+        else
+          options[:includes]
+        end
+
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
             if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
-              records.eager_load(options[:includes])
+              records.eager_load(included_relations)
             else
-              records.preload(options[:includes])
+              records.preload(included_relations)
             end
           else
-            records.includes(options[:includes])
+            records.includes(included_relations)
           end
       end
 

@@ -84,6 +84,13 @@ if defined?(Mongoid)
     field :alt_description
   end
 
+  class Discount
+    include Mongoid::Document
+    belongs_to :product
+
+    field :name
+  end
+
   class Store
     include Mongoid::Document
     has_many :products
@@ -146,6 +153,16 @@ elsif defined?(NoBrainer)
 
     belongs_to :store, validates: false
   end
+
+  class Discount
+    include NoBrainer::Document
+
+    field :id, type: Object
+    field :name, type: String
+
+    belongs_to :product, validates: false
+  end
+
 
   class Store
     include NoBrainer::Document
@@ -218,6 +235,13 @@ elsif defined?(Cequel)
     column :description, :text
     column :alt_description, :text
     column :created_at, :timestamp
+  end
+
+  class Discount
+    include Cequel::Record
+
+    key :id, :uuid, auto: true
+    column :name, :text
   end
 
   class Store
@@ -345,6 +369,11 @@ else
     t.timestamps null: true
   end
 
+  ActiveRecord::Migration.create_table :discounts do |t|
+    t.string :name
+    t.integer :product_id
+  end
+
   ActiveRecord::Migration.create_table :stores do |t|
     t.string :name
   end
@@ -369,6 +398,12 @@ else
 
   class Product < ActiveRecord::Base
     belongs_to :store
+
+    has_many :discounts
+  end
+
+  class Discount < ActiveRecord::Base
+    belongs_to :product
   end
 
   class Store < ActiveRecord::Base
@@ -440,6 +475,25 @@ class Product
   end
 
   def search_name
+    {
+      name: name
+    }
+  end
+end
+
+class Discount
+  searchkick \
+    searchable: [:name],
+    merge_mappings: true,
+    mappings: {
+      discount: {
+        properties: {
+          name: elasticsearch_below50? ? {type: "string", analyzer: "keyword"} : {type: "keyword"}
+        }
+      }
+    }
+
+  def search_data
     {
       name: name
     }
@@ -521,6 +575,7 @@ Product.reindex
 Product.reindex # run twice for both index paths
 Product.create!(name: "Set mapping")
 
+Discount.reindex
 Store.reindex
 Animal.reindex
 Speaker.reindex

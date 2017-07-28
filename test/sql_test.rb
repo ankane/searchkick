@@ -1,5 +1,4 @@
 require_relative "test_helper"
-
 class SqlTest < Minitest::Test
   def test_operator
     store_names ["Honey"]
@@ -194,5 +193,21 @@ class SqlTest < Minitest::Test
     skip unless defined?(ActiveRecord)
     store_names ["Product A"]
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
+  end
+
+  def test_includes_per_model
+    skip unless defined?(ActiveRecord)
+    store_names ["Product A"]
+    store_names ['Product A Discount'], Discount
+
+    associations = {Product => :store, Discount => :product}
+
+    result = Searchkick.search("product", fields: [:name],  index_name: [Product.search_index.name, Discount.search_index.name], includes: associations)
+
+    assert_equal 2, result.length
+
+    result.group_by(&:class).each_pair do |klass, records|
+      assert records.first.association(associations[klass]).loaded?
+    end
   end
 end
