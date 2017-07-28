@@ -872,6 +872,10 @@ module Searchkick
           }
         }
 
+        if value[:missing].present?
+          script_score[:field_value_factor].merge!({missing: value[:missing].to_f})
+        end
+
         {
           filter: {
             exists: {

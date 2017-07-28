@@ -114,6 +114,10 @@ class BoostTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: [:orders_count]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
+    assert_raises(Searchkick::InvalidQueryError) do
+      assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5}}
+    end
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
   end
 
   def test_boost_by_boost_mode_multiply
