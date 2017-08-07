@@ -1214,6 +1214,12 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
+You can also have Searchkick wait for reindexing to complete [master]
+
+```ruby
+Searchkick.reindex(async: {wait: true})
+```
+
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
 
 ```ruby
