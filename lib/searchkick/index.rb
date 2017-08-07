@@ -228,7 +228,8 @@ module Searchkick
       end
 
       # check if alias exists
-      if alias_exists?
+      alias_exists = alias_exists?
+      if alias_exists
         # import before promotion
         index.import_scope(scope, resume: resume, async: async, full: true) if import
 
@@ -246,6 +247,24 @@ module Searchkick
       end
 
       if async
+        if async.is_a?(Hash) && async[:wait]
+          puts "Created index: #{index.name}"
+          puts "Jobs queued. Waiting..."
+          loop do
+            sleep 3
+            status = Searchkick.reindex_status(index.name)
+            break if status[:completed]
+            puts "Batches left: #{status[:batches_left]}"
+          end
+          # already promoted if alias didn't exist
+          if alias_exists
+            puts "Jobs complete. Promoting..."
+            promote(index.name, update_refresh_interval: !refresh_interval.nil?)
+          end
+          clean_indices unless retain
+          puts "SUCCESS!"
+        end
+
         {index_name: index.name}
       else
         index.refresh

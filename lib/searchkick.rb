@@ -153,6 +153,8 @@ module Searchkick
         completed: batches_left == 0,
         batches_left: batches_left
       }
+    else
+      raise Searchkick::Error, "Redis not configured"
     end
   end
 
