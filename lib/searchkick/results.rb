@@ -198,13 +198,13 @@ module Searchkick
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
-      if options[:includes]
+      if (options[:includes] || options[:includes_per])
 
-        included_relations = if options[:includes].is_a? Hash
-          options[:includes][records]
-        else
-          options[:includes]
-        end
+
+        included_relations = []
+
+        included_relations << options[:includes] if options[:includes]
+        included_relations << options[:includes_per][records] if (options[:includes_per] && options[:includes_per][records])
 
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document

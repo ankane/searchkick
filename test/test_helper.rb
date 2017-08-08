@@ -87,6 +87,7 @@ if defined?(Mongoid)
   class Discount
     include Mongoid::Document
     belongs_to :product
+    belongs_to :store
 
     field :name
   end
@@ -161,6 +162,8 @@ elsif defined?(NoBrainer)
     field :name, type: String
 
     belongs_to :product, validates: false
+    belongs_to :store, validates: false
+
   end
 
 
@@ -372,6 +375,7 @@ else
   ActiveRecord::Migration.create_table :discounts do |t|
     t.string :name
     t.integer :product_id
+    t.integer :store_id
   end
 
   ActiveRecord::Migration.create_table :stores do |t|
@@ -404,6 +408,7 @@ else
 
   class Discount < ActiveRecord::Base
     belongs_to :product
+    belongs_to :store
   end
 
   class Store < ActiveRecord::Base
@@ -585,6 +590,7 @@ class Minitest::Test
   def setup
     Product.destroy_all
     Store.destroy_all
+    Discount.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
     Sku.destroy_all
