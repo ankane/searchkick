@@ -4,7 +4,7 @@ module Searchkick
 
     @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
 
-    attr_reader :klass, :term, :options, :misspellings_below
+    attr_reader :klass, :term, :options
     attr_accessor :body
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
@@ -79,7 +79,7 @@ module Searchkick
       @execute ||= begin
         begin
           response = execute_search
-          if below_misspellings_threshold?(response)
+          if retry_misspellings?(response)
             prepare
             response = execute_search
           end
@@ -159,10 +159,49 @@ module Searchkick
       @execute = Searchkick::Results.new(searchkick_klass, response, opts)
     end
 
-    def below_misspellings_threshold?(response)
+    def retry_misspellings?(response)
       @misspellings_below && response["hits"]["total"] < @misspellings_below
     end
-    
+
+    private
+
+    def handle_error(e)
+      status_code = e.message[1..3].to_i
+      if status_code == 404
+        raise MissingIndexError, "Index missing - run #{reindex_command}"
+      elsif status_code == 500 && (
+        e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
+        e.message.include?("No query registered for [multi_match]") ||
+        e.message.include?("[match] query does not support [cutoff_frequency]") ||
+        e.message.include?("No query registered for [function_score]")
+      )
+
+        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
+      elsif status_code == 400
+        if (
+          e.message.include?("bool query does not support [filter]") ||
+          e.message.include?("[bool] filter does not support [filter]")
+        )
+
+          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
+        elsif e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+          raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
+        else
+          raise InvalidQueryError, e.message
+        end
+      else
+        raise e
+      end
+    end
+
+    def reindex_command
+      searchkick_klass ? "#{searchkick_klass.name}.reindex" : "reindex"
+    end
+
+    def execute_search
+      Searchkick.client.search(params)
+    end
+
     def prepare
       boost_fields, fields = set_fields
 
@@ -450,45 +489,6 @@ module Searchkick
       @per_page = per_page
       @padding = padding
       @load = load
-    end
-
-    private
-
-    def handle_error(e)
-      status_code = e.message[1..3].to_i
-      if status_code == 404
-        raise MissingIndexError, "Index missing - run #{reindex_command}"
-      elsif status_code == 500 && (
-        e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
-        e.message.include?("No query registered for [multi_match]") ||
-        e.message.include?("[match] query does not support [cutoff_frequency]") ||
-        e.message.include?("No query registered for [function_score]")
-      )
-
-        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
-      elsif status_code == 400
-        if (
-          e.message.include?("bool query does not support [filter]") ||
-          e.message.include?("[bool] filter does not support [filter]")
-        )
-
-          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 2 or greater"
-        elsif e.message.include?("[multi_match] analyzer [searchkick_search] not found")
-          raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
-        else
-          raise InvalidQueryError, e.message
-        end
-      else
-        raise e
-      end
-    end
-
-    def reindex_command
-      searchkick_klass ? "#{searchkick_klass.name}.reindex" : "reindex"
-    end
-
-    def execute_search
-      Searchkick.client.search(params)
     end
 
     def set_fields

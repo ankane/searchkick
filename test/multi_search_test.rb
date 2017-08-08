@@ -21,10 +21,16 @@ class MultiSearchTest < Minitest::Test
   end
 
   def test_misspellings_below_unmet
-    store_names ["Product A"]
-    store_names ["Store A"], Store
-    stores = Store.search("Stre A", misspellings: { below: 2 }, execute: false)
-    Searchkick.multi_search([stores])
-    assert_equal ["Store A"], stores.map(&:name)
+    store_names ["abc", "abd", "aee"]
+    products = Product.search("abc", misspellings: {below: 2}, execute: false)
+    Searchkick.multi_search([products])
+    assert_equal ["abc"], products.map(&:name)
+  end
+
+  def test_misspellings_below_unmet_retry
+    store_names ["abc", "abd", "aee"]
+    products = Product.search("abc", misspellings: {below: 2}, execute: false)
+    Searchkick.multi_search([products], retry_misspellings: true)
+    assert_equal ["abc", "abd"], products.map(&:name)
   end
 end
