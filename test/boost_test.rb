@@ -117,8 +117,6 @@ class BoostTest < Minitest::Test
   end
 
   def test_boost_by_missing_field
-    skip if elasticsearch_below50?
-
     store [
       {name: "Tomato A"},
       {name: "Tomato B", orders_count: 10},
@@ -129,7 +127,13 @@ class BoostTest < Minitest::Test
       assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5}}
     end
 
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
+    if elasticsearch_below50?
+      assert_raises(ArgumentError) do
+        assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
+      end
+    else
+      assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
+    end
   end
 
   def test_boost_by_boost_mode_multiply
