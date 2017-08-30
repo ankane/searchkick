@@ -33,6 +33,7 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=5.0.1
       jdk: oraclejdk8
+  allow_failures:
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=6.0.0-alpha2
+      env: ELASTICSEARCH_VERSION=6.0.0-beta1
       jdk: oraclejdk8

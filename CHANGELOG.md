@@ -2,6 +2,8 @@
 
 - Added `_all` and `default_fields` options
 - Added global `index_prefix` option
+- Added `wait` option to async reindex
+- Raise error for `reindex_status` when Redis not configured
 
 ## 2.3.1
 

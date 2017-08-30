@@ -15,7 +15,13 @@ module Searchkick
     end
 
     def delete
-      client.indices.delete index: name
+      if !Searchkick.server_below?("6.0.0-alpha1") && alias_exists?
+        # can't call delete directly on aliases in ES 6
+        indices = client.indices.get_alias(name: name).keys
+        client.indices.delete index: indices
+      else
+        client.indices.delete index: name
+      end
     end
 
     def exists?
@@ -228,7 +234,8 @@ module Searchkick
       end
 
       # check if alias exists
-      if alias_exists?
+      alias_exists = alias_exists?
+      if alias_exists
         # import before promotion
         index.import_scope(scope, resume: resume, async: async, full: true) if import
 
@@ -246,6 +253,24 @@ module Searchkick
       end
 
       if async
+        if async.is_a?(Hash) && async[:wait]
+          puts "Created index: #{index.name}"
+          puts "Jobs queued. Waiting..."
+          loop do
+            sleep 3
+            status = Searchkick.reindex_status(index.name)
+            break if status[:completed]
+            puts "Batches left: #{status[:batches_left]}"
+          end
+          # already promoted if alias didn't exist
+          if alias_exists
+            puts "Jobs complete. Promoting..."
+            promote(index.name, update_refresh_interval: !refresh_interval.nil?)
+          end
+          clean_indices unless retain
+          puts "SUCCESS!"
+        end
+
         {index_name: index.name}
       else
         index.refresh

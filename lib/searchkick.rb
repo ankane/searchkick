@@ -8,6 +8,7 @@ require "searchkick/indexer"
 require "searchkick/reindex_queue"
 require "searchkick/results"
 require "searchkick/query"
+require "searchkick/multi_search"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
@@ -101,14 +102,8 @@ module Searchkick
     end
   end
 
-  def self.multi_search(queries)
-    if queries.any?
-      responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
-      queries.each_with_index do |query, i|
-        query.handle_response(responses[i])
-      end
-    end
-    queries
+  def self.multi_search(queries, retry_misspellings: false)
+    Searchkick::MultiSearch.new(queries, retry_misspellings: retry_misspellings).perform
   end
 
   # callbacks
@@ -153,6 +148,8 @@ module Searchkick
         completed: batches_left == 0,
         batches_left: batches_left
       }
+    else
+      raise Searchkick::Error, "Redis not configured"
     end
   end
 

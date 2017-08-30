@@ -79,7 +79,7 @@ module Searchkick
       @execute ||= begin
         begin
           response = execute_search
-          if @misspellings_below && response["hits"]["total"] < @misspellings_below
+          if retry_misspellings?(response)
             prepare
             response = execute_search
           end
@@ -158,6 +158,10 @@ module Searchkick
 
       # set execute for multi search
       @execute = Searchkick::Results.new(searchkick_klass, response, opts)
+    end
+
+    def retry_misspellings?(response)
+      @misspellings_below && response["hits"]["total"] < @misspellings_below
     end
 
     private
