@@ -1,4 +1,5 @@
 require_relative "test_helper"
+
 class SqlTest < Minitest::Test
   def test_operator
     store_names ["Honey"]
@@ -195,35 +196,19 @@ class SqlTest < Minitest::Test
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
   end
 
-  def test_includes_per
+  def test_includes_per_model
     skip unless defined?(ActiveRecord)
     store_names ["Product A"]
-    store_names ['Product A Discount'], Discount
+    store_names ['Product A Store'], Store
 
-    associations = { Product => :store, Discount => :product }
+    associations = { Product => :store, Store => :products }
 
-    result = Searchkick.search("product", fields: [:name],  index_name: [Product.search_index.name, Discount.search_index.name], includes_per: associations)
+    result = Searchkick.search("Product", fields: ['name'], index_name: [Product.search_index.name, Store.search_index.name], includes_per_model: associations)
+
+    assert_equal 2, result.length
 
     result.group_by(&:class).each_pair do |klass, records|
       assert records.first.association(associations[klass]).loaded?
     end
   end
-
-  def test_both_includes
-    skip unless defined?(ActiveRecord)
-    store_names ["Product A"]
-    store_names ['Product A Discount'], Discount
-
-    associations = { Discount => :product }
-
-    result = Searchkick.search("product", fields: [:name],  index_name: [Product.search_index.name, Discount.search_index.name], includes: [:store], includes_per: associations)
-
-    assert_equal 2, result.length
-
-    assert result.find{|record| record.class == Product}.association(:store).loaded?
-    assert result.find{|record| record.class == Discount}.association(:store).loaded?
-    assert result.find{|record| record.class == Discount}.association(:product).loaded?
-  end
-
-
 end

@@ -17,7 +17,7 @@ module Searchkick
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
-        :fields, :highlight, :includes, :includes_per, :index_name, :indices_boost, :limit, :load,
+        :fields, :highlight, :includes, :includes_per_model, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
@@ -108,7 +108,7 @@ module Searchkick
         padding: @padding,
         load: @load,
         includes: options[:includes],
-        includes_per: options[:includes_per],
+        includes_per_model: options[:includes_per_model],
         json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
