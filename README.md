@@ -1571,6 +1571,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+For all models
+
+```ruby
+Searchkick.index_prefix = "datakick"
+```
+
 Use a different term for boosting by conversions
 
 ```ruby
