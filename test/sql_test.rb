@@ -196,19 +196,19 @@ class SqlTest < Minitest::Test
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
   end
 
-  def test_includes_per_model
+  def test_model_includes
     skip unless defined?(ActiveRecord)
+
     store_names ["Product A"]
-    store_names ['Product A Store'], Store
+    store_names ["Store A"], Store
 
-    associations = { Product => :store, Store => :products }
-
-    result = Searchkick.search("Product", fields: ['name'], index_name: [Product.search_index.name, Store.search_index.name], includes_per_model: associations)
+    associations = {Product => [:store], Store => [:products]}
+    result = Searchkick.search("*", index_name: [Product, Store], model_includes: associations)
 
     assert_equal 2, result.length
 
     result.group_by(&:class).each_pair do |klass, records|
-      assert records.first.association(associations[klass]).loaded?
+      assert records.first.association(associations[klass].first).loaded?
     end
   end
 end

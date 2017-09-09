@@ -450,7 +450,6 @@ class Store
   searchkick \
     default_fields: elasticsearch_below60? ? nil : [:name],
     routing: true,
-    searchable: [:name],
     merge_mappings: true,
     mappings: {
       store: {

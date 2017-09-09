@@ -1636,12 +1636,11 @@ Eager load associations
 Product.search "milk", includes: [:brand, :stores]
 ```
 
-Load associations per model
+Eager load different associations by model [master]
 
 ```ruby
-Searchkick.search("*",  index_name: [Product.search_index.name, Store.search_index.name], includes_per_model: {Product => :store, Store => :product})
+Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
-These 2 options above can be combined, but you should make sure that associations specified by `includes` present in all searched models
 
 Turn off special characters
 

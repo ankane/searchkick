@@ -198,13 +198,10 @@ module Searchkick
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
-      if (options[:includes] || options[:includes_per_model])
-
-
+      if options[:includes] || options[:model_includes]
         included_relations = []
-
-        included_relations << options[:includes] if options[:includes]
-        included_relations << options[:includes_per_model][records] if (options[:includes_per_model] && options[:includes_per_model][records])
+        combine_includes(included_relations, options[:includes])
+        combine_includes(included_relations, options[:model_includes][records]) if options[:model_includes]
 
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
@@ -219,6 +216,16 @@ module Searchkick
       end
 
       Searchkick.load_records(records, ids)
+    end
+
+    def combine_includes(result, inc)
+      if inc
+        if inc.is_a?(Array)
+          result.concat(inc)
+        else
+          result << inc
+        end
+      end
     end
 
     def base_field(k)
