@@ -298,8 +298,8 @@ module Searchkick
 
         scope = scope.select("id").except(:includes, :preload) if async
 
-        scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch, method_name, async
+        scope.find_in_batches batch_size: batch_size do |items|
+          import_or_update items, method_name, async
         end
       else
         each_batch(scope) do |items|

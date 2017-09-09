@@ -223,6 +223,11 @@ module Searchkick
 
       @json = options[:body]
       if @json
+        ignored_options = options.keys & [:aggs, :boost,
+          :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
+          :fields, :highlight, :indices_boost, :limit, :match, :misspellings, :offset, :operator, :order,
+          :padding, :page, :per_page, :select, :smart_aggs, :suggest, :where]
+        warn "The body option replaces the entire body, so the following options are ignored: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
         if options[:similar]
@@ -473,14 +478,15 @@ module Searchkick
         elsif load
           payload[:_source] = false
         end
-
-        if options[:type] || (klass != searchkick_klass && searchkick_index)
-          @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
-        end
-
-        # routing
-        @routing = options[:routing] if options[:routing]
       end
+
+      # type
+      if options[:type] || (klass != searchkick_klass && searchkick_index)
+        @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
+      end
+
+      # routing
+      @routing = options[:routing] if options[:routing]
 
       # merge more body options
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]
