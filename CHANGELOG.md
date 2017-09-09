@@ -7,6 +7,7 @@
 - Raise error for `reindex_status` when Redis not configured
 - Warn when incompatible options used with `body` option
 - Fixed bug where `routing` and `type` options were silently ignored with `body` option
+- Fixed `reindex(async: true)` for non-numeric primary keys in Postgres
 
 ## 2.3.1
 

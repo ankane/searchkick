@@ -446,7 +446,13 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
-        starting_id = scope.minimum(primary_key)
+        starting_id =
+          begin
+            scope.minimum(primary_key)
+          rescue ActiveRecord::StatementInvalid
+            false
+          end
+
         if starting_id.nil?
           # no records, do nothing
         elsif starting_id.is_a?(Numeric)
