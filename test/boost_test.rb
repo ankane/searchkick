@@ -116,6 +116,26 @@ class BoostTest < Minitest::Test
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
   end
 
+  def test_boost_by_missing_field
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", orders_count: 10},
+      {name: "Tomato C", orders_count: 100}
+    ]
+
+    assert_raises(Searchkick::InvalidQueryError) do
+      assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5}}
+    end
+
+    if elasticsearch_below50?
+      assert_raises(ArgumentError) do
+        assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
+      end
+    else
+      assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 5}, orders_value: {factor: 5, missing: 1}}
+    end
+  end
+
   def test_boost_by_boost_mode_multiply
     store [
       {name: "Tomato A", found_rate: 0.9},
