@@ -1214,7 +1214,7 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
-You can also have Searchkick wait for reindexing to complete [master]
+You can also have Searchkick wait for reindexing to complete
 
 ```ruby
 Searchkick.reindex(async: {wait: true})
@@ -1636,7 +1636,7 @@ Eager load associations
 Product.search "milk", includes: [:brand, :stores]
 ```
 
-Eager load different associations by model [master]
+Eager load different associations by model
 
 ```ruby
 Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
