@@ -6,6 +6,7 @@
 - Added `model_includes` option
 - Raise error for `reindex_status` when Redis not configured
 - Warn when incompatible options used with `body` option
+- Fixed bug where `routing` and `type` options were silently ignored with `body` option
 
 ## 2.3.1
 
