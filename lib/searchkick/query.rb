@@ -883,21 +883,21 @@ module Searchkick
           }
         }
 
-        if value[:missing].present?
+        if value[:missing]
           if below50?
-            raise ArgumentError, "Option 'missing' for boost_by supported in Elasticsearch 5 or greater"
+            raise ArgumentError, "The missing option for boost_by is not supported in Elasticsearch < 5"
           else
-            script_score[:field_value_factor].merge!({missing: value[:missing].to_f})
+            script_score[:field_value_factor][:missing] = value[:missing].to_f
           end
-        end
-
-        {
-          filter: {
+        else
+          script_score[:filter] = {
             exists: {
               field: field
             }
           }
-        }.merge(script_score)
+        end
+
+        script_score
       end
     end
 

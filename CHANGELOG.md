@@ -4,6 +4,7 @@
 - Added global `index_prefix` option
 - Added `wait` option to async reindex
 - Added `model_includes` option
+- Added `missing` option for `boost_by`
 - Raise error for `reindex_status` when Redis not configured
 - Warn when incompatible options used with `body` option
 - Fixed bug where `routing` and `type` options were silently ignored with `body` option
