@@ -1177,13 +1177,15 @@ end
 
 ### Filterable Fields
 
-By default, all fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
+By default, all string fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick filterable: [:store_id]
+  searchkick filterable: [:brand]
 end
 ```
+
+**Note:** Non-string fields will always be filterable and should not be passed to this option.
 
 ### Parallel Reindexing
 
@@ -1210,6 +1212,12 @@ And use:
 
 ```ruby
 Searchkick.reindex_status(index_name)
+```
+
+You can also have Searchkick wait for reindexing to complete
+
+```ruby
+Searchkick.reindex(async: {wait: true})
 ```
 
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
@@ -1563,6 +1571,18 @@ class Product < ActiveRecord::Base
 end
 ```
 
+For all models
+
+```ruby
+Searchkick.index_prefix = "datakick"
+```
+
+Use a different term for boosting by conversions
+
+```ruby
+Product.search("banana", conversions_term: "organic banana")
+```
+
 Multiple conversion fields
 
 ```ruby
@@ -1620,6 +1640,12 @@ Eager load associations
 
 ```ruby
 Product.search "milk", includes: [:brand, :stores]
+```
+
+Eager load different associations by model
+
+```ruby
+Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Turn off special characters

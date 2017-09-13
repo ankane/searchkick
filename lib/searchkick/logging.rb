@@ -129,7 +129,7 @@ module Searchkick
   end
 
   module SearchkickWithInstrumentation
-    def multi_search(searches)
+    def multi_search(searches, **options)
       event = {
         name: "Multi Search",
         body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join

@@ -1,7 +1,7 @@
 module Searchkick
   module Model
     def searchkick(**options)
-      unknown_keywords = options.keys - [:batch_size, :callbacks, :conversions,
+      unknown_keywords = options.keys - [:_all, :batch_size, :callbacks, :conversions, :default_fields,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
@@ -22,7 +22,7 @@ module Searchkick
         class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] ||
           (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }) ||
-          [options[:index_prefix], model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
 
         class << self
           def searchkick_search(term = "*", **options, &block)
