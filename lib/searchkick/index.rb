@@ -15,7 +15,13 @@ module Searchkick
     end
 
     def delete
-      client.indices.delete index: name
+      if !Searchkick.server_below?("6.0.0-alpha1") && alias_exists?
+        # can't call delete directly on aliases in ES 6
+        indices = client.indices.get_alias(name: name).keys
+        client.indices.delete index: indices
+      else
+        client.indices.delete index: name
+      end
     end
 
     def exists?
@@ -228,7 +234,8 @@ module Searchkick
       end
 
       # check if alias exists
-      if alias_exists?
+      alias_exists = alias_exists?
+      if alias_exists
         # import before promotion
         index.import_scope(scope, resume: resume, async: async, full: true) if import
 
@@ -246,6 +253,24 @@ module Searchkick
       end
 
       if async
+        if async.is_a?(Hash) && async[:wait]
+          puts "Created index: #{index.name}"
+          puts "Jobs queued. Waiting..."
+          loop do
+            sleep 3
+            status = Searchkick.reindex_status(index.name)
+            break if status[:completed]
+            puts "Batches left: #{status[:batches_left]}"
+          end
+          # already promoted if alias didn't exist
+          if alias_exists
+            puts "Jobs complete. Promoting..."
+            promote(index.name, update_refresh_interval: !refresh_interval.nil?)
+          end
+          clean_indices unless retain
+          puts "SUCCESS!"
+        end
+
         {index_name: index.name}
       else
         index.refresh
@@ -273,8 +298,8 @@ module Searchkick
 
         scope = scope.select("id").except(:includes, :preload) if async
 
-        scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch, method_name, async
+        scope.find_in_batches batch_size: batch_size do |items|
+          import_or_update items, method_name, async
         end
       else
         each_batch(scope) do |items|
@@ -421,7 +446,13 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
-        starting_id = scope.minimum(primary_key)
+        starting_id =
+          begin
+            scope.minimum(primary_key)
+          rescue ActiveRecord::StatementInvalid
+            false
+          end
+
         if starting_id.nil?
           # no records, do nothing
         elsif starting_id.is_a?(Numeric)

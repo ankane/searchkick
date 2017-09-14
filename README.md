@@ -1214,6 +1214,12 @@ And use:
 Searchkick.reindex_status(index_name)
 ```
 
+You can also have Searchkick wait for reindexing to complete
+
+```ruby
+Searchkick.reindex(async: {wait: true})
+```
+
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
 
 ```ruby
@@ -1565,6 +1571,12 @@ class Product < ActiveRecord::Base
 end
 ```
 
+For all models
+
+```ruby
+Searchkick.index_prefix = "datakick"
+```
+
 Use a different term for boosting by conversions
 
 ```ruby
@@ -1628,6 +1640,12 @@ Eager load associations
 
 ```ruby
 Product.search "milk", includes: [:brand, :stores]
+```
+
+Eager load different associations by model
+
+```ruby
+Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Turn off special characters

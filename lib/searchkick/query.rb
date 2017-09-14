@@ -18,7 +18,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :offset, :operator, :order, :padding, :page, :per_page, :profile,
+        :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -79,7 +79,7 @@ module Searchkick
       @execute ||= begin
         begin
           response = execute_search
-          if @misspellings_below && response["hits"]["total"] < @misspellings_below
+          if retry_misspellings?(response)
             prepare
             response = execute_search
           end
@@ -108,6 +108,7 @@ module Searchkick
         padding: @padding,
         load: @load,
         includes: options[:includes],
+        model_includes: options[:model_includes],
         json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
@@ -157,6 +158,10 @@ module Searchkick
 
       # set execute for multi search
       @execute = Searchkick::Results.new(searchkick_klass, response, opts)
+    end
+
+    def retry_misspellings?(response)
+      @misspellings_below && response["hits"]["total"] < @misspellings_below
     end
 
     private
@@ -218,6 +223,11 @@ module Searchkick
 
       @json = options[:body]
       if @json
+        ignored_options = options.keys & [:aggs, :boost,
+          :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
+          :fields, :highlight, :indices_boost, :limit, :match, :misspellings, :offset, :operator, :order,
+          :padding, :page, :per_page, :select, :smart_aggs, :suggest, :where]
+        warn "The body option replaces the entire body, so the following options are ignored: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
         if options[:similar]
@@ -468,14 +478,15 @@ module Searchkick
         elsif load
           payload[:_source] = false
         end
-
-        if options[:type] || (klass != searchkick_klass && searchkick_index)
-          @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
-        end
-
-        # routing
-        @routing = options[:routing] if options[:routing]
       end
+
+      # type
+      if options[:type] || (klass != searchkick_klass && searchkick_index)
+        @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
+      end
+
+      # routing
+      @routing = options[:routing] if options[:routing]
 
       # merge more body options
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]
@@ -872,13 +883,21 @@ module Searchkick
           }
         }
 
-        {
-          filter: {
+        if value[:missing]
+          if below50?
+            raise ArgumentError, "The missing option for boost_by is not supported in Elasticsearch < 5"
+          else
+            script_score[:field_value_factor][:missing] = value[:missing].to_f
+          end
+        else
+          script_score[:filter] = {
             exists: {
               field: field
             }
           }
-        }.merge(script_score)
+        end
+
+        script_score
       end
     end
 
