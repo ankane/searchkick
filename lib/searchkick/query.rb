@@ -712,7 +712,7 @@ module Searchkick
     end
 
     def set_filters(payload, filters)
-      if options[:aggs]
+      if options[:aggs] && options[:smart_aggs] == false
         payload[:post_filter] = {
           bool: {
             filter: filters
