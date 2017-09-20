@@ -71,27 +71,20 @@ class AggsTest < Minitest::Test
   end
 
   def test_two_wheres
-    assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
-    assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: true)
     assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}})
   end
 
   def test_where_override
     assert_equal ({}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}})
-    assert_equal ({}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}, smart_aggs: true)
-    assert_equal ({2 => 1}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}, smart_aggs: false)
+    assert_equal ({2 => 1}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}})
   end
 
   def test_skip
-    assert_equal ({1 => 1, 2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id], smart_aggs: false)
-    assert_equal ({2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id], smart_aggs: true)
-    assert_equal ({2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id])
+    assert_equal ({1 => 1, 2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id])
   end
 
   def test_skip_complex
-    assert_equal ({2 => 2, 1 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id], smart_aggs: false)
-    assert_equal ({2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id], smart_aggs: true)
-    assert_equal ({2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id])
+    assert_equal ({1 => 1, 2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id])
   end
 
   def test_multiple
@@ -101,6 +94,11 @@ class AggsTest < Minitest::Test
   def test_smart_aggs_false
     assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
+  end
+
+  def test_smart_aggs_with_prefilter_aggs
+    assert_equal ({2 => 2, 1 => 1}), store_agg(where: {store_id: 2}, aggs:[:store_id])
+    assert_equal ({2 => 2}), store_agg(where: {store_id: 2}, aggs:[:store_id], prefilter_aggs: true)
   end
 
   def test_aggs_group_by_date
@@ -183,21 +181,6 @@ class AggsTest < Minitest::Test
         }
       })
     assert_equal 66, products.aggs["sum_price"]["value"]
-  end
-
-  def test_smart_aggs
-    products = Product.search("*", {
-        where: {name: "Product Show"},
-        aggs: {
-          sum_price: {
-            sum: {
-              field: :price
-            }
-          }
-        },
-        smart_aggs: true
-      })
-    assert_equal 21.0, products.aggs["sum_price"]["value"]
   end
 
   protected

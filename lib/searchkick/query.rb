@@ -697,14 +697,13 @@ module Searchkick
         where = {}
         unless options[:smart_aggs] == false
           where = (options[:where] || {}).reject do |k|
-            if k == field
-              @use_post_filter = true
-              true
-            end
+            @use_post_filter = true if k == field
           end
         end
+
         agg_filters = where_filters(where.merge(agg_options[:where] || {}))
         if agg_filters.any?
+          @use_post_filter = true if agg_options[:where]
           payload[:aggs][field] = {
             filter: {
               bool: {
@@ -720,14 +719,13 @@ module Searchkick
     end
 
     def set_filters(payload, filters)
-      if options[:aggs] && options[:smart_aggs] == false && @use_post_filter && options[:prefilter_aggs] != true
+      if options[:aggs] && @use_post_filter && options[:prefilter_aggs] != true
         payload[:post_filter] = {
           bool: {
             filter: filters
           }
         }
       else
-        # more efficient query if no aggs
         payload[:query] = {
           bool: {
             must: payload[:query],
