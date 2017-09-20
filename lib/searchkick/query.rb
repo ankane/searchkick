@@ -18,7 +18,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
+        :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :prefilter_aggs, :profile,
         :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -39,6 +39,7 @@ module Searchkick
       @misspellings = false
       @misspellings_below = nil
       @highlighted_fields = nil
+      @use_post_filter = false
 
       prepare
     end
@@ -449,12 +450,12 @@ module Searchkick
         # indices_boost
         set_boost_by_indices(payload)
 
+        # aggregations
+        set_aggregations(payload) if options[:aggs]
+
         # filters
         filters = where_filters(options[:where])
         set_filters(payload, filters) if filters.any?
-
-        # aggregations
-        set_aggregations(payload) if options[:aggs]
 
         # suggestions
         set_suggestions(payload, options[:suggest]) if options[:suggest]
@@ -694,7 +695,14 @@ module Searchkick
         end
 
         where = {}
-        where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
+        unless options[:smart_aggs] == false
+          where = (options[:where] || {}).reject do |k|
+            if k == field
+              @use_post_filter = true
+              true
+            end
+          end
+        end
         agg_filters = where_filters(where.merge(agg_options[:where] || {}))
         if agg_filters.any?
           payload[:aggs][field] = {
@@ -712,7 +720,7 @@ module Searchkick
     end
 
     def set_filters(payload, filters)
-      if options[:aggs] && options[:smart_aggs] == false
+      if options[:aggs] && options[:smart_aggs] == false && @use_post_filter && options[:prefilter_aggs] != true
         payload[:post_filter] = {
           bool: {
             filter: filters
