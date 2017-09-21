@@ -261,7 +261,7 @@ Available options are:
 
 ### Exact Matches
 
-To match a field exactly (case-insensitive), use:
+To match a field exactly (case-sensitive), use:
 
 ```ruby
 User.search query, fields: [{email: :exact}, :name]
