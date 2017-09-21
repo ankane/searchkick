@@ -54,7 +54,7 @@ module Searchkick
 
       Elasticsearch::Client.new({
         url: ENV["ELASTICSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
+        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json", "Accept-Encoding": ""}}
       }.deep_merge(client_options)) do |f|
         f.use Searchkick::Middleware
         f.request :aws_signers_v4, {
