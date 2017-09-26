@@ -22,5 +22,9 @@ module Searchkick
         index.store record
       end
     end
+
+    def max_run_time
+      2 # seconds
+    end
   end
 end
