@@ -420,7 +420,8 @@ module Searchkick
             function_score: {
               functions: custom_filters,
               query: payload,
-              score_mode: "sum"
+              score_mode: "sum",
+              boost_mode: "sum"
             }
           }
         end
@@ -430,7 +431,8 @@ module Searchkick
             function_score: {
               functions: multiply_filters,
               query: payload,
-              score_mode: "multiply"
+              score_mode: "multiply",
+              boost_mode: "multiply"
             }
           }
         end
