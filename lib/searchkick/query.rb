@@ -873,10 +873,11 @@ module Searchkick
 
     def boost_filters(boost_by, options = {})
       boost_by.map do |field, value|
+        log = value.key?(:log) ? value[:log] : options[:log]
         script_score = {
           field_value_factor: {
             field: field,
-            modifier: (value[:modifier] or ( (value[:log] or options[:log]) ? 'ln2p' : nil ) or 'none'),
+            modifier: (value[:modifier] or (log ? 'ln2p' : nil ) or nil ),
             factor: (value[:factor] ? value[:factor].to_f : 1),
           }
         }
