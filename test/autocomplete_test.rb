@@ -72,4 +72,10 @@ class AutocompleteTest < Minitest::Test
     store_names ["hi@example.org"]
     assert_search "hi@example.org", ["hi@example.org"], fields: [{name: :exact}]
   end
+
+  def test_exact_case
+    store_names ["Hello"]
+    assert_search "hello", [], fields: [{name: :exact}]
+    assert_search "Hello", ["Hello"], fields: [{name: :exact}]
+  end
 end

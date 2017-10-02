@@ -33,7 +33,7 @@ module Searchkick
           # sort
           hits.map do |hit|
             result = results[hit["_type"]][hit["_id"].to_s]
-            if result
+            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
               unless result.respond_to?(:search_hit)
                 result.define_singleton_method(:search_hit) do
                   hit
@@ -127,8 +127,14 @@ module Searchkick
       klass.model_name
     end
 
-    def entry_name
-      model_name.human.downcase
+    def entry_name(options = {})
+      if options.empty?
+        # backward compatibility
+        model_name.human.downcase
+      else
+        default = options[:count] == 1 ? model_name.human : model_name.human.pluralize
+        model_name.human(options.reverse_merge(default: default))
+      end
     end
 
     def total_count
@@ -192,21 +198,34 @@ module Searchkick
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
+      if options[:includes] || options[:model_includes]
+        included_relations = []
+        combine_includes(included_relations, options[:includes])
+        combine_includes(included_relations, options[:model_includes][records]) if options[:model_includes]
 
-      if options[:includes]
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
             if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
-              records.eager_load(options[:includes])
+              records.eager_load(included_relations)
             else
-              records.preload(options[:includes])
+              records.preload(included_relations)
             end
           else
-            records.includes(options[:includes])
+            records.includes(included_relations)
           end
       end
 
       Searchkick.load_records(records, ids)
+    end
+
+    def combine_includes(result, inc)
+      if inc
+        if inc.is_a?(Array)
+          result.concat(inc)
+        else
+          result << inc
+        end
+      end
     end
 
     def base_field(k)

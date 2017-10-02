@@ -27,8 +27,6 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
-**Searchkick 2.0 was just released!** See [notable changes](#200).
-
 ## Contents
 
 - [Getting Started](#getting-started)
@@ -263,7 +261,7 @@ Available options are:
 
 ### Exact Matches
 
-To match a field exactly (case-insensitive), use:
+To match a field exactly (case-sensitive), use:
 
 ```ruby
 User.search query, fields: [{email: :exact}, :name]
@@ -294,12 +292,16 @@ end
 ```ruby
 class Product < ActiveRecord::Base
   searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
-  # or
-  # searchkick synonyms: -> { CSV.read("/some/path/synonyms.csv") }
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
+
+To read synonyms from a file, use:
+
+```ruby
+synonyms: -> { CSV.read("/some/path/synonyms.csv") }
+```
 
 For directional synonyms, use:
 
@@ -388,7 +390,7 @@ You can map queries and terms to exclude with:
 ```ruby
 exclude_queries = {
   "butter" => ["peanut butter"],
-  "cream" => ["ice cream"]
+  "cream" => ["ice cream", "whipped cream"]
 }
 
 Product.search query, exclude: exclude_queries[query]
@@ -627,7 +629,7 @@ end
 Reindex and search with:
 
 ```ruby
-Movie.search "jurassic pa", match: :word_start
+Movie.search "jurassic pa", fields: [:title], match: :word_start
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
@@ -1175,13 +1177,15 @@ end
 
 ### Filterable Fields
 
-By default, all fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
+By default, all string fields are filterable (can be used in `where` option). Speed up indexing and reduce index size by only making some fields filterable.
 
 ```ruby
 class Product < ActiveRecord::Base
-  searchkick filterable: [:store_id]
+  searchkick filterable: [:brand]
 end
 ```
+
+**Note:** Non-string fields will always be filterable and should not be passed to this option.
 
 ### Parallel Reindexing
 
@@ -1208,6 +1212,12 @@ And use:
 
 ```ruby
 Searchkick.reindex_status(index_name)
+```
+
+You can also have Searchkick wait for reindexing to complete
+
+```ruby
+Searchkick.reindex(async: {wait: true})
 ```
 
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
@@ -1561,6 +1571,18 @@ class Product < ActiveRecord::Base
 end
 ```
 
+For all models
+
+```ruby
+Searchkick.index_prefix = "datakick"
+```
+
+Use a different term for boosting by conversions
+
+```ruby
+Product.search("banana", conversions_term: "organic banana")
+```
+
 Multiple conversion fields
 
 ```ruby
@@ -1602,16 +1624,28 @@ Set a lower timeout for searches
 Searchkick.search_timeout = 3
 ```
 
-Change the search method name in `config/initializers/searchkick.rb`
+Change the search method name
 
 ```ruby
 Searchkick.search_method_name = :lookup
+```
+
+Change search queue name
+
+```ruby
+Searchkick.queue_name = :search_reindex
 ```
 
 Eager load associations
 
 ```ruby
 Product.search "milk", includes: [:brand, :stores]
+```
+
+Eager load different associations by model
+
+```ruby
+Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Turn off special characters
@@ -1759,11 +1793,33 @@ end
 
 ### Factory Girl
 
-Manually reindex after an instance is created.
+Use a trait and an after `create` hook for each indexed model:
 
 ```ruby
-product = FactoryGirl.create(:product)
-product.reindex(refresh: true)
+FactoryGirl.define do
+  factory :product do
+    # ...
+
+    # Note: This should be the last trait in the list so `reindex` is called
+    # after all the other callbacks complete.
+    trait :reindex do
+      after(:create) do |product, _evaluator|
+        product.reindex(refresh: true)
+      end
+    end
+  end
+end
+
+# use it
+FactoryGirl.create(:product, :some_trait, :reindex, some_attribute: "foo")
+```
+
+### Parallel Tests
+
+Set:
+
+```ruby
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 ```
 
 ## Multi-Tenancy

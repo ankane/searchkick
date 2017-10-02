@@ -8,6 +8,7 @@ require "searchkick/indexer"
 require "searchkick/reindex_queue"
 require "searchkick/results"
 require "searchkick/query"
+require "searchkick/multi_search"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
@@ -36,7 +37,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -45,6 +46,7 @@ module Searchkick
   self.timeout = 10
   self.models = []
   self.client_options = {}
+  self.queue_name = :searchkick
 
   def self.client
     @client ||= begin
@@ -100,14 +102,8 @@ module Searchkick
     end
   end
 
-  def self.multi_search(queries)
-    if queries.any?
-      responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
-      queries.each_with_index do |query, i|
-        query.handle_response(responses[i])
-      end
-    end
-    queries
+  def self.multi_search(queries, retry_misspellings: false)
+    Searchkick::MultiSearch.new(queries, retry_misspellings: retry_misspellings).perform
   end
 
   # callbacks
@@ -152,6 +148,8 @@ module Searchkick
         completed: batches_left == 0,
         batches_left: batches_left
       }
+    else
+      raise Searchkick::Error, "Redis not configured"
     end
   end
 
@@ -206,4 +204,7 @@ end
 
 # TODO find better ActiveModel hook
 ActiveModel::Callbacks.send(:include, Searchkick::Model)
-ActiveRecord::Base.send(:extend, Searchkick::Model) if defined?(ActiveRecord)
+
+ActiveSupport.on_load(:active_record) do
+  extend Searchkick::Model
+end

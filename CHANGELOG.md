@@ -1,7 +1,42 @@
-## 2.2.0 [unreleased]
+## 2.3.2
+
+- Added `_all` and `default_fields` options
+- Added global `index_prefix` option
+- Added `wait` option to async reindex
+- Added `model_includes` option
+- Added `missing` option for `boost_by`
+- Raise error for `reindex_status` when Redis not configured
+- Warn when incompatible options used with `body` option
+- Fixed bug where `routing` and `type` options were silently ignored with `body` option
+- Fixed `reindex(async: true)` for non-numeric primary keys in Postgres
+
+## 2.3.1
+
+- Added support for `reindex(async: true)` for non-numeric primary keys
+- Added `conversions_term` option
+- Added support for passing fields to `suggest` option
+- Fixed `page_view_entries` for Kaminari
+
+## 2.3.0
+
+- Fixed analyzer on dynamically mapped fields
+- Fixed error with `similar` method and `_all` field
+- Throw error when fields are needed
+- Added `queue_name` option
+- No longer require synonyms to be lowercase
+
+## 2.2.1
+
+- Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
+- Added `load: {dumpable: true}` option
+- Added `index_suffix` option
+- Accept string for `exclude` option
+
+## 2.2.0
 
 - Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
 - Fixed issue with `_all` field in `searchable`
+- Fixed `exclude` option with `word_start`
 
 ## 2.1.1
 

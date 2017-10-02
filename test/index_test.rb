@@ -7,8 +7,9 @@ class IndexTest < Minitest::Test
   end
 
   def test_clean_indices
-    old_index = Searchkick::Index.new("products_test_20130801000000000")
-    different_index = Searchkick::Index.new("items_test_20130801000000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000000")
+    different_index = Searchkick::Index.new("items_test#{suffix}_20130801000000000")
 
     old_index.delete if old_index.exists?
     different_index.delete if different_index.exists?
@@ -25,7 +26,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_clean_indices_old_format
-    old_index = Searchkick::Index.new("products_test_20130801000000")
+    suffix = Searchkick.index_suffix ? "_#{Searchkick.index_suffix}" : ""
+    old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000")
     old_index.create
 
     Product.searchkick_index.clean_indices
@@ -55,6 +57,10 @@ class IndexTest < Minitest::Test
     store_names ["Dollar Tree"], Store
     assert_equal [], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
+  end
+
+  def test_body_warning
+    assert_output(nil, "The body option replaces the entire body, so the following options are ignored: where\n") { Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1}) }
   end
 
   def test_block
@@ -130,13 +136,22 @@ class IndexTest < Minitest::Test
     assert_search "*", [], where: {alt_description: "Hello"}
   end
 
+  def test_filterable_non_string
+    store [{name: "Product A", store_id: 1}]
+    assert_search "*", ["Product A"], where: {store_id: 1}
+  end
+
   def test_large_value
     skip if nobrainer?
     large_value = 1000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
-    assert_search "hello", ["Product A"], {}, Region
+
+    # needs fields for ES 6
+    if elasticsearch_below60?
+      assert_search "hello", ["Product A"], {}, Region
+    end
   end
 
   def test_very_large_value

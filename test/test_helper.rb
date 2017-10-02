@@ -6,11 +6,16 @@ require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
+
 ENV["RACK_ENV"] = "test"
 
 Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
 
-File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
+if !defined?(ParallelTests) || ParallelTests.first_process?
+  File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
+end
+
 Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
 Searchkick.search_timeout = 5
 
@@ -35,6 +40,10 @@ ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["
 
 def elasticsearch_below50?
   Searchkick.server_below?("5.0.0-alpha1")
+end
+
+def elasticsearch_below60?
+  Searchkick.server_below?("6.0.0-alpha1")
 end
 
 def elasticsearch_below22?
@@ -106,6 +115,12 @@ if defined?(Mongoid)
 
   class Cat < Animal
   end
+
+  class Sku
+    include Mongoid::Document
+
+    field :name
+  end
 elsif defined?(NoBrainer)
   NoBrainer.configure do |config|
     config.app_name = :searchkick
@@ -165,6 +180,13 @@ elsif defined?(NoBrainer)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include NoBrainer::Document
+
+    field :id,   type: String
+    field :name, type: String
   end
 elsif defined?(Cequel)
   cequel =
@@ -245,6 +267,13 @@ elsif defined?(Cequel)
   end
 
   class Cat < Animal
+  end
+
+  class Sku
+    include Cequel::Record
+
+    key :id, :uuid
+    column :name, :text
   end
 
   [Product, Store, Region, Speaker, Animal].each(&:synchronize_schema)
@@ -334,6 +363,10 @@ else
     t.string :type
   end
 
+  ActiveRecord::Migration.create_table :skus, id: :uuid do |t|
+    t.string :name
+  end
+
   class Product < ActiveRecord::Base
     belongs_to :store
   end
@@ -356,6 +389,9 @@ else
 
   class Cat < Animal
   end
+
+  class Sku < ActiveRecord::Base
+  end
 end
 
 class Product
@@ -367,6 +403,7 @@ class Product
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"],
+      ["UPPERCASE", "lowercase"],
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
     ],
@@ -411,6 +448,7 @@ end
 
 class Store
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     routing: true,
     merge_mappings: true,
     mappings: {
@@ -432,6 +470,7 @@ end
 
 class Region
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     geo_shape: {
       territory: {tree: "quadtree", precision: "10km"}
     }
@@ -449,6 +488,7 @@ end
 
 class Speaker
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     conversions: ["conversions_a", "conversions_b"]
 
   attr_accessor :conversions_a, :conversions_b, :aisle
@@ -464,11 +504,16 @@ end
 
 class Animal
   searchkick \
+    default_fields: elasticsearch_below60? ? nil : [:name],
     text_start: [:name],
     suggest: [:name],
-    index_name: -> { "#{name.tableize}-#{Date.today.year}" },
+    index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
     callbacks: defined?(ActiveJob) ? :async : true
     # wordnet: true
+end
+
+class Sku
+  searchkick callbacks: defined?(ActiveJob) ? :async : true
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
@@ -487,6 +532,7 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Sku.destroy_all
   end
 
   protected

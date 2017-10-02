@@ -7,6 +7,11 @@ class SqlTest < Minitest::Test
     assert_search "fresh honey", ["Honey"], operator: "or"
   end
 
+  def test_operator_scoring
+    store_names ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
+    assert_order "big red circle", ["Big Red Circle", "Big Green Circle", "Small Orange Circle"], operator: "or"
+  end
+
   def test_fields_operator
     store [
       {name: "red", color: "red"},
@@ -189,5 +194,21 @@ class SqlTest < Minitest::Test
     skip unless defined?(ActiveRecord)
     store_names ["Product A"]
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
+  end
+
+  def test_model_includes
+    skip unless defined?(ActiveRecord)
+
+    store_names ["Product A"]
+    store_names ["Store A"], Store
+
+    associations = {Product => [:store], Store => [:products]}
+    result = Searchkick.search("*", index_name: [Product, Store], model_includes: associations)
+
+    assert_equal 2, result.length
+
+    result.group_by(&:class).each_pair do |klass, records|
+      assert records.first.association(associations[klass].first).loaded?
+    end
   end
 end
