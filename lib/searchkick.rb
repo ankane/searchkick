@@ -57,10 +57,11 @@ module Searchkick
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       }.deep_merge(client_options)) do |f|
         f.use Searchkick::Middleware
-        f.request :aws_signers_v4, {
-          credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
-          service_name: "es",
-          region: aws_credentials[:region] || "us-east-1"
+        f.request :aws_sigv4, {
+          service: 'es',
+          region: aws_credentials[:region] || 'us-east-1',
+          access_key_id: aws_credentials[:access_key_id],
+          secret_access_key: aws_credentials[:secret_access_key]
         } if aws_credentials
       end
     end
