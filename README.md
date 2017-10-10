@@ -1076,7 +1076,7 @@ ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
 To use signed request, include in your Gemfile:
 
 ```ruby
-gem 'faraday_middleware-aws-signers-v4'
+gem 'faraday_middleware-aws-signers-v4', '>= 0.1.9'
 ```
 
 and add to your initializer:
