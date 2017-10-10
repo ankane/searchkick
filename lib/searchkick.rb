@@ -57,12 +57,7 @@ module Searchkick
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       }.deep_merge(client_options)) do |f|
         f.use Searchkick::Middleware
-        f.request :aws_sigv4, {
-          service: 'es',
-          region: aws_credentials[:region] || 'us-east-1',
-          access_key_id: aws_credentials[:access_key_id],
-          secret_access_key: aws_credentials[:secret_access_key]
-        } if aws_credentials
+        f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
       end
     end
   end
@@ -137,7 +132,11 @@ module Searchkick
   end
 
   def self.aws_credentials=(creds)
-    require "faraday_middleware/aws_signers_v4"
+    begin
+      require "faraday_middleware/aws_sigv4"
+    rescue
+      require "faraday_middleware/aws_signers_v4"
+    end
     @aws_credentials = creds
     @client = nil # reset client
   end
@@ -200,6 +199,29 @@ module Searchkick
   # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
+  end
+
+  #private
+  def self.signer_middleware_key
+    defined?(FaradayMiddleware::AwsSigV4) ? :aws_sigv4 : :aws_signers_v4
+  end
+
+  #private
+  def self.signer_middleware_aws_params
+    if defined?(FaradayMiddleware::AwsSigV4)
+      {
+        service: 'es',
+        region: aws_credentials[:region] || 'us-east-1',
+        access_key_id: aws_credentials[:access_key_id],
+        secret_access_key: aws_credentials[:secret_access_key]
+      }
+    else
+      {
+        credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
+        service_name: "es",
+        region: aws_credentials[:region] || "us-east-1"
+      }
+    end
   end
 end
 
