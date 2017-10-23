@@ -9,9 +9,8 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
-        below22 = Searchkick.server_below?("2.2.0")
-        below50 = Searchkick.server_below?("5.0.0-alpha1")
-        below60 = Searchkick.server_below?("6.0.0-alpha1")
+        below50 = Searchkick.server_below?(Searchkick::ServerVersion::V_5_0_0_ALPHA)
+        below60 = Searchkick.server_below?(Searchkick::ServerVersion::V_6_0_0_ALPHA1)
         default_type = below50 ? "string" : "text"
         default_analyzer = :searchkick_index
         keyword_mapping =
@@ -30,7 +29,8 @@ module Searchkick
         index_true_value = below50 ? "analyzed" : true
         index_false_value = below50 ? "no" : false
 
-        keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
+        keyword_mapping[:ignore_above] =
+          options.fetch(:ignore_above, 30000) if supports_ignore_above_option?(field_type: default_type)
 
         settings = {
           analysis: {
@@ -341,6 +341,13 @@ module Searchkick
         settings: settings,
         mappings: mappings
       }
+    end
+
+    private
+    # As of ES 5, ignore_above setting is not valid for 'text', but only for keyword fields
+    # https://www.elastic.co/guide/en/elasticsearch/reference/master/ignore-above.html
+    def supports_ignore_above_option?(field_type:)
+      !Searchkick.server_below?(Searchkick::ServerVersion::V_2_2_0) && field_type != 'text'
     end
   end
 end

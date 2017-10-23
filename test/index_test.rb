@@ -146,7 +146,7 @@ class IndexTest < Minitest::Test
     large_value = 1000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
-    assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
+    assert_search "hello", [], {fields: [:name, :text]}, Region
 
     # needs fields for ES 6
     if elasticsearch_below60?
@@ -154,13 +154,21 @@ class IndexTest < Minitest::Test
     end
   end
 
-  def test_very_large_value
+  def test_very_large_value_server_above22
     skip if nobrainer? || elasticsearch_below22?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
-    assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
+    assert_search "hello", [], {fields: [:name, :text]}, Region
     # values that exceed ignore_above are not included in _all field :(
     # assert_search "hello", ["Product A"], {}, Region
+  end
+
+  def test_very_large_value_server_below22
+    skip if nobrainer? || !elasticsearch_below22?
+    large_value = 10000.times.map { "hello" }.join(" ")
+    store [{name: "Product A", text: large_value}], Region
+    assert_search "product", ["Product A"], {}, Region
+    assert_search "hello", ['Product A'], {fields: [:name, :text]}, Region
   end
 end

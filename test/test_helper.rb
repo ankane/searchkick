@@ -5,6 +5,7 @@ require "minitest/pride"
 require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
+require "searchkick/server_version"
 
 Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
@@ -39,15 +40,15 @@ end
 ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
 def elasticsearch_below50?
-  Searchkick.server_below?("5.0.0-alpha1")
+  Searchkick.server_below?(Searchkick::ServerVersion::V_5_0_0_ALPHA)
 end
 
 def elasticsearch_below60?
-  Searchkick.server_below?("6.0.0-alpha1")
+  Searchkick.server_below?(Searchkick::ServerVersion::V_6_0_0_ALPHA1)
 end
 
 def elasticsearch_below22?
-  Searchkick.server_below?("2.2.0")
+  Searchkick.server_below?(Searchkick::ServerVersion::V_2_2_0)
 end
 
 def nobrainer?
@@ -471,6 +472,14 @@ end
 class Region
   searchkick \
     default_fields: elasticsearch_below60? ? nil : [:name],
+    merge_mappings: true,
+    mappings: {
+      region: {
+        properties: {
+          text: elasticsearch_below50? ? {type: "string", analyzer: "keyword"} : { type: 'text' }
+        }
+      }
+    },
     geo_shape: {
       territory: {tree: "quadtree", precision: "10km"}
     }
