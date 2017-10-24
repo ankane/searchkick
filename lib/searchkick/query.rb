@@ -24,9 +24,7 @@ module Searchkick
 
       term = term.to_s
 
-      if options[:emoji]
-        term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
-      end
+      term = parse_emoji(term) if options[:emoji]
 
       @klass = klass
       @term = term
@@ -928,6 +926,10 @@ module Searchkick
 
     def below60?
       Searchkick.server_below?("6.0.0-alpha1")
+    end
+    
+    def parse_emoji(term)
+      EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
     end
   end
 end
