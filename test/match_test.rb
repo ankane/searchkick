@@ -245,6 +245,11 @@ class MatchTest < Minitest::Test
     assert_search "fresh honey", ["Fresh Honey"], match: :phrase
   end
 
+  def test_phrase_again
+    store_names ["Social entrepreneurs don't have it easy raising capital"]
+    assert_search "social entrepreneurs don't have it easy raising capital", ["Social entrepreneurs don't have it easy raising capital"], match: :phrase
+  end
+
   def test_phrase_order
     store_names ["Wheat Bread", "Whole Wheat Bread"]
     assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
