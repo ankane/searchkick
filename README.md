@@ -130,6 +130,12 @@ Select
 select: [:name]
 ```
 
+You can also exclude fields from selection (most useful if you're using `load: false`)
+
+```ruby
+select: {exclude: [:big_field_not_needed_in_results]}
+```
+
 ### Results
 
 Searches return a `Searchkick::Results` object. This responds like an array to most methods.
