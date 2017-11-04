@@ -466,8 +466,7 @@ module Searchkick
         payload[:timeout] ||= "#{Searchkick.search_timeout + 1}s"
 
         # An empty array will cause only the _id and _type for each hit to be returned
-        # doc for :select - http://www.elasticsearch.org/guide/reference/api/search/fields/
-        # doc for :select_v2 - https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
         if options[:select]
           if options[:select] == []
             # intuitively [] makes sense to return no fields, but ES by default returns all fields
