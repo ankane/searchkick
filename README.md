@@ -130,11 +130,14 @@ Select
 select: [:name]
 ```
 
-You can also exclude fields from selection (most useful if you're using `load: false`)
+You can also exclude fields from selection. This is useful when you're using `load: false`,
+and need all except some big and/or complex fields for subsequent processing.
 
 ```ruby
-select: {exclude: [:big_field_not_needed_in_results]}
+select: {excludes: [:big_field_not_needed_in_results]}
 ```
+
+[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html)
 
 ### Results
 
