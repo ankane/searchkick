@@ -455,7 +455,7 @@ module Searchkick
 
         if starting_id.nil?
           # no records, do nothing
-        elsif starting_id.is_a?(Numeric)
+        elsif !@options[:sparse_table] && starting_id.is_a?(Numeric)
           max_id = scope.maximum(primary_key)
           batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 

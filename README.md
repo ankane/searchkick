@@ -1675,6 +1675,15 @@ class Product < ActiveRecord::Base
 end
 ```
 
+Handle sparse tables
+
+```ruby
+class Product < ActiveRecord::Base
+  # Some tables have large id gaps which makes bulk reindexing inefficient
+  searchkick sparse_table: true
+end
+```
+
 Create index without importing
 
 ```ruby
