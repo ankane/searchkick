@@ -130,6 +130,8 @@ Select
 select: [:name]
 ```
 
+[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html)
+
 ### Results
 
 Searches return a `Searchkick::Results` object. This responds like an array to most methods.
