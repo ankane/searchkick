@@ -96,6 +96,11 @@ class AggsTest < Minitest::Test
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
   end
 
+  def test_smart_aggs_with_prefilter_aggs
+    assert_equal ({2 => 2, 1 => 1}), store_agg(where: {store_id: 2}, aggs:[:store_id])
+    assert_equal ({2 => 2}), store_agg(where: {store_id: 2}, aggs:[:store_id], prefilter_aggs: true)
+  end
+
   def test_aggs_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
     products =
