@@ -975,7 +975,7 @@ The parent and child model can both reindex.
 
 ```ruby
 Animal.reindex
-Dog.reindex # equivalent
+Dog.reindex # equivalent, all animals reindexed
 ```
 
 And to search, use:
