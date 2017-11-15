@@ -4,7 +4,7 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
-      type = options[:type] || :_default_
+      type = options[:_type] || :_default_
       type = type.call if type.respond_to?(:call)
 
       if options[:mappings] && !options[:merge_mappings]
