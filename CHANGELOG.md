@@ -1,6 +1,7 @@
 ## 2.3.3 [unreleased]
 
 - Fixed `similar` for Elasticsearch 6
+- Added `type` option
 
 ## 2.3.2
 

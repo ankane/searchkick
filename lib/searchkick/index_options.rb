@@ -4,6 +4,8 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
+      type = options[:type] || :_default_
+      type = type.call if type.respond_to?(:call)
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
@@ -313,7 +315,7 @@ module Searchkick
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
         mappings = {
-          _default_: {
+          type => {
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285
@@ -331,7 +333,7 @@ module Searchkick
 
         if below60
           all_enabled = all && (!options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all"))
-          mappings[:_default_][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
+          mappings[type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
         end
 
         mappings = mappings.deep_merge(options[:mappings] || {})

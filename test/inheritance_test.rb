@@ -2,14 +2,13 @@ require_relative "test_helper"
 
 class InheritanceTest < Minitest::Test
   def setup
-    skip if defined?(Cequel) || !elasticsearch_below60?
+    skip if defined?(Cequel)
     super
   end
 
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex
-    Animal.searchkick_index.refresh
     assert_equal 1, Animal.search("*").size
   end
 
@@ -18,6 +17,8 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_search
+    skip unless elasticsearch_below60?
+
     store_names ["Bear"], Dog
     store_names ["Bear"], Cat
     assert_equal 1, Dog.search("bear").size
@@ -30,12 +31,16 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_force_one_type
+    skip unless elasticsearch_below60?
+
     store_names ["Green Bear"], Dog
     store_names ["Blue Bear"], Cat
     assert_equal ["Blue Bear"], Animal.search("bear", type: [Cat]).map(&:name)
   end
 
   def test_force_multiple_types
+    skip unless elasticsearch_below60?
+
     store_names ["Green Bear"], Dog
     store_names ["Blue Bear"], Cat
     store_names ["Red Bear"], Animal
@@ -43,6 +48,8 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_autocomplete
+    skip unless elasticsearch_below60?
+
     store_names ["Max"], Cat
     store_names ["Mark"], Dog
     assert_equal ["Max"], Cat.search("ma", fields: [:name], match: :text_start).map(&:name)
@@ -70,7 +77,7 @@ class InheritanceTest < Minitest::Test
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog
     Animal.reindex
-    assert_equal 1, Dog.search("bear").size
+    assert_equal 2, Animal.search("bear").size
   end
 
   # TODO move somewhere better

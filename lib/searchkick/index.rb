@@ -322,6 +322,8 @@ module Searchkick
       @klass_document_type[klass] ||= begin
         if klass.respond_to?(:document_type)
           klass.document_type
+        elsif klass.searchkick_klass.searchkick_options[:type]
+          klass.searchkick_klass.searchkick_options[:type]
         else
           klass.model_name.to_s.underscore
         end
