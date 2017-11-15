@@ -1,4 +1,4 @@
-## 2.3.3 [unreleased]
+## 2.4.0
 
 - Fixed `similar` for Elasticsearch 6
 - Added `inheritance` option

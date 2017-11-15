@@ -971,6 +971,14 @@ class Dog < Animal
 end
 ```
 
+In your parent model, set:
+
+```ruby
+class Animal < ApplicationRecord
+  searchkick inheritance: true
+end
+```
+
 The parent and child model can both reindex.
 
 ```ruby
