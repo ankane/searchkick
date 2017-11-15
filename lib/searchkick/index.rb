@@ -318,12 +318,14 @@ module Searchkick
       client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
     end
 
-    def klass_document_type(klass)
-      @klass_document_type[klass] ||= begin
+    def klass_document_type(klass, inheritance = true)
+      @klass_document_type[[klass, inheritance]] ||= begin
         if klass.respond_to?(:document_type)
           klass.document_type
-        elsif klass.searchkick_klass.searchkick_options[:_type]
-          klass.searchkick_klass.searchkick_options[:_type]
+        elsif !inheritance && klass.searchkick_klass.searchkick_options[:_type]
+          type = klass.searchkick_klass.searchkick_options[:_type]
+          type = type.call if type.respond_to?(:call)
+          type
         else
           klass.model_name.to_s.underscore
         end
@@ -336,11 +338,11 @@ module Searchkick
       Searchkick.client
     end
 
-    def document_type(record)
+    def document_type(record, inheritance = false)
       if record.respond_to?(:search_document_type)
         record.search_document_type
       else
-        klass_document_type(record.class)
+        klass_document_type(record.class, inheritance)
       end
     end
 
@@ -386,6 +388,10 @@ module Searchkick
             end
           end
         end
+      end
+
+      if !source.key?("type") && record.class.searchkick_klass.searchkick_options[:inheritance]
+        source["type"] = document_type(record, true)
       end
 
       cast_big_decimal(source)

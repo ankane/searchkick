@@ -277,6 +277,10 @@ module Searchkick
           mapping[field] = shape_options.merge(type: "geo_shape")
         end
 
+        if options[:inheritance]
+          mapping[:type] = keyword_mapping
+        end
+
         routing = {}
         if options[:routing]
           routing = {required: true}

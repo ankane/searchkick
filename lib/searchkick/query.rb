@@ -449,8 +449,14 @@ module Searchkick
         # indices_boost
         set_boost_by_indices(payload)
 
+        # type when inheritance
+        where = (options[:where] || {}).dup
+        if searchkick_options[:inheritance] && (options[:type] || (klass != searchkick_klass && searchkick_index))
+          where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
+        end
+
         # filters
-        filters = where_filters(options[:where])
+        filters = where_filters(where)
         set_filters(payload, filters) if filters.any?
 
         # aggregations
@@ -480,7 +486,7 @@ module Searchkick
       end
 
       # type
-      if options[:type] || (klass != searchkick_klass && searchkick_index)
+      if !searchkick_options[:inheritance] && (options[:type] || (klass != searchkick_klass && searchkick_index))
         @type = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
       end
 

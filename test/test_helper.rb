@@ -505,7 +505,7 @@ end
 class Animal
   searchkick \
     default_fields: elasticsearch_below60? ? nil : [:name],
-    _type: elasticsearch_below60? ? nil : :animal,
+    inheritance: !elasticsearch_below60?,
     text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },

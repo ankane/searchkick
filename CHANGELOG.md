@@ -1,6 +1,7 @@
 ## 2.3.3 [unreleased]
 
 - Fixed `similar` for Elasticsearch 6
+- Added `inheritance` option
 - Added `_type` option
 - Fixed `Must specify fields to search` error when searching `*`
 

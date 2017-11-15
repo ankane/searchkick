@@ -17,8 +17,6 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_search
-    skip unless elasticsearch_below60?
-
     store_names ["Bear"], Dog
     store_names ["Bear"], Cat
     assert_equal 1, Dog.search("bear").size
@@ -31,16 +29,12 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_force_one_type
-    skip unless elasticsearch_below60?
-
     store_names ["Green Bear"], Dog
     store_names ["Blue Bear"], Cat
     assert_equal ["Blue Bear"], Animal.search("bear", type: [Cat]).map(&:name)
   end
 
   def test_force_multiple_types
-    skip unless elasticsearch_below60?
-
     store_names ["Green Bear"], Dog
     store_names ["Blue Bear"], Cat
     store_names ["Red Bear"], Animal
@@ -48,8 +42,6 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_autocomplete
-    skip unless elasticsearch_below60?
-
     store_names ["Max"], Cat
     store_names ["Mark"], Dog
     assert_equal ["Max"], Cat.search("ma", fields: [:name], match: :text_start).map(&:name)
