@@ -233,7 +233,7 @@ module Searchkick
         if options[:similar]
           payload = {
             more_like_this: {
-              like_text: term,
+              like: term,
               min_doc_freq: 1,
               min_term_freq: 1,
               analyzer: "searchkick_search2"
@@ -515,6 +515,8 @@ module Searchkick
           ["_all"]
         elsif all && default_match == :phrase
           ["_all.phrase"]
+        elsif term == "*"
+          []
         else
           raise ArgumentError, "Must specify fields to search"
         end

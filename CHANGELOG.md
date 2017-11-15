@@ -1,3 +1,7 @@
+## 2.3.3 [unreleased]
+
+- Fixed `similar` for Elasticsearch 6
+
 ## 2.3.2
 
 - Added `_all` and `default_fields` options
