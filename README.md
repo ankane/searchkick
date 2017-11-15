@@ -1650,6 +1650,14 @@ Eager load different associations by model
 Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
+Specify default fields to search
+
+```ruby
+class Product < ActiveRecord::Base
+  searchkick default_fields: [:name]
+end
+```
+
 Turn off special characters
 
 ```ruby
