@@ -2,6 +2,7 @@
 
 - Fixed `similar` for Elasticsearch 6
 - Added `_type` option
+- Fixed `Must specify fields to search` error when searching `*`
 
 ## 2.3.2
 
