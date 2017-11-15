@@ -452,7 +452,7 @@ module Searchkick
         # type when inheritance
         where = (options[:where] || {}).dup
         if searchkick_options[:inheritance] && (options[:type] || (klass != searchkick_klass && searchkick_index))
-          where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v) }
+          where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
 
         # filters

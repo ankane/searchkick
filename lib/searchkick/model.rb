@@ -12,7 +12,7 @@ module Searchkick
 
       Searchkick.models << self
 
-      options[:_type] ||= -> { searchkick_index.klass_document_type(self) } if options[:inheritance]
+      options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) } if options[:inheritance]
 
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
