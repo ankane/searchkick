@@ -133,9 +133,9 @@ module Searchkick
 
   def self.aws_credentials=(creds)
     begin
-      require "faraday_middleware/aws_sigv4"
-    rescue
       require "faraday_middleware/aws_signers_v4"
+    rescue LoadError
+      require "faraday_middleware/aws_sigv4"
     end
     @aws_credentials = creds
     @client = nil # reset client
@@ -201,17 +201,17 @@ module Searchkick
     Thread.current[:searchkick_callbacks_enabled] = value
   end
 
-  #private
+  # private
   def self.signer_middleware_key
-    defined?(FaradayMiddleware::AwsSigV4) ? :aws_sigv4 : :aws_signers_v4
+    defined?(FaradayMiddleware::AwsSignersV4) ? :aws_signers_v4 : :aws_sigv4
   end
 
-  #private
+  # private
   def self.signer_middleware_aws_params
-    if defined?(FaradayMiddleware::AwsSigV4)
+    if signer_middleware_key == :aws_sigv4
       {
-        service: 'es',
-        region: aws_credentials[:region] || 'us-east-1',
+        service: "es",
+        region: aws_credentials[:region] || "us-east-1",
         access_key_id: aws_credentials[:access_key_id],
         secret_access_key: aws_credentials[:secret_access_key]
       }
