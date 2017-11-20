@@ -209,15 +209,10 @@ module Searchkick
   # private
   def self.signer_middleware_aws_params
     if signer_middleware_key == :aws_sigv4
-      {
-        service: "es",
-        region: aws_credentials[:region] || "us-east-1",
-        access_key_id: aws_credentials[:access_key_id],
-        secret_access_key: aws_credentials[:secret_access_key]
-      }
+      {service: "es", region: "us-east-1"}.merge(aws_credentials)
     else
       {
-        credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
+        credentials: aws_credentials[:credentials] || Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
         service_name: "es",
         region: aws_credentials[:region] || "us-east-1"
       }

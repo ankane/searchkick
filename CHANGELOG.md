@@ -1,3 +1,8 @@
+## 2.4.1 [unreleased]
+
+- Added support for `faraday_middleware-aws-sigv4`
+- Added `credentials` option to `aws_credentials`
+
 ## 2.4.0
 
 - Fixed `similar` for Elasticsearch 6
