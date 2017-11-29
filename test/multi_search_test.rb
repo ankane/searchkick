@@ -36,7 +36,7 @@ class MultiSearchTest < Minitest::Test
 
   # https://github.com/ankane/searchkick/issues/1032
   def test_no_records
-    products = Product.search("*", execute: false)
+    products = Product.search("*", order: {created_at: :asc}, execute: false)
     assert Searchkick.multi_search([products])[0].results
   end
 end
