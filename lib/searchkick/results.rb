@@ -187,7 +187,11 @@ module Searchkick
     end
 
     def hits
-      @response["hits"]["hits"]
+      if error
+        raise Searchkick::Error, "Query error - use the error method to view it"
+      else
+        @response["hits"]["hits"]
+      end
     end
 
     def misspellings?

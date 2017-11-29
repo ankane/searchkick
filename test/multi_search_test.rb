@@ -34,9 +34,11 @@ class MultiSearchTest < Minitest::Test
     assert_equal ["abc", "abd"], products.map(&:name)
   end
 
-  # https://github.com/ankane/searchkick/issues/1032
-  def test_no_records
-    products = Product.search("*", order: {created_at: :asc}, execute: false)
-    assert Searchkick.multi_search([products])[0].results
+  def test_error
+    products = Product.search("*", order: {bad_column: :asc}, execute: false)
+    Searchkick.multi_search([products])
+    assert products.error
+    error = assert_raises(Searchkick::Error) { products.results }
+    assert_equal error.message, "Query error - use the error method to view it"
   end
 end
