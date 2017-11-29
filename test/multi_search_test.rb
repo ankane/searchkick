@@ -33,4 +33,10 @@ class MultiSearchTest < Minitest::Test
     Searchkick.multi_search([products], retry_misspellings: true)
     assert_equal ["abc", "abd"], products.map(&:name)
   end
+
+  # https://github.com/ankane/searchkick/issues/1032
+  def test_no_records
+    products = Product.search("*", execute: false)
+    assert Searchkick.multi_search([products])[0].results
+  end
 end
