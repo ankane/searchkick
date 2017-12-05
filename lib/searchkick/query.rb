@@ -670,6 +670,14 @@ module Searchkick
               ranges: agg_options[:ranges]
             }.merge(shared_agg_options)
           }
+        elsif histogram = agg_options[:histogram]
+          interval = histogram[:interval]
+          payload[:aggs][field] = {
+            histogram: {
+              field: histogram[:field],
+              interval: interval
+            }
+          }
         elsif agg_options[:date_ranges]
           payload[:aggs][field] = {
             date_range: {
