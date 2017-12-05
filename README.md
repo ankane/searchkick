@@ -747,6 +747,12 @@ price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
 Product.search "*", aggs: {price: {ranges: price_ranges}}
 ```
 
+Histogram
+
+```ruby
+Product.search "*", aggs: {price: {histogram: {field: :price, interval: 10}}}
+```
+
 Minimum document count
 
 ```ruby

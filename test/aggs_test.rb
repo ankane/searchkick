@@ -66,6 +66,18 @@ class AggsTest < Minitest::Test
     assert_equal 1, agg["buckets"][2]["doc_count"]
   end
 
+  def test_histogram
+    agg = Product.search("Product", aggs: {price: {histogram: {field: :price, interval: 10}}}).aggs["price"]
+
+    assert_equal 3, agg["buckets"].size
+    assert_equal 0.0, agg["buckets"][0]["key"]
+    assert_equal 10.0, agg["buckets"][1]["key"]
+    assert_equal 20.0, agg["buckets"][2]["key"]
+    assert_equal 1, agg["buckets"][0]["doc_count"]
+    assert_equal 0, agg["buckets"][1]["doc_count"]
+    assert_equal 2, agg["buckets"][2]["doc_count"]
+  end
+
   def test_query_where
     assert_equal ({1 => 1}), store_agg(where: {in_stock: true}, aggs: [:store_id])
   end
