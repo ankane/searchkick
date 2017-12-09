@@ -759,6 +759,12 @@ Date histogram
 Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
+For other aggregation types, use `body_options`:
+
+```ruby
+Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
+```
+
 #### Moving From Facets
 
 1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
