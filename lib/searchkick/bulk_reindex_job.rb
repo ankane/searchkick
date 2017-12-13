@@ -1,6 +1,6 @@
 module Searchkick
   class BulkReindexJob < ActiveJob::Base
-    queue_as :searchkick
+    queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil)
       klass = class_name.constantize
