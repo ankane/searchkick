@@ -5,7 +5,7 @@ module Searchkick
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :word, :wordnet, :word_end, :word_middle, :word_start]
+        :text_middle, :text_start, :unscoped_reindex, :word, :wordnet, :word_end, :word_middle, :word_start]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
