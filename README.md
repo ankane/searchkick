@@ -1421,7 +1421,7 @@ class Product < ApplicationRecord
   searchkick mappings: {
     product: {
       properties: {
-        name: {type: "string", analyzer: "keyword"}
+        name: {type: "keyword"}
       }
     }
   }
