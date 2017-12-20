@@ -18,8 +18,8 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
+        :match, :misspellings, :model_includes, :model_references, :offset, :operator, :order, :padding, :page, :per_page,
+        :profile, :references, :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -109,6 +109,8 @@ module Searchkick
         load: @load,
         includes: options[:includes],
         model_includes: options[:model_includes],
+        references: options[:references],
+        model_references: options[:model_references],
         json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
