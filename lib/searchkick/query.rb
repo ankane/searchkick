@@ -112,7 +112,8 @@ module Searchkick
         json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
-        misspellings: @misspellings
+        misspellings: @misspellings,
+        term: term
       }
 
       if options[:debug]

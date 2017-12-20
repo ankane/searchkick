@@ -77,6 +77,8 @@ module Searchkick
     def suggestions
       if response["suggest"]
         response["suggest"].values.flat_map { |v| v.first["options"] }.sort_by { |o| -o["score"] }.map { |o| o["text"] }.uniq
+      elsif options[:term] == "*"
+        []
       else
         raise "Pass `suggest: true` to the search method for suggestions"
       end

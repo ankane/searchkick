@@ -77,6 +77,10 @@ class SuggestTest < Minitest::Test
     assert_raises(ArgumentError) { Searchkick.search("How Big is a Tigre Shar", suggest: true) }
   end
 
+  def test_star
+    assert_equal [], Product.search("*", suggest: true).suggestions
+  end
+
   protected
 
   def assert_suggest(term, expected, options = {})
