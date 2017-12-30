@@ -759,7 +759,7 @@ Date histogram
 Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
-For other aggregation types, use `body_options`:
+For other aggregation types, including sub-aggregations, use `body_options`:
 
 ```ruby
 Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
