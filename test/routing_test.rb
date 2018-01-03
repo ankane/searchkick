@@ -13,11 +13,11 @@ class RoutingTest < Minitest::Test
 
   def test_routing_correct_node
     store_names ["Dollar Tree"], Store
-    assert_search "dollar", ["Dollar Tree"], {routing: "Dollar Tree"}, Store
+    assert_search "*", ["Dollar Tree"], {routing: "Dollar Tree"}, Store
   end
 
   def test_routing_incorrect_node
     store_names ["Dollar Tree"], Store
-    assert_search "dollar", ["Dollar Tree"], {routing: "Boom"}, Store
+    assert_search "*", ["Dollar Tree"], {routing: "Boom"}, Store
   end
 end

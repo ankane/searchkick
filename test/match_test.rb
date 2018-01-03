@@ -18,6 +18,13 @@ class MatchTest < Minitest::Test
     assert_search "pepperjack cheese skewers", ["Pepper Jack Cheese Skewers"]
   end
 
+  def test_operator
+    store_names ["fresh", "honey"]
+    assert_search "fresh honey", ["fresh", "honey"], {operator: "or"}
+    assert_search "fresh honey", [], {operator: "and"}
+    assert_search "fresh honey", ["fresh", "honey"], {operator: :or}
+  end
+
   # def test_cheese_space_in_query
   #   store_names ["Pepperjack Cheese Skewers"]
   #   assert_search "pepper jack cheese skewers", ["Pepperjack Cheese Skewers"]
@@ -236,6 +243,11 @@ class MatchTest < Minitest::Test
   def test_phrase
     store_names ["Fresh Honey", "Honey Fresh"]
     assert_search "fresh honey", ["Fresh Honey"], match: :phrase
+  end
+
+  def test_phrase_again
+    store_names ["Social entrepreneurs don't have it easy raising capital"]
+    assert_search "social entrepreneurs don't have it easy raising capital", ["Social entrepreneurs don't have it easy raising capital"], match: :phrase
   end
 
   def test_phrase_order

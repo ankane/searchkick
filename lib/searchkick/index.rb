@@ -15,7 +15,13 @@ module Searchkick
     end
 
     def delete
-      client.indices.delete index: name
+      if !Searchkick.server_below?("6.0.0-alpha1") && alias_exists?
+        # can't call delete directly on aliases in ES 6
+        indices = client.indices.get_alias(name: name).keys
+        client.indices.delete index: indices
+      else
+        client.indices.delete index: name
+      end
     end
 
     def exists?
@@ -228,7 +234,8 @@ module Searchkick
       end
 
       # check if alias exists
-      if alias_exists?
+      alias_exists = alias_exists?
+      if alias_exists
         # import before promotion
         index.import_scope(scope, resume: resume, async: async, full: true) if import
 
@@ -246,6 +253,24 @@ module Searchkick
       end
 
       if async
+        if async.is_a?(Hash) && async[:wait]
+          puts "Created index: #{index.name}"
+          puts "Jobs queued. Waiting..."
+          loop do
+            sleep 3
+            status = Searchkick.reindex_status(index.name)
+            break if status[:completed]
+            puts "Batches left: #{status[:batches_left]}"
+          end
+          # already promoted if alias didn't exist
+          if alias_exists
+            puts "Jobs complete. Promoting..."
+            promote(index.name, update_refresh_interval: !refresh_interval.nil?)
+          end
+          clean_indices unless retain
+          puts "SUCCESS!"
+        end
+
         {index_name: index.name}
       else
         index.refresh
@@ -273,8 +298,8 @@ module Searchkick
 
         scope = scope.select("id").except(:includes, :preload) if async
 
-        scope.find_in_batches batch_size: batch_size do |batch|
-          import_or_update batch, method_name, async
+        scope.find_in_batches batch_size: batch_size do |items|
+          import_or_update items, method_name, async
         end
       else
         each_batch(scope) do |items|
@@ -290,13 +315,17 @@ module Searchkick
     # other
 
     def tokens(text, options = {})
-      client.indices.analyze({text: text, index: name}.merge(options))["tokens"].map { |t| t["token"] }
+      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
     end
 
-    def klass_document_type(klass)
-      @klass_document_type[klass] ||= begin
+    def klass_document_type(klass, ignore_type = false)
+      @klass_document_type[[klass, ignore_type]] ||= begin
         if klass.respond_to?(:document_type)
           klass.document_type
+        elsif !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
+          type = klass.searchkick_klass.searchkick_options[:_type]
+          type = type.call if type.respond_to?(:call)
+          type
         else
           klass.model_name.to_s.underscore
         end
@@ -309,11 +338,11 @@ module Searchkick
       Searchkick.client
     end
 
-    def document_type(record)
+    def document_type(record, ignore_type = false)
       if record.respond_to?(:search_document_type)
         record.search_document_type
       else
-        klass_document_type(record.class)
+        klass_document_type(record.class, ignore_type)
       end
     end
 
@@ -359,6 +388,10 @@ module Searchkick
             end
           end
         end
+      end
+
+      if !source.key?("type") && record.class.searchkick_klass.searchkick_options[:inheritance]
+        source["type"] = document_type(record, true)
       end
 
       cast_big_decimal(source)
@@ -420,14 +453,31 @@ module Searchkick
       if scope.respond_to?(:primary_key)
         # TODO expire Redis key
         primary_key = scope.primary_key
-        starting_id = scope.minimum(primary_key) || 0
-        max_id = scope.maximum(primary_key) || 0
-        batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
-        batches_count.times do |i|
-          batch_id = i + 1
-          min_id = starting_id + (i * batch_size)
-          bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+        starting_id =
+          begin
+            scope.minimum(primary_key)
+          rescue ActiveRecord::StatementInvalid
+            false
+          end
+
+        if starting_id.nil?
+          # no records, do nothing
+        elsif starting_id.is_a?(Numeric)
+          max_id = scope.maximum(primary_key)
+          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
+
+          batches_count.times do |i|
+            batch_id = i + 1
+            min_id = starting_id + (i * batch_size)
+            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+          end
+        else
+          scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
+            batch_id = i + 1
+
+            bulk_reindex_job scope, batch_id, record_ids: batch.map { |record| record.id.to_s }
+          end
         end
       else
         batch_id = 1

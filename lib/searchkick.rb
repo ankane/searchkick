@@ -8,6 +8,7 @@ require "searchkick/indexer"
 require "searchkick/reindex_queue"
 require "searchkick/results"
 require "searchkick/query"
+require "searchkick/multi_search"
 require "searchkick/model"
 require "searchkick/tasks"
 require "searchkick/middleware"
@@ -36,7 +37,7 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_suffix, :queue_name
+    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -56,11 +57,7 @@ module Searchkick
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
       }.deep_merge(client_options)) do |f|
         f.use Searchkick::Middleware
-        f.request :aws_signers_v4, {
-          credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
-          service_name: "es",
-          region: aws_credentials[:region] || "us-east-1"
-        } if aws_credentials
+        f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
       end
     end
   end
@@ -101,14 +98,8 @@ module Searchkick
     end
   end
 
-  def self.multi_search(queries)
-    if queries.any?
-      responses = client.msearch(body: queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
-      queries.each_with_index do |query, i|
-        query.handle_response(responses[i])
-      end
-    end
-    queries
+  def self.multi_search(queries, retry_misspellings: false)
+    Searchkick::MultiSearch.new(queries, retry_misspellings: retry_misspellings).perform
   end
 
   # callbacks
@@ -141,7 +132,11 @@ module Searchkick
   end
 
   def self.aws_credentials=(creds)
-    require "faraday_middleware/aws_signers_v4"
+    begin
+      require "faraday_middleware/aws_signers_v4"
+    rescue LoadError
+      require "faraday_middleware/aws_sigv4"
+    end
     @aws_credentials = creds
     @client = nil # reset client
   end
@@ -153,6 +148,8 @@ module Searchkick
         completed: batches_left == 0,
         batches_left: batches_left
       }
+    else
+      raise Searchkick::Error, "Redis not configured"
     end
   end
 
@@ -202,6 +199,24 @@ module Searchkick
   # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
+  end
+
+  # private
+  def self.signer_middleware_key
+    defined?(FaradayMiddleware::AwsSignersV4) ? :aws_signers_v4 : :aws_sigv4
+  end
+
+  # private
+  def self.signer_middleware_aws_params
+    if signer_middleware_key == :aws_sigv4
+      {service: "es", region: "us-east-1"}.merge(aws_credentials)
+    else
+      {
+        credentials: aws_credentials[:credentials] || Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
+        service_name: "es",
+        region: aws_credentials[:region] || "us-east-1"
+      }
+    end
   end
 end
 

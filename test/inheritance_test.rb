@@ -9,7 +9,6 @@ class InheritanceTest < Minitest::Test
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex
-    Animal.searchkick_index.refresh
     assert_equal 1, Animal.search("*").size
   end
 
@@ -70,7 +69,7 @@ class InheritanceTest < Minitest::Test
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog
     Animal.reindex
-    assert_equal 1, Dog.search("bear").size
+    assert_equal 2, Animal.search("bear").size
   end
 
   # TODO move somewhere better

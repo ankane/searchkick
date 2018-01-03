@@ -1,5 +1,31 @@
-## 2.3.1 [unreleased]
+## 2.4.1 [unreleased]
 
+- Better exception when trying to access results for failed multi-search query
+- Added support for `faraday_middleware-aws-sigv4`
+- Added `credentials` option to `aws_credentials`
+
+## 2.4.0
+
+- Fixed `similar` for Elasticsearch 6
+- Added `inheritance` option
+- Added `_type` option
+- Fixed `Must specify fields to search` error when searching `*`
+
+## 2.3.2
+
+- Added `_all` and `default_fields` options
+- Added global `index_prefix` option
+- Added `wait` option to async reindex
+- Added `model_includes` option
+- Added `missing` option for `boost_by`
+- Raise error for `reindex_status` when Redis not configured
+- Warn when incompatible options used with `body` option
+- Fixed bug where `routing` and `type` options were silently ignored with `body` option
+- Fixed `reindex(async: true)` for non-numeric primary keys in Postgres
+
+## 2.3.1
+
+- Added support for `reindex(async: true)` for non-numeric primary keys
 - Added `conversions_term` option
 - Added support for passing fields to `suggest` option
 - Fixed `page_view_entries` for Kaminari

@@ -178,6 +178,26 @@ class AggsTest < Minitest::Test
     assert_equal 66, products.aggs["sum_price"]["value"]
   end
 
+  def test_body_options
+    products =
+      Product.search("*",
+        body_options: {
+          aggs: {
+            price: {
+              histogram: {field: :price, interval: 10}
+            }
+          }
+        }
+      )
+
+    expected = [
+      {"key" => 0.0, "doc_count" => 1},
+      {"key" => 10.0, "doc_count" => 1},
+      {"key" => 20.0, "doc_count" => 2}
+    ]
+    assert_equal products.aggs["price"]["buckets"], expected
+  end
+
   protected
 
   def buckets_as_hash(agg)
