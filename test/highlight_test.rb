@@ -53,14 +53,20 @@ class HighlightTest < Minitest::Test
 
   def test_fetch_all
     store [{name: "Two Door Cinema Club Some Other Words And Much More Doors Cinema Club" }]
-    highlights = Product.search("cinema", fields: [:name], highlight: { fetch_all: true, fragment_size: 20 } ).first.search_highlights
-    assert_equal ["Two Door <em>Cinema</em> Club", "And Much More Doors <em>Cinema</em>"], highlights[:name]
+    highlights = Product.search("cinema", fields: [:name], highlight: { fetch_all: true, fragment_size: 20 } ).first.search_highlights[:name]
+    assert highlights.is_a?(Array)
+    assert_equal highlights.count, 2
+    refute_equal highlights.first, highlights.last
+    highlights.each do |highlight|
+      assert highlight.include?("<em>Cinema</em>")
+    end
   end
 
   def test_fetch_one
     store [{name: "Two Door Cinema Club Some Other Words And Much More Doors Cinema Club" }]
-    highlights = Product.search("cinema", fields: [:name], highlight: { fragment_size: 20 } ).first.search_highlights
-    assert_equal "Two Door <em>Cinema</em> Club", highlights[:name]
+    highlights = Product.search("cinema", fields: [:name], highlight: { fragment_size: 20 } ).first.search_highlights[:name]
+    assert highlights.is_a?(String)
+    assert highlights.include?("<em>Cinema</em>")
   end
 
   def test_body
