@@ -41,7 +41,7 @@ module Searchkick
               end
 
               if hit["highlight"] && !result.respond_to?(:search_highlights)
-                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, fetch_higlight(v)] }]
                 result.define_singleton_method(:search_highlights) do
                   highlights
                 end
@@ -61,7 +61,7 @@ module Searchkick
               end
 
             if hit["highlight"]
-              highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), v.first] }]
+              highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), fetch_higlight(v)] }]
               options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
               end
@@ -92,10 +92,14 @@ module Searchkick
       each_with_hit.map do |model, hit|
         details = {}
         if hit["highlight"]
-          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, fetch_higlight(v)] }]
         end
         [model, details]
       end
+    end
+
+    def fetch_higlight(highlights)
+      options[:fetch_all_highlights] ? highlights : highlights.first
     end
 
     def aggregations

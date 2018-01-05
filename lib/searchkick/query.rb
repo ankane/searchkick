@@ -112,6 +112,7 @@ module Searchkick
         json: !@json.nil?,
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
+        fetch_all_highlights: options[:highlight].is_a?(Hash) && !!options[:highlight][:fetch_all],
         misspellings: @misspellings,
         term: term
       }

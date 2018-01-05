@@ -848,6 +848,22 @@ bands.each do |band|
 end
 ```
 
+**Note:** If you have multiple highlights per field (whether you have an array field or multiple highlighted fragments) searchkick will return only the first one by default.
+
+To return all highlights use `fetch_all` option:
+
+```ruby
+bands = Band.search "cinema", fields: [:name], highlight: {fetch_all: true}
+```
+
+Now highlights will be returned as an array:
+
+```ruby
+bands.each do |band|
+  band.search_highlights[:name] # ["Two Door <em>Cinema</em> Club", "And Much More Doors <em>Cinema</em>"]
+end
+```
+
 To change the tag, use:
 
 ```ruby
