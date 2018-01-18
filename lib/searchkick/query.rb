@@ -770,7 +770,7 @@ module Searchkick
           if value.is_a?(Hash)
             value.each do |op, op_value|
               case op
-              when :within, :bottom_right
+              when :within, :bottom_right, :bottom_left
                 # do nothing
               when :near
                 filters << {
@@ -802,6 +802,15 @@ module Searchkick
                     field => {
                       top_left: location_value(op_value),
                       bottom_right: location_value(value[:bottom_right])
+                    }
+                  }
+                }
+              when :top_right
+                filters << {
+                  geo_bounding_box: {
+                    field => {
+                      top_right: location_value(op_value),
+                      bottom_left: location_value(value[:bottom_left])
                     }
                   }
                 }

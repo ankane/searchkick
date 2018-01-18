@@ -189,6 +189,22 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco"], where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
   end
 
+  def test_top_right_bottom_left
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {top_right: [38, -122], bottom_left: [37, -123]}}
+  end
+
+  def test_top_right_bottom_left_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Francisco"], where: {location: {top_right: {lat: 38, lon: -122}, bottom_left: {lat: 37, lon: -123}}}
+  end
+
   def test_multiple_locations
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
