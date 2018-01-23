@@ -809,6 +809,10 @@ module Searchkick
                 filters << {regexp: {field => {value: op_value}}}
               when :not # not equal
                 filters << {bool: {must_not: term_filters(field, op_value)}}
+              when :not_all
+                op_value.each do |v|
+                  filters << {bool: {must_not: term_filters(field, [v])}}
+                end
               when :all
                 op_value.each do |val|
                   filters << term_filters(field, val)
