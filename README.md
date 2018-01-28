@@ -900,10 +900,8 @@ Bounded by a box
 ```ruby
 Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
-OR
-```ruby
-Restaurant.search "sushi", where: {location: {top_right: {lat: 38, lon: -122}, bottom_left: {lat: 37, lon: -123}}}
-```
+
+**Note:** `top_right` and `bottom_left` also work
 
 Bounded by a polygon
 
