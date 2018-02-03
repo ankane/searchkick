@@ -26,6 +26,7 @@ Plus:
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
+[![Open Source Helpers](https://www.codetriage.com/ankane/searchkick/badges/users.svg)](https://www.codetriage.com/ankane/searchkick)
 
 ## Contents
 
