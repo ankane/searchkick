@@ -683,7 +683,11 @@ module Searchkick
         end
 
         where = {}
+<<<<<<< HEAD
         where = where_options_without(field) unless options[:smart_aggs] == false
+=======
+        where = where_filters_without(field) unless options[:smart_aggs] == false
+>>>>>>> Smarter smart aggregation
         agg_filters = where_filters(where.merge(agg_options[:where] || {}))
         if agg_filters.any?
           payload[:aggs][field] = {
@@ -700,20 +704,25 @@ module Searchkick
       end
     end
 
-    def where_options_without(field)
-      p = Proc.new do |key, hash, dup=true|
-        new_hash = dup ? hash.deep_dup : hash
-        if new_hash.present?
-          if new_hash.is_a?(Array)
-            new_hash.each{|h| p.call(key, h, false)}
-          elsif new_hash.is_a?(Hash)
-            [:or, :_or, :_and].each{|ext_key| p.call(key, new_hash[ext_key], false)}
-            new_hash.delete(key)
+    def where_filters_without(field, w_filters=nil)
+      w_filters ||= options[:where].deep_dup
+      if w_filters.is_a?(Array) && !w_filters.empty?
+        w_filters.delete_if do |filter|
+          if (filter.is_a?(Hash) || filter.is_a?(Array)) && !filter.empty?
+            where_filters_without(field, filter)
+            filter.empty?
           end
         end
-        new_hash
+      elsif w_filters.is_a?(Hash) && !w_filters.empty?
+        [:or, :_or, :_and, :_not].each do |conn|
+          if (filter = w_filters[conn]) && (filter.is_a?(Hash) || filter.is_a?(Array)) && !filter.empty?
+            where_filters_without(field, filter)
+            w_filters.delete(conn) if filter.empty?
+          end
+        end
+        w_filters.delete(field)
       end
-      p.call(field, options[:where] || {})
+      w_filters || {}
     end
 
     def set_filters(payload, filters)

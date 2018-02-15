@@ -86,6 +86,7 @@ class AggsTest < Minitest::Test
   def test_skip_complex
     assert_equal ({1 => 1, 2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id])
     assert_equal ({1 => 1, 2 => 1}), store_agg(where: {_and: [{_or: [{store_id: 2}, {store_id: 3}]}], price: {gt: 5}}, aggs: [:store_id])
+    assert_equal ({1 => 1, 2 => 1}), store_agg(where: {_and: [{_not: {_or: [{store_id: 2}, {store_id: 3}]}}, price: {gt: 5}]}, aggs: [:store_id])
   end
 
   def test_multiple
