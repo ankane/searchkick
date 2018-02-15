@@ -196,6 +196,12 @@ class SqlTest < Minitest::Test
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
   end
 
+  def test_references
+    skip unless defined?(ActiveRecord)
+    store_names ["Product A"]
+    assert Product.search("product", includes: [:store], references: [:store]).first.association(:store).loaded?
+  end
+
   def test_model_includes
     skip unless defined?(ActiveRecord)
 
@@ -204,6 +210,25 @@ class SqlTest < Minitest::Test
 
     associations = {Product => [:store], Store => [:products]}
     result = Searchkick.search("*", index_name: [Product, Store], model_includes: associations)
+
+    assert_equal 2, result.length
+
+    result.group_by(&:class).each_pair do |klass, records|
+      assert records.first.association(associations[klass].first).loaded?
+    end
+  end
+
+  def test_model_references
+    skip unless defined?(ActiveRecord)
+
+    store_names ["Product A"]
+    store_names ["Store A"], Store
+
+    associations = {Product => [:store], Store => [:products]}
+    result = Searchkick.search("*",
+                               index_name: [Product, Store],
+                               model_includes: associations,
+                               model_references: associations)
 
     assert_equal 2, result.length
 

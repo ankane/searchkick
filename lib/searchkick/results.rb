@@ -205,9 +205,13 @@ module Searchkick
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
       if options[:includes] || options[:model_includes]
-        included_relations = []
-        combine_includes(included_relations, options[:includes])
-        combine_includes(included_relations, options[:model_includes][records]) if options[:model_includes]
+        included_relations   = []
+        combine_options(included_relations, options[:includes])
+        combine_options(included_relations, options[:model_includes][records]) if options[:model_includes]
+
+        referenced_relations = []
+        combine_options(referenced_relations, options[:references]) if options[:references]
+        combine_options(referenced_relations, options[:model_references][records]) if options[:model_references]
 
         records =
           if defined?(NoBrainer::Document) && records < NoBrainer::Document
@@ -217,19 +221,21 @@ module Searchkick
               records.preload(included_relations)
             end
           else
-            records.includes(included_relations)
+            relation = records.includes(included_relations)
+            relation = relation.references(referenced_relations) unless referenced_relations.empty?
+            relation
           end
       end
 
       Searchkick.load_records(records, ids)
     end
 
-    def combine_includes(result, inc)
-      if inc
-        if inc.is_a?(Array)
-          result.concat(inc)
+    def combine_options(result, opts)
+      if opts
+        if opts.is_a?(Array)
+          result.concat(opts)
         else
-          result << inc
+          result << opts
         end
       end
     end
