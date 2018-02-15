@@ -457,12 +457,16 @@ module Searchkick
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
 
-        # filters
+        # start everything as efficient filters
+        # move to post_filters as aggs demand
         filters = where_filters(where)
-        set_filters(payload, filters) if filters.any?
+        post_filters = []
 
         # aggregations
-        set_aggregations(payload) if options[:aggs]
+        set_aggregations(payload, filters, post_filters) if options[:aggs]
+
+        # filters
+        set_filters(payload, filters, post_filters)
 
         # suggestions
         set_suggestions(payload, options[:suggest]) if options[:suggest]
@@ -655,12 +659,11 @@ module Searchkick
       @highlighted_fields = payload[:highlight][:fields].keys
     end
 
-    def set_aggregations(payload)
+    def set_aggregations(payload, filters, post_filters)
       aggs = options[:aggs]
       payload[:aggs] = {}
 
       aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
-
       aggs.each do |field, agg_options|
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
         shared_agg_options = agg_options.slice(:order, :min_doc_count)
@@ -705,6 +708,17 @@ module Searchkick
         where = {}
         where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
         agg_filters = where_filters(where.merge(agg_options[:where] || {}))
+
+        # only do one level comparison for simplicity
+        filters.select! do |filter|
+          if agg_filters.include?(filter)
+            true
+          else
+            post_filters << filter
+            false
+          end
+        end
+
         if agg_filters.any?
           payload[:aggs][field] = {
             filter: {
@@ -720,14 +734,16 @@ module Searchkick
       end
     end
 
-    def set_filters(payload, filters)
-      if options[:aggs]
+    def set_filters(payload, filters, post_filters)
+      if post_filters.any?
         payload[:post_filter] = {
           bool: {
-            filter: filters
+            filter: post_filters
           }
         }
-      else
+      end
+
+      if filters.any?
         # more efficient query if no aggs
         payload[:query] = {
           bool: {

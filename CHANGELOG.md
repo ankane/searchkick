@@ -1,6 +1,7 @@
 ## 2.4.1 [unreleased]
 
 - Better exception when trying to access results for failed multi-search query
+- More efficient aggregations with `where` clauses
 - Added support for `faraday_middleware-aws-sigv4`
 - Added `credentials` option to `aws_credentials`
 - Added `modifier` option to `boost_by`
