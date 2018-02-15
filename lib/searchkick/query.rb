@@ -895,7 +895,7 @@ module Searchkick
         script_score = {
           field_value_factor: {
             field: field,
-            factor: (value[:factor] || 1).to_f,
+            factor: value[:factor].to_f,
             modifier: value[:modifier] || (log ? "ln2p" : nil)
           }
         }
