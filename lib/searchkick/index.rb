@@ -226,11 +226,25 @@ module Searchkick
         raise Searchkick::Error, "No index to resume" unless index_name
         index = Searchkick::Index.new(index_name)
       else
-        clean_indices unless retain
-
         index_options = scope.searchkick_index_options
         index_options.deep_merge!(settings: {index: {refresh_interval: refresh_interval}}) if refresh_interval
-        index = create_index(index_options: index_options)
+
+        failed, timeout, next_timeout = 0, 0, 1
+        begin
+          clean_indices unless retain
+          index = create_index(index_options: index_options)
+        rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+          failed = failed.succ
+          code, json = *e.message.split(' ', 2)
+          if json =~ /index_already_exists_exception/ && failed <= 10
+            # Use Fibonacci curve for timeouts
+            timeout, next_timeout = next_timeout, timeout + next_timeout
+            #puts "  #{color(name, ActiveSupport::LogSubscriber.YELLOW, true)}  failed #{failed} sleeping #{timeout}s #{e.message}"
+            sleep timeout
+            retry
+          end
+          raise e
+        end
       end
 
       # check if alias exists
