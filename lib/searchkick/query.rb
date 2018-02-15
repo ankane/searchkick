@@ -19,7 +19,8 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
+        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where,
+        :cross_fields]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -243,6 +244,47 @@ module Searchkick
           if fields != ["_all"]
             payload[:more_like_this][:fields] = fields
           end
+        elsif options[:cross_fields]
+          queries = []
+
+          mmq = {}
+          fields.each do |field|
+            factor = boost_fields[field] || 1
+            analyzers=[]
+            if field == "_all" || field.end_with?(".analyzed")
+              f = field
+              analyzers=['searchkick_word_search', 'searchkick_search', 'searchkick_search2']
+            elsif field.end_with?(".exact")
+              f = field.split(".")[0..-2].join(".")
+              analyzers=['keyword']
+            else
+              f = field
+              analyzers << field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
+            end
+            analyzers.each do |a|
+              mmq[a] = [] unless mmq[a]
+              mmq[a] << "#{f}^#{factor*10}"
+            end
+          end
+
+          mmq.each do |a, f|
+            query = {
+              multi_match: {
+                query: term,
+                type: "cross_fields",
+                fields: f,
+                analyzer: a,
+                operator: operator
+              }
+            }
+
+            queries << query
+          end
+          payload = {
+            bool: {
+              should: queries
+            }
+          }
         elsif all
           payload = {
             match_all: {}
