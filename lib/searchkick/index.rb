@@ -451,6 +451,8 @@ module Searchkick
 
     def full_reindex_async(scope)
       if scope.respond_to?(:primary_key)
+        # remove eager loading from scope
+        scope = scope.unscope(:includes) if scope.respond_to?(:unscope)
         # TODO expire Redis key
         primary_key = scope.primary_key
 
