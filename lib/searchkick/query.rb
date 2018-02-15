@@ -98,7 +98,7 @@ module Searchkick
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -d '#{query[:body].to_json}'"
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
     end
 
     def handle_response(response)
