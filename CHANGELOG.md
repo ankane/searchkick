@@ -3,6 +3,7 @@
 - Better exception when trying to access results for failed multi-search query
 - Added support for `faraday_middleware-aws-sigv4`
 - Added `credentials` option to `aws_credentials`
+- Added `modifier` option to `boost_by`
 
 ## 2.4.0
 
