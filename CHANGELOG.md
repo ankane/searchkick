@@ -4,6 +4,7 @@
 - Added support for `faraday_middleware-aws-sigv4`
 - Added `credentials` option to `aws_credentials`
 - Added `modifier` option to `boost_by`
+- Added `scope_results` option
 
 ## 2.4.0
 

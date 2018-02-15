@@ -211,4 +211,11 @@ class SqlTest < Minitest::Test
       assert records.first.association(associations[klass].first).loaded?
     end
   end
+
+  def test_scope_results
+    skip unless defined?(ActiveRecord)
+
+    store_names ["Product A", "Product B"]
+    assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
+  end
 end

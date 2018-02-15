@@ -221,6 +221,10 @@ module Searchkick
           end
       end
 
+      if options[:scope_results]
+        records = options[:scope_results].call(records)
+      end
+
       Searchkick.load_records(records, ids)
     end
 

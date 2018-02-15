@@ -19,7 +19,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
+        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -113,7 +113,8 @@ module Searchkick
         match_suffix: @match_suffix,
         highlighted_fields: @highlighted_fields || [],
         misspellings: @misspellings,
-        term: term
+        term: term,
+        scope_results: options[:scope_results]
       }
 
       if options[:debug]
