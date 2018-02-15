@@ -399,7 +399,7 @@ class Product
     synonyms: [
       ["clorox", "bleach"],
       ["scallion", "greenonion"],
-      ["saranwrap", "plasticwrap"],
+      ["saran wrap", "plastic wrap"],
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
       ["bandaid", "bandag"],

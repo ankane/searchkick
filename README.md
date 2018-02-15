@@ -299,6 +299,8 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+Synonyms cannot be more than two words at the moment.
+
 To read synonyms from a file, use:
 
 ```ruby
