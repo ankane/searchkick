@@ -7,6 +7,7 @@
 - Added `credentials` option to `aws_credentials`
 - Added `modifier` option to `boost_by`
 - Added `scope_results` option
+- Added `factor` option to `boost_by_distance`
 
 ## 2.4.0
 
