@@ -551,6 +551,7 @@ module Searchkick
         function_params = attributes.select { |k, _| [:origin, :scale, :offset, :decay].include?(k) }
         function_params[:origin] = location_value(function_params[:origin])
         custom_filters << {
+          :weight => attributes[:factor] || 1,
           attributes[:function] => {
             field => function_params
           }
