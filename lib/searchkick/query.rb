@@ -421,7 +421,8 @@ module Searchkick
             function_score: {
               functions: custom_filters,
               query: payload,
-              score_mode: "sum"
+              score_mode: "sum",
+              boost_mode: "sum"
             }
           }
         end
@@ -431,7 +432,8 @@ module Searchkick
             function_score: {
               functions: multiply_filters,
               query: payload,
-              score_mode: "multiply"
+              score_mode: "multiply",
+              boost_mode: "multiply"
             }
           }
         end
@@ -558,7 +560,7 @@ module Searchkick
       if boost_by.is_a?(Array)
         boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
       elsif boost_by.is_a?(Hash)
-        multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
+        multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" or v[:boost_mode].nil? }.map { |i| Hash[i] }
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
