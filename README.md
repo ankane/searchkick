@@ -1664,6 +1664,12 @@ Eager load different associations by model
 Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
+Run additional scopes on results [master]
+
+```ruby
+Product.search "milk", scope_results: ->(r) { r.with_attached_images }
+```
+
 Specify default fields to search
 
 ```ruby
