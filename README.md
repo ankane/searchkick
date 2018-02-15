@@ -299,6 +299,8 @@ end
 
 Call `Product.reindex` after changing synonyms.
 
+Synonyms cannot be more than two words at the moment.
+
 To read synonyms from a file, use:
 
 ```ruby
@@ -759,6 +761,12 @@ Date histogram
 Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
 ```
 
+For other aggregation types, including sub-aggregations, use `body_options`:
+
+```ruby
+Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
+```
+
 #### Moving From Facets
 
 1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
@@ -894,6 +902,8 @@ Bounded by a box
 ```ruby
 Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
 ```
+
+**Note:** `top_right` and `bottom_left` also work
 
 Bounded by a polygon
 
@@ -1047,20 +1057,32 @@ Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This de
 
 ### Heroku
 
-Choose an add-on: [SearchBox](https://elements.heroku.com/addons/searchbox), [Bonsai](https://elements.heroku.com/addons/bonsai), or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch).
+Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai) or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch). [SearchBox](https://elements.heroku.com/addons/searchbox) does not work at the moment.
+
+For Bonsai:
 
 ```sh
-# SearchBox
-heroku addons:create searchbox:starter
-heroku config:set ELASTICSEARCH_URL=`heroku config:get SEARCHBOX_URL`
-
-# Bonsai
 heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
+```
 
-# Found
+For Found:
+
+```sh
 heroku addons:create foundelasticsearch
-heroku config:set ELASTICSEARCH_URL=`heroku config:get FOUNDELASTICSEARCH_URL`
+heroku addons:open foundelasticsearch
+```
+
+Visit the Shield page and reset your password. You’ll need to add the username and password to your url. Get the existing url with:
+
+```sh
+heroku config:get FOUNDELASTICSEARCH_URL
+```
+
+And add `elastic:password@` right after `https://`:
+
+```sh
+heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws.found.io
 ```
 
 Then deploy and reindex:
@@ -1415,7 +1437,7 @@ class Product < ApplicationRecord
   searchkick mappings: {
     product: {
       properties: {
-        name: {type: "string", analyzer: "keyword"}
+        name: {type: "keyword"}
       }
     }
   }
@@ -1505,20 +1527,6 @@ To query nested data, use dot notation.
 ```ruby
 User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345}
 ```
-
-## Search Concepts
-
-### Precision and Recall
-
-[Precision and recall](https://en.wikipedia.org/wiki/Precision_and_recall) are two key concepts in search (also known as *information retrieval*). To help illustrate, let’s walk through an example.
-
-You have a store with 16 types of apples. A user searches for `apples` gets 10 results. 8 of the results are for apples, and 2 are for apple juice.
-
-**Precision** is the fraction of documents in the results that are relevant. There are 10 results and 8 are relevant, so precision is 80%.
-
-**Recall** is the fraction of relevant documents in the results out of all relevant documents. There are 16 apples and only 8 in the results, so recall is 50%.
-
-There’s typically a trade-off between the two. As you tweak your search to increase precision (not return irrelevant documents), there’s are greater chance a relevant document also isn’t returned, which decreases recall. The opposite also applies. As you try to increase recall (return a higher number of relevent documents), there’s a greater chance you also return an irrelevant document, decreasing precision.
 
 ## Reference
 
@@ -1656,6 +1664,12 @@ Eager load different associations by model
 
 ```ruby
 Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
+```
+
+Run additional scopes on results [master]
+
+```ruby
+Product.search "milk", scope_results: ->(r) { r.with_attached_images }
 ```
 
 Specify default fields to search

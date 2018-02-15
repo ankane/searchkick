@@ -14,4 +14,4 @@ fi
 tar -xvf elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
 cd elasticsearch-$ELASTICSEARCH_VERSION/bin
 ./elasticsearch -d
-wget -O- --waitretry=1 --tries=30 --retry-connrefused -v http://127.0.0.1:9200/
+wget -O- --waitretry=1 --tries=60 --retry-connrefused -v http://127.0.0.1:9200/

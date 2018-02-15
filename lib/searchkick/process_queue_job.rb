@@ -1,6 +1,6 @@
 module Searchkick
   class ProcessQueueJob < ActiveJob::Base
-    queue_as :searchkick
+    queue_as { Searchkick.queue_name }
 
     def perform(class_name:)
       model = class_name.constantize

@@ -1,6 +1,6 @@
 module Searchkick
   class ProcessBatchJob < ActiveJob::Base
-    queue_as :searchkick
+    queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids:)
       klass = class_name.constantize

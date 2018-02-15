@@ -68,7 +68,7 @@ module Searchkick
             end
 
             result["id"] ||= result["_id"] # needed for legacy reasons
-            Hashie::Mash.new(result)
+            HashWrapper.new(result)
           end
         end
       end
@@ -77,6 +77,8 @@ module Searchkick
     def suggestions
       if response["suggest"]
         response["suggest"].values.flat_map { |v| v.first["options"] }.sort_by { |o| -o["score"] }.map { |o| o["text"] }.uniq
+      elsif options[:term] == "*"
+        []
       else
         raise "Pass `suggest: true` to the search method for suggestions"
       end
@@ -187,7 +189,11 @@ module Searchkick
     end
 
     def hits
-      @response["hits"]["hits"]
+      if error
+        raise Searchkick::Error, "Query error - use the error method to view it"
+      else
+        @response["hits"]["hits"]
+      end
     end
 
     def misspellings?
@@ -213,6 +219,10 @@ module Searchkick
           else
             records.includes(included_relations)
           end
+      end
+
+      if options[:scope_results]
+        records = options[:scope_results].call(records)
       end
 
       Searchkick.load_records(records, ids)
