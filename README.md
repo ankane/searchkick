@@ -1055,20 +1055,32 @@ Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This de
 
 ### Heroku
 
-Choose an add-on: [SearchBox](https://elements.heroku.com/addons/searchbox), [Bonsai](https://elements.heroku.com/addons/bonsai), or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch).
+Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai) or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch). [SearchBox](https://elements.heroku.com/addons/searchbox) does not work at the moment.
+
+For Bonsai:
 
 ```sh
-# SearchBox
-heroku addons:create searchbox:starter
-heroku config:set ELASTICSEARCH_URL=`heroku config:get SEARCHBOX_URL`
-
-# Bonsai
 heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
+```
 
-# Found
+For Found:
+
+```sh
 heroku addons:create foundelasticsearch
-heroku config:set ELASTICSEARCH_URL=`heroku config:get FOUNDELASTICSEARCH_URL`
+heroku addons:open foundelasticsearch
+```
+
+Visit the Shield page and reset your password. You’ll need to add the username and password to your url. Get the existing url with:
+
+```sh
+heroku config:get FOUNDELASTICSEARCH_URL
+```
+
+And add `elastic:password@` right after `https://`:
+
+```sh
+heroku config:set ELASTICSEARCH_URL=`https://elastic:password@12345.us-east-1.aws.found.io`
 ```
 
 Then deploy and reindex:
