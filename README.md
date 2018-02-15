@@ -1080,7 +1080,7 @@ heroku config:get FOUNDELASTICSEARCH_URL
 And add `elastic:password@` right after `https://`:
 
 ```sh
-heroku config:set ELASTICSEARCH_URL=`https://elastic:password@12345.us-east-1.aws.found.io`
+heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws.found.io
 ```
 
 Then deploy and reindex:
