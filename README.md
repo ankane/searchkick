@@ -1147,10 +1147,6 @@ Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "http://localhost:9200,http://localhost:9201"
-
-Searchkick.client_options = {
-  retry_on_failure: true
-}
 ```
 
 See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
