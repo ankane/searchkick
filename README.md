@@ -1213,7 +1213,7 @@ class Product < ApplicationRecord
 end
 ```
 
-**Note:** Non-string fields will always be filterable and should not be passed to this option.
+**Note:** Non-string fields are always filterable and should not be passed to this option.
 
 ### Parallel Reindexing
 
