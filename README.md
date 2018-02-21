@@ -2,7 +2,7 @@
 
 :rocket: Intelligent search made easy
 
-Searchkick learns what **your users** are looking for. As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
+**Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
 
 Searchkick handles:
 
