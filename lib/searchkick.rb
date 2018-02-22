@@ -223,7 +223,7 @@ module Searchkick
 end
 
 # TODO find better ActiveModel hook
-ActiveModel::Callbacks.send(:include, Searchkick::Model)
+ActiveModel::Callbacks.include(Searchkick::Model)
 
 ActiveSupport.on_load(:active_record) do
   extend Searchkick::Model
