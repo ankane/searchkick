@@ -29,7 +29,7 @@ Product.search("something", debug: true)
 
 If the above steps don’t help, create an issue.
 
-- For incorrect search results, recreate the problem by forking [this gist](https://gist.github.com/ankane/f80b0923d9ae2c077f41997f7b704e5c). Include a link to your gist and the output in the issue.
+- Recreate the problem by forking [this gist](https://gist.github.com/ankane/f80b0923d9ae2c077f41997f7b704e5c). Include a link to your gist and the output in the issue.
 - For exceptions, include the complete backtrace.
 
 ## Pull Requests
