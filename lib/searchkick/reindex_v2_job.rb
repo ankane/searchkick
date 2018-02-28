@@ -13,7 +13,11 @@ module Searchkick
       model = klass.constantize
       record =
         begin
-          model.find(id)
+          if model.searchkick_options[:unscoped_reindex]
+            model.unscoped.find(id)
+          else
+            model.find(id)
+          end
         rescue => e
           # check by name rather than rescue directly so we don't need
           # to determine which classes are defined
