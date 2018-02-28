@@ -1,3 +1,7 @@
+## 2.5.1 [unreleased]
+
+- Added `unscoped_reindex_job` option
+
 ## 2.5.0
 
 - Try requests 3 times before raising error

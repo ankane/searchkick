@@ -13,7 +13,7 @@ module Searchkick
       model = klass.constantize
       record =
         begin
-          if model.searchkick_options[:unscoped_reindex]
+          if model.searchkick_options[:unscoped_reindex_job]
             model.unscoped.find(id)
           else
             model.find(id)
