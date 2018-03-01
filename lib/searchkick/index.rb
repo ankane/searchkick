@@ -276,6 +276,12 @@ module Searchkick
         index.refresh
         true
       end
+    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+      if e.message.include?("No handler for type [text]")
+        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
+      end
+
+      raise e
     end
 
     def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false)
