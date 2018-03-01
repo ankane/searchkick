@@ -424,9 +424,9 @@ module Searchkick
 
         if filters.any? || must_not.any? || should.any?
           bool = {must: query}
-          bool[:filter] = filters if filters.any?
-          bool[:must_not] = must_not if must_not.any?
-          bool[:should] = should if should.any?
+          bool[:filter] = filters if filters.any?      # where
+          bool[:must_not] = must_not if must_not.any?  # exclude
+          bool[:should] = should if should.any?        # conversions
           query = {bool: bool}
         end
 
