@@ -591,7 +591,7 @@ module Searchkick
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
-      custom_filters.concat boost_filters(boost_by, log: true)
+      custom_filters.concat boost_filters(boost_by, modifier: "ln2p")
       multiply_filters.concat boost_filters(multiply_by || {})
     end
 
@@ -906,15 +906,14 @@ module Searchkick
       }
     end
 
-    def boost_filters(boost_by, options = {})
+    def boost_filters(boost_by, modifier: nil)
       boost_by.map do |field, value|
-        log = value.key?(:log) ? value[:log] : options[:log]
-        value[:factor] ||= 1
+        raise ArgumentError, "Use modifier: \"ln2p\" instead" if value.key?(:log)
         script_score = {
           field_value_factor: {
             field: field,
-            factor: value[:factor].to_f,
-            modifier: value[:modifier] || (log ? "ln2p" : nil)
+            factor: (value[:factor] || 1).to_f,
+            modifier: value[:modifier] || modifier
           }
         }
 
