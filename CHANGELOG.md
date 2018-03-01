@@ -1,3 +1,8 @@
+## 3.0.0 [unreleased]
+
+- Removed support for Elasticsearch 2
+- Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
+
 ## 2.5.1 [unreleased]
 
 - Added `unscoped_reindex_job` option

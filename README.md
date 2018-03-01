@@ -535,7 +535,7 @@ class Image < ApplicationRecord
   after_commit :reindex_product
 
   def reindex_product
-    product.reindex # or reindex_async
+    product.reindex
   end
 end
 ```
@@ -1531,8 +1531,6 @@ Reindex one record
 ```ruby
 product = Product.find(1)
 product.reindex
-# or to reindex in the background
-product.reindex_async
 ```
 
 Reindex multiple records

@@ -122,13 +122,7 @@ class BoostTest < Minitest::Test
       {name: "Tomato B", orders_count: 10},
     ]
 
-    if elasticsearch_below50?
-      assert_raises(ArgumentError) do
-        assert_order "tomato", ["Tomato A", "Tomato B"], boost_by: {orders_count: {missing: 100}}
-      end
-    else
-      assert_order "tomato", ["Tomato A", "Tomato B"], boost_by: {orders_count: {missing: 100}}
-    end
+    assert_order "tomato", ["Tomato A", "Tomato B"], boost_by: {orders_count: {missing: 100}}
   end
 
   def test_boost_by_boost_mode_multiply

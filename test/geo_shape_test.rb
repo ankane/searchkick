@@ -145,7 +145,6 @@ class GeoShapeTest < Minitest::Test
   end
 
   def test_contains
-    skip if elasticsearch_below22?
     assert_search "*", ["Region C"], {
       where: {
         territory: {

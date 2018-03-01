@@ -131,9 +131,10 @@ class IndexTest < Minitest::Test
   def test_filterable
     # skip for 5.0 since it throws
     # Cannot search on field [alt_description] since it is not indexed.
-    skip unless elasticsearch_below50?
     store [{name: "Product A", alt_description: "Hello"}]
-    assert_search "*", [], where: {alt_description: "Hello"}
+    assert_raises(Searchkick::InvalidQueryError) do
+      assert_search "*", [], where: {alt_description: "Hello"}
+    end
   end
 
   def test_filterable_non_string
@@ -155,7 +156,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_very_large_value
-    skip if nobrainer? || elasticsearch_below22?
+    skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region

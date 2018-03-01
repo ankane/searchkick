@@ -79,12 +79,11 @@ module Searchkick
           end
         end
 
-        callback_name = callbacks == :async ? :reindex_async : :reindex
         if respond_to?(:after_commit)
-          after_commit callback_name, if: proc { self.class.search_callbacks? }
+          after_commit :reindex, if: -> { self.class.search_callbacks? }
         elsif respond_to?(:after_save)
-          after_save callback_name, if: proc { self.class.search_callbacks? }
-          after_destroy callback_name, if: proc { self.class.search_callbacks? }
+          after_save :reindex, if: -> { self.class.search_callbacks? }
+          after_destroy :reindex, if: -> { self.class.search_callbacks? }
         end
 
         def reindex(method_name = nil, refresh: false, async: false, mode: nil)
@@ -96,8 +95,7 @@ module Searchkick
                 :async
               elsif Searchkick.callbacks_value
                 Searchkick.callbacks_value
-              elsif klass_options.key?(:callbacks) && klass_options[:callbacks] != :async
-                # TODO remove 2nd condition in next major version
+              elsif klass_options.key?(:callbacks)
                 klass_options[:callbacks]
               end
           end
@@ -129,11 +127,6 @@ module Searchkick
             self.class.searchkick_index.refresh if refresh
           end
         end unless method_defined?(:reindex)
-
-        # TODO remove this method in next major version
-        def reindex_async
-          reindex(async: true)
-        end unless method_defined?(:reindex_async)
 
         def similar(options = {})
           self.class.searchkick_index.similar_record(self, options)
