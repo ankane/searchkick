@@ -363,30 +363,7 @@ module Searchkick
 
             queries.concat(queries_to_add)
 
-            if options[:exclude]
-              Array(options[:exclude]).map do |phrase|
-                must_not <<
-                  if field.start_with?("*.")
-                    {
-                      multi_match: {
-                        fields: [field],
-                        query: phrase,
-                        analyzer: exclude_analyzer,
-                        type: "phrase"
-                      }
-                    }
-                  else
-                    {
-                      match_phrase: {
-                        exclude_field => {
-                          query: phrase,
-                          analyzer: exclude_analyzer
-                        }
-                      }
-                    }
-                  end
-              end
-            end
+            set_exclude(must_not, exclude_field, exclude_analyzer) if options[:exclude]
           end
 
           payload = {
@@ -561,6 +538,19 @@ module Searchkick
             }
           }
         end
+      end
+    end
+
+    def set_exclude(must_not, field, analyzer)
+      Array(options[:exclude]).map do |phrase|
+        must_not << {
+          multi_match: {
+            fields: [field],
+            query: phrase,
+            analyzer: analyzer,
+            type: "phrase"
+          }
+        }
       end
     end
 
