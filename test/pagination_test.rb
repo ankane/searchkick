@@ -14,7 +14,7 @@ class PaginationTest < Minitest::Test
 
   def test_offset
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2
+    assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2, limit: 100
   end
 
   def test_pagination
