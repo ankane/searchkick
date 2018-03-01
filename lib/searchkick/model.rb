@@ -133,7 +133,7 @@ module Searchkick
         end unless method_defined?(:similar)
 
         def search_data
-          respond_to?(:to_hash) ? to_hash : serializable_hash
+          (respond_to?(:to_hash) ? to_hash : serializable_hash).except("id", "_id")
         end unless method_defined?(:search_data)
 
         def should_index?
