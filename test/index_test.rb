@@ -59,8 +59,10 @@ class IndexTest < Minitest::Test
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
   end
 
-  def test_body_warning
-    assert_output(nil, "The body option replaces the entire body, so the following options are ignored: where\n") { Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1}) }
+  def test_body_incompatible_options
+    assert_raises(ArgumentError) do
+      Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1})
+    end
   end
 
   def test_block
