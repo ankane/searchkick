@@ -232,8 +232,11 @@ module Searchkick
         warn "The body option replaces the entire body, so the following options are ignored: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
+        must_not = []
+        should = []
+
         if options[:similar]
-          payload = {
+          query = {
             more_like_this: {
               like: term,
               min_doc_freq: 1,
@@ -245,10 +248,10 @@ module Searchkick
             raise ArgumentError, "Must specify fields to search"
           end
           if fields != ["_all"]
-            payload[:more_like_this][:fields] = fields
+            query[:more_like_this][:fields] = fields
           end
         elsif all
-          payload = {
+          query = {
             match_all: {}
           }
         else
@@ -360,9 +363,11 @@ module Searchkick
               queries_to_add.concat(q2)
             end
 
+            queries.concat(queries_to_add)
+
             if options[:exclude]
-              must_not =
-                Array(options[:exclude]).map do |phrase|
+              Array(options[:exclude]).map do |phrase|
+                must_not <<
                   if field.start_with?("*.")
                     {
                       multi_match: {
@@ -382,17 +387,8 @@ module Searchkick
                       }
                     }
                   end
-                end
-
-              queries_to_add = [{
-                bool: {
-                  should: queries_to_add,
-                  must_not: must_not
-                }
-              }]
+              end
             end
-
-            queries.concat(queries_to_add)
           end
 
           payload = {
@@ -402,12 +398,8 @@ module Searchkick
           }
 
           if conversions_fields.present? && options[:conversions] != false
-            shoulds = []
             conversions_fields.each do |conversions_field|
-              # wrap payload in a bool query
-              script_score = {field_value_factor: {field: "#{conversions_field}.count"}}
-
-              shoulds << {
+              should << {
                 nested: {
                   path: conversions_field,
                   score_mode: "sum",
@@ -418,61 +410,24 @@ module Searchkick
                         match: {
                           "#{conversions_field}.query" => options[:conversions_term] || term
                         }
+                      },
+                      field_value_factor: {
+                        field: "#{conversions_field}.count"
                       }
-                    }.merge(script_score)
+                    }
                   }
                 }
               }
             end
-            payload = {
-              bool: {
-                must: payload,
-                should: shoulds
-              }
-            }
           end
-        end
 
-        custom_filters = []
-        multiply_filters = []
-
-        set_boost_by(multiply_filters, custom_filters)
-        set_boost_where(custom_filters)
-        set_boost_by_distance(custom_filters) if options[:boost_by_distance]
-
-        if custom_filters.any?
-          payload = {
-            function_score: {
-              functions: custom_filters,
-              query: payload,
-              score_mode: "sum"
-            }
-          }
-        end
-
-        if multiply_filters.any?
-          payload = {
-            function_score: {
-              functions: multiply_filters,
-              query: payload,
-              score_mode: "multiply"
-            }
-          }
+          query = payload
         end
 
         payload = {
-          query: payload,
           size: per_page,
           from: offset
         }
-        payload[:explain] = options[:explain] if options[:explain]
-        payload[:profile] = options[:profile] if options[:profile]
-
-        # order
-        set_order(payload) if options[:order]
-
-        # indices_boost
-        set_boost_by_indices(payload)
 
         # type when inheritance
         where = (options[:where] || {}).dup
@@ -488,8 +443,54 @@ module Searchkick
         # aggregations
         set_aggregations(payload, filters, post_filters) if options[:aggs]
 
-        # filters
-        set_filters(payload, filters, post_filters)
+        # post filters
+        set_post_filters(payload, post_filters) if post_filters.any?
+
+        if filters.any? || must_not.any? || should.any?
+          bool = {must: query}
+          bool[:filter] = filters if filters.any?
+          bool[:must_not] = must_not if must_not.any?
+          bool[:should] = should if should.any?
+          query = {bool: bool}
+        end
+
+        custom_filters = []
+        multiply_filters = []
+
+        set_boost_by(multiply_filters, custom_filters)
+        set_boost_where(custom_filters)
+        set_boost_by_distance(custom_filters) if options[:boost_by_distance]
+
+        if custom_filters.any?
+          query = {
+            function_score: {
+              functions: custom_filters,
+              query: query,
+              score_mode: "sum"
+            }
+          }
+        end
+
+        if multiply_filters.any?
+          query = {
+            function_score: {
+              functions: multiply_filters,
+              query: query,
+              score_mode: "multiply"
+            }
+          }
+        end
+
+        payload[:query] = query
+
+        payload[:explain] = options[:explain] if options[:explain]
+        payload[:profile] = options[:profile] if options[:profile]
+
+        # order
+        set_order(payload) if options[:order]
+
+        # indices_boost
+        set_boost_by_indices(payload)
 
         # suggestions
         set_suggestions(payload, options[:suggest]) if options[:suggest]
@@ -760,24 +761,12 @@ module Searchkick
       end
     end
 
-    def set_filters(payload, filters, post_filters)
-      if post_filters.any?
-        payload[:post_filter] = {
-          bool: {
-            filter: post_filters
-          }
+    def set_post_filters(payload, post_filters)
+      payload[:post_filter] = {
+        bool: {
+          filter: post_filters
         }
-      end
-
-      if filters.any?
-        # more efficient query if no aggs
-        payload[:query] = {
-          bool: {
-            must: payload[:query],
-            filter: filters
-          }
-        }
-      end
+      }
     end
 
     # TODO id transformation for arrays
