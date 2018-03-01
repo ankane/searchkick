@@ -242,7 +242,7 @@ class MatchTest < Minitest::Test
 
   def test_phrase
     store_names ["Fresh Honey", "Honey Fresh"]
-    assert_search "fresh honey", ["Fresh Honey"], match: :phrase, fields: [:name]
+    assert_search "fresh honey", ["Fresh Honey"], match: :phrase
   end
 
   def test_phrase_again
@@ -252,7 +252,7 @@ class MatchTest < Minitest::Test
 
   def test_phrase_order
     store_names ["Wheat Bread", "Whole Wheat Bread"]
-    assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase
+    assert_order "wheat bread", ["Wheat Bread", "Whole Wheat Bread"], match: :phrase, fields: [:name]
   end
 
   def test_dynamic_fields
