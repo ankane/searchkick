@@ -769,63 +769,6 @@ For other aggregation types, including sub-aggregations, use `body_options`:
 Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
 ```
 
-#### Moving From Facets
-
-1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
-
-  ```ruby
-  products = Product.search "chuck taylor", facets: [:brand]
-  # to
-  products = Product.search "chuck taylor", aggs: [:brand]
-  ```
-
-2. Replace the `facets` method with `aggs` for results.
-
-  ```ruby
-  products.facets
-  # to
-  products.aggs
-  ```
-
-  The keys in results differ slightly. Instead of:
-
-  ```json
-  {
-    "_type":"terms",
-    "missing":0,
-    "total":45,
-    "other":34,
-    "terms":[
-      {"term":14.0,"count":11}
-    ]
-  }
-  ```
-
-  You get:
-
-  ```json
-  {
-    "doc_count":45,
-    "doc_count_error_upper_bound":0,
-    "sum_other_doc_count":34,
-    "buckets":[
-      {"key":14.0,"doc_count":11}
-    ]
-  }
-  ```
-
-  Update your application to handle this.
-
-3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
-
-4. If you have any range facets with dates, change the key from `ranges` to `date_ranges`.
-
-  ```ruby
-  facets: {date_field: {ranges: date_ranges}}
-  # to
-  aggs: {date_field: {date_ranges: date_ranges}}
-  ```
-
 ### Highlight
 
 Specify which fields to index with highlighting.
