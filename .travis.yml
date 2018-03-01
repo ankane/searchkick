@@ -24,11 +24,9 @@ env:
 jdk: oraclejdk8
 matrix:
   include:
+    - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=5.0.1
-      jdk: oraclejdk8
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=5.6.4
-      jdk: oraclejdk8
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=6.0.0
-      jdk: oraclejdk8
