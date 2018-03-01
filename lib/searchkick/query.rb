@@ -587,7 +587,7 @@ module Searchkick
       if boost_by.is_a?(Array)
         boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
       elsif boost_by.is_a?(Hash)
-        multiply_by, boost_by = boost_by.partition { |_, v| v[:boost_mode] == "multiply" }.map { |i| Hash[i] }
+        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map { |i| Hash[i] }
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
@@ -906,28 +906,31 @@ module Searchkick
       }
     end
 
-    def boost_filters(boost_by, modifier: nil)
-      boost_by.map do |field, value|
-        raise ArgumentError, "Use modifier: \"ln2p\" instead" if value.key?(:log)
-        script_score = {
-          field_value_factor: {
-            field: field,
-            factor: (value[:factor] || 1).to_f,
-            modifier: value[:modifier] || modifier
+    def boost_filter(field, factor: 1, modifier: nil, missing: nil)
+      script_score = {
+        field_value_factor: {
+          field: field,
+          factor: factor.to_f,
+          modifier: modifier
+        }
+      }
+
+      if missing
+        script_score[:field_value_factor][:missing] = missing.to_f
+      else
+        script_score[:filter] = {
+          exists: {
+            field: field
           }
         }
+      end
 
-        if value[:missing]
-          script_score[:field_value_factor][:missing] = value[:missing].to_f
-        else
-          script_score[:filter] = {
-            exists: {
-              field: field
-            }
-          }
-        end
+      script_score
+    end
 
-        script_score
+    def boost_filters(boost_by, modifier: nil)
+      boost_by.map do |field, value|
+        boost_filter(field, modifier: modifier, **value)
       end
     end
 
