@@ -5,6 +5,7 @@
 - Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
 - Types are no longer supported. To upgrade models that use inheritance, upgrade your gem to `2.5.0`. Added `inheritance: true` to your `searchkick` method, and do a full reindex before upgrading.
 - Bumped default `limit` to 10,000
+- The `_all` field is disabled by default in Elasticsearch 5. Use `searchkick _all: true` if you need it.
 
 ## 2.5.1 [unreleased]
 
