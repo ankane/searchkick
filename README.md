@@ -27,6 +27,12 @@ Plus:
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
 
+---
+
+Does your startup use Searchkick? Want a free hour of advising? Fill out [this application](https://goo.gl/forms/Or1HQTRb2rgQCNtd2). I’ll reach out to a few companies.
+
+---
+
 ## Contents
 
 - [Getting Started](#getting-started)
