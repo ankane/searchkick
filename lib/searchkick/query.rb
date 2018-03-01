@@ -363,7 +363,9 @@ module Searchkick
 
             queries.concat(queries_to_add)
 
-            set_exclude(must_not, exclude_field, exclude_analyzer) if options[:exclude]
+            if options[:exclude]
+              must_not.concat(set_exclude(exclude_field, exclude_analyzer))
+            end
           end
 
           payload = {
@@ -372,7 +374,7 @@ module Searchkick
             }
           }
 
-          set_conversions(should)
+          should.concat(set_conversions)
 
           query = payload
         end
@@ -514,11 +516,11 @@ module Searchkick
       [boost_fields, fields]
     end
 
-    def set_conversions(should)
+    def set_conversions
       conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
       if conversions_fields.present? && options[:conversions] != false
-        conversions_fields.each do |conversions_field|
-          should << {
+        conversions_fields.map do |conversions_field|
+          {
             nested: {
               path: conversions_field,
               score_mode: "sum",
@@ -538,12 +540,14 @@ module Searchkick
             }
           }
         end
+      else
+        []
       end
     end
 
-    def set_exclude(must_not, field, analyzer)
+    def set_exclude(field, analyzer)
       Array(options[:exclude]).map do |phrase|
-        must_not << {
+        {
           multi_match: {
             fields: [field],
             query: phrase,
