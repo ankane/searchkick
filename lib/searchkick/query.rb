@@ -758,7 +758,7 @@ module Searchkick
     # TODO id transformation for arrays
     def set_order(payload)
       order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      id_field = below50? ? :_id : :_uid
+      id_field = :_uid
       payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
     end
 
@@ -889,21 +889,10 @@ module Searchkick
     end
 
     def custom_filter(field, value, factor)
-      if below50?
-        {
-          filter: {
-            bool: {
-              must: where_filters(field => value)
-            }
-          },
-          boost_factor: factor
-        }
-      else
-        {
-          filter: where_filters(field => value),
-          weight: factor
-        }
-      end
+      {
+        filter: where_filters(field => value),
+        weight: factor
+      }
     end
 
     def boost_filters(boost_by, options = {})
@@ -919,11 +908,7 @@ module Searchkick
         }
 
         if value[:missing]
-          if below50?
-            raise ArgumentError, "The missing option for boost_by is not supported in Elasticsearch < 5"
-          else
-            script_score[:field_value_factor][:missing] = value[:missing].to_f
-          end
+          script_score[:field_value_factor][:missing] = value[:missing].to_f
         else
           script_score[:filter] = {
             exists: {
@@ -955,10 +940,6 @@ module Searchkick
       else
         value
       end
-    end
-
-    def below50?
-      Searchkick.server_below?("5.0.0-alpha1")
     end
 
     def below60?

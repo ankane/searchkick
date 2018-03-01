@@ -11,28 +11,16 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
-        below22 = Searchkick.server_below?("2.2.0")
-        below50 = Searchkick.server_below?("5.0.0-alpha1")
         below60 = Searchkick.server_below?("6.0.0-alpha1")
-        default_type = below50 ? "string" : "text"
+        default_type = "text"
         default_analyzer = :searchkick_index
-        keyword_mapping =
-          if below50
-            {
-              type: default_type,
-              index: "not_analyzed"
-            }
-          else
-            {
-              type: "keyword"
-            }
-          end
+        keyword_mapping = {type: "keyword"}
 
         all = options.key?(:_all) ? options[:_all] : below60
-        index_true_value = below50 ? "analyzed" : true
-        index_false_value = below50 ? "no" : false
+        index_true_value = true
+        index_false_value = false
 
-        keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
+        keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
 
         settings = {
           analysis: {
