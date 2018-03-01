@@ -335,7 +335,7 @@ module Searchkick
 
             if field.start_with?("*.")
               q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
-              if below60?
+              if below61?
                 q2.each do |q|
                   q[:multi_match].delete(:fuzzy_transpositions)
                 end
@@ -988,6 +988,10 @@ module Searchkick
 
     def below60?
       Searchkick.server_below?("6.0.0-alpha1")
+    end
+
+    def below61?
+      Searchkick.server_below?("6.1.0-alpha1")
     end
   end
 end
