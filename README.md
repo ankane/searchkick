@@ -54,7 +54,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-The latest version works with Elasticsearch 2, 5, and 6. For Elasticsearch 1, use version 1.5.1 and [this readme](https://github.com/ankane/searchkick/blob/v1.5.1/README.md).
+The latest version works with Elasticsearch 5 and 6. For Elasticsearch 2, use version 2.5.0 and [this readme](https://github.com/ankane/searchkick/blob/v2.5.0/README.md).
 
 Add searchkick to models you want to search.
 
@@ -1093,12 +1093,6 @@ heroku run rake searchkick:reindex CLASS=Product
 
 ### Amazon Elasticsearch Service
 
-Include `elasticsearch 1.0.15` or greater in your Gemfile.
-
-```ruby
-gem 'elasticsearch', '>= 1.0.15'
-```
-
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
@@ -1108,7 +1102,7 @@ ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
 To use signed request, include in your Gemfile:
 
 ```ruby
-gem 'faraday_middleware-aws-signers-v4', '>= 0.1.9'
+gem 'faraday_middleware-aws-sigv4'
 ```
 
 and add to your initializer:
