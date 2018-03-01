@@ -227,7 +227,7 @@ module Searchkick
           :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :limit, :match, :misspellings, :offset, :operator, :order,
           :padding, :page, :per_page, :select, :smart_aggs, :suggest, :where]
-        warn "The body option replaces the entire body, so the following options are ignored: #{ignored_options.join(", ")}" if ignored_options.any?
+        raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
         must_not = []
