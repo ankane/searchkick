@@ -3,6 +3,7 @@
 - Removed support for Elasticsearch 2
 - Removed support for ActiveRecord < 4.2 and Mongoid < 5
 - Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
+- Types are no longer supported. To upgrade models that use inheritance, upgrade your gem to `2.5.0`. Added `inheritance: true` to your `searchkick` method, and do a full reindex before upgrading.
 
 ## 2.5.1 [unreleased]
 
