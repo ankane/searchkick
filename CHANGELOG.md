@@ -8,6 +8,7 @@
 - The `_all` field is disabled by default in Elasticsearch 5. Use `searchkick _all: true` if you need it.
 - An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
 - Removed `log` option from `boost_by`. Use `modifier: "ln2p"` instead.
+- Removed `unscoped_reindex_job` option (always `true` now)
 
 ## 2.5.1 [unreleased]
 
