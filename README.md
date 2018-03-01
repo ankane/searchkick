@@ -39,6 +39,8 @@ Plus:
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
 
+Thinking of upgrading from Elasticsearch 5 to 6? [Read this first](#elasticsearch-5-to-6-upgrade)
+
 ## Getting Started
 
 [Install Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
@@ -1900,6 +1902,28 @@ If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend 
 ### 0.3.0
 
 Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
+
+## Elasticsearch 5 to 6 Upgrade
+
+Elasticsearch 6 removes the ability to reindex with the `_all` field. Before you upgrade, we recommend disabling this field manually and specifying default fields on your models.
+
+```ruby
+class Product < ApplicationRecord
+  searchkick _all: false, default_fields: [:name]
+end
+```
+
+If you need search across fields (which the `_all` field allowed), we recommend creating a similar field in your search data.
+
+```ruby
+class Product < ApplicationRecord
+  def search_data
+    {
+      all: [name, size, quantity].join(" ")
+    }
+  end
+end
+```
 
 ## Elasticsearch Gotchas
 

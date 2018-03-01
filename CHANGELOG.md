@@ -7,6 +7,7 @@
 
 ## 2.5.1 [unreleased]
 
+- No longer require fields when `_all` field is missing
 - Added `unscoped_reindex_job` option
 
 ## 2.5.0
