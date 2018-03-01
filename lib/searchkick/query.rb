@@ -349,7 +349,11 @@ module Searchkick
             if field =~ /\.word_(start|middle|end)\z/ && searchkick_options[:word] != false
               queries_to_add << {
                 bool: {
-                  must: q2,
+                  must: {
+                    bool: {
+                      should: q2
+                    }
+                  },
                   should: {match_type => {field.sub(/\.word_(start|middle|end)\z/, ".analyzed") => qs.first}}
                 }
               }
