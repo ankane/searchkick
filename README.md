@@ -1927,7 +1927,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you need search across fields (which the `_all` field allowed), we recommend creating a similar field in your search data.
+If you need search across multiple fields, we recommend creating a similar field in your search data.
 
 ```ruby
 class Product < ApplicationRecord
