@@ -335,6 +335,11 @@ module Searchkick
 
             if field.start_with?("*.")
               q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
+              if below60?
+                q2.each do |q|
+                  q[:multi_match].delete(:fuzzy_transpositions)
+                end
+              end
             else
               q2 = qs.map { |q| {match_type => {field => q}} }
             end
@@ -547,6 +552,8 @@ module Searchkick
           ["_all.phrase"]
         elsif term == "*"
           []
+        elsif default_match == :exact
+          raise ArgumentError, "Must specify fields to search"
         else
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end

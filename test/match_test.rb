@@ -180,12 +180,12 @@ class MatchTest < Minitest::Test
 
   def test_exclude_butter_exact
     store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "butter", [], exclude: ["peanut butter"], match: :exact
+    assert_search "butter", [], exclude: ["peanut butter"], fields: [{name: :exact}]
   end
 
   def test_exclude_same_exact
     store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "Butter Tub", [], exclude: ["Butter Tub"], match: :exact
+    assert_search "Butter Tub", ["Butter Tub"], exclude: ["Peanut Butter Tub"], fields: [{name: :exact}]
   end
 
   def test_exclude_egg_word_start
@@ -242,7 +242,7 @@ class MatchTest < Minitest::Test
 
   def test_phrase
     store_names ["Fresh Honey", "Honey Fresh"]
-    assert_search "fresh honey", ["Fresh Honey"], match: :phrase
+    assert_search "fresh honey", ["Fresh Honey"], match: :phrase, fields: [:name]
   end
 
   def test_phrase_again
