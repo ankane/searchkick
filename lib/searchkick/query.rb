@@ -491,7 +491,7 @@ module Searchkick
     def set_fields
       boost_fields = {}
       fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
-      all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : below60?
+      all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : false
       default_match = options[:match] || searchkick_options[:match] || :word
       fields =
         if fields
