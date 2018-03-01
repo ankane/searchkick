@@ -1,7 +1,7 @@
 ## 3.0.0 [unreleased]
 
 - Removed support for Elasticsearch 2
-- Removed support for ActiveRecord < 4.2
+- Removed support for ActiveRecord < 4.2 and Mongoid < 5
 - Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
 
 ## 2.5.1 [unreleased]
