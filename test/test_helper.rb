@@ -496,7 +496,7 @@ end
 
 class Animal
   searchkick \
-    inheritance: !elasticsearch_below60?,
+    inheritance: true,
     text_start: [:name],
     suggest: [:name],
     index_name: -> { "#{name.tableize}-#{Date.today.year}#{Searchkick.index_suffix}" },
