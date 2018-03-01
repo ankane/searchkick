@@ -100,8 +100,8 @@ module Searchkick
     end
   end
 
-  def self.multi_search(queries, retry_misspellings: false)
-    Searchkick::MultiSearch.new(queries, retry_misspellings: retry_misspellings).perform
+  def self.multi_search(queries)
+    Searchkick::MultiSearch.new(queries).perform
   end
 
   # callbacks
