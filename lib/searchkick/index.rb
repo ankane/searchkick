@@ -320,9 +320,7 @@ module Searchkick
 
     def klass_document_type(klass, ignore_type = false)
       @klass_document_type[[klass, ignore_type]] ||= begin
-        if klass.respond_to?(:document_type)
-          klass.document_type
-        elsif !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
+        if !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
           type = klass.searchkick_klass.searchkick_options[:_type]
           type = type.call if type.respond_to?(:call)
           type
@@ -339,11 +337,7 @@ module Searchkick
     end
 
     def document_type(record, ignore_type = false)
-      if record.respond_to?(:search_document_type)
-        record.search_document_type
-      else
-        klass_document_type(record.class, ignore_type)
-      end
+      klass_document_type(record.class, ignore_type)
     end
 
     def search_id(record)
