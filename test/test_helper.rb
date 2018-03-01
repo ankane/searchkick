@@ -417,7 +417,6 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    searchable: [:name, :color],
     filterable: [:name, :color, :description],
     similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
@@ -448,7 +447,6 @@ end
 
 class Store
   searchkick \
-    default_fields: elasticsearch_below60? ? nil : [:name],
     routing: true,
     merge_mappings: true,
     mappings: {
@@ -470,7 +468,6 @@ end
 
 class Region
   searchkick \
-    default_fields: elasticsearch_below60? ? nil : [:name],
     geo_shape: {
       territory: {tree: "quadtree", precision: "10km"}
     }
@@ -488,7 +485,6 @@ end
 
 class Speaker
   searchkick \
-    default_fields: elasticsearch_below60? ? nil : [:name],
     conversions: ["conversions_a", "conversions_b"]
 
   attr_accessor :conversions_a, :conversions_b, :aisle
@@ -504,7 +500,6 @@ end
 
 class Animal
   searchkick \
-    default_fields: elasticsearch_below60? ? nil : [:name],
     inheritance: !elasticsearch_below60?,
     text_start: [:name],
     suggest: [:name],

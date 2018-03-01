@@ -241,6 +241,9 @@ module Searchkick
               analyzer: "searchkick_search2"
             }
           }
+          if fields.all? { |f| f.start_with?("*.") }
+            raise ArgumentError, "Must specify fields to search"
+          end
           if fields != ["_all"]
             payload[:more_like_this][:fields] = fields
           end
@@ -330,7 +333,11 @@ module Searchkick
               qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
             end
 
-            q2 = qs.map { |q| {match_type => {field => q}} }
+            if field.start_with?("*.")
+              q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
+            else
+              q2 = qs.map { |q| {match_type => {field => q}} }
+            end
 
             # boost exact matches more
             if field =~ /\.word_(start|middle|end)\z/ && searchkick_options[:word] != false
@@ -351,14 +358,25 @@ module Searchkick
             if options[:exclude]
               must_not =
                 Array(options[:exclude]).map do |phrase|
-                  {
-                    match_phrase: {
-                      exclude_field => {
+                  if field.start_with?("*.")
+                    {
+                      multi_match: {
+                        fields: [field],
                         query: phrase,
-                        analyzer: exclude_analyzer
+                        analyzer: exclude_analyzer,
+                        type: "phrase"
                       }
                     }
-                  }
+                  else
+                    {
+                      match_phrase: {
+                        exclude_field => {
+                          query: phrase,
+                          analyzer: exclude_analyzer
+                        }
+                      }
+                    }
+                  end
                 end
 
               queries_to_add = [{
@@ -530,7 +548,7 @@ module Searchkick
         elsif term == "*"
           []
         else
-          raise ArgumentError, "Must specify fields to search"
+          [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
       [boost_fields, fields]
     end

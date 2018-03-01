@@ -3,7 +3,7 @@ require_relative "test_helper"
 class SimilarTest < Minitest::Test
   def test_similar
     store_names ["Annie's Naturals Organic Shiitake & Sesame Dressing"]
-    assert_search "Annie's Naturals Shiitake & Sesame Vinaigrette", ["Annie's Naturals Organic Shiitake & Sesame Dressing"], similar: true
+    assert_search "Annie's Naturals Shiitake & Sesame Vinaigrette", ["Annie's Naturals Organic Shiitake & Sesame Dressing"], similar: true, fields: [:name]
   end
 
   def test_fields
@@ -13,7 +13,7 @@ class SimilarTest < Minitest::Test
 
   def test_order
     store_names ["Lucerne Milk Chocolate Fat Free", "Clover Fat Free Milk"]
-    assert_order "Lucerne Fat Free Chocolate Milk", ["Lucerne Milk Chocolate Fat Free", "Clover Fat Free Milk"], similar: true
+    assert_order "Lucerne Fat Free Chocolate Milk", ["Lucerne Milk Chocolate Fat Free", "Clover Fat Free Milk"], similar: true, fields: [:name]
   end
 
   def test_limit

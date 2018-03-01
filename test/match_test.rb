@@ -261,6 +261,7 @@ class MatchTest < Minitest::Test
   end
 
   def test_unsearchable
+    skip
     store [
       {name: "Unsearchable", description: "Almond"}
     ]
