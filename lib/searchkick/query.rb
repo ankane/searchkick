@@ -219,8 +219,6 @@ module Searchkick
       # model and eager loading
       load = options[:load].nil? ? true : options[:load]
 
-      conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
-
       all = term == "*"
 
       @json = options[:body]
@@ -397,29 +395,7 @@ module Searchkick
             }
           }
 
-          if conversions_fields.present? && options[:conversions] != false
-            conversions_fields.each do |conversions_field|
-              should << {
-                nested: {
-                  path: conversions_field,
-                  score_mode: "sum",
-                  query: {
-                    function_score: {
-                      boost_mode: "replace",
-                      query: {
-                        match: {
-                          "#{conversions_field}.query" => options[:conversions_term] || term
-                        }
-                      },
-                      field_value_factor: {
-                        field: "#{conversions_field}.count"
-                      }
-                    }
-                  }
-                }
-              }
-            end
-          end
+          set_conversions(should)
 
           query = payload
         end
@@ -559,6 +535,33 @@ module Searchkick
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
       [boost_fields, fields]
+    end
+
+    def set_conversions(should)
+      conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
+      if conversions_fields.present? && options[:conversions] != false
+        conversions_fields.each do |conversions_field|
+          should << {
+            nested: {
+              path: conversions_field,
+              score_mode: "sum",
+              query: {
+                function_score: {
+                  boost_mode: "replace",
+                  query: {
+                    match: {
+                      "#{conversions_field}.query" => options[:conversions_term] || term
+                    }
+                  },
+                  field_value_factor: {
+                    field: "#{conversions_field}.count"
+                  }
+                }
+              }
+            }
+          }
+        end
+      end
     end
 
     def set_boost_by_distance(custom_filters)
