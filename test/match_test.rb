@@ -121,7 +121,11 @@ class MatchTest < Minitest::Test
   def test_misspelling_zucchini_transposition
     store_names ["zucchini"]
     assert_search "zuccihni", ["zucchini"]
-    assert_search "zuccihni", [], misspellings: {transpositions: false}
+
+    # need to specify field
+    # as transposition option isn't supported for multi_match queries
+    # until Elasticsearch 6.1
+    assert_search "zuccihni", [], misspellings: {transpositions: false}, fields: [:name]
   end
 
   def test_misspelling_lasagna

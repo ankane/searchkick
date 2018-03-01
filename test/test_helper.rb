@@ -46,6 +46,10 @@ def elasticsearch_below60?
   Searchkick.server_below?("6.0.0-alpha1")
 end
 
+def elasticsearch_below61?
+  Searchkick.server_below?("6.1.0-alpha1")
+end
+
 def elasticsearch_below22?
   Searchkick.server_below?("2.2.0")
 end
