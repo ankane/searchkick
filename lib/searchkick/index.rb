@@ -228,6 +228,19 @@ module Searchkick
       end
     end
 
+    # should not be public
+    def conversions_fields
+      @conversions_fields ||= Array(options[:conversions]).map(&:to_s)
+    end
+
+    def suggest_fields
+      @suggest_fields ||= Array(options[:suggest]).map(&:to_s)
+    end
+
+    def locations_fields
+      @locations_fields ||= Array(options[:locations]).map(&:to_s)
+    end
+
     protected
 
     def client

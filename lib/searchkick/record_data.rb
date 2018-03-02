@@ -1,6 +1,7 @@
 module Searchkick
   class RecordData
     EXCLUDED_ATTRIBUTES = ["_id", "_type"]
+    TYPE_KEY = "type"
 
     attr_reader :index, :record
 
@@ -48,7 +49,6 @@ module Searchkick
 
     def search_data(method_name = nil)
       partial_reindex = !method_name.nil?
-      options = record.class.searchkick_options
 
       # remove _id since search_id is used instead
       source = record.send(method_name || :search_data)
@@ -62,37 +62,31 @@ module Searchkick
       end
 
       # conversions
-      if options[:conversions]
-        Array(options[:conversions]).map(&:to_s).each do |conversions_field|
-          if source[conversions_field]
-            source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
-          end
+      index.conversions_fields.each do |conversions_field|
+        if source[conversions_field]
+          source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
         end
       end
 
       # hack to prevent generator field doesn't exist error
-      if options[:suggest]
-        options[:suggest].map(&:to_s).each do |field|
-          source[field] = nil if !source[field] && !partial_reindex
-        end
+      index.suggest_fields.each do |field|
+        source[field] = nil if !source[field] && !partial_reindex
       end
 
       # locations
-      if options[:locations]
-        options[:locations].map(&:to_s).each do |field|
-          if source[field]
-            if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
-              # multiple locations
-              source[field] = source[field].map { |a| location_value(a) }
-            else
-              source[field] = location_value(source[field])
-            end
+      index.locations_fields.each do |field|
+        if source[field]
+          if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
+            # multiple locations
+            source[field] = source[field].map { |a| location_value(a) }
+          else
+            source[field] = location_value(source[field])
           end
         end
       end
 
-      if !source.key?("type") && record.class.searchkick_klass.searchkick_options[:inheritance]
-        source["type"] = document_type(true)
+      if !source.key?(TYPE_KEY) && index.options[:inheritance]
+        source[TYPE_KEY] = document_type(true)
       end
 
       cast_big_decimal(source)
