@@ -1,3 +1,5 @@
+require "searchkick/index_options"
+
 module Searchkick
   class Index
     include IndexOptions
@@ -99,22 +101,20 @@ module Searchkick
       bulk_update_helper(records, method_name)
     end
 
-    def record_data(r)
-      data = {
-        _index: name,
-        _id: search_id(r),
-        _type: document_type(r)
-      }
-      data[:_routing] = r.search_routing if r.respond_to?(:search_routing)
-      data
-    end
-
     def retrieve(record)
       client.get(
         index: name,
         type: document_type(record),
         id: search_id(record)
       )["_source"]
+    end
+
+    def search_id(record)
+      RecordIndexer.new(self, record).search_id
+    end
+
+    def document_type(record)
+      RecordIndexer.new(self, record).document_type
     end
 
     def reindex_record(record)
@@ -342,93 +342,6 @@ module Searchkick
       Searchkick.client
     end
 
-    def document_type(record, ignore_type = false)
-      klass_document_type(record.class, ignore_type)
-    end
-
-    def search_id(record)
-      id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
-      id.is_a?(Numeric) ? id : id.to_s
-    end
-
-    EXCLUDED_ATTRIBUTES = ["_id", "_type"]
-
-    def search_data(record, method_name = nil)
-      partial_reindex = !method_name.nil?
-      options = record.class.searchkick_options
-
-      # remove _id since search_id is used instead
-      source = record.send(method_name || :search_data).each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except(*EXCLUDED_ATTRIBUTES)
-
-      # conversions
-      if options[:conversions]
-        Array(options[:conversions]).map(&:to_s).each do |conversions_field|
-          if source[conversions_field]
-            source[conversions_field] = source[conversions_field].map { |k, v| {query: k, count: v} }
-          end
-        end
-      end
-
-      # hack to prevent generator field doesn't exist error
-      if options[:suggest]
-        options[:suggest].map(&:to_s).each do |field|
-          source[field] = nil if !source[field] && !partial_reindex
-        end
-      end
-
-      # locations
-      if options[:locations]
-        options[:locations].map(&:to_s).each do |field|
-          if source[field]
-            if !source[field].is_a?(Hash) && (source[field].first.is_a?(Array) || source[field].first.is_a?(Hash))
-              # multiple locations
-              source[field] = source[field].map { |a| location_value(a) }
-            else
-              source[field] = location_value(source[field])
-            end
-          end
-        end
-      end
-
-      if !source.key?("type") && record.class.searchkick_klass.searchkick_options[:inheritance]
-        source["type"] = document_type(record, true)
-      end
-
-      cast_big_decimal(source)
-
-      source
-    end
-
-    def location_value(value)
-      if value.is_a?(Array)
-        value.map(&:to_f).reverse
-      elsif value.is_a?(Hash)
-        {lat: value[:lat].to_f, lon: value[:lon].to_f}
-      else
-        value
-      end
-    end
-
-    # change all BigDecimal values to floats due to
-    # https://github.com/rails/rails/issues/6033
-    # possible loss of precision :/
-    def cast_big_decimal(obj)
-      case obj
-      when BigDecimal
-        obj.to_f
-      when Hash
-        obj.each do |k, v|
-          obj[k] = cast_big_decimal(v)
-        end
-      when Enumerable
-        obj.map do |v|
-          cast_big_decimal(v)
-        end
-      else
-        obj
-      end
-    end
-
     def import_or_update(records, method_name, async)
       if records.any?
         if async
@@ -532,15 +445,15 @@ module Searchkick
     end
 
     def bulk_index_helper(records)
-      Searchkick.indexer.queue(records.map { |r| {index: record_data(r).merge(data: search_data(r))} })
+      Searchkick.indexer.queue(records.map { |r| RecordIndexer.new(self, r).index_data })
     end
 
     def bulk_delete_helper(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| {delete: record_data(r)} })
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordIndexer.new(self, r).delete_data })
     end
 
     def bulk_update_helper(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+      Searchkick.indexer.queue(records.map { |r| RecordIndexer.new(self, r).update_data(method_name) })
     end
 
     def batches_key

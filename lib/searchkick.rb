@@ -1,19 +1,21 @@
 require "active_model"
+require "active_support/core_ext/hash/deep_merge"
 require "elasticsearch"
 require "hashie"
-require "searchkick/version"
-require "searchkick/index_options"
+
 require "searchkick/index"
 require "searchkick/indexer"
-require "searchkick/reindex_queue"
 require "searchkick/hash_wrapper"
-require "searchkick/results"
-require "searchkick/query"
-require "searchkick/multi_search"
-require "searchkick/model"
 require "searchkick/middleware"
+require "searchkick/model"
+require "searchkick/multi_search"
+require "searchkick/query"
+require "searchkick/reindex_queue"
+require "searchkick/record_indexer"
+require "searchkick/results"
+require "searchkick/version"
+
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
-require "active_support/core_ext/hash/deep_merge"
 
 begin
   require "rake"
