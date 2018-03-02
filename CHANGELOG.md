@@ -13,6 +13,10 @@
 - Removed `async` option from `record.reindex` - use `mode: :async` instead
 - Conversions are not stemmed by default - use `stem_conversion: true` to enable this
 
+```ruby
+Searchkick.model_options = {stem_conversions: true}
+```
+
 ## 2.5.1 [unreleased]
 
 - No longer require fields when `_all` field is missing
