@@ -165,6 +165,27 @@ module Searchkick
 
     # reindex
 
+    def reindex(scope, method_name, scoped:, full: false, **options)
+      return unless Searchkick.callbacks?
+
+      refresh = options.fetch(:refresh, !scoped)
+
+      if method_name
+        # update
+        import_scope(scope, method_name: method_name)
+        self.refresh if refresh
+        true
+      elsif scoped && !full
+        # reindex association
+        import_scope(scope)
+        self.refresh if refresh
+        true
+      else
+        # full reindex
+        reindex_scope(scope, options)
+      end
+    end
+
     def create_index(index_options: nil)
       index_options ||= self.index_options
       index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)

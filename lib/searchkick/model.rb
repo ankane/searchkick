@@ -36,28 +36,11 @@ module Searchkick
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
-          def searchkick_reindex(method_name = nil, full: false, **options)
-            return unless Searchkick.callbacks?
-
+          def searchkick_reindex(method_name = nil, **options)
             scoped = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
               (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
 
-            refresh = options.fetch(:refresh, !scoped)
-
-            if method_name
-              # update
-              searchkick_index.import_scope(searchkick_klass, method_name: method_name)
-              searchkick_index.refresh if refresh
-              true
-            elsif scoped && !full
-              # reindex association
-              searchkick_index.import_scope(searchkick_klass)
-              searchkick_index.refresh if refresh
-              true
-            else
-              # full reindex
-              searchkick_index.reindex_scope(searchkick_klass, options)
-            end
+            searchkick_index.reindex(searchkick_klass, method_name, scoped: scoped, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 

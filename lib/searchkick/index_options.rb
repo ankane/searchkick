@@ -174,7 +174,6 @@ module Searchkick
           # - Only apply the synonym expansion at index time
           # - Don't have the synonym filter applied search
           # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_synonym") if below60
           settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_synonym"
 
           %w(word_start word_middle word_end).each do |type|
