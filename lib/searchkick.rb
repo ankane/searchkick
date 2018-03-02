@@ -84,7 +84,7 @@ module Searchkick
     klass = model
 
     # make Searchkick.search(index_name: [Product]) and Product.search equivalent
-    if !klass
+    unless klass
       index_name = Array(options[:index_name])
       if index_name.size == 1 && index_name.first.respond_to?(:searchkick_index)
         klass = index_name.first
