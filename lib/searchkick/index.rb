@@ -226,6 +226,42 @@ module Searchkick
       response["hits"]["total"]
     end
 
+    def import_scope(scope, **options)
+      bulk_indexer.import_scope(scope, **options)
+    end
+
+    def batches_left
+      bulk_indexer.batches_left
+    end
+
+    # other
+
+    def tokens(text, options = {})
+      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
+    end
+
+    def klass_document_type(klass, ignore_type = false)
+      @klass_document_type[[klass, ignore_type]] ||= begin
+        if !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
+          type = klass.searchkick_klass.searchkick_options[:_type]
+          type = type.call if type.respond_to?(:call)
+          type
+        else
+          klass.model_name.to_s.underscore
+        end
+      end
+    end
+
+    protected
+
+    def client
+      Searchkick.client
+    end
+
+    def bulk_indexer
+      @bulk_indexer ||= BulkIndexer.new(self)
+    end
+
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex_scope(scope, import: true, resume: false, retain: false, async: false, refresh_interval: nil)
@@ -290,42 +326,6 @@ module Searchkick
       end
 
       raise e
-    end
-
-    def import_scope(scope, **options)
-      bulk_indexer.import_scope(scope, **options)
-    end
-
-    def batches_left
-      bulk_indexer.batches_left
-    end
-
-    # other
-
-    def tokens(text, options = {})
-      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
-    end
-
-    def klass_document_type(klass, ignore_type = false)
-      @klass_document_type[[klass, ignore_type]] ||= begin
-        if !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
-          type = klass.searchkick_klass.searchkick_options[:_type]
-          type = type.call if type.respond_to?(:call)
-          type
-        else
-          klass.model_name.to_s.underscore
-        end
-      end
-    end
-
-    protected
-
-    def client
-      Searchkick.client
-    end
-
-    def bulk_indexer
-      @bulk_indexer ||= BulkIndexer.new(self)
     end
   end
 end
