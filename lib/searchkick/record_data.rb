@@ -51,7 +51,15 @@ module Searchkick
       options = record.class.searchkick_options
 
       # remove _id since search_id is used instead
-      source = record.send(method_name || :search_data).each_with_object({}) { |(k, v), memo| memo[k.to_s] = v; memo }.except(*EXCLUDED_ATTRIBUTES)
+      source = record.send(method_name || :search_data)
+      source.keys.each do |k|
+        unless k.is_a?(String)
+          source[k.to_s] = source.delete(k)
+        end
+      end
+      EXCLUDED_ATTRIBUTES.each do |attr|
+        source.delete(attr)
+      end
 
       # conversions
       if options[:conversions]
