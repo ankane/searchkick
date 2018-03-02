@@ -11,10 +11,16 @@ require "searchkick/results"
 require "searchkick/query"
 require "searchkick/multi_search"
 require "searchkick/model"
-require "searchkick/tasks"
 require "searchkick/middleware"
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 require "active_support/core_ext/hash/deep_merge"
+
+begin
+  require "rake"
+rescue LoadError
+  # do nothing
+end
+require "searchkick/tasks" if defined?(Rake)
 
 # background jobs
 begin
