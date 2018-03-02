@@ -131,8 +131,9 @@ module Searchkick
       previous_value = callbacks_value
       begin
         self.callbacks_value = value
-        yield
+        result = yield
         indexer.perform if callbacks_value == :bulk
+        result
       ensure
         self.callbacks_value = previous_value
       end
