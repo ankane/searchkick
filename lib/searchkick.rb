@@ -80,8 +80,8 @@ module Searchkick
     Gem::Version.new(server_version.sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
   end
 
-  def self.search(term = "*", **options, &block)
-    klass = options[:model]
+  def self.search(term = "*", model: nil, **options, &block)
+    klass = model
 
     # make Searchkick.search(index_name: [Product]) and Product.search equivalent
     if !klass
@@ -91,7 +91,7 @@ module Searchkick
       end
     end
 
-    query = Searchkick::Query.new(klass, term, options.except(:model))
+    query = Searchkick::Query.new(klass, term, options)
     block.call(query.body) if block
     if options[:execute] == false
       query
