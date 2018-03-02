@@ -14,6 +14,11 @@ module Searchkick
 
       options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
 
+      callbacks = options.key?(:callbacks) ? options[:callbacks] : true
+      unless [true, false, :async, :queue].include?(callbacks)
+        raise ArgumentError, "Invalid value for callbacks"
+      end
+
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
 
@@ -49,11 +54,6 @@ module Searchkick
           end
         end
 
-        callbacks = options.key?(:callbacks) ? options[:callbacks] : true
-        unless [true, false, :async, :queue].include?(callbacks)
-          raise ArgumentError, "Invalid value for callbacks"
-        end
-
         if callbacks
           if respond_to?(:after_commit)
             after_commit :reindex
@@ -63,50 +63,8 @@ module Searchkick
           end
         end
 
-        def reindex(method_name = nil, refresh: false, mode: nil)
-          return unless Searchkick.callbacks?
-
-          unless [true, nil, :async, :queue].include?(mode)
-            raise ArgumentError, "Invalid value for mode"
-          end
-
-          klass_options = self.class.searchkick_index.options
-
-          if mode.nil?
-            mode =
-              if Searchkick.callbacks_value
-                Searchkick.callbacks_value
-              else
-                klass_options[:callbacks]
-              end
-          end
-
-          case mode
-          when :queue
-            if method_name
-              raise Searchkick::Error, "Partial reindex not supported with queue option"
-            else
-              self.class.searchkick_index.reindex_queue.push(id.to_s)
-            end
-          when :async
-            if method_name
-              # TODO support Mongoid and NoBrainer and non-id primary keys
-              Searchkick::BulkReindexJob.perform_later(
-                class_name: self.class.name,
-                record_ids: [id.to_s],
-                method_name: method_name ? method_name.to_s : nil
-              )
-            else
-              self.class.searchkick_index.reindex_record_async(self)
-            end
-          else
-            if method_name
-              self.class.searchkick_index.update_record(self, method_name)
-            else
-              self.class.searchkick_index.reindex_record(self)
-            end
-            self.class.searchkick_index.refresh if refresh
-          end
+        def reindex(method_name = nil, **options)
+          RecordIndexer.new(self).reindex(method_name, **options)
         end unless method_defined?(:reindex)
 
         def similar(options = {})
