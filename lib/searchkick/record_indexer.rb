@@ -14,16 +14,7 @@ module Searchkick
         raise ArgumentError, "Invalid value for mode"
       end
 
-      klass_options = index.options
-
-      if mode.nil?
-        mode =
-          if Searchkick.callbacks_value
-            Searchkick.callbacks_value
-          else
-            klass_options[:callbacks] || true
-          end
-      end
+      mode ||= Searchkick.callbacks_value || index.options[:callbacks] || true
 
       case mode
       when :queue
