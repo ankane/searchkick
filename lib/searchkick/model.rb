@@ -68,7 +68,7 @@ module Searchkick
 
         callbacks = options.key?(:callbacks) ? options[:callbacks] : true
         unless [true, false, :async, :queue].include?(callbacks)
-          raise ArgumentError, "Unknown value for callbacks"
+          raise ArgumentError, "Invalid value for callbacks"
         end
 
         if callbacks
@@ -82,6 +82,10 @@ module Searchkick
 
         def reindex(method_name = nil, refresh: false, mode: nil)
           return unless Searchkick.callbacks?
+
+          unless [true, nil, :async, :queue].include?(mode)
+            raise ArgumentError, "Invalid value for mode"
+          end
 
           klass_options = self.class.searchkick_index.options
 
