@@ -73,7 +73,7 @@ module Searchkick
 
     def promote(new_name, update_refresh_interval: false)
       if update_refresh_interval
-        new_index = Searchkick::Index.new(new_name)
+        new_index = Searchkick::Index.new(new_name, @options)
         settings = options[:settings] || {}
         refresh_interval = (settings[:index] && settings[:index][:refresh_interval]) || "1s"
         new_index.update_settings(index: {refresh_interval: refresh_interval})
@@ -257,7 +257,7 @@ module Searchkick
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
-        index = Searchkick::Index.new(index_name)
+        index = Searchkick::Index.new(index_name, @options)
       else
         clean_indices unless retain
 
