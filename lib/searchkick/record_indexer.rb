@@ -84,15 +84,13 @@ module Searchkick
       end
 
       if !source.key?("type") && record.class.searchkick_klass.searchkick_options[:inheritance]
-        source["type"] = document_type(record, true)
+        source["type"] = document_type(true)
       end
 
       cast_big_decimal(source)
 
       source
     end
-
-    private
 
     def location_value(value)
       if value.is_a?(Array)
