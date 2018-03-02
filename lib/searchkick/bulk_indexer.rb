@@ -63,7 +63,12 @@ module Searchkick
           records = records.select(&:should_index?)
           if records.any?
             with_retries do
-              method_name ? bulk_update(records, method_name) : bulk_index(records)
+              # call out to index for ActiveSupport notifications
+              if method_name
+                index.bulk_update(records, method_name)
+              else
+                index.bulk_index(records)
+              end
             end
           end
         end
