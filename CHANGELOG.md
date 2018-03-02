@@ -9,6 +9,8 @@
 - An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
 - Removed `log` option from `boost_by`. Use `modifier: "ln2p"` instead.
 - Removed `unscoped_reindex_job` option (always `true` now)
+- Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
+- Removed `async` option from `record.reindex` - use `mode: :async` instead
 
 ## 2.5.1 [unreleased]
 

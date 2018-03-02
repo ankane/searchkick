@@ -115,7 +115,7 @@ module Searchkick
   end
 
   def self.callbacks?
-    Thread.current[:searchkick_callbacks_enabled].nil? || Thread.current[:searchkick_callbacks_enabled]
+    callbacks_value != false
   end
 
   def self.callbacks(value)

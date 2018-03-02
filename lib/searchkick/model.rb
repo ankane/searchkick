@@ -17,11 +17,8 @@ module Searchkick
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
 
-        callbacks = options.key?(:callbacks) ? options[:callbacks] : true
-
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_callbacks, callbacks
         class_variable_set :@@searchkick_index, options[:index_name] ||
           (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }) ||
           [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
@@ -38,18 +35,6 @@ module Searchkick
             Searchkick::Index.new(index, searchkick_options)
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
-
-          def enable_search_callbacks
-            class_variable_set :@@searchkick_callbacks, true
-          end
-
-          def disable_search_callbacks
-            class_variable_set :@@searchkick_callbacks, false
-          end
-
-          def search_callbacks?
-            class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
-          end
 
           def searchkick_reindex(method_name = nil, full: false, **options)
             scoped = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
@@ -79,23 +64,24 @@ module Searchkick
           end
         end
 
-        if respond_to?(:after_commit)
-          after_commit :reindex, if: -> { self.class.search_callbacks? }
-        elsif respond_to?(:after_save)
-          after_save :reindex, if: -> { self.class.search_callbacks? }
-          after_destroy :reindex, if: -> { self.class.search_callbacks? }
+        callbacks = options.key?(:callbacks) ? options[:callbacks] : true
+        if callbacks
+          if respond_to?(:after_commit)
+            after_commit :reindex, if: -> { Searchkick.callbacks? }
+          elsif respond_to?(:after_save)
+            after_save :reindex, if: -> { Searchkick.callbacks? }
+            after_destroy :reindex, if: -> { Searchkick.callbacks? }
+          end
         end
 
-        def reindex(method_name = nil, refresh: false, async: false, mode: nil)
+        def reindex(method_name = nil, refresh: false, mode: nil)
           klass_options = self.class.searchkick_index.options
 
           if mode.nil?
             mode =
-              if async
-                :async
-              elsif Searchkick.callbacks_value
+              if Searchkick.callbacks_value
                 Searchkick.callbacks_value
-              elsif klass_options.key?(:callbacks)
+              else
                 klass_options[:callbacks]
               end
           end
