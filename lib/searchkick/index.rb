@@ -117,30 +117,6 @@ module Searchkick
       RecordData.new(self, record).document_type
     end
 
-    def reindex_record(record)
-      if record.destroyed? || !record.should_index?
-        begin
-          remove(record)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
-        end
-      else
-        store(record)
-      end
-    end
-
-    def reindex_record_async(record)
-      if Searchkick.callbacks_value.nil?
-        if defined?(Searchkick::ReindexV2Job)
-          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
-        else
-          raise Searchkick::Error, "Active Job not found"
-        end
-      else
-        reindex_record(record)
-      end
-    end
-
     def similar_record(record, **options)
       like_text = retrieve(record).to_hash
         .keep_if { |k, _| !options[:fields] || options[:fields].map(&:to_s).include?(k) }

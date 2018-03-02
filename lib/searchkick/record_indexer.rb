@@ -1,9 +1,10 @@
 module Searchkick
   class RecordIndexer
-    attr_reader :record
+    attr_reader :record, :index
 
     def initialize(record)
       @record = record
+      @index = record.class.searchkick_index
     end
 
     def reindex(method_name = nil, refresh: false, mode: nil)
@@ -12,8 +13,6 @@ module Searchkick
       unless [true, nil, :async, :queue].include?(mode)
         raise ArgumentError, "Invalid value for mode"
       end
-
-      index = record.class.searchkick_index
 
       klass_options = index.options
 
@@ -42,15 +41,41 @@ module Searchkick
             method_name: method_name ? method_name.to_s : nil
           )
         else
-          index.reindex_record_async(record)
+          reindex_record_async
         end
       else
         if method_name
           index.update_record(record, method_name)
         else
-          index.reindex_record(record)
+          reindex_record
         end
         index.refresh if refresh
+      end
+    end
+
+    private
+
+    def reindex_record
+      if record.destroyed? || !record.should_index?
+        begin
+          index.remove(record)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          # do nothing
+        end
+      else
+        index.store(record)
+      end
+    end
+
+    def reindex_record_async
+      if Searchkick.callbacks_value.nil?
+        if defined?(Searchkick::ReindexV2Job)
+          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+        else
+          raise Searchkick::Error, "Active Job not found"
+        end
+      else
+        reindex_record
       end
     end
   end
