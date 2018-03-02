@@ -11,7 +11,7 @@ require "searchkick/model"
 require "searchkick/multi_search"
 require "searchkick/query"
 require "searchkick/reindex_queue"
-require "searchkick/record_indexer"
+require "searchkick/record_data"
 require "searchkick/results"
 require "searchkick/version"
 

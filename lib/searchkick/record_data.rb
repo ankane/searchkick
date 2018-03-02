@@ -1,5 +1,5 @@
 module Searchkick
-  class RecordIndexer
+  class RecordData
     EXCLUDED_ATTRIBUTES = ["_id", "_type"]
 
     attr_reader :index, :record
@@ -25,13 +25,13 @@ module Searchkick
       {delete: record_data}
     end
 
-    def document_type(ignore_type = false)
-      index.klass_document_type(record.class, ignore_type)
-    end
-
     def search_id
       id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
       id.is_a?(Numeric) ? id : id.to_s
+    end
+
+    def document_type(ignore_type = false)
+      index.klass_document_type(record.class, ignore_type)
     end
 
     private

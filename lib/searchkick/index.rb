@@ -110,11 +110,11 @@ module Searchkick
     end
 
     def search_id(record)
-      RecordIndexer.new(self, record).search_id
+      RecordData.new(self, record).search_id
     end
 
     def document_type(record)
-      RecordIndexer.new(self, record).document_type
+      RecordData.new(self, record).document_type
     end
 
     def reindex_record(record)
@@ -432,15 +432,15 @@ module Searchkick
     end
 
     def bulk_index_helper(records)
-      Searchkick.indexer.queue(records.map { |r| RecordIndexer.new(self, r).index_data })
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
     end
 
     def bulk_delete_helper(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordIndexer.new(self, r).delete_data })
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
     def bulk_update_helper(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordIndexer.new(self, r).update_data(method_name) })
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
     end
 
     def batches_key
