@@ -85,6 +85,7 @@ module Searchkick
         def search_data
           data = respond_to?(:to_hash) ? to_hash : serializable_hash
           data.delete("id")
+          data.delete("_id")
           data
         end unless method_defined?(:search_data)
 
