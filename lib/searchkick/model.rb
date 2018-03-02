@@ -67,6 +67,8 @@ module Searchkick
         end
 
         callbacks = options.key?(:callbacks) ? options[:callbacks] : true
+        raise ArgumentError, "Unknown value for callbacks" unless [true, false, :async, :queue].include?(callbacks)
+
         if callbacks
           if respond_to?(:after_commit)
             after_commit :reindex
