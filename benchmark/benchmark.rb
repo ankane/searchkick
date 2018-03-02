@@ -49,18 +49,20 @@ result = nil
 report = nil
 stats = nil
 
-# p GetProcessMem.new.mb
-
 Product.searchkick_index.delete rescue nil
+
+GC.start
+GC.disable
+start_mem = GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
     # result = RubyProf.profile do
-    report = MemoryProfiler.report do
+    # report = MemoryProfiler.report do
     # stats = AllocationStats.trace do
     reindex = Product.reindex #(async: true)
-    p reindex
-    end
+    # p reindex
+    # end
 
     # 60.times do |i|
     #   if reindex.is_a?(Hash)
@@ -78,7 +80,7 @@ time =
     # end
   end
 
-# p GetProcessMem.new.mb
+p GetProcessMem.new.mb - start_mem
 
 puts time.round(1)
 
