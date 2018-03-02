@@ -37,18 +37,10 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
-        if method_name
-          # TODO support Mongoid and NoBrainer and non-id primary keys
-          Searchkick::BulkReindexJob.perform_later(
-            class_name: record.class.name,
-            record_ids: [record.id.to_s],
-            method_name: method_name ? method_name.to_s : nil
-          )
-        else
-          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
-        end
+        Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s, method_name)
       else # bulk, true
         reindex_record(method_name)
+
         index.refresh if refresh
       end
     end
@@ -64,7 +56,7 @@ module Searchkick
         end
       else
         if method_name
-          index.update_record(record)
+          index.update_record(record, method_name)
         else
           index.store(record)
         end
