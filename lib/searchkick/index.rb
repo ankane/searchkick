@@ -154,26 +154,13 @@ module Searchkick
       options[:similar] = true
 
       # TODO use index class instead of record class
-      search_model(record.class, like_text, options)
+      Searchkick.search(like_text, model: record.class, **options)
     end
 
     # queue
 
     def reindex_queue
       Searchkick::ReindexQueue.new(name)
-    end
-
-    # search
-
-    # TODO remove in next major version
-    def search_model(searchkick_klass, term = "*", **options, &block)
-      query = Searchkick::Query.new(searchkick_klass, term, options)
-      yield(query.body) if block
-      if options[:execute] == false
-        query
-      else
-        query.execute
-      end
     end
 
     # reindex
