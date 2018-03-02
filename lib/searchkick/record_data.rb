@@ -58,7 +58,7 @@ module Searchkick
         end
       end
       EXCLUDED_ATTRIBUTES.each do |attr|
-        source.delete(attr)
+        raise Searchkick::Error, "Cannot index a field with name: #{attr}" if source[attr]
       end
 
       # conversions
