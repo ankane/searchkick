@@ -6,7 +6,7 @@ require "active_support/notifications"
 
 ActiveSupport::Notifications.subscribe "request.searchkick" do |*args|
   event = ActiveSupport::Notifications::Event.new(*args)
-  p event.duration
+  p event.duration.round
 end
 
 ActiveJob::Base.queue_adapter = :sidekiq
@@ -33,7 +33,7 @@ class Product < ActiveRecord::Base
   end
 end
 
-total_docs = 10000
+# total_docs = 100000
 
 # ActiveRecord::Migration.create_table :products, force: :cascade do |t|
 #   t.string :name
@@ -43,7 +43,7 @@ total_docs = 10000
 
 # Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
-puts "Imported"
+# puts "Imported"
 
 result = nil
 report = nil
@@ -80,10 +80,9 @@ time =
     # end
   end
 
-p GetProcessMem.new.mb - start_mem
-
-puts time.round(1)
-
+puts
+puts "Memory: #{(GetProcessMem.new.mb - start_mem).round(1)}mb"
+puts "Time: #{time.round(1)}s"
 
 if result
   printer = RubyProf::GraphPrinter.new(result)
