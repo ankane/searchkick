@@ -19,14 +19,22 @@ module Searchkick
         raise ArgumentError, "Invalid value for callbacks"
       end
 
+      index_name =
+        if options[:index_name]
+          options[:index_name]
+        elsif options[:index_prefix].respond_to?(:call)
+          -> { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
+        else
+          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+        end
+
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
 
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_index, options[:index_name] ||
-          (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }) ||
-          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+        class_variable_set :@@searchkick_index, index_name
+        class_variable_set :@@searchkick_index_cache, {}
 
         class << self
           def searchkick_search(term = "*", **options, &block)
@@ -35,9 +43,10 @@ module Searchkick
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index
-            index = class_variable_get :@@searchkick_index
-            index = index.call if index.respond_to? :call
-            Searchkick::Index.new(index, searchkick_options)
+            index = class_variable_get(:@@searchkick_index)
+            index = index.call if index.respond_to?(:call)
+            index_cache = class_variable_get(:@@searchkick_index_cache)
+            index_cache[name] ||= Searchkick::Index.new(index, searchkick_options)
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
