@@ -33,7 +33,7 @@ class Product < ActiveRecord::Base
   end
 end
 
-total_docs = 100000
+total_docs = 10000
 
 # ActiveRecord::Migration.create_table :products, force: :cascade do |t|
 #   t.string :name
@@ -56,26 +56,26 @@ Product.searchkick_index.delete rescue nil
 time =
   Benchmark.realtime do
     # result = RubyProf.profile do
-    # report = MemoryProfiler.report do
+    report = MemoryProfiler.report do
     # stats = AllocationStats.trace do
-    reindex = Product.reindex(async: true)
+    reindex = Product.reindex #(async: true)
     p reindex
-    # end
-
-    60.times do |i|
-      if reindex.is_a?(Hash)
-        docs = Searchkick::Index.new(reindex[:index_name]).total_docs
-      else
-        docs = Product.searchkick_index.total_docs
-      end
-      puts "#{i}: #{docs}"
-      if docs == total_docs
-        break
-      end
-      p Searchkick.reindex_status(reindex[:index_name]) if reindex.is_a?(Hash)
-      sleep(1)
-      # Product.searchkick_index.refresh
     end
+
+    # 60.times do |i|
+    #   if reindex.is_a?(Hash)
+    #     docs = Searchkick::Index.new(reindex[:index_name]).total_docs
+    #   else
+    #     docs = Product.searchkick_index.total_docs
+    #   end
+    #   puts "#{i}: #{docs}"
+    #   if docs == total_docs
+    #     break
+    #   end
+    #   p Searchkick.reindex_status(reindex[:index_name]) if reindex.is_a?(Hash)
+    #   sleep(1)
+    #   # Product.searchkick_index.refresh
+    # end
   end
 
 # p GetProcessMem.new.mb

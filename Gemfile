@@ -4,13 +4,15 @@ source "https://rubygems.org"
 gemspec
 
 gem "sqlite3"
-gem "activerecord", "~> 5.1.0"
+gem "activerecord", "~> 5.2.0.rc1"
 gem "gemoji-parser"
 gem "typhoeus"
-gem "activejob"
+gem "activejob", "~> 5.2.0.rc1"
 gem "redis"
 gem "connection_pool"
+gem "faraday", path: "~/forks/faraday"
+gem "ethon", path: "~/forks/ethon"
 
 # kaminari
-gem "actionpack"
+gem "actionpack", "~> 5.2.0.rc1"
 gem "kaminari"
