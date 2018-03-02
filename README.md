@@ -565,7 +565,7 @@ Searchkick can use conversion data to learn what users are looking for. If a use
 
 The first step is to define your conversion metric and start tracking conversions. The database works well for low volume, but feel free to use Redis or another datastore.
 
-You do **not** need to clean up the search queries. Searchkick automatically treats `apple` and `APPLES` the same.
+Searchkick automatically treats `apple` and `APPLE` the same.
 
 Next, add conversions to the index.
 
@@ -573,7 +573,7 @@ Next, add conversions to the index.
 class Product < ApplicationRecord
   has_many :searches, class_name: "Searchjoy::Search", as: :convertable
 
-  searchkick conversions: ["conversions"] # name of field
+  searchkick conversions: [:conversions] # name of field
 
   def search_data
     {

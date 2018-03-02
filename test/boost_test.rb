@@ -40,9 +40,9 @@ class BoostTest < Minitest::Test
     assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
   end
 
-  def test_conversions_stemmed
+  def test_conversions_case
     store [
-      {name: "Tomato A", conversions: {"tomato" => 1, "tomatos" => 1, "Tomatoes" => 1}},
+      {name: "Tomato A", conversions: {"tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
       {name: "Tomato B", conversions: {"tomato" => 2}}
     ]
     assert_order "tomato", ["Tomato A", "Tomato B"]
