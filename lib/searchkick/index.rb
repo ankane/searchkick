@@ -54,6 +54,23 @@ module Searchkick
       client.indices.put_settings index: name, body: settings
     end
 
+    def tokens(text, options = {})
+      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
+    end
+
+    def total_docs
+      response =
+        client.search(
+          index: name,
+          body: {
+            query: {match_all: {}},
+            size: 0
+          }
+        )
+
+      response["hits"]["total"]
+    end
+
     def promote(new_name, update_refresh_interval: false)
       if update_refresh_interval
         new_index = Searchkick::Index.new(new_name)
@@ -72,6 +89,34 @@ module Searchkick
       client.indices.update_aliases body: {actions: actions}
     end
     alias_method :swap, :promote
+
+    def retrieve(record)
+      client.get(
+        index: name,
+        type: document_type(record),
+        id: search_id(record)
+      )["_source"]
+    end
+
+    def all_indices(unaliased: false)
+      indices =
+        begin
+          client.indices.get_aliases
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          {}
+        end
+      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if unaliased
+      indices.select { |k, _v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
+    end
+
+    # remove old indices that start w/ index_name
+    def clean_indices
+      indices = all_indices(unaliased: true)
+      indices.each do |index|
+        Searchkick::Index.new(index).delete
+      end
+      indices
+    end
 
     # record based
     # use helpers for notifications
@@ -99,14 +144,6 @@ module Searchkick
 
     def bulk_update(records, method_name)
       bulk_indexer.bulk_update(records, method_name)
-    end
-
-    def retrieve(record)
-      client.get(
-        index: name,
-        type: document_type(record),
-        id: search_id(record)
-      )["_source"]
     end
 
     def search_id(record)
@@ -169,39 +206,6 @@ module Searchkick
       index
     end
 
-    def all_indices(unaliased: false)
-      indices =
-        begin
-          client.indices.get_aliases
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          {}
-        end
-      indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if unaliased
-      indices.select { |k, _v| k =~ /\A#{Regexp.escape(name)}_\d{14,17}\z/ }.keys
-    end
-
-    # remove old indices that start w/ index_name
-    def clean_indices
-      indices = all_indices(unaliased: true)
-      indices.each do |index|
-        Searchkick::Index.new(index).delete
-      end
-      indices
-    end
-
-    def total_docs
-      response =
-        client.search(
-          index: name,
-          body: {
-            query: {match_all: {}},
-            size: 0
-          }
-        )
-
-      response["hits"]["total"]
-    end
-
     def import_scope(scope, **options)
       bulk_indexer.import_scope(scope, **options)
     end
@@ -211,10 +215,6 @@ module Searchkick
     end
 
     # other
-
-    def tokens(text, options = {})
-      client.indices.analyze(body: {text: text}.merge(options), index: name)["tokens"].map { |t| t["token"] }
-    end
 
     def klass_document_type(klass, ignore_type = false)
       @klass_document_type[[klass, ignore_type]] ||= begin
