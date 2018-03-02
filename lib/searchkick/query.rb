@@ -135,7 +135,7 @@ module Searchkick
         if searchkick_index
           puts "Model Search Data"
           begin
-            pp klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}}
+            pp(klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}})
           rescue => e
             puts "#{e.class.name}: #{e.message}"
           end
@@ -331,7 +331,7 @@ module Searchkick
             end
 
             if misspellings != false && match_type == :match
-              qs.concat qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
+              qs.concat(qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) })
             end
 
             if field.start_with?("*.")
@@ -706,7 +706,7 @@ module Searchkick
               ranges: agg_options[:date_ranges]
             }.merge(shared_agg_options)
           }
-        elsif histogram = agg_options[:date_histogram]
+        elsif (histogram = agg_options[:date_histogram])
           interval = histogram[:interval]
           payload[:aggs][field] = {
             date_histogram: {
@@ -714,7 +714,7 @@ module Searchkick
               interval: interval
             }
           }
-        elsif metric = @@metric_aggs.find { |k| agg_options.has_key?(k) }
+        elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
           payload[:aggs][field] = {
             metric => {
               field: agg_options[metric][:field] || field
