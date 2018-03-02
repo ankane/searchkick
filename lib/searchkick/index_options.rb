@@ -198,7 +198,7 @@ module Searchkick
         end
 
         if options[:special_characters] == false
-          settings[:analysis][:analyzer].each do |_, analyzer_settings|
+          settings[:analysis][:analyzer].each_value do |analyzer_settings|
             analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
           end
         end
