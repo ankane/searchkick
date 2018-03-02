@@ -3,6 +3,7 @@ require "active_support/core_ext/hash/deep_merge"
 require "elasticsearch"
 require "hashie"
 
+require "searchkick/bulk_indexer"
 require "searchkick/index"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
@@ -32,8 +33,8 @@ rescue LoadError
 end
 if defined?(ActiveJob)
   require "searchkick/bulk_reindex_job"
-  require "searchkick/process_queue_job"
   require "searchkick/process_batch_job"
+  require "searchkick/process_queue_job"
   require "searchkick/reindex_v2_job"
 end
 
