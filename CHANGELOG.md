@@ -11,6 +11,7 @@
 - Removed `unscoped_reindex_job` option (always `true` now)
 - Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
 - Removed `async` option from `record.reindex` - use `mode: :async` instead
+- Conversions are not stemmed by default - use `stem_conversion: true` to enable this
 
 ## 2.5.1 [unreleased]
 
