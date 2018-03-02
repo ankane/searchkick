@@ -21,7 +21,7 @@ module Searchkick
           if Searchkick.callbacks_value
             Searchkick.callbacks_value
           else
-            klass_options[:callbacks]
+            klass_options[:callbacks] || true
           end
       end
 
@@ -29,10 +29,14 @@ module Searchkick
       when :queue
         if method_name
           raise Searchkick::Error, "Partial reindex not supported with queue option"
-        else
-          index.reindex_queue.push(record.id.to_s)
         end
+
+        index.reindex_queue.push(record.id.to_s)
       when :async
+        unless defined?(ActiveJob)
+          raise Searchkick::Error, "Active Job not found"
+        end
+
         if method_name
           # TODO support Mongoid and NoBrainer and non-id primary keys
           Searchkick::BulkReindexJob.perform_later(
@@ -41,21 +45,17 @@ module Searchkick
             method_name: method_name ? method_name.to_s : nil
           )
         else
-          reindex_record_async
+          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
         end
-      else
-        if method_name
-          index.update_record(record, method_name)
-        else
-          reindex_record
-        end
+      else # bulk, true
+        reindex_record(method_name)
         index.refresh if refresh
       end
     end
 
     private
 
-    def reindex_record
+    def reindex_record(method_name)
       if record.destroyed? || !record.should_index?
         begin
           index.remove(record)
@@ -63,19 +63,11 @@ module Searchkick
           # do nothing
         end
       else
-        index.store(record)
-      end
-    end
-
-    def reindex_record_async
-      if Searchkick.callbacks_value.nil?
-        if defined?(Searchkick::ReindexV2Job)
-          Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s)
+        if method_name
+          index.update_record(record)
         else
-          raise Searchkick::Error, "Active Job not found"
+          index.store(record)
         end
-      else
-        reindex_record
       end
     end
   end
