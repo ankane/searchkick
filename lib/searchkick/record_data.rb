@@ -1,7 +1,7 @@
 module Searchkick
   class RecordData
-    EXCLUDED_ATTRIBUTES = ["_id", "_type"]
-    TYPE_KEY = "type"
+    EXCLUDED_ATTRIBUTES = ["id", :id]
+    TYPE_KEYS = ["type", :type]
 
     attr_reader :index, :record
 
@@ -52,11 +52,6 @@ module Searchkick
 
       # remove _id since search_id is used instead
       source = record.send(method_name || :search_data)
-      source.keys.each do |k|
-        unless k.is_a?(String)
-          source[k.to_s] = source.delete(k)
-        end
-      end
       EXCLUDED_ATTRIBUTES.each do |attr|
         raise Searchkick::Error, "Cannot index a field with name: #{attr}" if source[attr]
       end
@@ -69,8 +64,12 @@ module Searchkick
       end
 
       # hack to prevent generator field doesn't exist error
-      index.suggest_fields.each do |field|
-        source[field] = nil if !source[field] && !partial_reindex
+      if !partial_reindex
+        index.suggest_fields.each do |field|
+          if !source[field] && !source[field.to_sym]
+            source[field] = nil
+          end
+        end
       end
 
       # locations
@@ -85,8 +84,10 @@ module Searchkick
         end
       end
 
-      if !source.key?(TYPE_KEY) && index.options[:inheritance]
-        source[TYPE_KEY] = document_type(true)
+      if index.options[:inheritance]
+        if !TYPE_KEYS.any? { |tk| source.key?(tk) }
+          source[:type] = document_type(true)
+        end
       end
 
       cast_big_decimal(source)

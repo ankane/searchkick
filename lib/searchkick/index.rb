@@ -230,7 +230,10 @@ module Searchkick
 
     # should not be public
     def conversions_fields
-      @conversions_fields ||= Array(options[:conversions]).map(&:to_s)
+      @conversions_fields ||= begin
+        conversions = Array(options[:conversions])
+        conversions.map(&:to_s) + conversions.map(&:to_sym)
+      end
     end
 
     def suggest_fields
@@ -238,7 +241,10 @@ module Searchkick
     end
 
     def locations_fields
-      @locations_fields ||= Array(options[:locations]).map(&:to_s)
+      @locations_fields ||= begin
+        locations = Array(options[:locations])
+        locations.map(&:to_s) + locations.map(&:to_sym)
+      end
     end
 
     protected
