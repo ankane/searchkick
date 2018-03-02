@@ -1,5 +1,3 @@
-require "rake"
-
 namespace :searchkick do
   desc "reindex model"
   task reindex: :environment do
@@ -16,7 +14,6 @@ namespace :searchkick do
   end
 
   if defined?(Rails)
-
     namespace :reindex do
       desc "reindex all models"
       task all: :environment do
@@ -28,6 +25,5 @@ namespace :searchkick do
         puts "Reindex complete"
       end
     end
-
   end
 end
