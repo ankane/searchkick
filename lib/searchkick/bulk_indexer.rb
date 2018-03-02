@@ -36,6 +36,18 @@ module Searchkick
       end
     end
 
+    def bulk_index(records)
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).index_data })
+    end
+
+    def bulk_delete(records)
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(index, r).delete_data })
+    end
+
+    def bulk_update(records, method_name)
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).update_data(method_name) })
+    end
+
     private
 
     def import_or_update(records, method_name, async)
@@ -51,7 +63,7 @@ module Searchkick
           records = records.select(&:should_index?)
           if records.any?
             with_retries do
-              method_name ? index.bulk_update(records, method_name) : index.import(records)
+              method_name ? bulk_update(records, method_name) : bulk_index(records)
             end
           end
         end

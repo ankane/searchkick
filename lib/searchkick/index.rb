@@ -77,28 +77,28 @@ module Searchkick
     # use helpers for notifications
 
     def store(record)
-      bulk_index_helper([record])
+      bulk_indexer.bulk_index([record])
     end
 
     def remove(record)
-      bulk_delete_helper([record])
+      bulk_indexer.bulk_delete([record])
     end
 
     def update_record(record, method_name)
-      bulk_update_helper([record], method_name)
+      bulk_indexer.bulk_update([record], method_name)
     end
 
     def bulk_delete(records)
-      bulk_delete_helper(records)
+      bulk_indexer.bulk_delete(records)
     end
 
     def bulk_index(records)
-      bulk_index_helper(records)
+      bulk_indexer.bulk_index(records)
     end
     alias_method :import, :bulk_index
 
     def bulk_update(records, method_name)
-      bulk_update_helper(records, method_name)
+      bulk_indexer.bulk_update(records, method_name)
     end
 
     def retrieve(record)
@@ -326,18 +326,6 @@ module Searchkick
 
     def bulk_indexer
       @bulk_indexer ||= BulkIndexer.new(self)
-    end
-
-    def bulk_index_helper(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
-    end
-
-    def bulk_delete_helper(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
-    end
-
-    def bulk_update_helper(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
     end
   end
 end
