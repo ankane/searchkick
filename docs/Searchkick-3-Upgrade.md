@@ -2,7 +2,7 @@
 
 ## Before You Upgrade
 
-Searchkick 3 not longer supports types, since they are deprecated in Elasticsearch 6.
+Searchkick 3 no longer uses types, since they are deprecated in Elasticsearch 6.
 
 If you use inheritance, add to your parent model:
 
@@ -12,7 +12,7 @@ class Animal < ApplicationRecord
 end
 ```
 
-And do a full reindex.
+And do a full reindex before upgrading.
 
 ## Upgrading
 

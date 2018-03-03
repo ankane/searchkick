@@ -7,7 +7,7 @@ Breaking changes
 
 - Removed support for Elasticsearch 2
 - Removed support for ActiveRecord < 4.2 and Mongoid < 5
-- Types are no longer supported
+- Types are no longer used
 - The `_all` field is disabled by default in Elasticsearch 5
 - Conversions are not stemmed by default
 - An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
