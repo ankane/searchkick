@@ -27,6 +27,6 @@ matrix:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=5.0.1
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.6.4
+      env: ELASTICSEARCH_VERSION=5.6.7
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=6.0.0
