@@ -15,11 +15,6 @@ module Searchkick
       @options = options
     end
 
-    # experimental: may not make next release
-    def records
-      @records ||= results_query(klass, hits)
-    end
-
     def results
       @results ||= begin
         if options[:load]
@@ -34,12 +29,6 @@ module Searchkick
           hits.map do |hit|
             result = results[hit["_type"]][hit["_id"].to_s]
             if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
-              unless result.respond_to?(:search_hit)
-                result.define_singleton_method(:search_hit) do
-                  hit
-                end
-              end
-
               if hit["highlight"] && !result.respond_to?(:search_highlights)
                 highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
                 result.define_singleton_method(:search_highlights) do
@@ -81,20 +70,6 @@ module Searchkick
         []
       else
         raise "Pass `suggest: true` to the search method for suggestions"
-      end
-    end
-
-    def each_with_hit(&block)
-      results.zip(hits).each(&block)
-    end
-
-    def with_details
-      each_with_hit.map do |model, hit|
-        details = {}
-        if hit["highlight"]
-          details[:highlight] = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
-        end
-        [model, details]
       end
     end
 
@@ -194,6 +169,20 @@ module Searchkick
       else
         @response["hits"]["hits"]
       end
+    end
+
+    def with_hit
+      results.zip(hits)
+    end
+
+    def highlights(multiple: false)
+      hits.map do |hit|
+        Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }]
+      end
+    end
+
+    def with_highlights(multiple: false)
+      results.zip(highlights(multiple: multiple))
     end
 
     def misspellings?

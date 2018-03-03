@@ -4,13 +4,11 @@ class ModelTest < Minitest::Test
   def test_disable_callbacks_model
     store_names ["product a"]
 
-    Product.disable_search_callbacks
-    assert !Product.search_callbacks?
-
-    store_names ["product b"]
+    Searchkick.callbacks(false) do
+      store_names ["product b"]
+    end
     assert_search "product", ["product a"]
 
-    Product.enable_search_callbacks
     Product.reindex
 
     assert_search "product", ["product a", "product b"]

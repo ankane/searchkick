@@ -15,7 +15,7 @@ module Searchkick
     # TODO use reliable queuing
     def reserve(limit: 1000)
       record_ids = Set.new
-      while record_ids.size < limit && record_id = Searchkick.with_redis { |r| r.rpop(redis_key) }
+      while record_ids.size < limit && (record_id = Searchkick.with_redis { |r| r.rpop(redis_key) })
         record_ids << record_id
       end
       record_ids.to_a

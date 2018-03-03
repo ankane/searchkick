@@ -116,9 +116,6 @@ class GeoShapeTest < Minitest::Test
   end
 
   def test_search_math
-    # TODO find out why this is failing
-    skip unless elasticsearch_below60?
-
     assert_search "witch", ["Region A"], {
       where: {
         territory: {
@@ -145,7 +142,6 @@ class GeoShapeTest < Minitest::Test
   end
 
   def test_contains
-    skip if elasticsearch_below22?
     assert_search "*", ["Region C"], {
       where: {
         territory: {

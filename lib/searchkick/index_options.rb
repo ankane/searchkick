@@ -4,35 +4,23 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
-      type = options[:_type] || :_default_
-      type = type.call if type.respond_to?(:call)
+      index_type = options[:_type]
+      index_type = index_type.call if index_type.respond_to?(:call)
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
-        below22 = Searchkick.server_below?("2.2.0")
-        below50 = Searchkick.server_below?("5.0.0-alpha1")
         below60 = Searchkick.server_below?("6.0.0-alpha1")
-        default_type = below50 ? "string" : "text"
+        default_type = "text"
         default_analyzer = :searchkick_index
-        keyword_mapping =
-          if below50
-            {
-              type: default_type,
-              index: "not_analyzed"
-            }
-          else
-            {
-              type: "keyword"
-            }
-          end
+        keyword_mapping = {type: "keyword"}
 
-        all = options.key?(:_all) ? options[:_all] : below60
-        index_true_value = below50 ? "analyzed" : true
-        index_false_value = below50 ? "no" : false
+        all = options.key?(:_all) ? options[:_all] : false
+        index_true_value = true
+        index_false_value = false
 
-        keyword_mapping[:ignore_above] = (options[:ignore_above] || 30000) unless below22
+        keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
 
         settings = {
           analysis: {
@@ -40,7 +28,7 @@ module Searchkick
               searchkick_keyword: {
                 type: "custom",
                 tokenizer: "keyword",
-                filter: ["lowercase"] + (options[:stem_conversions] == false ? [] : ["searchkick_stemmer"])
+                filter: ["lowercase"] + (options[:stem_conversions] ? ["searchkick_stemmer"] : [])
               },
               default_analyzer => {
                 type: "custom",
@@ -139,7 +127,6 @@ module Searchkick
               },
               searchkick_stemmer: {
                 # use stemmer if language is lowercase, snowball otherwise
-                # TODO deprecate language option in favor of stemmer
                 type: language == language.to_s.downcase ? "stemmer" : "snowball",
                 language: language || "English"
               }
@@ -154,6 +141,22 @@ module Searchkick
             }
           }
         }
+
+        if language == "chinese"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "ik_smart"
+            },
+            searchkick_search: {
+              type: "ik_smart"
+            },
+            searchkick_search2: {
+              type: "ik_max_word"
+            }
+          )
+
+          settings[:analysis][:filter].delete(:searchkick_stemmer)
+        end
 
         if Searchkick.env == "test"
           settings[:number_of_shards] = 1
@@ -175,7 +178,7 @@ module Searchkick
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
             # only remove a single space from synonyms so three-word synonyms will fail noisily instead of silently
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.map { |s| s.sub(/\s+/, "") }.join(",") : s }.map(&:downcase)
+            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.map { |s2| s2.sub(/\s+/, "") }.join(",") : s }.map(&:downcase)
           }
           # choosing a place for the synonym filter when stemming is not easy
           # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
@@ -210,7 +213,7 @@ module Searchkick
         end
 
         if options[:special_characters] == false
-          settings[:analysis][:analyzer].each do |_, analyzer_settings|
+          settings[:analysis][:analyzer].each_value do |analyzer_settings|
             analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
           end
         end
@@ -320,7 +323,7 @@ module Searchkick
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
         mappings = {
-          type => {
+          index_type => {
             properties: mapping,
             _routing: routing,
             # https://gist.github.com/kimchy/2898285
@@ -338,7 +341,7 @@ module Searchkick
 
         if below60
           all_enabled = all && (!options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all"))
-          mappings[type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
+          mappings[index_type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
         end
 
         mappings = mappings.deep_merge(options[:mappings] || {})

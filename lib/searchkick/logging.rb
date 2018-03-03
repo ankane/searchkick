@@ -129,7 +129,7 @@ module Searchkick
   end
 
   module SearchkickWithInstrumentation
-    def multi_search(searches, **options)
+    def multi_search(searches)
       event = {
         name: "Multi Search",
         body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join
@@ -167,7 +167,7 @@ module Searchkick
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
-      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -d '#{payload[:query][:body].to_json}'"
+      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -H 'Content-Type: application/json' -d '#{payload[:query][:body].to_json}'"
     end
 
     def request(event)
@@ -189,7 +189,7 @@ module Searchkick
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
-      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/_msearch?pretty -d '#{payload[:body]}'"
+      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/_msearch?pretty -H 'Content-Type: application/json' -d '#{payload[:body]}'"
     end
   end
 
@@ -232,10 +232,11 @@ module Searchkick
     end
   end
 end
-Searchkick::Query.send(:prepend, Searchkick::QueryWithInstrumentation)
-Searchkick::Index.send(:prepend, Searchkick::IndexWithInstrumentation)
-Searchkick::Indexer.send(:prepend, Searchkick::IndexerWithInstrumentation)
-Searchkick.singleton_class.send(:prepend, Searchkick::SearchkickWithInstrumentation)
+
+Searchkick::Query.prepend(Searchkick::QueryWithInstrumentation)
+Searchkick::Index.prepend(Searchkick::IndexWithInstrumentation)
+Searchkick::Indexer.prepend(Searchkick::IndexerWithInstrumentation)
+Searchkick.singleton_class.prepend(Searchkick::SearchkickWithInstrumentation)
 Searchkick::LogSubscriber.attach_to :searchkick
 ActiveSupport.on_load(:action_controller) do
   include Searchkick::ControllerRuntime

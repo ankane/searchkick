@@ -59,8 +59,10 @@ class IndexTest < Minitest::Test
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "Dollar Tree"}}}, load: false).map(&:name)
   end
 
-  def test_body_warning
-    assert_output(nil, "The body option replaces the entire body, so the following options are ignored: where\n") { Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1}) }
+  def test_body_incompatible_options
+    assert_raises(ArgumentError) do
+      Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1})
+    end
   end
 
   def test_block
@@ -131,9 +133,10 @@ class IndexTest < Minitest::Test
   def test_filterable
     # skip for 5.0 since it throws
     # Cannot search on field [alt_description] since it is not indexed.
-    skip unless elasticsearch_below50?
     store [{name: "Product A", alt_description: "Hello"}]
-    assert_search "*", [], where: {alt_description: "Hello"}
+    assert_raises(Searchkick::InvalidQueryError) do
+      assert_search "*", [], where: {alt_description: "Hello"}
+    end
   end
 
   def test_filterable_non_string
@@ -147,15 +150,11 @@ class IndexTest < Minitest::Test
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
-
-    # needs fields for ES 6
-    if elasticsearch_below60?
-      assert_search "hello", ["Product A"], {}, Region
-    end
+    assert_search "hello", ["Product A"], {}, Region
   end
 
   def test_very_large_value
-    skip if nobrainer? || elasticsearch_below22?
+    skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region

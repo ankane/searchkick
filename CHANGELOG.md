@@ -1,7 +1,24 @@
-## 2.5.1 [unreleased]
+## 3.0.0 [unreleased]
 
-- No longer require fields when `_all` field is missing
-- Added `unscoped_reindex_job` option
+- Added support for Chinese
+- Results can be marshaled by default (unless using `highlight` option)
+
+Breaking changes
+
+- Removed support for Elasticsearch 2
+- Removed support for ActiveRecord < 4.2 and Mongoid < 5
+- Types are no longer used
+- The `_all` field is disabled by default in Elasticsearch 5
+- Conversions are not stemmed by default
+- An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
+- Removed `log` option from `boost_by`
+- Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
+- Removed `reindex_async` method, as `reindex` now defaults to callbacks mode specified on the model
+- Removed `async` option from `record.reindex`
+- Removed `search_hit` method - use `with_hit` instead
+- Removed `each_with_hit` - use `with_hit.each` instead
+- Removed `with_details` - use `with_highlights` instead
+- Bumped default `limit` to 10,000
 
 ## 2.5.0
 

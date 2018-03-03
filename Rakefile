@@ -14,7 +14,3 @@ Rake::TestTask.new do |t|
   t.pattern = "test/**/*_test.rb"
   t.warning = false
 end
-
-task :benchmark do
-  require_relative "benchmark/index"
-end

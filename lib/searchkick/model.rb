@@ -1,30 +1,42 @@
 module Searchkick
   module Model
     def searchkick(**options)
+      options = Searchkick.model_options.merge(options)
+
       unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :conversions, :default_fields,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :unscoped_reindex_job, :word, :wordnet, :word_end, :word_middle, :word_start]
+        :text_middle, :text_start, :word, :wordnet, :word_end, :word_middle, :word_start]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 
       Searchkick.models << self
 
-      options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) } if options[:inheritance]
+      options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
+
+      callbacks = options.key?(:callbacks) ? options[:callbacks] : true
+      unless [true, false, :async, :queue].include?(callbacks)
+        raise ArgumentError, "Invalid value for callbacks"
+      end
+
+      index_name =
+        if options[:index_name]
+          options[:index_name]
+        elsif options[:index_prefix].respond_to?(:call)
+          -> { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
+        else
+          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+        end
 
       class_eval do
         cattr_reader :searchkick_options, :searchkick_klass
 
-        callbacks = options.key?(:callbacks) ? options[:callbacks] : true
-
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_callbacks, callbacks
-        class_variable_set :@@searchkick_index, options[:index_name] ||
-          (options[:index_prefix].respond_to?(:call) && proc { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }) ||
-          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+        class_variable_set :@@searchkick_index, index_name
+        class_variable_set :@@searchkick_index_cache, {}
 
         class << self
           def searchkick_search(term = "*", **options, &block)
@@ -33,44 +45,18 @@ module Searchkick
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index
-            index = class_variable_get :@@searchkick_index
-            index = index.call if index.respond_to? :call
-            Searchkick::Index.new(index, searchkick_options)
+            index = class_variable_get(:@@searchkick_index)
+            index = index.call if index.respond_to?(:call)
+            index_cache = class_variable_get(:@@searchkick_index_cache)
+            index_cache[index] ||= Searchkick::Index.new(index, searchkick_options)
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
-          def enable_search_callbacks
-            class_variable_set :@@searchkick_callbacks, true
-          end
-
-          def disable_search_callbacks
-            class_variable_set :@@searchkick_callbacks, false
-          end
-
-          def search_callbacks?
-            class_variable_get(:@@searchkick_callbacks) && Searchkick.callbacks?
-          end
-
-          def searchkick_reindex(method_name = nil, full: false, **options)
+          def searchkick_reindex(method_name = nil, **options)
             scoped = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
               (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
 
-            refresh = options.fetch(:refresh, !scoped)
-
-            if method_name
-              # update
-              searchkick_index.import_scope(searchkick_klass, method_name: method_name)
-              searchkick_index.refresh if refresh
-              true
-            elsif scoped && !full
-              # reindex association
-              searchkick_index.import_scope(searchkick_klass)
-              searchkick_index.refresh if refresh
-              true
-            else
-              # full reindex
-              searchkick_index.reindex_scope(searchkick_klass, options)
-            end
+            searchkick_index.reindex(searchkick_klass, method_name, scoped: scoped, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
@@ -79,68 +65,29 @@ module Searchkick
           end
         end
 
-        callback_name = callbacks == :async ? :reindex_async : :reindex
+        # always add callbacks, even when callbacks is false
+        # so Model.callbacks block can be used
         if respond_to?(:after_commit)
-          after_commit callback_name, if: proc { self.class.search_callbacks? }
+          after_commit :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
         elsif respond_to?(:after_save)
-          after_save callback_name, if: proc { self.class.search_callbacks? }
-          after_destroy callback_name, if: proc { self.class.search_callbacks? }
+          after_save :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
         end
 
-        def reindex(method_name = nil, refresh: false, async: false, mode: nil)
-          klass_options = self.class.searchkick_index.options
-
-          if mode.nil?
-            mode =
-              if async
-                :async
-              elsif Searchkick.callbacks_value
-                Searchkick.callbacks_value
-              elsif klass_options.key?(:callbacks) && klass_options[:callbacks] != :async
-                # TODO remove 2nd condition in next major version
-                klass_options[:callbacks]
-              end
-          end
-
-          case mode
-          when :queue
-            if method_name
-              raise Searchkick::Error, "Partial reindex not supported with queue option"
-            else
-              self.class.searchkick_index.reindex_queue.push(id.to_s)
-            end
-          when :async
-            if method_name
-              # TODO support Mongoid and NoBrainer and non-id primary keys
-              Searchkick::BulkReindexJob.perform_later(
-                class_name: self.class.name,
-                record_ids: [id.to_s],
-                method_name: method_name ? method_name.to_s : nil
-              )
-            else
-              self.class.searchkick_index.reindex_record_async(self)
-            end
-          else
-            if method_name
-              self.class.searchkick_index.update_record(self, method_name)
-            else
-              self.class.searchkick_index.reindex_record(self)
-            end
-            self.class.searchkick_index.refresh if refresh
-          end
+        def reindex(method_name = nil, **options)
+          RecordIndexer.new(self).reindex(method_name, **options)
         end unless method_defined?(:reindex)
-
-        # TODO remove this method in next major version
-        def reindex_async
-          reindex(async: true)
-        end unless method_defined?(:reindex_async)
 
         def similar(options = {})
           self.class.searchkick_index.similar_record(self, options)
         end unless method_defined?(:similar)
 
         def search_data
-          respond_to?(:to_hash) ? to_hash : serializable_hash
+          data = respond_to?(:to_hash) ? to_hash : serializable_hash
+          data.delete("id")
+          data.delete("_id")
+          data.delete("_type")
+          data
         end unless method_defined?(:search_data)
 
         def should_index?

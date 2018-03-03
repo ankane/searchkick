@@ -45,6 +45,8 @@ Does your startup use Searchkick? Want a free hour of advising? Fill out [this a
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
 
+**Searchkick 3.0 was recently released!** See [how to upgrade](docs/Searchkick-3-Upgrade.md)
+
 Thinking of upgrading from Elasticsearch 5 to 6? [Read this first](#elasticsearch-5-to-6-upgrade)
 
 ## Getting Started
@@ -62,7 +64,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-The latest version works with Elasticsearch 2, 5, and 6. For Elasticsearch 1, use version 1.5.1 and [this readme](https://github.com/ankane/searchkick/blob/v1.5.1/README.md).
+The latest version works with Elasticsearch 5 and 6. For Elasticsearch 2, use version 2.5.0 and [this readme](https://github.com/ankane/searchkick/blob/v2.5.0/README.md).
 
 Add searchkick to models you want to search.
 
@@ -81,7 +83,7 @@ Product.reindex
 And to query, use:
 
 ```ruby
-products = Product.search("apples", fields: [:name])
+products = Product.search("apples")
 products.each do |product|
   puts product.name
 end
@@ -297,6 +299,14 @@ end
 
 [See the list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html)
 
+For Chinese, install the [elasticsearch-analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik) and use:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick language: "chinese"
+end
+```
+
 ### Synonyms
 
 ```ruby
@@ -500,7 +510,7 @@ There are four strategies for keeping the index synced with your database.
   end
   ```
 
-  And [install Active Job](https://github.com/ankane/activejob_backport) for Rails 4.1 and below. Jobs are added to a queue named `searchkick`.
+  Jobs are added to a queue named `searchkick`.
 
 3. Queuing
 
@@ -543,7 +553,7 @@ class Image < ApplicationRecord
   after_commit :reindex_product
 
   def reindex_product
-    product.reindex # or reindex_async
+    product.reindex
   end
 end
 ```
@@ -571,7 +581,7 @@ Searchkick can use conversion data to learn what users are looking for. If a use
 
 The first step is to define your conversion metric and start tracking conversions. The database works well for low volume, but feel free to use Redis or another datastore.
 
-You do **not** need to clean up the search queries. Searchkick automatically treats `apple` and `APPLES` the same.
+Searchkick automatically treats `apple` and `APPLE` the same.
 
 Next, add conversions to the index.
 
@@ -579,7 +589,7 @@ Next, add conversions to the index.
 class Product < ApplicationRecord
   has_many :searches, class_name: "Searchjoy::Search", as: :convertable
 
-  searchkick conversions: ["conversions"] # name of field
+  searchkick conversions: [:conversions] # name of field
 
   def search_data
     {
@@ -775,63 +785,6 @@ For other aggregation types, including sub-aggregations, use `body_options`:
 Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
 ```
 
-#### Moving From Facets
-
-1. Replace `facets` with `aggs` in searches. **Note:** Stats facets are not supported at this time.
-
-  ```ruby
-  products = Product.search "chuck taylor", facets: [:brand]
-  # to
-  products = Product.search "chuck taylor", aggs: [:brand]
-  ```
-
-2. Replace the `facets` method with `aggs` for results.
-
-  ```ruby
-  products.facets
-  # to
-  products.aggs
-  ```
-
-  The keys in results differ slightly. Instead of:
-
-  ```json
-  {
-    "_type":"terms",
-    "missing":0,
-    "total":45,
-    "other":34,
-    "terms":[
-      {"term":14.0,"count":11}
-    ]
-  }
-  ```
-
-  You get:
-
-  ```json
-  {
-    "doc_count":45,
-    "doc_count_error_upper_bound":0,
-    "sum_other_doc_count":34,
-    "buckets":[
-      {"key":14.0,"doc_count":11}
-    ]
-  }
-  ```
-
-  Update your application to handle this.
-
-3. By default, `where` conditions apply to aggregations. This is equivalent to `smart_facets: true`. If you have `smart_facets: true`, you can remove it. If this is not desired, set `smart_aggs: false`.
-
-4. If you have any range facets with dates, change the key from `ranges` to `date_ranges`.
-
-  ```ruby
-  facets: {date_field: {ranges: date_ranges}}
-  # to
-  aggs: {date_field: {date_ranges: date_ranges}}
-  ```
-
 ### Highlight
 
 Specify which fields to index with highlighting.
@@ -845,23 +798,21 @@ end
 Highlight the search query in the results.
 
 ```ruby
-bands = Band.search "cinema", fields: [:name], highlight: true
+bands = Band.search "cinema", highlight: true
 ```
-
-**Note:** The `fields` option is required, unless highlight options are given - see below.
 
 View the highlighted fields with:
 
 ```ruby
-bands.each do |band|
-  band.search_highlights[:name] # "Two Door <em>Cinema</em> Club"
+bands.with_highlights.each do |band, highlights|
+  highlights[:name] # "Two Door <em>Cinema</em> Club"
 end
 ```
 
 To change the tag, use:
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
+Band.search "cinema", highlight: {tag: "<strong>"}
 ```
 
 To highlight and search different fields, use:
@@ -870,7 +821,16 @@ To highlight and search different fields, use:
 Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
 ```
 
-Additional options, including fragment size, can be specified for each field:
+By default, the entire field is highlighted. To get small snippets instead, use:
+
+```ruby
+bands = Band.search "cinema", highlight: {fragment_size: 20}
+bands.with_highlights(multiple: true).each do |band, highlights|
+  highlights[:name].join(" and ")
+end
+```
+
+Additional options can be specified for each field:
 
 ```ruby
 Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
@@ -974,7 +934,7 @@ Not touching the query shape
 Restaurant.search "burger", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
-Containing the query shape (Elasticsearch 2.2+)
+Containing the query shape
 
 ```ruby
 Restaurant.search "fries", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
@@ -1101,12 +1061,6 @@ heroku run rake searchkick:reindex CLASS=Product
 
 ### Amazon Elasticsearch Service
 
-Include `elasticsearch 1.0.15` or greater in your Gemfile.
-
-```ruby
-gem 'elasticsearch', '>= 1.0.15'
-```
-
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
@@ -1116,7 +1070,7 @@ ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
 To use signed request, include in your Gemfile:
 
 ```ruby
-gem 'faraday_middleware-aws-signers-v4', '>= 0.1.9'
+gem 'faraday_middleware-aws-sigv4'
 ```
 
 and add to your initializer:
@@ -1196,7 +1150,7 @@ gem 'typhoeus'
 To reduce log noise, create an initializer with:
 
 ```ruby
-Ethon.logger = Logger.new("/dev/null")
+Ethon.logger = Logger.new(nil)
 ```
 
 If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
@@ -1539,8 +1493,6 @@ Reindex one record
 ```ruby
 product = Product.find(1)
 product.reindex
-# or to reindex in the background
-product.reindex_async
 ```
 
 Reindex multiple records
@@ -1808,9 +1760,9 @@ RSpec.configure do |config|
   end
 
   config.around(:each, search: true) do |example|
-    Searchkick.enable_callbacks
-    example.run
-    Searchkick.disable_callbacks
+    Searchkick.callbacks(true) do
+      example.run
+    end
   end
 end
 ```
@@ -1862,61 +1814,6 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
-## Upgrading
-
-View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
-
-Important notes are listed below.
-
-### 2.0.0
-
-- Added support for `reindex` on associations
-
-#### Breaking Changes
-
-- Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
-- Removed facets, legacy options, and legacy methods
-- Invalid options now throw an `ArgumentError`
-- The `query` and `json` options have been removed in favor of `body`
-- The `include` option has been removed in favor of `includes`
-- The `personalize` option has been removed in favor of `boost_where`
-- The `partial` option has been removed in favor of `operator`
-- Renamed `select_v2` to `select` (legacy `select` no longer available)
-- The `_all` field is disabled if `searchable` option is used (for performance)
-- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
-- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
-- `load: false` no longer returns an array in Elasticsearch 2
-
-### 1.0.0
-
-- Added support for Elasticsearch 2.0
-- Facets are deprecated in favor of [aggregations](#aggregations) - see [how to upgrade](#moving-from-facets)
-
-#### Breaking Changes
-
-- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws a `Searchkick::DangerousOperation` error to keep your from accidentally recreating your index with only a few records.
-
-  ```ruby
-  Product.where(color: "brandy").reindex # error!
-  ```
-
-  If this is what you intend to do, use:
-
-  ```ruby
-  Product.where(color: "brandy").reindex(accept_danger: true)
-  ```
-
-- Misspellings are enabled by default for [partial matches](#partial-matches). Use `misspellings: false` to disable.
-- [Transpositions](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) are enabled by default for misspellings. Use `misspellings: {transpositions: false}` to disable.
-
-### 0.6.0 and 0.7.0
-
-If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.6.1` or `0.7.1` to fix an issue that causes downtime when reindexing.
-
-### 0.3.0
-
-Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
-
 ## Elasticsearch 5 to 6 Upgrade
 
 Elasticsearch 6 removes the ability to reindex with the `_all` field. Before you upgrade, we recommend disabling this field manually and specifying default fields on your models.
@@ -1961,6 +1858,10 @@ end
 ```
 
 For convenience, this is set by default in the test environment.
+
+## History
+
+View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 ## Thanks
 

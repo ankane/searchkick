@@ -9,11 +9,11 @@ module Searchkick
 
     queue_as { Searchkick.queue_name }
 
-    def perform(klass, id)
+    def perform(klass, id, method_name = nil)
       model = klass.constantize
       record =
         begin
-          if model.searchkick_options[:unscoped_reindex_job]
+          if model.respond_to?(:unscoped)
             model.unscoped.find(id)
           else
             model.find(id)
@@ -25,19 +25,12 @@ module Searchkick
           nil
         end
 
-      index = model.searchkick_index
-      if !record || !record.should_index?
-        # hacky
-        record ||= model.new
+      unless record
+        record = model.new
         record.id = id
-        begin
-          index.remove record
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
-        end
-      else
-        index.store record
       end
+
+      RecordIndexer.new(record).reindex(method_name, mode: true)
     end
   end
 end

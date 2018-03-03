@@ -19,19 +19,23 @@ class Product < ActiveRecord::Base
   end
 end
 
-# total_docs = 1000000
+if ENV["SETUP"]
+  total_docs = 1000000
 
-# ActiveRecord::Migration.create_table :products, force: :cascade do |t|
-#   t.string :name
-#   t.string :color
-#   t.integer :store_id
-# end
+  ActiveRecord::Migration.create_table :products, force: :cascade do |t|
+    t.string :name
+    t.string :color
+    t.integer :store_id
+  end
 
-# Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+  Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
-# puts "Imported"
+  puts "Imported"
 
-# Product.reindex
+  Product.reindex
+
+  puts "Reindexed"
+end
 
 query = Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, limit: 10000, load: false, execute: false)
 
