@@ -1,6 +1,7 @@
 ## 3.0.0 [unreleased]
 
 - Better performance
+- Added support for Chinese
 
 Breaking changes
 

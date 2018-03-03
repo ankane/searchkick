@@ -291,6 +291,14 @@ end
 
 [See the list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html)
 
+For Chinese, install the [elasticsearch-analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik) and use:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick language: "chinese"
+end
+```
+
 ### Synonyms
 
 ```ruby

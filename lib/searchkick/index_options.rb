@@ -143,6 +143,22 @@ module Searchkick
           }
         }
 
+        if language == "chinese"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "ik_smart"
+            },
+            searchkick_search: {
+              type: "ik_smart"
+            },
+            searchkick_search2: {
+              type: "ik_max_word"
+            }
+          )
+
+          settings[:analysis][:filter].delete(:searchkick_stemmer)
+        end
+
         if Searchkick.env == "test"
           settings[:number_of_shards] = 1
           settings[:number_of_replicas] = 0

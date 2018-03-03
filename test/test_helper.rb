@@ -117,6 +117,12 @@ if defined?(Mongoid)
 
     field :name
   end
+
+  class Song
+    include Mongoid::Document
+
+    field :name
+  end
 elsif defined?(NoBrainer)
   NoBrainer.configure do |config|
     config.app_name = :searchkick
@@ -182,6 +188,13 @@ elsif defined?(NoBrainer)
     include NoBrainer::Document
 
     field :id,   type: String
+    field :name, type: String
+  end
+
+  class Song
+    include NoBrainer::Document
+
+    field :id,   type: Object
     field :name, type: String
   end
 elsif defined?(Cequel)
@@ -272,7 +285,14 @@ elsif defined?(Cequel)
     column :name, :text
   end
 
-  [Product, Store, Region, Speaker, Animal].each(&:synchronize_schema)
+  class Song
+    include Cequel::Record
+
+    key :id, :timeuuid, auto: true
+    column :name, :text
+  end
+
+  [Product, Store, Region, Speaker, Animal, Sku, Song].each(&:synchronize_schema)
 else
   require "active_record"
 
@@ -363,6 +383,10 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :songs do |t|
+    t.string :name
+  end
+
   class Product < ActiveRecord::Base
     belongs_to :store
   end
@@ -387,6 +411,9 @@ else
   end
 
   class Sku < ActiveRecord::Base
+  end
+
+  class Song < ActiveRecord::Base
   end
 end
 
@@ -508,6 +535,10 @@ class Sku
   searchkick callbacks: defined?(ActiveJob) ? :async : true
 end
 
+class Song
+  searchkick language: "chinese"
+end
+
 Product.searchkick_index.delete if Product.searchkick_index.exists?
 Product.reindex
 Product.reindex # run twice for both index paths
@@ -517,6 +548,7 @@ Store.reindex
 Animal.reindex
 Speaker.reindex
 Region.reindex
+Song.reindex
 
 class Minitest::Test
   def setup
