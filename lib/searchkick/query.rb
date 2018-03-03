@@ -226,7 +226,7 @@ module Searchkick
         ignored_options = options.keys & [:aggs, :boost,
           :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :limit, :match, :misspellings, :offset, :operator, :order,
-          :padding, :page, :per_page, :select, :smart_aggs, :suggest, :where]
+          :padding, :page, :per_page, :profile, :select, :smart_aggs, :suggest, :where]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else

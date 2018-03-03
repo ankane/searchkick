@@ -39,6 +39,8 @@ Plus:
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
 
+**Searchkick 3.0 was recently released!** See [how to upgrade](docs/Searchkick-3-Upgrade.md)
+
 Thinking of upgrading from Elasticsearch 5 to 6? [Read this first](#elasticsearch-5-to-6-upgrade)
 
 ## Getting Started
@@ -1799,73 +1801,6 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
-## Upgrading
-
-View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
-
-Important notes are listed below.
-
-### 3.0.0
-
-#### Breaking Changes
-
-- Removed support for Elasticsearch 2
-- Removed support for ActiveRecord < 4.2 and Mongoid < 5
-- Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
-- Types are no longer supported. To upgrade models that use inheritance, upgrade your gem to `2.5.0`. Added `inheritance: true` to your `searchkick` method, and do a full reindex before upgrading.
-- Bumped default `limit` to 10,000
-- The `_all` field is disabled by default in Elasticsearch 5. Use `searchkick _all: true` if you need it.
-- An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
-
-### 2.0.0
-
-- Added support for `reindex` on associations
-
-#### Breaking Changes
-
-- Removed support for Elasticsearch 1 as it reaches [end of life](https://www.elastic.co/support/eol)
-- Removed facets, legacy options, and legacy methods
-- Invalid options now throw an `ArgumentError`
-- The `query` and `json` options have been removed in favor of `body`
-- The `include` option has been removed in favor of `includes`
-- The `personalize` option has been removed in favor of `boost_where`
-- The `partial` option has been removed in favor of `operator`
-- Renamed `select_v2` to `select` (legacy `select` no longer available)
-- The `_all` field is disabled if `searchable` option is used (for performance)
-- The `partial_reindex(:method_name)` method has been replaced with `reindex(:method_name)`
-- The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
-- `load: false` no longer returns an array in Elasticsearch 2
-
-### 1.0.0
-
-- Added support for Elasticsearch 2.0
-- Facets are deprecated in favor of [aggregations](#aggregations) - see [how to upgrade](#moving-from-facets)
-
-#### Breaking Changes
-
-- **ActiveRecord 4.1+ and Mongoid 3+:** Attempting to reindex with a scope now throws a `Searchkick::DangerousOperation` error to keep your from accidentally recreating your index with only a few records.
-
-  ```ruby
-  Product.where(color: "brandy").reindex # error!
-  ```
-
-  If this is what you intend to do, use:
-
-  ```ruby
-  Product.where(color: "brandy").reindex(accept_danger: true)
-  ```
-
-- Misspellings are enabled by default for [partial matches](#partial-matches). Use `misspellings: false` to disable.
-- [Transpositions](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance) are enabled by default for misspellings. Use `misspellings: {transpositions: false}` to disable.
-
-### 0.6.0 and 0.7.0
-
-If running Searchkick `0.6.0` or `0.7.0` and Elasticsearch `0.90`, we recommend upgrading to Searchkick `0.6.1` or `0.7.1` to fix an issue that causes downtime when reindexing.
-
-### 0.3.0
-
-Before `0.3.0`, locations were indexed incorrectly. When upgrading, be sure to reindex immediately.
-
 ## Elasticsearch 5 to 6 Upgrade
 
 Elasticsearch 6 removes the ability to reindex with the `_all` field. Before you upgrade, we recommend disabling this field manually and specifying default fields on your models.
@@ -1910,6 +1845,10 @@ end
 ```
 
 For convenience, this is set by default in the test environment.
+
+## History
+
+View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
 
 ## Thanks
 

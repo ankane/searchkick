@@ -1,26 +1,22 @@
 ## 3.0.0 [unreleased]
 
-- Better performance
+- Better reindexing performance
 - Added support for Chinese
 
 Breaking changes
 
 - Removed support for Elasticsearch 2
 - Removed support for ActiveRecord < 4.2 and Mongoid < 5
-- Removed `reindex_async` method. `reindex` now defaults to mode specified by model. Use `reindex(mode: :async)` to force async reindex.
-- Types are no longer supported. To upgrade models that use inheritance, upgrade your gem to `2.5.0`. Added `inheritance: true` to your `searchkick` method, and do a full reindex before upgrading.
-- Bumped default `limit` to 10,000
-- The `_all` field is disabled by default in Elasticsearch 5. Use `searchkick _all: true` if you need it.
+- Types are no longer supported
+- The `_all` field is disabled by default in Elasticsearch 5
+- Conversions are not stemmed by default
 - An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
-- Removed `log` option from `boost_by`. Use `modifier: "ln2p"` instead.
+- Removed `log` option from `boost_by`
 - Removed `unscoped_reindex_job` option (always `true` now)
 - Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
-- Removed `async` option from `record.reindex` - use `mode: :async` instead
-- Conversions are not stemmed by default - use `stem_conversion: true` to enable this
-
-```ruby
-Searchkick.model_options = {stem_conversions: true}
-```
+- Removed `reindex_async` method, as `reindex` now defaults to callbacks mode specified on the model
+- Removed `async` option from `record.reindex`
+- Bumped default `limit` to 10,000
 
 ## 2.5.1 [unreleased]
 
