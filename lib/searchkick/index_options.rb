@@ -127,7 +127,6 @@ module Searchkick
               },
               searchkick_stemmer: {
                 # use stemmer if language is lowercase, snowball otherwise
-                # TODO deprecate language option in favor of stemmer
                 type: language == language.to_s.downcase ? "stemmer" : "snowball",
                 language: language || "English"
               }
