@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class ReindexTest < Minitest::Test
+  def setup
+    super
+    Sku.destroy_all
+  end
+
   def test_scoped
     skip if nobrainer? || cequel?
 

@@ -528,7 +528,7 @@ class Sku
 end
 
 class Song
-  searchkick language: "chinese"
+  searchkick
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?
@@ -547,7 +547,6 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
-    Sku.destroy_all
   end
 
   protected
@@ -578,5 +577,16 @@ class Minitest::Test
 
   def assert_first(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, options).map(&:name).first
+  end
+
+  def with_options(model, options)
+    previous_options = model.searchkick_options.dup
+    begin
+      model.searchkick_options.merge!(options)
+      model.reindex
+    ensure
+      model.searchkick_options.clear
+      model.searchkick_options.merge!(previous_options)
+    end
   end
 end
