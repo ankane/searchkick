@@ -1,6 +1,5 @@
 ## 3.0.0 [unreleased]
 
-- Better reindexing performance
 - Added support for Chinese
 
 Breaking changes
