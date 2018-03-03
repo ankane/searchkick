@@ -65,13 +65,13 @@ module Searchkick
           end
         end
 
-        if callbacks
-          if respond_to?(:after_commit)
-            after_commit :reindex
-          elsif respond_to?(:after_save)
-            after_save :reindex
-            after_destroy :reindex
-          end
+        # always add callbacks, even when callbacks is false
+        # so Model.callbacks block can be used
+        if respond_to?(:after_commit)
+          after_commit :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+        elsif respond_to?(:after_save)
+          after_save :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
         end
 
         def reindex(method_name = nil, **options)

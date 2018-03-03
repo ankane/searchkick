@@ -179,8 +179,6 @@ module Searchkick
     # reindex
 
     def reindex(scope, method_name, scoped:, full: false, **options)
-      return unless Searchkick.callbacks?
-
       refresh = options.fetch(:refresh, !scoped)
 
       if method_name

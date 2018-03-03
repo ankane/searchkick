@@ -8,8 +8,6 @@ module Searchkick
     end
 
     def reindex(method_name = nil, refresh: false, mode: nil)
-      return unless Searchkick.callbacks?
-
       unless [true, nil, :async, :queue].include?(mode)
         raise ArgumentError, "Invalid value for mode"
       end

@@ -125,8 +125,12 @@ module Searchkick
     self.callbacks_value = false
   end
 
-  def self.callbacks?
-    callbacks_value != false
+  def self.callbacks?(default: true)
+    if callbacks_value.nil?
+      default
+    else
+      callbacks_value != false
+    end
   end
 
   def self.callbacks(value)
