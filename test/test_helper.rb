@@ -38,14 +38,6 @@ end
 
 ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
-def elasticsearch_below60?
-  Searchkick.server_below?("6.0.0-alpha1")
-end
-
-def elasticsearch_below61?
-  Searchkick.server_below?("6.1.0-alpha1")
-end
-
 def nobrainer?
   defined?(NoBrainer)
 end

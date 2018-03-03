@@ -960,10 +960,6 @@ module Searchkick
       end
     end
 
-    def below60?
-      Searchkick.server_below?("6.0.0-alpha1")
-    end
-
     def below61?
       Searchkick.server_below?("6.1.0-alpha1")
     end
