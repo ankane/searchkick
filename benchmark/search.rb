@@ -33,6 +33,12 @@ end
 
 # Product.reindex
 
+query = Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, limit: 10000, load: false, execute: false)
+
+require "pp"
+pp query.body.as_json
+puts
+
 Benchmark.ips do |x|
-  x.report { Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, load: false) }
+  x.report { query.dup.execute }
 end
