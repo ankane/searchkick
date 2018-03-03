@@ -51,6 +51,24 @@ class HighlightTest < Minitest::Test
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine", fields: [:name], match: :word_middle, highlight: true).first.search_highlights[:name]
   end
 
+  def test_fetch_all
+    store [{name: "Two Door Cinema Club Some Other Words And Much More Doors Cinema Club" }]
+    highlights = Product.search("cinema", fields: [:name], highlight: { fetch_all: true, fragment_size: 20 } ).first.search_highlights[:name]
+    assert highlights.is_a?(Array)
+    assert_equal highlights.count, 2
+    refute_equal highlights.first, highlights.last
+    highlights.each do |highlight|
+      assert highlight.include?("<em>Cinema</em>")
+    end
+  end
+
+  def test_fetch_one
+    store [{name: "Two Door Cinema Club Some Other Words And Much More Doors Cinema Club" }]
+    highlights = Product.search("cinema", fields: [:name], highlight: { fragment_size: 20 } ).first.search_highlights[:name]
+    assert highlights.is_a?(String)
+    assert highlights.include?("<em>Cinema</em>")
+  end
+
   def test_body
     skip if ENV["MATCH"] == "word_start"
     store_names ["Two Door Cinema Club"]
