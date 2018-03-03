@@ -134,7 +134,7 @@ elsif defined?(NoBrainer)
     include NoBrainer::Document::Timestamps
 
     field :id,           type: Object
-    field :name,         type: String
+    field :name,         type: Text
     field :in_stock,     type: Boolean
     field :backordered,  type: Boolean
     field :orders_count, type: Integer
