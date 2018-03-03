@@ -659,7 +659,7 @@ module Searchkick
     def set_highlights(payload, fields)
       payload[:highlight] = {
         fields: Hash[fields.map { |f| [f, {}] }],
-        fragment_size: 0
+        fragment_size: below60? ? 30000 : 0
       }
 
       if options[:highlight].is_a?(Hash)
@@ -958,6 +958,10 @@ module Searchkick
       else
         value
       end
+    end
+
+    def below60?
+      Searchkick.server_below?("6.0.0-alpha1")
     end
 
     def below61?

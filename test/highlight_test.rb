@@ -17,7 +17,7 @@ class HighlightTest < Minitest::Test
   end
 
   def test_very_long
-    store_names ["Two Door Cinema Club " * 100]
+    store_names [("Two Door Cinema Club " * 100).strip]
     assert_equal ("Two Door <em>Cinema</em> Club " * 100).strip, Product.search("cinema", highlight: true).highlights.first[:name]
   end
 
