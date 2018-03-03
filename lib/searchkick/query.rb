@@ -401,14 +401,6 @@ module Searchkick
         # post filters
         set_post_filters(payload, post_filters) if post_filters.any?
 
-        if filters.any? || must_not.any? || should.any?
-          bool = {must: query}
-          bool[:filter] = filters if filters.any?      # where
-          bool[:must_not] = must_not if must_not.any?  # exclude
-          bool[:should] = should if should.any?        # conversions
-          query = {bool: bool}
-        end
-
         custom_filters = []
         multiply_filters = []
 
@@ -416,27 +408,7 @@ module Searchkick
         set_boost_where(custom_filters)
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
 
-        if custom_filters.any?
-          query = {
-            function_score: {
-              functions: custom_filters,
-              query: query,
-              score_mode: "sum"
-            }
-          }
-        end
-
-        if multiply_filters.any?
-          query = {
-            function_score: {
-              functions: multiply_filters,
-              query: query,
-              score_mode: "multiply"
-            }
-          }
-        end
-
-        payload[:query] = query
+        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
 
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
@@ -514,6 +486,38 @@ module Searchkick
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
       [boost_fields, fields]
+    end
+
+    def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
+      if filters.any? || must_not.any? || should.any?
+        bool = {must: query}
+        bool[:filter] = filters if filters.any?      # where
+        bool[:must_not] = must_not if must_not.any?  # exclude
+        bool[:should] = should if should.any?        # conversions
+        query = {bool: bool}
+      end
+
+      if custom_filters.any?
+        query = {
+          function_score: {
+            functions: custom_filters,
+            query: query,
+            score_mode: "sum"
+          }
+        }
+      end
+
+      if multiply_filters.any?
+        query = {
+          function_score: {
+            functions: multiply_filters,
+            query: query,
+            score_mode: "multiply"
+          }
+        }
+      end
+
+      query
     end
 
     def set_conversions
