@@ -6,7 +6,7 @@ require "active_support/notifications"
 
 ActiveSupport::Notifications.subscribe "request.searchkick" do |*args|
   event = ActiveSupport::Notifications::Event.new(*args)
-  p event.duration.round
+  puts "Import: #{event.duration.round}ms"
 end
 
 ActiveJob::Base.queue_adapter = :sidekiq
@@ -33,27 +33,25 @@ class Product < ActiveRecord::Base
   end
 end
 
-# total_docs = 100000
+if ENV["SETUP"]
+  total_docs = 100000
 
-# ActiveRecord::Migration.create_table :products, force: :cascade do |t|
-#   t.string :name
-#   t.string :color
-#   t.integer :store_id
-# end
+  ActiveRecord::Migration.create_table :products, force: :cascade do |t|
+    t.string :name
+    t.string :color
+    t.integer :store_id
+  end
 
-# Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+  Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
 
-# puts "Imported"
+  puts "Imported"
+end
 
 result = nil
 report = nil
 stats = nil
 
 Product.searchkick_index.delete rescue nil
-
-GC.start
-GC.disable
-start_mem = GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
@@ -81,7 +79,6 @@ time =
   end
 
 puts
-puts "Memory: #{(GetProcessMem.new.mb - start_mem).round(1)}mb"
 puts "Time: #{time.round(1)}s"
 
 if result
