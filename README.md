@@ -77,7 +77,7 @@ Product.reindex
 And to query, use:
 
 ```ruby
-products = Product.search("apples", fields: [:name])
+products = Product.search("apples")
 products.each do |product|
   puts product.name
 end
