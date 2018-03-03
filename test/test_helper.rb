@@ -579,14 +579,15 @@ class Minitest::Test
     assert_equal expected, klass.search(term, options).map(&:name).first
   end
 
-  def with_options(model, options)
-    previous_options = model.searchkick_options.dup
+  def with_options(klass, options)
+    previous_options = klass.searchkick_options.dup
     begin
-      model.searchkick_options.merge!(options)
-      model.reindex
+      klass.searchkick_options.merge!(options)
+      klass.reindex
+      yield
     ensure
-      model.searchkick_options.clear
-      model.searchkick_options.merge!(previous_options)
+      klass.searchkick_options.clear
+      klass.searchkick_options.merge!(previous_options)
     end
   end
 end
