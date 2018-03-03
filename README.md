@@ -803,6 +803,14 @@ bands.with_highlights.each do |band, highlights|
 end
 ```
 
+Or
+
+```ruby
+bands.highlighted.each do |band|
+  band.name
+end
+```
+
 To change the tag, use:
 
 ```ruby

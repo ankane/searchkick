@@ -86,4 +86,28 @@ class HighlightTest < Minitest::Test
       assert highlight.include?("<em>Cinema</em>")
     end
   end
+
+  def test_highlighted
+    store_names ["Two Door Cinema Club"]
+    result = Product.search("cinema", highlight: true)
+
+    product = result.highlighted.first
+    assert_equal "Two Door <em>Cinema</em> Club", product.name
+    assert product.readonly?
+
+    # make sure it doesn't modify original
+    assert_equal "Two Door Cinema Club", result.first.name
+    assert !result.first.readonly?
+  end
+
+  def test_highlighted_load_false
+    store_names ["Two Door Cinema Club"]
+    result = Product.search("cinema", highlight: true, load: false)
+    product = result.highlighted.first
+    assert_equal "Two Door <em>Cinema</em> Club", product.name
+    assert_equal "Two Door <em>Cinema</em> Club", product[:name]
+
+    # make sure it doesn't modify original
+    assert_equal "Two Door Cinema Club", result.first.name
+  end
 end

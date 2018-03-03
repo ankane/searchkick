@@ -189,6 +189,26 @@ module Searchkick
       @options[:misspellings]
     end
 
+    def highlighted(multiple: false)
+      with_highlights(multiple: multiple).map do |result, highlights|
+        if result.is_a?(HashWrapper)
+          result = result.dup
+          highlights.each do |k, v|
+            result.send("#{k}=", v)
+          end
+        else
+          result = result.clone
+          result.readonly! if result.respond_to?(:readonly!)
+          highlights.each do |k, v|
+            result.define_singleton_method(k) do
+              v
+            end
+          end
+        end
+        result
+      end
+    end
+
     private
 
     def results_query(records, hits)
