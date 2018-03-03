@@ -1,6 +1,7 @@
 ## 3.0.0
 
 - Added support for Chinese
+- No longer requires fields to query for Elasticsearch 6
 - Results can be marshaled by default (unless using `highlight` option)
 
 Breaking changes
