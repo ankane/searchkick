@@ -447,7 +447,7 @@ class Product
   attr_accessor :conversions, :user_ids, :aisle, :details
 
   def search_data
-    serializable_hash.except("id").merge(
+    serializable_hash.except("id", "_id").merge(
       conversions: conversions,
       user_ids: user_ids,
       location: {lat: latitude, lon: longitude},
@@ -513,7 +513,7 @@ class Speaker
   attr_accessor :conversions_a, :conversions_b, :aisle
 
   def search_data
-    serializable_hash.except("id").merge(
+    serializable_hash.except("id", "_id").merge(
       conversions_a: conversions_a,
       conversions_b: conversions_b,
       aisle: aisle
