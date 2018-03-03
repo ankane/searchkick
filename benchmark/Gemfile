@@ -5,15 +5,13 @@ gemspec path: "../"
 
 gem "sqlite3"
 gem "pg"
-gem "activerecord", "~> 5.2.0.rc1"
+gem "activerecord", "~> 5.1.0"
 gem "activerecord-import"
-gem "activejob", "~> 5.2.0.rc1"
+gem "activejob"
 gem "redis"
 gem "sidekiq"
 
 # performance
-gem "faraday", path: "~/forks/faraday"
-gem "ethon", path: "~/forks/ethon"
 gem "typhoeus"
 gem "oj"
 
