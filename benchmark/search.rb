@@ -1,7 +1,7 @@
 require "bundler/setup"
 Bundler.require(:default)
 require "active_record"
-require "benchmark"
+require "benchmark/ips"
 
 ActiveRecord::Base.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
@@ -33,10 +33,6 @@ end
 
 # Product.reindex
 
-time =
-  Benchmark.realtime do
-    Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, load: false)
-  end
-
-puts
-puts "Time: #{time.round(1)}s"
+Benchmark.ips do |x|
+  x.report { Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, load: false) }
+end
