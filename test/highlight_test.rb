@@ -86,4 +86,9 @@ class HighlightTest < Minitest::Test
       assert highlight.include?("<em>Cinema</em>")
     end
   end
+
+  def test_search_highlights_method
+    store_names ["Two Door Cinema Club"]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", highlight: true).first.search_highlights[:name]
+  end
 end

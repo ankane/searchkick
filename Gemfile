@@ -10,8 +10,6 @@ gem "typhoeus"
 gem "activejob", "~> 5.2.0.rc1"
 gem "redis"
 gem "connection_pool"
-gem "faraday", path: "~/forks/faraday"
-gem "ethon", path: "~/forks/ethon"
 
 # kaminari
 gem "actionpack", "~> 5.2.0.rc1"
