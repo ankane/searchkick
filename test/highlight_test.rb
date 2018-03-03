@@ -93,11 +93,11 @@ class HighlightTest < Minitest::Test
 
     product = result.highlighted.first
     assert_equal "Two Door <em>Cinema</em> Club", product.name
-    assert product.readonly?
+    assert product.readonly? if defined?(ActiveRecord)
 
     # make sure it doesn't modify original
     assert_equal "Two Door Cinema Club", result.first.name
-    assert !result.first.readonly?
+    assert !result.first.readonly? if defined?(ActiveRecord)
   end
 
   def test_highlighted_load_false
