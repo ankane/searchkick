@@ -658,7 +658,8 @@ module Searchkick
 
     def set_highlights(payload, fields)
       payload[:highlight] = {
-        fields: Hash[fields.map { |f| [f, {}] }]
+        fields: Hash[fields.map { |f| [f, {}] }],
+        fragment_size: 0
       }
 
       if options[:highlight].is_a?(Hash)

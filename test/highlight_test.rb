@@ -16,6 +16,11 @@ class HighlightTest < Minitest::Test
     assert_equal "Two Door <strong class='classy'>Cinema</strong> Club", Product.search("cinema", fields: [:name], highlight: {tag: "<strong class='classy'>"}).first.search_highlights[:name]
   end
 
+  def test_very_long
+    store_names ["Two Door Cinema Club " * 100]
+    assert_equal ("Two Door <em>Cinema</em> Club " * 100).strip, Product.search("cinema", fields: [:name], highlight: true).first.search_highlights[:name]
+  end
+
   def test_multiple_fields
     store [{name: "Two Door Cinema Club", color: "Cinema Orange"}]
     highlights = Product.search("cinema", fields: [:name, :color], highlight: true).first.search_highlights
