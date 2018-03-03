@@ -1,4 +1,4 @@
-## 3.0.0 [unreleased]
+## 3.0.0
 
 - Added support for Chinese
 - Results can be marshaled by default (unless using `highlight` option)
