@@ -12,16 +12,10 @@ Breaking changes
 - Conversions are not stemmed by default
 - An `ArgumentError` is raised instead of a warning when options are incompatible with the `body` option
 - Removed `log` option from `boost_by`
-- Removed `unscoped_reindex_job` option (always `true` now)
 - Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
 - Removed `reindex_async` method, as `reindex` now defaults to callbacks mode specified on the model
 - Removed `async` option from `record.reindex`
 - Bumped default `limit` to 10,000
-
-## 2.5.1 [unreleased]
-
-- No longer require fields when `_all` field is missing
-- Added `unscoped_reindex_job` option
 
 ## 2.5.0
 
