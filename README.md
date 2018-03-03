@@ -1344,7 +1344,7 @@ end
 Create a job to update the cache and reindex records with new conversions.
 
 ```ruby
-class ReindexConversionsJob < ActiveJob::Base
+class ReindexConversionsJob < ApplicationJob
   def perform(class_name)
     # get records that have a recent conversion
     recently_converted_ids =
