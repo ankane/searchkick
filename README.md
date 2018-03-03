@@ -792,23 +792,21 @@ end
 Highlight the search query in the results.
 
 ```ruby
-bands = Band.search "cinema", fields: [:name], highlight: true
+bands = Band.search "cinema", highlight: true
 ```
-
-**Note:** The `fields` option is required, unless highlight options are given - see below.
 
 View the highlighted fields with:
 
 ```ruby
-bands.each do |band|
-  band.search_highlights[:name] # "Two Door <em>Cinema</em> Club"
+bands.with_highlights.each do |band, highlights|
+  highlights[:name] # "Two Door <em>Cinema</em> Club"
 end
 ```
 
 To change the tag, use:
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: {tag: "<strong>"}
+Band.search "cinema", highlight: {tag: "<strong>"}
 ```
 
 To highlight and search different fields, use:
@@ -817,7 +815,16 @@ To highlight and search different fields, use:
 Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
 ```
 
-Additional options, including fragment size, can be specified for each field:
+By default, the entire field is highlighted. To get small snippets instead, use:
+
+```ruby
+bands = Band.search "cinema", highlight: {fragment_size: 20}
+bands.with_highlights(multiple: true).each do |band, highlights|
+  highlights[:name].join(" and ")
+end
+```
+
+Additional options can be specified for each field:
 
 ```ruby
 Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}

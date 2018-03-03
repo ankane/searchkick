@@ -1,6 +1,7 @@
 ## 3.0.0 [unreleased]
 
 - Added support for Chinese
+- Results can be marshaled by default (unless using `highlight` option)
 
 Breaking changes
 
@@ -14,6 +15,9 @@ Breaking changes
 - Removed `Model.enable_search_callbacks`, `Model.disable_search_callbacks`, and `Model.search_callbacks?`
 - Removed `reindex_async` method, as `reindex` now defaults to callbacks mode specified on the model
 - Removed `async` option from `record.reindex`
+- Removed `search_hit` method - use `with_hit` instead
+- Removed `each_with_hit` - use `with_hit.each` instead
+- Removed `with_details` - use `with_highlights` instead
 - Bumped default `limit` to 10,000
 
 ## 2.5.0
