@@ -548,7 +548,6 @@ Store.reindex
 Animal.reindex
 Speaker.reindex
 Region.reindex
-Song.reindex
 
 class Minitest::Test
   def setup

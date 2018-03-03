@@ -7,6 +7,7 @@ class LanguageTest < Minitest::Test
 
   def test_chinese
     skip unless ENV["CHINESE"]
+    Song.reindex
     store_names ["中华人民共和国国歌"], Song
     assert_search "中华人民共和国", ["中华人民共和国国歌"], {}, Song
     assert_search "国歌", ["中华人民共和国国歌"], {}, Song
