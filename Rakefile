@@ -16,5 +16,5 @@ Rake::TestTask.new do |t|
 end
 
 task :benchmark do
-  require_relative "benchmark/benchmark"
+  require_relative "benchmark/index"
 end
