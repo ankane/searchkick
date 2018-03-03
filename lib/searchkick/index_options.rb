@@ -341,7 +341,7 @@ module Searchkick
 
         if below60
           all_enabled = all && (!options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all"))
-          mappings[type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
+          mappings[index_type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
         end
 
         mappings = mappings.deep_merge(options[:mappings] || {})
