@@ -53,3 +53,5 @@ record.reindex(mode: :async)
 If you use `log: true` with `boost_by`, replace it with `modifier: "ln2p"`.
 
 If you use the `body` option and have warnings about incompatible options, remove them, as they now throw an `ArgumentError`.
+
+Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
