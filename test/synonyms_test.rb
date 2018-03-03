@@ -47,7 +47,9 @@ class SynonymsTest < Minitest::Test
   end
 
   def test_wordnet
-    skip unless ENV["TEST_WORDNET"]
+    # requires WordNet
+    skip unless ENV["WORDNET"]
+
     store_names ["Creature", "Beast", "Dragon"], Animal
     assert_search "animal", ["Creature", "Beast"], {}, Animal
   end

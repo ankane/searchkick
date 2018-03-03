@@ -6,6 +6,7 @@ class LanguageTest < Minitest::Test
   end
 
   def test_chinese
+    # requires https://github.com/medcl/elasticsearch-analysis-ik
     skip unless ENV["CHINESE"]
 
     with_options(Song, language: "chinese") do
