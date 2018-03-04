@@ -852,7 +852,7 @@ module Searchkick
                 }
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
-              when :not # not equal
+              when :not, :_not # not equal
                 filters << {bool: {must_not: term_filters(field, op_value)}}
               when :all
                 op_value.each do |val|

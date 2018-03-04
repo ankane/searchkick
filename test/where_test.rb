@@ -31,7 +31,9 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {store_id: 1...2}
     assert_search "product", ["Product A", "Product B"], where: {store_id: [1, 2]}
     assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {not: 1}}
+    assert_search "product", ["Product B", "Product C", "Product D"], where: {store_id: {_not: 1}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
+    assert_search "product", ["Product C", "Product D"], where: {store_id: {_not: [1, 2]}}
     assert_search "product", ["Product A"], where: {user_ids: {lte: 2, gte: 2}}
 
     # or
@@ -56,12 +58,15 @@ class WhereTest < Minitest::Test
 
     # any / nested terms
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1, 3]}}
+    assert_search "product", ["Product B", "Product C"], where: {user_ids: {_not: [2], in: [1, 3]}}
 
     # not / exists
     assert_search "product", ["Product D"], where: {user_ids: nil}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
+    assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {_not: nil}}
     assert_search "product", ["Product A", "Product C", "Product D"], where: {user_ids: [3, nil]}
     assert_search "product", ["Product B"], where: {user_ids: {not: [3, nil]}}
+    assert_search "product", ["Product B"], where: {user_ids: {_not: [3, nil]}}
   end
 
   def test_regexp
