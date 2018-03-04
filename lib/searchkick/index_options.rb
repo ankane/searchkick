@@ -142,7 +142,8 @@ module Searchkick
           }
         }
 
-        if language == "chinese"
+        case language
+        when "chinese"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
               type: "ik_smart"
@@ -156,6 +157,18 @@ module Searchkick
           )
 
           settings[:analysis][:filter].delete(:searchkick_stemmer)
+        when "ukrainian"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "ukrainian"
+            },
+            searchkick_search: {
+              type: "ukrainian"
+            },
+            searchkick_search2: {
+              type: "ukrainian"
+            }
+          )
         end
 
         if Searchkick.env == "test"

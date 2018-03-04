@@ -314,10 +314,12 @@ module Searchkick
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || misspellings == false
-              qs.concat [
-                shared_options.merge(analyzer: "searchkick_search"),
-                shared_options.merge(analyzer: "searchkick_search2")
-              ]
+              qs << shared_options.merge(analyzer: "searchkick_search")
+
+              # searchkick_search and searchkick_search2 are the same for ukrainian
+              unless searchkick_options[:language] == "ukranian"
+                qs << shared_options.merge(analyzer: "searchkick_search2")
+              end
               exclude_analyzer = "searchkick_search2"
             elsif field.end_with?(".exact")
               f = field.split(".")[0..-2].join(".")

@@ -307,6 +307,8 @@ class Product < ApplicationRecord
 end
 ```
 
+For Ukranian, install the [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html) and use `language: "ukrainian"`. [master]
+
 ### Synonyms
 
 ```ruby
