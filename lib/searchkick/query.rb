@@ -495,9 +495,14 @@ module Searchkick
       params
     end
 
+    def choose_client
+      client = @options[:new_cluster] ? Searchkick.write_only_client : Searchkick.client
+      client || Searchkick.client
+    end
+
     def execute
       begin
-        response = Searchkick.client.search(params)
+        response = self.choose_client.search(params)
       rescue => e # TODO rescue type
         status_code = e.message[1..3].to_i
         if status_code == 404
