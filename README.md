@@ -89,6 +89,19 @@ products.each do |product|
 end
 ```
 
+Or
+
+```ruby
+class Product < ApplicationRecord
+  searchkick default_fields: [:name]
+
+  products = Product.search("apples")
+  products.each do |product|
+    puts product.name
+  end
+end
+```
+
 Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
 
 ## Querying
