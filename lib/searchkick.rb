@@ -32,7 +32,7 @@ module Searchkick
 
   class << self
     attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options
-    attr_writer :client, :env, :search_timeout
+    attr_writer :client, :new_client, :env, :search_timeout
     attr_reader :aws_credentials
   end
   self.search_method_name = :search
@@ -57,6 +57,31 @@ module Searchkick
         } if aws_credentials
       end
     end
+  end
+
+  def self.new_client
+    new_client_url = ENV["ELASTICSEARCH_WRITE_ONLY_URL"] || ENV["ELASTICSEARCH_NEW_CLIENT_URL"]
+    return nil if new_client_url.blank?
+
+    @new_client ||=
+      Elasticsearch::Client.new({
+        url: new_client_url,
+        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}}
+      }.deep_merge(client_options)) do |f|
+        f.use Searchkick::Middleware
+        f.request :aws_signers_v4, {
+          credentials: Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
+          service_name: "es",
+          region: aws_credentials[:region] || "us-east-1"
+        } if aws_credentials
+      end
+  end
+
+  def self.writing_clients
+    return @writing_clients if @writing_clients.present?
+    @writing_clients = [client]
+    @writing_clients << new_client() if new_client().present?
+    @writing_clients
   end
 
   def self.env
