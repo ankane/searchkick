@@ -67,8 +67,16 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+    def bulk_update(records, method_name_or_updates)
+      if method_name_or_updates.is_a?(Hash)
+        # our own logic
+        updates = method_name_or_updates
+        Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: updates} )} })
+      else
+        # searchkick original gem logic
+        method_name = method_name_or_updates
+        Searchkick.indexer.queue(records.map { |r| {update: record_data(r).merge(data: {doc: search_data(r, method_name)})} })
+      end
     end
 
     def record_data(r)
