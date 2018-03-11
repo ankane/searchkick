@@ -52,16 +52,24 @@ module Searchkick
     end
 
     def remove(record)
+      remove_error = nil
+      
       writing_clients.each do |client|
-        id = search_id(record)
-        unless id.blank?
-          client.delete(
-            index: name,
-            type: document_type(record),
-            id: id
-          )
+        begin
+          id = search_id(record)
+          unless id.blank?
+            client.delete(
+              index: name,
+              type: document_type(record),
+              id: id
+            )
+          end
+        rescue Exception => e
+          remove_error = e
         end
       end
+
+      raise remove_error if remove_error.present?
     end
 
     def import(records)
