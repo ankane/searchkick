@@ -178,22 +178,22 @@ module Searchkick
 
     # reindex
 
-    def reindex(scope, method_name, scoped:, full: false, **options)
+    def reindex(relation, method_name, scoped:, full: false, scope: nil, **options)
       refresh = options.fetch(:refresh, !scoped)
 
       if method_name
         # update
-        import_scope(scope, method_name: method_name)
+        import_scope(relation, method_name: method_name, scope: scope)
         self.refresh if refresh
         true
       elsif scoped && !full
         # reindex association
-        import_scope(scope)
+        import_scope(relation, scope: scope)
         self.refresh if refresh
         true
       else
         # full reindex
-        reindex_scope(scope, options)
+        reindex_scope(relation, scope: scope, **options)
       end
     end
 
@@ -204,8 +204,8 @@ module Searchkick
       index
     end
 
-    def import_scope(scope, **options)
-      bulk_indexer.import_scope(scope, **options)
+    def import_scope(relation, **options)
+      bulk_indexer.import_scope(relation, **options)
     end
 
     def batches_left
@@ -257,7 +257,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def reindex_scope(scope, import: true, resume: false, retain: false, async: false, refresh_interval: nil)
+    def reindex_scope(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
@@ -265,16 +265,23 @@ module Searchkick
       else
         clean_indices unless retain
 
-        index_options = scope.searchkick_index_options
+        index_options = relation.searchkick_index_options
         index_options.deep_merge!(settings: {index: {refresh_interval: refresh_interval}}) if refresh_interval
         index = create_index(index_options: index_options)
       end
+
+      import_options = {
+        resume: resume,
+        async: async,
+        full: true,
+        scope: scope
+      }
 
       # check if alias exists
       alias_exists = alias_exists?
       if alias_exists
         # import before promotion
-        index.import_scope(scope, resume: resume, async: async, full: true) if import
+        index.import_scope(relation, **import_options) if import
 
         # get existing indices to remove
         unless async
@@ -286,7 +293,7 @@ module Searchkick
         promote(index.name, update_refresh_interval: !refresh_interval.nil?)
 
         # import after promotion
-        index.import_scope(scope, resume: resume, async: async, full: true) if import
+        index.import_scope(relation, **import_options) if import
       end
 
       if async

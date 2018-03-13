@@ -6,31 +6,34 @@ module Searchkick
       @index = index
     end
 
-    def import_scope(scope, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false)
-      # use scope for import
-      scope = scope.search_import if scope.respond_to?(:search_import)
+    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil)
+      if scope
+        relation = relation.send(scope)
+      elsif relation.respond_to?(:search_import)
+        relation = relation.search_import
+      end
 
       if batch
-        import_or_update scope.to_a, method_name, async
+        import_or_update relation.to_a, method_name, async
         Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
       elsif full && async
-        full_reindex_async(scope)
-      elsif scope.respond_to?(:find_in_batches)
+        full_reindex_async(relation)
+      elsif relation.respond_to?(:find_in_batches)
         if resume
           # use total docs instead of max id since there's not a great way
           # to get the max _id without scripting since it's a string
 
           # TODO use primary key and prefix with table name
-          scope = scope.where("id > ?", total_docs)
+          relation = relation.where("id > ?", total_docs)
         end
 
-        scope = scope.select("id").except(:includes, :preload) if async
+        relation = relation.select("id").except(:includes, :preload) if async
 
-        scope.find_in_batches batch_size: batch_size do |items|
+        relation.find_in_batches batch_size: batch_size do |items|
           import_or_update items, method_name, async
         end
       else
-        each_batch(scope) do |items|
+        each_batch(relation) do |items|
           import_or_update items, method_name, async
         end
       end
