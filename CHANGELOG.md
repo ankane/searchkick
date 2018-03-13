@@ -1,3 +1,7 @@
+## 3.0.1 [unreleased]
+
+- Added `scope` option for partial reindex
+
 ## 3.0.0
 
 - Added support for Chinese
