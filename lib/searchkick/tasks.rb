@@ -2,7 +2,7 @@ namespace :searchkick do
   desc "reindex model"
   task reindex: :environment do
     if ENV["CLASS"]
-      klass = ENV["CLASS"].constantize rescue nil
+      klass = ENV["CLASS"].capitalize.constantize rescue nil
       if klass
         klass.reindex
       else
