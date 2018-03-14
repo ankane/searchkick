@@ -4,6 +4,7 @@ module Searchkick
       options = Searchkick.model_options.merge(options)
 
       unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :conversions, :default_fields,
+        :after_index, :before_index,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem_conversions, :suggest, :synonyms, :text_end,
@@ -37,6 +38,10 @@ module Searchkick
         class_variable_set :@@searchkick_klass, self
         class_variable_set :@@searchkick_index, index_name
         class_variable_set :@@searchkick_index_cache, {}
+
+        define_model_callbacks :index
+        before_index options[:before_index] if options[:before_index]
+        after_index options[:after_index] if options[:after_index]
 
         class << self
           def searchkick_search(term = "*", **options, &block)

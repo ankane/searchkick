@@ -24,4 +24,15 @@ class ReindexV2JobTest < Minitest::Test
     Product.search_index.refresh
     assert_search "*", []
   end
+
+  def test_callbacks_async
+    Searchkick.callbacks(false) do
+      store_names ['Topic B'], Topic
+    end
+    topic = Topic.where(name: "Topic B").first
+    Searchkick::ReindexV2Job.perform_now(topic.class.name, topic.id.to_s)
+    topic.reload
+    assert_equal true, topic.before_called
+    assert_equal true, topic.after_called
+  end
 end

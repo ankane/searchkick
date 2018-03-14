@@ -560,6 +560,29 @@ class Image < ApplicationRecord
 end
 ```
 
+### Indexing callbacks
+
+Searchkick supports `before_index` and `after_index` callbacks on the indexed model. You can pass them as option to `searchkick`:
+
+```ruby
+  class Product < ActiveRecord::Base
+    searchkick before_index: :preload_something, after_index: :notify_somebody
+  end
+```
+
+or define them directly, but only after searchkick has been called.
+
+```ruby
+  class Product < ActiveRecord::Base
+    searchkick 
+    before_index: :preload_something
+    after_index: :notify_somebody
+  end
+```
+
+These are standard [ActiveModel callbacks](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html) so all the usual options are available.
+
+
 ### Analytics
 
 The best starting point to improve your search **by far** is to track searches and conversions.
