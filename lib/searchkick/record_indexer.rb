@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class RecordIndexer
     attr_reader :record, :index

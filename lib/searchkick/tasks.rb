@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 namespace :searchkick do
   desc "reindex model"
   task reindex: :environment do

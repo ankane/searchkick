@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class MultiSearch
     attr_reader :queries

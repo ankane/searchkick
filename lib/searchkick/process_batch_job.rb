@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class ProcessBatchJob < ActiveJob::Base
     queue_as { Searchkick.queue_name }
