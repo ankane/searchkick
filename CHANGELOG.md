@@ -1,7 +1,7 @@
 ## 3.0.1
 
 - Added `scope` option for partial reindex
-- Added support for Japanese, Polish, and Ukranian
+- Added support for Japanese, Polish, and Ukrainian
 
 ## 3.0.0
 
