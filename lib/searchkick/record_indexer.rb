@@ -26,7 +26,11 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
-        Searchkick::ReindexV2Job.perform_later(record.class.name, record.id.to_s, method_name)
+        Searchkick::ReindexV2Job.perform_later(
+          record.class.name,
+          record.id.to_s,
+          method_name ? method_name.to_s : nil
+        )
       else # bulk, true
         reindex_record(method_name)
 

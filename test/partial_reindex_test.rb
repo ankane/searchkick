@@ -55,4 +55,11 @@ class PartialReindexTest < Minitest::Test
     assert_search "bye", ["Bye"], fields: [:name], load: false
     assert_search "blue", ["Bye"], fields: [:color], load: false
   end
+
+  def test_instance_method_async
+    skil unless defined?(ActiveJob)
+
+    product = Product.create!(name: "Hi")
+    product.reindex(:search_data, mode: :async)
+  end
 end
