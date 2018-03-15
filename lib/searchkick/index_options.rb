@@ -169,28 +169,16 @@ module Searchkick
               type: "kuromoji"
             }
           )
-        when "polish"
+        when "polish", "ukrainian", "smartcn"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
-              type: "polish"
+              type: language
             },
             searchkick_search: {
-              type: "polish"
+              type: language
             },
             searchkick_search2: {
-              type: "polish"
-            }
-          )
-        when "ukrainian"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "ukrainian"
-            },
-            searchkick_search: {
-              type: "ukrainian"
-            },
-            searchkick_search2: {
-              type: "ukrainian"
+              type: language
             }
           )
         end
