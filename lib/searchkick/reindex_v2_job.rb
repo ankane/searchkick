@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class ReindexV2Job < ActiveJob::Base
     RECORD_NOT_FOUND_CLASSES = [

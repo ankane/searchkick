@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class Query
     extend Forwardable

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class Indexer
     attr_reader :queued_items

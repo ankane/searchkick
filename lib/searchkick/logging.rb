@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # based on https://gist.github.com/mnutt/566725
 require "active_support/core_ext/module/attr_internal"
 

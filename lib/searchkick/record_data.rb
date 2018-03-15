@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   class RecordData
     EXCLUDED_ATTRIBUTES = ["id", :id]

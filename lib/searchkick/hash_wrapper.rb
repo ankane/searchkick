@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Searchkick
   # Subclass of `Hashie::Mash` to wrap Hash-like structures
   # (responses from Elasticsearch)

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "searchkick/index_options"
 
 module Searchkick
