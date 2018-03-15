@@ -19,6 +19,7 @@ Plus:
 - easily personalize results for each user
 - autocomplete
 - “Did you mean” suggestions
+- supports many languages
 - works with ActiveRecord, Mongoid, and NoBrainer
 
 :speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
@@ -299,15 +300,12 @@ end
 
 [See the list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html)
 
-For Chinese, install the [elasticsearch-analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik) and use:
+A few languages require plugins:
 
-```ruby
-class Product < ApplicationRecord
-  searchkick language: "chinese"
-end
-```
-
-For Ukranian, install the [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html) and use `language: "ukrainian"`. [master]
+- `chinese` - [elasticsearch-analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
+- `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-kuromoji.html)
+- `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-stempel.html)
+- `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html)
 
 ### Synonyms
 

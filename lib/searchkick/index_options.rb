@@ -157,6 +157,30 @@ module Searchkick
           )
 
           settings[:analysis][:filter].delete(:searchkick_stemmer)
+        when "japanese"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "kuromoji"
+            },
+            searchkick_search: {
+              type: "kuromoji"
+            },
+            searchkick_search2: {
+              type: "kuromoji"
+            }
+          )
+        when "polish"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "polish"
+            },
+            searchkick_search: {
+              type: "polish"
+            },
+            searchkick_search2: {
+              type: "polish"
+            }
+          )
         when "ukrainian"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
