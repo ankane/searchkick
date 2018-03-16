@@ -1,6 +1,7 @@
 ## 3.0.2 [unreleased]
 
 - Fixed `Unsupported argument type: Symbol` for async partial reindex
+- Fixed infinite recursion with multi search and misspellings below
 
 ## 3.0.1
 
