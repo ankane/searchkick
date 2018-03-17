@@ -854,7 +854,7 @@ class Restaurant < ApplicationRecord
   searchkick locations: [:location]
 
   def search_data
-    attributes.merge location: {lat: latitude, lon: longitude}
+    attributes.except("id").merge(location: {lat: latitude, lon: longitude})
   end
 end
 ```
@@ -904,7 +904,7 @@ class Restaurant < ApplicationRecord
   }
 
   def search_data
-    attributes.merge(
+    attributes.except("id").merge(
       bounds: {
         type: "envelope",
         coordinates: [{lat: 4, lon: 1}, {lat: 2, lon: 3}]
