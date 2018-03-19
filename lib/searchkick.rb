@@ -92,12 +92,18 @@ module Searchkick
     @search_timeout || timeout
   end
 
-  def self.server_version
-    @server_version ||= client.info["version"]["number"]
+  def self.server_version(is_new_client = false)
+    if is_new_client
+      @server_version ||= self.new_client.info["version"]["number"]
+      return @server_version
+    else
+      @new_client_server_version ||= self.client.info["version"]["number"]
+      return @new_client_server_version
+    end
   end
 
-  def self.server_below?(version)
-    Gem::Version.new(server_version.sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
+  def self.server_below?(version, is_new_client = false)
+    Gem::Version.new(server_version(is_new_client).sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
   end
 
   def self.search(term = nil, options = {}, &block)

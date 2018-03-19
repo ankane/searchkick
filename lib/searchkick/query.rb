@@ -995,19 +995,23 @@ module Searchkick
     end
 
     def below12?
-      Searchkick.server_below?("1.2.0")
+      new_client = options[:new_cluster] == true
+      Searchkick.server_below?("1.2.0", new_client)
     end
 
     def below14?
-      Searchkick.server_below?("1.4.0")
+      new_client = options[:new_cluster] == true
+      Searchkick.server_below?("1.4.0", new_client)
     end
 
     def below20?
-      Searchkick.server_below?("2.0.0")
+      new_client = options[:new_cluster] == true
+      Searchkick.server_below?("2.0.0", new_client)
     end
 
     def below50?
-      Searchkick.server_below?("5.0.0-alpha1")
+      new_client = options[:new_cluster] == true
+      Searchkick.server_below?("5.0.0-alpha1", new_client)
     end
   end
 end
