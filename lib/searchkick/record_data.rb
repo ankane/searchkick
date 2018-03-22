@@ -1,6 +1,5 @@
 module Searchkick
   class RecordData
-    EXCLUDED_ATTRIBUTES = ["id", :id]
     TYPE_KEYS = ["type", :type]
 
     attr_reader :index, :record
@@ -50,11 +49,7 @@ module Searchkick
     def search_data(method_name = nil)
       partial_reindex = !method_name.nil?
 
-      # remove _id since search_id is used instead
       source = record.send(method_name || :search_data)
-      EXCLUDED_ATTRIBUTES.each do |attr|
-        raise Searchkick::Error, "Cannot index a field with name: #{attr}" if source[attr]
-      end
 
       # conversions
       index.conversions_fields.each do |conversions_field|

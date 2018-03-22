@@ -2,6 +2,7 @@
 
 - Fixed `Unsupported argument type: Symbol` for async partial reindex
 - Fixed infinite recursion with multi search and misspellings below
+- Do not raise an error when `id` is indexed
 
 ## 3.0.1
 
