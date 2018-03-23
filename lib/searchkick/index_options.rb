@@ -169,6 +169,18 @@ module Searchkick
               type: "kuromoji"
             }
           )
+        when "korean"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "openkoreantext-analyzer"
+            },
+            searchkick_search: {
+              type: "openkoreantext-analyzer"
+            },
+            searchkick_search2: {
+              type: "openkoreantext-analyzer"
+            }
+          )
         when "polish", "ukrainian", "smartcn"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {

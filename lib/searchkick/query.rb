@@ -317,7 +317,7 @@ module Searchkick
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
-              unless %w(japanese polish ukrainian).include?(searchkick_options[:language])
+              unless %w(japanese korean polish ukrainian).include?(searchkick_options[:language])
                 qs << shared_options.merge(analyzer: "searchkick_search2")
               end
               exclude_analyzer = "searchkick_search2"
