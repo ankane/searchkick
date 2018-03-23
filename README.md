@@ -304,9 +304,10 @@ A few languages require plugins:
 
 - `chinese` - [elasticsearch-analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
 - `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-kuromoji.html)
-- `korean` - [elasticsearch-analysis-openkoreantext](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext) [master]
+- `korean` - [elasticsearch-analysis-openkoreantext plugin](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext) [master]
 - `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-stempel.html)
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html)
+- `vietnamese` - [elasticsearch-analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese) [master]
 
 ### Synonyms
 

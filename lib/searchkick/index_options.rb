@@ -181,6 +181,18 @@ module Searchkick
               type: "openkoreantext-analyzer"
             }
           )
+        when "vietnamese"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "vi_analyzer"
+            },
+            searchkick_search: {
+              type: "vi_analyzer"
+            },
+            searchkick_search2: {
+              type: "vi_analyzer"
+            }
+          )
         when "polish", "ukrainian", "smartcn"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {

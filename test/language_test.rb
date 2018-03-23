@@ -64,6 +64,15 @@ class LanguageTest < Minitest::Test
     end
   end
 
+  def test_vietnamese
+    # requires https://github.com/duydo/elasticsearch-analysis-vietnamese
+    with_options(Song, language: "vietnamese") do
+      store_names ["công nghệ thông tin Việt Nam"], Song
+      assert_language_search "công nghệ thông tin", ["công nghệ thông tin Việt Nam"]
+      assert_language_search "công", []
+    end
+  end
+
   def assert_language_search(term, expected)
     assert_search term, expected, {misspellings: false}, Song
   end

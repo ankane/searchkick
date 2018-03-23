@@ -1,6 +1,6 @@
 ## 3.0.2 [unreleased]
 
-- Added support for Korean
+- Added support for Korean and Vietnamese
 - Fixed `Unsupported argument type: Symbol` for async partial reindex
 - Fixed infinite recursion with multi search and misspellings below
 - Do not raise an error when `id` is indexed
