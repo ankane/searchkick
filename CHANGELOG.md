@@ -1,4 +1,4 @@
-## 3.0.2 [unreleased]
+## 3.0.2
 
 - Added support for Korean and Vietnamese
 - Fixed `Unsupported argument type: Symbol` for async partial reindex

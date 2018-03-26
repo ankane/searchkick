@@ -22,7 +22,7 @@ Plus:
 - supports many languages
 - works with ActiveRecord, Mongoid, and NoBrainer
 
-:speech_balloon: Get [handcrafted updates](http://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
+:speech_balloon: Get [handcrafted updates](https://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
@@ -304,10 +304,10 @@ A few languages require plugins:
 
 - `chinese` - [analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
 - `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-kuromoji.html)
-- `korean` - [analysis-openkoreantext plugin](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext) [master]
+- `korean` - [analysis-openkoreantext plugin](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext)
 - `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-stempel.html)
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html)
-- `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese) [master]
+- `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese)
 
 ### Synonyms
 
@@ -656,7 +656,7 @@ Reindex and search with:
 Movie.search "jurassic pa", fields: [:title], match: :word_start
 ```
 
-Typically, you want to use a JavaScript library like [typeahead.js](http://twitter.github.io/typeahead.js/) or [jQuery UI](http://jqueryui.com/autocomplete/).
+Typically, you want to use a JavaScript library like [typeahead.js](https://twitter.github.io/typeahead.js/) or [jQuery UI](https://jqueryui.com/autocomplete/).
 
 #### Here’s how to make it work with Rails
 
@@ -856,7 +856,7 @@ class Restaurant < ApplicationRecord
   searchkick locations: [:location]
 
   def search_data
-    attributes.except("id").merge(location: {lat: latitude, lon: longitude})
+    attributes.merge(location: {lat: latitude, lon: longitude})
   end
 end
 ```
@@ -906,7 +906,7 @@ class Restaurant < ApplicationRecord
   }
 
   def search_data
-    attributes.except("id").merge(
+    attributes.merge(
       bounds: {
         type: "envelope",
         coordinates: [{lat: 4, lon: 1}, {lat: 2, lon: 3}]
