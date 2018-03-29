@@ -32,4 +32,12 @@ class QueryTest < Minitest::Test
   def test_request_params
     assert_equal "dfs_query_then_fetch", Product.search("*", request_params: {search_type: "dfs_query_then_fetch"}, execute: false).params[:search_type]
   end
+
+  def test_debug
+    store_names ["Milk"]
+    out, _ = capture_io do
+      assert_search "milk", ["Milk"], debug: true
+    end
+    refute_includes out, "Error"
+  end
 end

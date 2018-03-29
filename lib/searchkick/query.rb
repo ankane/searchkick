@@ -135,7 +135,7 @@ module Searchkick
         if searchkick_index
           puts "Model Search Data"
           begin
-            pp(klass.first(3).map { |r| {index: searchkick_index.record_data(r).merge(data: searchkick_index.send(:search_data, r))}})
+            pp klass.first(3).map { |r| RecordData.new(searchkick_index, r).index_data }
           rescue => e
             puts "#{e.class.name}: #{e.message}"
           end
