@@ -1,3 +1,7 @@
+## 3.0.3 [unreleased]
+
+- Fixed "Model Search Data" output for `debug` option
+
 ## 3.0.2
 
 - Added support for Korean and Vietnamese
