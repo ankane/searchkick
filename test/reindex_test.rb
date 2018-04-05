@@ -49,7 +49,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_async_wait
-    skip unless defined?(ActiveJob)
+    skip unless defined?(ActiveJob) && defined?(Redis)
 
     Searchkick.callbacks(false) do
       store_names ["Product A"]
