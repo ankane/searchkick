@@ -40,6 +40,10 @@ class ReindexTest < Minitest::Test
     index.refresh
     assert_equal 1, index.total_docs
 
+    if defined?(Redis)
+      assert Searchkick.reindex_status(reindex[:name])
+    end
+
     Product.searchkick_index.promote(reindex[:index_name])
     assert_search "product", ["Product A"]
   end

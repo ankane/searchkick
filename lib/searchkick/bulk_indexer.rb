@@ -51,6 +51,10 @@ module Searchkick
       Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).update_data(method_name) })
     end
 
+    def batches_left
+      Searchkick.with_redis { |r| r.scard(batches_key) }
+    end
+
     private
 
     def import_or_update(records, method_name, async)
@@ -154,10 +158,6 @@ module Searchkick
         end
         raise e
       end
-    end
-
-    def batches_left
-      Searchkick.with_redis { |r| r.scard(batches_key) }
     end
 
     def batches_key

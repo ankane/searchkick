@@ -1,6 +1,7 @@
 ## 3.0.3 [unreleased]
 
 - Fixed "Model Search Data" output for `debug` option
+- Fixed `reindex_status` error
 
 ## 3.0.2
 
