@@ -15,6 +15,7 @@ notifications:
     on_failure: change
 gemfile:
   - Gemfile
+  - test/gemfiles/activerecord51.gemfile
   - test/gemfiles/activerecord50.gemfile
   - test/gemfiles/activerecord42.gemfile
   - test/gemfiles/mongoid5.gemfile
