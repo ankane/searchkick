@@ -99,6 +99,7 @@ module Searchkick
   end
 
   def self.search(term = "*", model: nil, **options, &block)
+    options = options.dup
     klass = model
 
     # make Searchkick.search(index_name: [Product]) and Product.search equivalent
@@ -106,6 +107,7 @@ module Searchkick
       index_name = Array(options[:index_name])
       if index_name.size == 1 && index_name.first.respond_to?(:searchkick_index)
         klass = index_name.first
+        options.delete(:index_name)
       end
     end
 

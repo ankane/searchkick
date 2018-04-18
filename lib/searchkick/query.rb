@@ -114,7 +114,8 @@ module Searchkick
         highlighted_fields: @highlighted_fields || [],
         misspellings: @misspellings,
         term: term,
-        scope_results: options[:scope_results]
+        scope_results: options[:scope_results],
+        index_name: options[:index_name]
       }
 
       if options[:debug]
