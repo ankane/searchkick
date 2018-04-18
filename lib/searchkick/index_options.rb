@@ -12,6 +12,8 @@ module Searchkick
         mappings = options[:mappings]
       else
         below60 = Searchkick.server_below?("6.0.0-alpha1")
+        below62 = Searchkick.server_below?("6.2.0")
+
         default_type = "text"
         default_analyzer = :searchkick_index
         keyword_mapping = {type: "keyword"}
@@ -214,6 +216,13 @@ module Searchkick
 
         if options[:similarity]
           settings[:similarity] = {default: {type: options[:similarity]}}
+        end
+
+        unless below62
+          settings[:index] = {
+            max_ngram_diff: 49,
+            max_shingle_diff: 4
+          }
         end
 
         settings.deep_merge!(options[:settings] || {})
