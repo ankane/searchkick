@@ -900,7 +900,7 @@ module Searchkick
       elsif value.nil?
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
-        {regexp: {field => {value: value.source}}}
+        {regexp: {field => {value: value.source, flags: "NONE"}}}
       else
         {term: {field => value}}
       end
