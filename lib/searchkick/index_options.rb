@@ -11,7 +11,7 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
-        below60 = Searchkick.server_below?("6.0.0-alpha1")
+        below60 = Searchkick.server_below?("6.0.0")
         below62 = Searchkick.server_below?("6.2.0")
 
         default_type = "text"

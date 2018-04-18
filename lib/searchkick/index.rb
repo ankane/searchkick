@@ -17,7 +17,7 @@ module Searchkick
     end
 
     def delete
-      if !Searchkick.server_below?("6.0.0-alpha1") && alias_exists?
+      if !Searchkick.server_below?("6.0.0") && alias_exists?
         # can't call delete directly on aliases in ES 6
         indices = client.indices.get_alias(name: name).keys
         client.indices.delete index: indices

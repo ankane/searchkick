@@ -95,7 +95,7 @@ module Searchkick
   end
 
   def self.server_below?(version)
-    Gem::Version.new(server_version.sub("-", ".")) < Gem::Version.new(version.sub("-", "."))
+    Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
   def self.search(term = "*", model: nil, **options, &block)

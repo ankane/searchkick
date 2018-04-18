@@ -963,11 +963,11 @@ module Searchkick
     end
 
     def below60?
-      Searchkick.server_below?("6.0.0-alpha1")
+      Searchkick.server_below?("6.0.0")
     end
 
     def below61?
-      Searchkick.server_below?("6.1.0-alpha1")
+      Searchkick.server_below?("6.1.0")
     end
   end
 end
