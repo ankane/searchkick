@@ -226,8 +226,8 @@ module Searchkick
       if @json
         ignored_options = options.keys & [:aggs, :boost,
           :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
-          :fields, :highlight, :indices_boost, :limit, :match, :misspellings, :offset, :operator, :order,
-          :padding, :page, :per_page, :profile, :select, :smart_aggs, :suggest, :where]
+          :fields, :highlight, :indices_boost, :match, :misspellings, :operator, :order,
+          :profile, :select, :smart_aggs, :suggest, :where]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
@@ -382,10 +382,7 @@ module Searchkick
           query = payload
         end
 
-        payload = {
-          size: per_page,
-          from: offset
-        }
+        payload = {}
 
         # type when inheritance
         where = (options[:where] || {}).dup
@@ -443,6 +440,13 @@ module Searchkick
         elsif load
           payload[:_source] = false
         end
+      end
+
+      # pagination
+      pagination_options = options[:page] || options[:limit] || options[:per_page] || options[:offset] || options[:padding]
+      if !options[:body] || pagination_options
+        payload[:size] = per_page
+        payload[:from] = offset
       end
 
       # type
