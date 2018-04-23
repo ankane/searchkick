@@ -201,7 +201,7 @@ boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
 boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
-Boost by recency [master]
+Boost by recency
 
 ```ruby
 boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}

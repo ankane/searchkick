@@ -1,4 +1,4 @@
-## 3.0.3 [unreleased]
+## 3.0.3
 
 - Added support for pagination with `body` option
 - Added `boost_by_recency` option
