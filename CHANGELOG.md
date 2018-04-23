@@ -1,6 +1,7 @@
 ## 3.0.3 [unreleased]
 
 - Added support for pagination with `body` option
+- Added `boost_by_recency` option
 - Fixed "Model Search Data" output for `debug` option
 - Fixed `reindex_status` error
 - Fixed error with optional operators in Ruby regexp

@@ -201,7 +201,16 @@ boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
 boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
 ```
 
-[Conversions](#keep-getting-better) are also a great way to boost.
+Boost by recency [master]
+
+```ruby
+boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}
+```
+
+You can also boost by:
+
+- [Conversions](#keep-getting-better)
+- [Distance](#boost-by-distance)
 
 ### Get Everything
 

@@ -16,7 +16,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :track, :type, :where]
@@ -225,7 +225,7 @@ module Searchkick
       @json = options[:body]
       if @json
         ignored_options = options.keys & [:aggs, :boost,
-          :boost_by, :boost_by_distance, :boost_where, :conversions, :conversions_term, :exclude, :explain,
+          :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :match, :misspellings, :operator, :order,
           :profile, :select, :smart_aggs, :suggest, :where]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
@@ -407,6 +407,7 @@ module Searchkick
         set_boost_by(multiply_filters, custom_filters)
         set_boost_where(custom_filters)
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
+        set_boost_by_recency(custom_filters) if options[:boost_by_recency]
 
         payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
 
@@ -588,6 +589,19 @@ module Searchkick
           weight: attributes[:factor] || 1,
           attributes[:function] => {
             field => function_params
+          }
+        }
+      end
+    end
+
+    def set_boost_by_recency(custom_filters)
+      options[:boost_by_recency].each do |field, attributes|
+        attributes = {function: :gauss, origin: Time.now}.merge(attributes)
+
+        custom_filters << {
+          weight: attributes[:factor] || 1,
+          attributes[:function] => {
+            field => attributes.except(:factor, :function)
           }
         }
       end
