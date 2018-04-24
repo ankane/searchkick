@@ -85,7 +85,9 @@ class IndexTest < Minitest::Test
   def test_record_not_found
     store_names ["Product A", "Product B"]
     Product.where(name: "Product A").delete_all
-    assert_search "product", ["Product B"]
+    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database\n/ do
+      assert_search "product", ["Product B"]
+    end
   ensure
     Product.reindex
   end

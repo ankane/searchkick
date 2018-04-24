@@ -27,18 +27,25 @@ module Searchkick
           end
 
           # sort
-          hits.map do |hit|
-            result = results[hit["_type"]][hit["_id"].to_s]
-            if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
-              if hit["highlight"] && !result.respond_to?(:search_highlights)
-                highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
-                result.define_singleton_method(:search_highlights) do
-                  highlights
+          results =
+            hits.map do |hit|
+              result = results[hit["_type"]][hit["_id"].to_s]
+              if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
+                if hit["highlight"] && !result.respond_to?(:search_highlights)
+                  highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                  result.define_singleton_method(:search_highlights) do
+                    highlights
+                  end
                 end
               end
-            end
-            result
-          end.compact
+              result
+            end.compact
+
+          if results.size != hits.size
+            warn "[searchkick] WARNING: Records in search index do not exist in database"
+          end
+
+          results
         else
           hits.map do |hit|
             result =

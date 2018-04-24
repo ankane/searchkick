@@ -1,6 +1,7 @@
 ## 3.0.4 [unreleased]
 
 - Friendlier error message for bad mapping with partial matches
+- Warn when records in search index do not exist in database
 
 ## 3.0.3
 
