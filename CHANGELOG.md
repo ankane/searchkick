@@ -1,3 +1,7 @@
+## 3.0.4 [unreleased]
+
+- Friendlier error message for bad mapping with partial matches
+
 ## 3.0.3
 
 - Added support for pagination with `body` option

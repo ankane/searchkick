@@ -93,7 +93,8 @@ class IndexTest < Minitest::Test
   def test_bad_mapping
     Product.searchkick_index.delete
     store_names ["Product A"]
-    assert_raises(Searchkick::InvalidQueryError) { Product.search "test" }
+    error = assert_raises(Searchkick::InvalidQueryError) { Product.search "test" }
+    assert_equal "Bad mapping - run Product.reindex", error.message
   ensure
     Product.reindex
   end

@@ -188,7 +188,7 @@ module Searchkick
         )
 
           raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
-        elsif e.message.include?("[multi_match] analyzer [searchkick_search] not found")
+        elsif e.message =~ /analyzer \[searchkick_.+\] not found/
           raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
         else
           raise InvalidQueryError, e.message
