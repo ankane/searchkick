@@ -26,13 +26,6 @@ rescue LoadError
 end
 require "searchkick/tasks" if defined?(Rake)
 
-begin
-  require "rake"
-rescue LoadError
-  # do nothing
-end
-require "searchkick/tasks" if defined?(Rake)
-
 # background jobs
 begin
   require "active_job"
