@@ -507,7 +507,7 @@ For large data sets, try [parallel reindexing](#parallel-reindexing).
 
 There are four strategies for keeping the index synced with your database.
 
-1. Immediate (default)
+1. Inline (default)
 
   Anytime a record is inserted, updated, or deleted
 
