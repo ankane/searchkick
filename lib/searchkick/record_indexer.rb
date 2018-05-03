@@ -8,7 +8,7 @@ module Searchkick
     end
 
     def reindex(method_name = nil, refresh: false, mode: nil)
-      unless [true, nil, :async, :queue].include?(mode)
+      unless [:inline, true, nil, :async, :queue].include?(mode)
         raise ArgumentError, "Invalid value for mode"
       end
 
@@ -31,7 +31,7 @@ module Searchkick
           record.id.to_s,
           method_name ? method_name.to_s : nil
         )
-      else # bulk, true
+      else # bulk, inline/true
         reindex_record(method_name)
 
         index.refresh if refresh

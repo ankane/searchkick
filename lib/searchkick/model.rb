@@ -16,8 +16,8 @@ module Searchkick
 
       options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
 
-      callbacks = options.key?(:callbacks) ? options[:callbacks] : true
-      unless [true, false, :async, :queue].include?(callbacks)
+      callbacks = options.key?(:callbacks) ? options[:callbacks] : :inline
+      unless [:inline, true, false, :async, :queue].include?(callbacks)
         raise ArgumentError, "Invalid value for callbacks"
       end
 

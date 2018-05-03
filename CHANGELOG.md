@@ -1,5 +1,6 @@
 ## 3.0.4 [unreleased]
 
+- Added `:inline` as alias for `true` for `callbacks` and `mode` options
 - Friendlier error message for bad mapping with partial matches
 - Warn when records in search index do not exist in database
 
