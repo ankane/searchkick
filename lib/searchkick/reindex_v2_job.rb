@@ -30,7 +30,7 @@ module Searchkick
         record.id = id
       end
 
-      RecordIndexer.new(record).reindex(method_name, mode: true)
+      RecordIndexer.new(record).reindex(method_name, mode: :inline)
     end
   end
 end
