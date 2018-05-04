@@ -31,7 +31,7 @@ module Searchkick
           record.id.to_s,
           method_name ? method_name.to_s : nil
         )
-      else # bulk, inline/true
+      else # bulk, inline/true/nil
         reindex_record(method_name)
 
         index.refresh if refresh
