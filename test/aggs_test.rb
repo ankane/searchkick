@@ -116,6 +116,15 @@ class AggsTest < Minitest::Test
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
+  def test_aggs_with_time_zone
+    store [{name: "Second Product", created_at: 2.days.ago + 8.hours}]
+    london_search = search_aggregate_by_day_with_time_zone('+01:00')
+    sf_search = search_aggregate_by_day_with_time_zone('-08:00')
+    # London search should come up with 2 because of time zone offset
+    assert_equal 2, london_search.aggs["products_per_day"]["buckets"][0]["doc_count"]
+    assert_equal 1, sf_search.aggs["products_per_day"]["buckets"][0]["doc_count"]
+  end
+
   def test_aggs_avg
     products =
       Product.search("*", {
@@ -199,6 +208,23 @@ class AggsTest < Minitest::Test
   end
 
   protected
+
+  def search_aggregate_by_day_with_time_zone(time_zone = '-8:00')
+    Product.search("Product", {
+      where: {
+        created_at: {lt: Time.now}
+      },
+      aggs: {
+        products_per_day: {
+          date_histogram: {
+            field: :created_at,
+            interval: :day,
+            time_zone: time_zone
+          }
+        }
+      }
+    })
+  end
 
   def buckets_as_hash(agg)
     Hash[agg["buckets"].map { |v| [v["key"], v["doc_count"]] }]
