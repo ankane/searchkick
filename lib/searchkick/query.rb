@@ -501,13 +501,13 @@ module Searchkick
     end
 
     def has_field_misspellings(misspellings)
-      misspellings&.is_a?(Hash) &&
-        misspellings[:fields]&.is_a?(Hash) &&
+      misspellings.is_a?(Hash) &&
+        misspellings[:fields].is_a?(Hash) &&
         misspellings[:fields].keys.any?
     end
 
     def misspellings_for_field(misspellings, field)
-      if misspellings.is_a?(Hash) && misspellings[:fields]&.key?(field)
+      if misspellings.is_a?(Hash) && misspellings[:fields] && misspellings[:fields][field] != nil
         misspellings[:fields][field]
       else
         misspellings
