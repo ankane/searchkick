@@ -207,7 +207,7 @@ module Searchkick
     end
 
     def prepare
-      boost_fields, fields = set_fields
+      boost_fields, fields, option_fields_mapping = set_fields
 
       operator = options[:operator] || "and"
 
@@ -268,21 +268,7 @@ module Searchkick
             misspellings = false
           end
 
-          if misspellings != false
-            edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
-            transpositions =
-              if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
-                {fuzzy_transpositions: misspellings[:transpositions]}
-              else
-                {fuzzy_transpositions: true}
-              end
-            prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
-            default_max_expansions = @misspellings_below ? 20 : 3
-            max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
-            @misspellings = true
-          else
-            @misspellings = false
-          end
+          @misspellings = misspellings != false
 
           fields.each do |field|
             queries_to_add = []
@@ -313,8 +299,22 @@ module Searchkick
             exclude_analyzer = nil
             exclude_field = field
 
+            field_misspellings = misspellings_for_field(misspellings, option_fields_mapping[field])
+            if field_misspellings != false
+              edit_distance = (field_misspellings.is_a?(Hash) && (field_misspellings[:edit_distance] || field_misspellings[:distance])) || 1
+              transpositions =
+                if field_misspellings.is_a?(Hash) && field_misspellings.key?(:transpositions)
+                  {fuzzy_transpositions: field_misspellings[:transpositions]}
+                else
+                  {fuzzy_transpositions: true}
+                end
+              prefix_length = (field_misspellings.is_a?(Hash) && field_misspellings[:prefix_length]) || 0
+              default_max_expansions = @misspellings_below ? 20 : 3
+              max_expansions = (field_misspellings.is_a?(Hash) && field_misspellings[:max_expansions]) || default_max_expansions
+            end
+
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || misspellings == false
+              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
@@ -333,7 +333,7 @@ module Searchkick
               exclude_analyzer = analyzer
             end
 
-            if misspellings != false && match_type == :match
+            if field_misspellings != false && match_type == :match
               qs.concat(qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) })
             end
 
@@ -473,6 +473,7 @@ module Searchkick
       fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
       all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : false
       default_match = options[:match] || searchkick_options[:match] || :word
+      option_fields_mapping = {}
       fields =
         if fields
           fields.map do |value|
@@ -480,6 +481,7 @@ module Searchkick
             k2, boost = k.to_s.split("^", 2)
             field = "#{k2}.#{v == :word ? 'analyzed' : v}"
             boost_fields[field] = boost.to_f if boost
+            option_fields_mapping[field] = k2.to_sym
             field
           end
         elsif all && default_match == :word
@@ -490,10 +492,26 @@ module Searchkick
           []
         elsif default_match == :exact
           raise ArgumentError, "Must specify fields to search"
+        elsif has_field_misspellings(options[:misspellings])
+          raise ArgumentError, "If you provide per-field misspelling rules you must also provide the fields to search."
         else
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
-      [boost_fields, fields]
+      [boost_fields, fields, option_fields_mapping]
+    end
+
+    def has_field_misspellings(misspellings)
+      misspellings&.is_a?(Hash) &&
+        misspellings[:fields]&.is_a?(Hash) &&
+        misspellings[:fields].keys.any?
+    end
+
+    def misspellings_for_field(misspellings, field)
+      if misspellings.is_a?(Hash) && misspellings[:fields]&.key?(field)
+        misspellings[:fields][field]
+      else
+        misspellings
+      end
     end
 
     def build_query(query, filters, should, must_not, custom_filters, multiply_filters)

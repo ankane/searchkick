@@ -410,6 +410,14 @@ Turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
+You can specify how each field should handle misspellings. When specifying misspellings per-field, you must also specify the fields to search:
+
+```ruby
+Product.search "zucini",
+  fields: [:name, :color],
+  misspellings: {fields: {name: {edit_distance: 2}, color: false}}
+```
+
 ### Bad Matches
 
 If a user searches `butter`, they may also get results for `peanut butter`. To prevent this, use:
