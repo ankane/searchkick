@@ -68,14 +68,14 @@ class FieldMisspellingTest < Minitest::Test
   end
 
   def test_field_uses_specified_edit_distance
-    store [{name: "Bingo", color: "blue"}]
-    assert_search "bl", ["Bingo"],
+    store [{name: "Bingo", color: "yellow"}]
+    assert_search "yell", ["Bingo"],
       fields: [:name, :color],
       misspellings: { fields: { color: { edit_distance: 2 } } }
-    assert_search "blueee", ["Bingo"],
+    assert_search "yellowww", ["Bingo"],
       fields: [:name, :color],
       misspellings: { fields: { color: { edit_distance: 2 } } }
-    assert_search "blow", ["Bingo"],
+    assert_search "yilliw", ["Bingo"],
       fields: [:name, :color],
       misspellings: { fields: { color: { edit_distance: 2 } } }
   end
