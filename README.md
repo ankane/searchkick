@@ -1790,12 +1790,12 @@ describe Product, search: true do
 end
 ```
 
-### Factory Girl
+### Factory Bot
 
 Use a trait and an after `create` hook for each indexed model:
 
 ```ruby
-FactoryGirl.define do
+FactoryBot.define do
   factory :product do
     # ...
 
@@ -1810,7 +1810,7 @@ FactoryGirl.define do
 end
 
 # use it
-FactoryGirl.create(:product, :some_trait, :reindex, some_attribute: "foo")
+FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
 ```
 
 ### Parallel Tests
