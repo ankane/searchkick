@@ -31,8 +31,8 @@ module Searchkick
             hits.map do |hit|
               result = results[hit["_type"]][hit["_id"].to_s]
               if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
-                if hit["highlight"] && !result.respond_to?(:search_highlights)
-                  highlights = Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, v.first] }]
+                if options[:highlight] && !result.respond_to?(:search_highlights)
+                  highlights = hit_highlights(hit)
                   result.define_singleton_method(:search_highlights) do
                     highlights
                   end
@@ -57,8 +57,8 @@ module Searchkick
                 hit
               end
 
-            if hit["highlight"]
-              highlight = Hash[hit["highlight"].map { |k, v| [base_field(k), v.first] }]
+            if @options[:highlight]
+              highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
               options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
               end
@@ -185,7 +185,7 @@ module Searchkick
 
     def highlights(multiple: false)
       hits.map do |hit|
-        Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }]
+        hit_highlights(hit, multiple: multiple)
       end
     end
 
@@ -237,6 +237,14 @@ module Searchkick
 
     def base_field(k)
       k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
+    end
+
+    def hit_highlights(hit, multiple: false)
+      if hit["highlight"]
+        Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }]
+      else
+        {}
+      end
     end
   end
 end

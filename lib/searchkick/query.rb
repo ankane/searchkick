@@ -111,6 +111,7 @@ module Searchkick
         model_includes: options[:model_includes],
         json: !@json.nil?,
         match_suffix: @match_suffix,
+        highlight: options[:highlight],
         highlighted_fields: @highlighted_fields || [],
         misspellings: @misspellings,
         term: term,
