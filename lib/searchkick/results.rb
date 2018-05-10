@@ -31,7 +31,7 @@ module Searchkick
             hits.map do |hit|
               result = results[hit["_type"]][hit["_id"].to_s]
               if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
-                if options[:highlight] && !result.respond_to?(:search_highlights)
+                if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
                   highlights = hit_highlights(hit)
                   result.define_singleton_method(:search_highlights) do
                     highlights
@@ -57,7 +57,7 @@ module Searchkick
                 hit
               end
 
-            if @options[:highlight]
+            if hit["highlight"] || options[:highlight]
               highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
               options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                 result["highlighted_#{k}"] ||= (highlight[k] || result[k])
