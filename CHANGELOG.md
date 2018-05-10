@@ -3,6 +3,7 @@
 - Added `:inline` as alias for `true` for `callbacks` and `mode` options
 - Friendlier error message for bad mapping with partial matches
 - Warn when records in search index do not exist in database
+- Fixed `with_hit` and `with_highlights` when records in search index do not exist in database
 - Fixed error with highlights and match all
 
 ## 3.0.3

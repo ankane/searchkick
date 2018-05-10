@@ -16,7 +16,11 @@ module Searchkick
     end
 
     def results
-      @results ||= begin
+      @results ||= with_hit.map(&:first)
+    end
+
+    def with_hit
+      @with_hit ||= begin
         if options[:load]
           # results can have different types
           results = {}
@@ -38,8 +42,8 @@ module Searchkick
                   end
                 end
               end
-              result
-            end.compact
+              [result, hit]
+            end.select { |v| v[0] }
 
           if results.size != hits.size
             warn "[searchkick] WARNING: Records in search index do not exist in database"
@@ -65,7 +69,7 @@ module Searchkick
             end
 
             result["id"] ||= result["_id"] # needed for legacy reasons
-            HashWrapper.new(result)
+            [HashWrapper.new(result), hit]
           end
         end
       end
@@ -179,10 +183,6 @@ module Searchkick
       end
     end
 
-    def with_hit
-      results.zip(hits)
-    end
-
     def highlights(multiple: false)
       hits.map do |hit|
         hit_highlights(hit, multiple: multiple)
@@ -190,7 +190,9 @@ module Searchkick
     end
 
     def with_highlights(multiple: false)
-      results.zip(highlights(multiple: multiple))
+      with_hit do |result, hit|
+        [result, hit_highlights(hit, multiple: multiple)]
+      end
     end
 
     def misspellings?
