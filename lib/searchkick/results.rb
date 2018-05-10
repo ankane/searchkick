@@ -30,6 +30,8 @@ module Searchkick
             results[type] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
+          missing_ids = []
+
           # sort
           results =
             hits.map do |hit|
@@ -43,10 +45,13 @@ module Searchkick
                 end
               end
               [result, hit]
-            end.select { |v| v[0] }
+            end.select do |result, hit|
+              missing_ids << hit["_id"] unless result
+              result
+            end
 
-          if results.size != hits.size
-            warn "[searchkick] WARNING: Records in search index do not exist in database"
+          if missing_ids.any?
+            warn "[searchkick] WARNING: Records in search index do not exist in database: #{missing_ids.join(", ")}"
           end
 
           results
