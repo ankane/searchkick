@@ -159,10 +159,9 @@ module Searchkick
         .keep_if { |k, _| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
         .values.compact.join(" ")
 
-      # TODO deep merge method
       options[:where] ||= {}
       options[:where][:_id] ||= {}
-      options[:where][:_id][:not] = record.id.to_s
+      options[:where][:_id][:not] = Array(options[:where][:_id][:not]) + [record.id.to_s]
       options[:per_page] ||= 10
       options[:similar] = true
 
