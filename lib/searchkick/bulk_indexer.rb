@@ -14,7 +14,7 @@ module Searchkick
       end
 
       if batch
-        import_or_update relation.to_a, method_name, async
+        import_or_update relation, method_name, async
         Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
       elsif full && async
         full_reindex_async(relation)
@@ -58,11 +58,13 @@ module Searchkick
     private
 
     def import_or_update(records, method_name, async)
+      records = async ? records.pluck(:id) : records.to_a
+
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
-            class_name: records.first.class.name,
-            record_ids: records.map(&:id),
+            class_name: records.name,
+            record_ids: records,
             index_name: index.name,
             method_name: method_name ? method_name.to_s : nil
           )
