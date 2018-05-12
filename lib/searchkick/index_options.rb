@@ -225,7 +225,7 @@ module Searchkick
           }
         end
 
-        settings.deep_merge!(options[:settings] || {})
+        settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
         # synonyms
         synonyms = options[:synonyms] || []
@@ -311,10 +311,10 @@ module Searchkick
 
           if !options[:searchable] || mapping_options[:searchable].include?(field)
             if word
-              fields["analyzed"] = analyzed_field_options
+              fields[:analyzed] = analyzed_field_options
 
               if mapping_options[:highlight].include?(field)
-                fields["analyzed"][:term_vector] = "with_positions_offsets"
+                fields[:analyzed][:term_vector] = "with_positions_offsets"
               end
             end
 
@@ -373,7 +373,7 @@ module Searchkick
           end
 
           if word
-            dynamic_fields["analyzed"] = analyzed_field_options
+            dynamic_fields[:analyzed] = analyzed_field_options
           end
         end
 
@@ -402,7 +402,7 @@ module Searchkick
           mappings[index_type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
         end
 
-        mappings = mappings.deep_merge(options[:mappings] || {})
+        mappings = mappings.symbolize_keys.deep_merge((options[:mappings] || {}).symbolize_keys)
       end
 
       {
