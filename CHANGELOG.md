@@ -1,8 +1,9 @@
-## 3.0.4 [unreleased]
+## 3.1.0
 
 - Added `:inline` as alias for `true` for `callbacks` and `mode` options
 - Friendlier error message for bad mapping with partial matches
 - Warn when records in search index do not exist in database
+- Easier merging for `merge_mapping`
 - Fixed `with_hit` and `with_highlights` when records in search index do not exist in database
 - Fixed error with highlights and match all
 
