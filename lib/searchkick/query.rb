@@ -508,7 +508,8 @@ module Searchkick
 
     def misspellings_for_field(misspellings, field)
       if misspellings.is_a?(Hash) && misspellings[:fields] && misspellings[:fields][field] != nil
-        misspellings[:fields][field]
+        field_misspellings = misspellings[:fields][field]
+        field_misspellings.is_a?(Hash) ? misspellings.merge(field_misspellings) : field_misspellings
       else
         misspellings
       end

@@ -88,10 +88,11 @@ class MisspellingsTest < Minitest::Test
 
   def test_misspellings_field_unspecified_uses_edit_distance_one
     store [{name: "Bingo", color: "blue"}]
-    assert_misspellings "bin", [], {fields: {color: {edit_distance: 2}}}
-    assert_misspellings "bingooo", [], {fields: {color: {edit_distance: 2}}}
-    assert_misspellings "mango", [], {fields: {color: {edit_distance: 2}}}
-    assert_misspellings "bing", ["Bingo"], {fields: {color: {edit_distance: 2}}}
+    options = {fields: {color: {edit_distance: 2}}}
+    assert_misspellings "bin", [], options
+    assert_misspellings "bingooo", [], options
+    assert_misspellings "mango", [], options
+    assert_misspellings "bing", ["Bingo"], options
   end
 
   def test_misspellings_field_uses_specified_edit_distance
@@ -110,11 +111,11 @@ class MisspellingsTest < Minitest::Test
   def test_misspellings_field_transposition_combination
     store [{name: "zucchini", color: "green"}]
     misspellings = {
-        transpositions: false,
-        fields: {color: {transpositions: true}}
+      transpositions: false,
+      fields: {color: {transpositions: true}}
     }
     assert_misspellings "zuccihni", [], misspellings
-    assert_misspellings "greene", ["zucchini"], misspellings
+    assert_misspellings "grene", ["zucchini"], misspellings
   end
 
   def test_misspellings_field_word_start
@@ -141,6 +142,13 @@ class MisspellingsTest < Minitest::Test
     assert_misspellings "greennn", ["Sriracha"], options
     assert_misspellings "srirachaaa", [], options
     assert_misspellings "siracha", ["Sriracha"], options
+  end
+
+  def test_misspellings_field_merges_options
+    store [{name: "Sriracha", color: "green"}]
+    misspellings = {edit_distance: 2, fields: {color: {transpositions: false}}}
+    assert_misspellings "rgene", [], misspellings
+    assert_misspellings "rgeen", ["Sriracha"], misspellings
   end
 
   def test_misspellings_field_requires_explicit_search_fields
