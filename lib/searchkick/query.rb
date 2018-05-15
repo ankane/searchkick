@@ -263,6 +263,10 @@ module Searchkick
               true
             end
 
+          if option_fields_mapping.empty? && has_field_misspellings(misspellings)
+            raise ArgumentError, "If you provide per-field misspelling rules you must also specify the fields to search."
+          end
+
           if misspellings.is_a?(Hash) && misspellings[:below] && !@misspellings_below
             @misspellings_below = misspellings[:below].to_i
             misspellings = false
@@ -492,8 +496,6 @@ module Searchkick
           []
         elsif default_match == :exact
           raise ArgumentError, "Must specify fields to search"
-        elsif has_field_misspellings(options[:misspellings])
-          raise ArgumentError, "If you provide per-field misspelling rules you must also provide the fields to search."
         else
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
