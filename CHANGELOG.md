@@ -1,3 +1,7 @@
+## 3.1.1 [unreleased]
+
+- Made `exclude` option work with match all
+
 ## 3.1.0
 
 - Added `:inline` as alias for `true` for `callbacks` and `mode` options

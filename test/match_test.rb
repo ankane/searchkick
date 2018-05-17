@@ -202,6 +202,17 @@ class MatchTest < Minitest::Test
     assert_search "butter", ["Butter Tub"], exclude: "peanut butter"
   end
 
+  def test_exclude_match_all
+    store_names ["Butter"]
+    assert_search "*", [], exclude: "butter"
+  end
+
+  def test_exclude_match_all_fields
+    store_names ["Butter"]
+    assert_search "*", [], fields: [:name], exclude: "butter"
+    assert_search "*", ["Butter"], fields: [:color], exclude: "butter"
+  end
+
   # other
 
   def test_all

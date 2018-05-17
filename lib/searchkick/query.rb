@@ -250,7 +250,7 @@ module Searchkick
           if fields != ["_all"]
             query[:more_like_this][:fields] = fields
           end
-        elsif all
+        elsif all && !options[:exclude]
           query = {
             match_all: {}
           }
@@ -372,13 +372,22 @@ module Searchkick
             end
           end
 
-          payload = {
-            dis_max: {
-              queries: queries
+          # all + exclude option
+          if all
+            query = {
+              match_all: {}
             }
-          }
 
-          should.concat(set_conversions)
+            should = []
+          else
+            payload = {
+              dis_max: {
+                queries: queries
+              }
+            }
+
+            should.concat(set_conversions)
+          end
 
           query = payload
         end
@@ -487,9 +496,7 @@ module Searchkick
           ["_all"]
         elsif all && default_match == :phrase
           ["_all.phrase"]
-        elsif term == "*"
-          []
-        elsif default_match == :exact
+        elsif term != "*" && default_match == :exact
           raise ArgumentError, "Must specify fields to search"
         else
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
