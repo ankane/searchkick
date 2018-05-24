@@ -27,6 +27,8 @@ module Searchkick
 
           hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
             klass = (!options[:index_name] && @klass) || type.camelize.constantize
+            # model klass must unscoped for cases like soft deletion
+            klass = klass.unscoped if klass.respond_to?(:unscoped)
             results[type] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
