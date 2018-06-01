@@ -272,7 +272,21 @@ module Searchkick
             misspellings = false
           end
 
-          @misspellings = misspellings != false
+          if misspellings != false
+            edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
+            transpositions =
+              if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
+                {fuzzy_transpositions: misspellings[:transpositions]}
+              else
+                {fuzzy_transpositions: true}
+              end
+            prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
+            default_max_expansions = @misspellings_below ? 20 : 3
+            max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            @misspellings = true
+          else
+            @misspellings = false
+          end
 
           fields.each do |field|
             queries_to_add = []
@@ -304,18 +318,6 @@ module Searchkick
             exclude_field = field
 
             field_misspellings = misspellings_for_field(misspellings, option_fields_mapping[field])
-            if field_misspellings != false
-              edit_distance = (field_misspellings.is_a?(Hash) && (field_misspellings[:edit_distance] || field_misspellings[:distance])) || 1
-              transpositions =
-                if field_misspellings.is_a?(Hash) && field_misspellings.key?(:transpositions)
-                  {fuzzy_transpositions: field_misspellings[:transpositions]}
-                else
-                  {fuzzy_transpositions: true}
-                end
-              prefix_length = (field_misspellings.is_a?(Hash) && field_misspellings[:prefix_length]) || 0
-              default_max_expansions = @misspellings_below ? 20 : 3
-              max_expansions = (field_misspellings.is_a?(Hash) && field_misspellings[:max_expansions]) || default_max_expansions
-            end
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
@@ -503,15 +505,12 @@ module Searchkick
     end
 
     def has_field_misspellings(misspellings)
-      misspellings.is_a?(Hash) &&
-        misspellings[:fields].is_a?(Hash) &&
-        misspellings[:fields].keys.any?
+      misspellings.is_a?(Hash) && misspellings[:fields].is_a?(Array)
     end
 
     def misspellings_for_field(misspellings, field)
-      if misspellings.is_a?(Hash) && misspellings[:fields] && misspellings[:fields][field] != nil
-        field_misspellings = misspellings[:fields][field]
-        field_misspellings.is_a?(Hash) ? misspellings.merge(field_misspellings) : field_misspellings
+      if has_field_misspellings(misspellings)
+        misspellings[:fields].include?(field) ? misspellings : false
       else
         misspellings
       end
