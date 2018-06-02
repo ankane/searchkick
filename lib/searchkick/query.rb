@@ -207,7 +207,7 @@ module Searchkick
     end
 
     def prepare
-      boost_fields, fields, option_fields_mapping = set_fields
+      boost_fields, fields = set_fields
 
       operator = options[:operator] || "and"
 
@@ -263,7 +263,7 @@ module Searchkick
               true
             end
 
-          if option_fields_mapping.empty? && has_field_misspellings(misspellings)
+          if field_params.blank? && has_field_misspellings(misspellings)
             raise ArgumentError, "If you provide per-field misspelling rules you must also specify the fields to search."
           end
 
@@ -283,6 +283,9 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            if has_field_misspellings(misspellings)
+              misspellings[:fields] = misspellings[:fields].map { |name| "#{name}.#{@match_suffix}" }
+            end
             @misspellings = true
           else
             @misspellings = false
@@ -317,7 +320,7 @@ module Searchkick
             exclude_analyzer = nil
             exclude_field = field
 
-            field_misspellings = misspellings_for_field(misspellings, option_fields_mapping[field])
+            field_misspellings = misspellings_for_field(misspellings, field)
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
@@ -474,12 +477,15 @@ module Searchkick
       @load = load
     end
 
+    def field_params
+      options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
+    end
+
     def set_fields
       boost_fields = {}
-      fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
+      fields = field_params
       all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : false
       default_match = options[:match] || searchkick_options[:match] || :word
-      option_fields_mapping = {}
       fields =
         if fields
           fields.map do |value|
@@ -487,7 +493,6 @@ module Searchkick
             k2, boost = k.to_s.split("^", 2)
             field = "#{k2}.#{v == :word ? 'analyzed' : v}"
             boost_fields[field] = boost.to_f if boost
-            option_fields_mapping[field] = k2.to_sym
             field
           end
         elsif all && default_match == :word
@@ -501,7 +506,7 @@ module Searchkick
         else
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
-      [boost_fields, fields, option_fields_mapping]
+      [boost_fields, fields]
     end
 
     def has_field_misspellings(misspellings)
