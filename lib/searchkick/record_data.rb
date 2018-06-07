@@ -61,8 +61,8 @@ module Searchkick
       # hack to prevent generator field doesn't exist error
       if !partial_reindex
         index.suggest_fields.each do |field|
-          if !source[field] && !source[field.to_sym]
-            source[field] = nil
+          if (source.keys & [field, field.to_sym]).empty?
+	          source[field] = nil
           end
         end
       end
