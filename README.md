@@ -1518,6 +1518,13 @@ Reindex associations
 store.products.reindex
 ```
 
+Remove one record from the index
+
+```ruby
+product = Product.find(1)
+Product.search_index.remove(product)
+```
+
 Remove old indices
 
 ```ruby
