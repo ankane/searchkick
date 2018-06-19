@@ -241,6 +241,20 @@ View with will_paginate
 <%= will_paginate @products %>
 ```
 
+### Scroll API
+
+For large datasets, a scroll context is more efficient than deep pagination. Create a scroll context by passing in the desired keep-alive time and the number of records per page
+
+```ruby
+products = Product.search "milk", per_page: 10, scroll: '1m'
+```
+
+Request the next set of records in the scroll context
+
+```ruby
+next_records = products.scroll
+``` 
+
 ### Partial Matches
 
 By default, results must match all words in the query.
