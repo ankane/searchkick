@@ -137,46 +137,56 @@ module Searchkick
     alias_method :total_entries, :total_count
 
     def current_page
+      return if scroll_id
       options[:page]
     end
 
     def per_page
+      return if scroll_id
       options[:per_page]
     end
     alias_method :limit_value, :per_page
 
     def padding
+      return if scroll_id
       options[:padding]
     end
 
     def total_pages
+      return if scroll_id
       (total_count / per_page.to_f).ceil
     end
     alias_method :num_pages, :total_pages
 
     def offset_value
+      return if scroll_id
       (current_page - 1) * per_page + padding
     end
     alias_method :offset, :offset_value
 
     def previous_page
+      return if scroll_id
       current_page > 1 ? (current_page - 1) : nil
     end
     alias_method :prev_page, :previous_page
 
     def next_page
+      return if scroll_id
       current_page < total_pages ? (current_page + 1) : nil
     end
 
     def first_page?
+      return if scroll_id
       previous_page.nil?
     end
 
     def last_page?
+      return if scroll_id
       next_page.nil?
     end
 
     def out_of_range?
+      return if scroll_id
       current_page > total_pages
     end
 
@@ -202,6 +212,24 @@ module Searchkick
 
     def misspellings?
       @options[:misspellings]
+    end
+
+    def scroll_id
+      @response['_scroll_id']
+    end
+
+    def scroll
+      if scroll_id.present? && options[:scroll].nil?
+        raise Searchkick::Error, "Scroll error - scroll keepalive must be defined"
+      elsif scroll_id.nil?
+        raise Searchkick::Error, "Scroll error - a scroll id has not been provided"
+      else
+        params = {
+          scroll: options[:scroll],
+          scroll_id: scroll_id
+        }
+        Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
+      end
     end
 
     private
