@@ -714,13 +714,8 @@ module Searchkick
             }.merge(shared_agg_options)
           }
         elsif (histogram = agg_options[:date_histogram])
-          interval = histogram[:interval]
-          time_zone = histogram[:time_zone].present? ? { time_zone: histogram[:time_zone] } : {}
           payload[:aggs][field] = {
-            date_histogram: {
-              field: histogram[:field],
-              interval: interval
-            }.merge(time_zone)
+            date_histogram: histogram
           }
         elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
           payload[:aggs][field] = {
