@@ -24,7 +24,7 @@ module Searchkick
           # to get the max _id without scripting since it's a string
 
           # TODO use primary key and prefix with table name
-          relation = relation.where("id > ?", total_docs)
+          relation = relation.where("id > ?", index.total_docs)
         end
 
         relation = relation.select("id").except(:includes, :preload) if async
