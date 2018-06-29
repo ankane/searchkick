@@ -26,8 +26,15 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
+        model = record.class
+
+        if model.searchkick_options[:inheritance]
+          # https://apidock.com/rails/ActiveRecord/Inheritance/ClassMethods/base_class
+          model = model.base_class if defined?(::ActiveRecord::Base) && record.is_a?(::ActiveRecord::Base)
+        end
+
         Searchkick::ReindexV2Job.perform_later(
-          record.class.name,
+          model.name,
           record.id.to_s,
           method_name ? method_name.to_s : nil
         )
