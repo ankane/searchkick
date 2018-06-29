@@ -645,7 +645,7 @@ Product.search "milk", boost_where: {orderer_ids: current_user.id}
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
-![Autocomplete](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/autocomplete.png)
+![Autocomplete](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/autocomplete.png)
 
 **Note:** To autocomplete on general categories (like `cereal` rather than product names), check out [Autosuggest](https://github.com/ankane/autosuggest).
 
@@ -711,7 +711,7 @@ Then add the search box and JavaScript code to a view.
 
 ### Suggestions
 
-![Suggest](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/recursion.png)
+![Suggest](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/recursion.png)
 
 ```ruby
 class Product < ApplicationRecord
@@ -730,7 +730,7 @@ products.suggestions # ["peanut butter"]
 
 [Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
-![Aggregations](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/facets.png)
+![Aggregations](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/facets.png)
 
 ```ruby
 products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
