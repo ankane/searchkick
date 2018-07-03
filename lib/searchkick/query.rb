@@ -264,6 +264,10 @@ module Searchkick
               true
             end
 
+          if field_params.blank? && has_field_misspellings(misspellings)
+            raise ArgumentError, "If you provide per-field misspelling rules you must also specify the fields to search."
+          end
+
           if misspellings.is_a?(Hash) && misspellings[:below] && !@misspellings_below
             @misspellings_below = misspellings[:below].to_i
             misspellings = false
@@ -280,6 +284,9 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            if has_field_misspellings(misspellings)
+              misspellings[:fields] = misspellings[:fields].map { |name| "#{name}.#{@match_suffix}" }
+            end
             @misspellings = true
           else
             @misspellings = false
@@ -314,8 +321,10 @@ module Searchkick
             exclude_analyzer = nil
             exclude_field = field
 
+            field_misspellings = misspellings_for_field(misspellings, field)
+
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || misspellings == false
+              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
@@ -334,7 +343,7 @@ module Searchkick
               exclude_analyzer = analyzer
             end
 
-            if misspellings != false && match_type == :match
+            if field_misspellings != false && match_type == :match
               qs.concat(qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) })
             end
 
@@ -478,9 +487,13 @@ module Searchkick
       @load = load
     end
 
+    def field_params
+      options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
+    end
+
     def set_fields
       boost_fields = {}
-      fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
+      fields = field_params
       all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : false
       default_match = options[:match] || searchkick_options[:match] || :word
       fields =
@@ -502,6 +515,18 @@ module Searchkick
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
       [boost_fields, fields]
+    end
+
+    def has_field_misspellings(misspellings)
+      misspellings.is_a?(Hash) && misspellings[:fields].is_a?(Array)
+    end
+
+    def misspellings_for_field(misspellings, field)
+      if has_field_misspellings(misspellings)
+        misspellings[:fields].include?(field) ? misspellings : false
+      else
+        misspellings
+      end
     end
 
     def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
