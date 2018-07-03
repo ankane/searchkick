@@ -53,4 +53,48 @@ class MisspellingsTest < Minitest::Test
     store_names ["abc", "abd", "aee"]
     assert !Product.search("abc", misspellings: {below: 1}).misspellings?
   end
+
+  def test_misspellings_field_correct_spelling_still_works
+    store [{name: "Sriracha", color: "blue"}]
+    assert_misspellings "Sriracha", ["Sriracha"], {fields: [:name, :color]}
+    assert_misspellings "blue", ["Sriracha"], {fields: [:name, :color]}
+  end
+
+  def test_misspellings_field_enabled
+    store [{name: "Sriracha", color: "blue"}]
+    assert_misspellings "siracha", ["Sriracha"], {fields: [:name]}
+    assert_misspellings "clue", ["Sriracha"], {fields: [:color]}
+  end
+
+  def test_misspellings_field_disabled
+    store [{name: "Sriracha", color: "blue"}]
+    assert_misspellings "siracha", [], {fields: [:color]}
+    assert_misspellings "clue", [], {fields: [:name]}
+  end
+
+  def test_misspellings_field_with_transpositions
+    store [{name: "Sriracha", color: "blue"}]
+    assert_misspellings "lbue", [], {transpositions: false, fields: [:color]}
+  end
+
+  def test_misspellings_field_with_edit_distance
+    store [{name: "Sriracha", color: "blue"}]
+    assert_misspellings "crue", ["Sriracha"], {edit_distance: 2, fields: [:color]}
+  end
+
+  def test_misspellings_field_multiple
+    store [
+      {name: "Greek Yogurt", color: "white"},
+      {name: "Green Onions", color: "yellow"}
+    ]
+    assert_misspellings "greed", ["Greek Yogurt", "Green Onions"], {fields: [:name, :color]}
+    assert_misspellings "mellow", ["Green Onions"], {fields: [:name, :color]}
+  end
+
+  def test_misspellings_field_requires_explicit_search_fields
+    store_names ["Sriracha"]
+    assert_raises(ArgumentError) do
+      assert_search "siracha", ["Sriracha"], {misspellings: {fields: [:name]}}
+    end
+  end
 end

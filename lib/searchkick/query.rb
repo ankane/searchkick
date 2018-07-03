@@ -280,6 +280,15 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
+            misspellings_fields = misspellings.is_a?(Hash) && misspellings.key?(:fields) && misspellings[:fields].map { |f| "#{f}.#{@match_suffix}" }
+
+            if misspellings_fields
+              missing_fields = misspellings_fields - fields
+              if missing_fields.any?
+                raise ArgumentError, "All fields in per-field misspellings must also be specified in fields option"
+              end
+            end
+
             @misspellings = true
           else
             @misspellings = false
@@ -314,8 +323,10 @@ module Searchkick
             exclude_analyzer = nil
             exclude_field = field
 
+            field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(field))
+
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || misspellings == false
+              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
@@ -334,7 +345,7 @@ module Searchkick
               exclude_analyzer = analyzer
             end
 
-            if misspellings != false && match_type == :match
+            if field_misspellings != false && match_type == :match
               qs.concat(qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) })
             end
 

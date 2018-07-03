@@ -579,6 +579,14 @@ class Minitest::Test
     assert_equal expected, klass.search(term, options).map(&:name).first
   end
 
+  def assert_misspellings(term, expected, misspellings = {}, klass = Product)
+    options = {
+      fields: [:name, :color],
+      misspellings: misspellings
+    }
+    assert_search(term, expected, options, klass)
+  end
+
   def with_options(klass, options)
     previous_options = klass.searchkick_options.dup
     begin

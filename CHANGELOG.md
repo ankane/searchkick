@@ -1,5 +1,6 @@
 ## 3.1.1 [unreleased]
 
+- Added per-field misspellings
 - Made `exclude` option work with match all
 
 ## 3.1.0
