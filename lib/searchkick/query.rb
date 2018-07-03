@@ -742,12 +742,8 @@ module Searchkick
             }.merge(shared_agg_options)
           }
         elsif (histogram = agg_options[:date_histogram])
-          interval = histogram[:interval]
           payload[:aggs][field] = {
-            date_histogram: {
-              field: histogram[:field],
-              interval: interval
-            }
+            date_histogram: histogram
           }
         elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
           payload[:aggs][field] = {
