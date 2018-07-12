@@ -38,7 +38,8 @@ module Searchkick
               result = results[hit["_type"]][hit["_id"].to_s]
               if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
                 if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
-                  highlights = hit_highlights(hit)
+                  multiple = options[:highlight].is_a?(Hash) && options[:highlight][:multiple]
+                  highlights = hit_highlights(hit, multiple: multiple)
                   result.define_singleton_method(:search_highlights) do
                     highlights
                   end
