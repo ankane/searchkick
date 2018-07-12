@@ -87,6 +87,17 @@ class HighlightTest < Minitest::Test
     end
   end
 
+  def test_searchkick_highlights_singleton_with_multiple_option
+    store_names ["Two Door Cinema Club Some Other Words And Much More Doors Cinema Club"]
+    highlights = Product.search("cinema", highlight: {fragment_size: 20, multiple: true}).first.search_highlights[:name]
+    assert highlights.is_a?(Array)
+    assert_equal highlights.count, 2
+    refute_equal highlights.first, highlights.last
+    highlights.each do |highlight|
+      assert highlight.include?("<em>Cinema</em>")
+    end
+  end
+
   def test_search_highlights_method
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", highlight: true).first.search_highlights[:name]
