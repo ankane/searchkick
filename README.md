@@ -1133,7 +1133,7 @@ Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest a
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "http://localhost:9200,http://localhost:9201"
+ENV["ELASTICSEARCH_URL"] = "https://host1:9200,https://host2:9200"
 ```
 
 See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
