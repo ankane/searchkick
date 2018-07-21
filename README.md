@@ -1122,7 +1122,7 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
-### Privacy & Security
+### Data Protection
 
 We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you send [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users to Elasticsearch.
 
