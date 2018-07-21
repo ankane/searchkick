@@ -1,4 +1,4 @@
-# coding: utf-8
+
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "searchkick/version"
@@ -6,19 +6,17 @@ require "searchkick/version"
 Gem::Specification.new do |spec|
   spec.name          = "searchkick"
   spec.version       = Searchkick::VERSION
-  spec.authors       = ["Andrew Kane"]
-  spec.email         = ["andrew@chartkick.com"]
-  spec.description   = "Intelligent search made easy"
-  spec.summary       = "Searchkick learns what your users are looking for. As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users."
+  spec.summary       = "Intelligent search made easy"
   spec.homepage      = "https://github.com/ankane/searchkick"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files`.split($/)
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features|benchmark)/})
-  spec.require_paths = ["lib"]
+  spec.author        = "Andrew Kane"
+  spec.email         = "andrew@chartkick.com"
 
-  spec.required_ruby_version = ">= 2.2.0"
+  spec.files         = Dir["*.{md,txt}", "{lib}/**/*"]
+  spec.require_path  = "lib"
+
+  spec.required_ruby_version = ">= 2.2"
 
   spec.add_dependency "activemodel", ">= 4.2"
   spec.add_dependency "elasticsearch", ">= 5"
