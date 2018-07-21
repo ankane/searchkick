@@ -1124,7 +1124,7 @@ rake searchkick:reindex CLASS=Product
 
 ### Privacy & Security
 
-We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you store [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users in Elasticsearch.
+We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you send [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users to Elasticsearch.
 
 Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest and HTTPS.
 
