@@ -1113,7 +1113,7 @@ rake searchkick:reindex CLASS=Product
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "https://username:password@host"
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host"
 ```
 
 Then deploy and reindex:
@@ -1133,7 +1133,7 @@ Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest a
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "https://host1:9200,https://host2:9200"
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
 See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
