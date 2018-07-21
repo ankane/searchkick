@@ -1053,7 +1053,7 @@ heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
 ```
 
-For Found:
+For Elastic Cloud (previously Found):
 
 ```sh
 heroku addons:create foundelasticsearch
@@ -1086,7 +1086,7 @@ Create an initializer `config/initializers/elasticsearch.rb` with:
 ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
 ```
 
-To use signed request, include in your Gemfile:
+To use signed requests, include in your Gemfile:
 
 ```ruby
 gem 'faraday_middleware-aws-sigv4'
@@ -1113,7 +1113,7 @@ rake searchkick:reindex CLASS=Product
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "http://username:password@api.searchbox.io"
+ENV["ELASTICSEARCH_URL"] = "https://username:password@host"
 ```
 
 Then deploy and reindex:
@@ -1121,6 +1121,12 @@ Then deploy and reindex:
 ```sh
 rake searchkick:reindex CLASS=Product
 ```
+
+### Privacy & Security
+
+We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you store personal data of your users.
+
+Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest and HTTPS.
 
 ### Automatic Failover
 
