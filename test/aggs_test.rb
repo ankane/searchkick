@@ -34,6 +34,12 @@ class AggsTest < Minitest::Test
     assert_equal ({2 => 2}), store_agg(aggs: {store_id: {min_doc_count: 2}})
   end
 
+  def test_script
+    source = "'Color: ' + _value"
+    agg = Product.search("Product", aggs: {color: {script: {source: source}}}).aggs["color"]
+    assert_equal ({"Color: blue" => 1, "Color: green" => 1, "Color: red" => 1}), buckets_as_hash(agg)
+  end
+
   def test_no_aggs
     assert_nil Product.search("*").aggs
   end
