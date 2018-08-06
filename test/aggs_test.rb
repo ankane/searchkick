@@ -36,7 +36,8 @@ class AggsTest < Minitest::Test
 
   def test_script
     source = "'Color: ' + _value"
-    agg = Product.search("Product", aggs: {color: {script: {source: source}}}).aggs["color"]
+    script = Searchkick.server_below?("5.6") ? {inline: source} : {source: source}
+    agg = Product.search("Product", aggs: {color: {script: script}}).aggs["color"]
     assert_equal ({"Color: blue" => 1, "Color: green" => 1, "Color: red" => 1}), buckets_as_hash(agg)
   end
 

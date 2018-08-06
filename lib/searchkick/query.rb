@@ -736,7 +736,7 @@ module Searchkick
       aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
       aggs.each do |field, agg_options|
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
-        shared_agg_options = agg_options.slice(:order, :min_doc_count, :script)
+        shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where)
 
         if agg_options[:ranges]
           payload[:aggs][field] = {
@@ -755,13 +755,13 @@ module Searchkick
         elsif (histogram = agg_options[:date_histogram])
           payload[:aggs][field] = {
             date_histogram: histogram
-          }
+          }.merge(shared_agg_options)
         elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
           payload[:aggs][field] = {
             metric => {
               field: agg_options[metric][:field] || field
             }
-          }
+          }.merge(shared_agg_options)
         else
           payload[:aggs][field] = {
             terms: {
