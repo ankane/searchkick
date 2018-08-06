@@ -792,6 +792,12 @@ Minimum document count
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
 ```
 
+Script support
+
+```ruby
+Product.search "*", aggs: {color: {script: {source: "'Color: ' + _value"}}}
+```
+
 Date histogram
 
 ```ruby
