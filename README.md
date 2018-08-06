@@ -1692,7 +1692,7 @@ class Product < ApplicationRecord
 end
 ```
 
-> If misspellings are enabled (default), results with a single character case difference will match. Turn off misspellings if this is not desired.
+**Note:** If misspellings are enabled (default), results with a single character case difference will match. Turn off misspellings if this is not desired.
 
 Change import batch size
 
