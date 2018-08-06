@@ -1684,7 +1684,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Make search case sensitive [master]
+Make search case-sensitive [master]
 
 ```ruby
 class Product < ApplicationRecord
