@@ -86,13 +86,13 @@ module Searchkick
       if scope.respond_to?(:primary_key)
         # TODO expire Redis key
         primary_key = scope.primary_key
+        primary_key_type = scope.columns_hash[primary_key].type
 
-        starting_id =
-          begin
-            scope.minimum(primary_key)
-          rescue ActiveRecord::StatementInvalid
-            false
-          end
+        starting_id = if with_bounds && primary_key_type == :integer
+          scope.minimum(primary_key)
+        else
+          false
+        end
 
         if starting_id.nil?
           # no records, do nothing
@@ -166,6 +166,10 @@ module Searchkick
 
     def batch_size
       @batch_size ||= index.options[:batch_size] || 1000
+    end
+
+    def with_bounds
+      @with_bounds ||= index.options[:with_bounds] || true
     end
   end
 end
