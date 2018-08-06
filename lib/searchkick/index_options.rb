@@ -225,6 +225,13 @@ module Searchkick
           }
         end
 
+        if options[:case_sensitive]
+          # delete lowercase analyzer from each
+          settings[:analysis][:analyzer].each do |_, analyzer|
+            analyzer[:filter].delete("lowercase")
+          end
+        end
+
         settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
         # synonyms

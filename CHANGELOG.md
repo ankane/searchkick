@@ -2,6 +2,7 @@
 
 - Added per-field misspellings
 - Made `exclude` option work with match all
+- Added `case_sensitive` option
 
 ## 3.1.0
 
