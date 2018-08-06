@@ -1684,6 +1684,16 @@ class Product < ApplicationRecord
 end
 ```
 
+Make search case sensitive [master]
+
+```ruby
+class Product < ApplicationRecord
+  searchkick case_sensitive: true
+end
+```
+
+> If misspellings are enabled (default), results with a single character case difference will match. Turn off misspellings if this is not desired.
+
 Change import batch size
 
 ```ruby
