@@ -18,4 +18,11 @@ class IndexOptionsTest < Minitest::Test
       assert_search "milks", ["milks"], {misspellings: false}, Song
     end
   end
+
+  def test_special_characters
+    with_options(Song, special_characters: false) do
+      store_names ["jalapeño"], Song
+      assert_search "jalapeno", [], {misspellings: false}, Song
+    end
+  end
 end
