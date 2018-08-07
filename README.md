@@ -271,15 +271,17 @@ Product.search "back", fields: [:name], match: :word_start
 
 Available options are:
 
-```ruby
-:word # default
-:word_start
-:word_middle
-:word_end
-:text_start
-:text_middle
-:text_end
-```
+Option | Matches | Example
+--- | --- | ---
+`:word` | entire word | `apple` matches `apple`
+`:word_start` | start of word | `app` matches `apple`
+`:word_middle` | any part of word | `ppl` matches `apple`
+`:word_end` | end of word | `ple` matches `apple`
+`:text_start` | start of text | `gre` matches `green apple`, `app` does not match
+`:text_middle` | any part of text | `een app` matches `green apple`
+`:text_end` | end of text | `ple` matches `green apple`, `een` does not match
+
+The default is `:word`.
 
 ### Exact Matches
 
