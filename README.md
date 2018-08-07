@@ -1676,6 +1676,22 @@ class Product < ApplicationRecord
 end
 ```
 
+Turn off stemming [master]
+
+```ruby
+class Product < ApplicationRecord
+  searchkick stem: false
+end
+```
+
+Turn on stemming for conversions
+
+```ruby
+class Product < ApplicationRecord
+  searchkick stem_conversions: true
+end
+```
+
 Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) for scoring
 
 ```ruby

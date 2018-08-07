@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class CaseSensitiveTest < Minitest::Test
+class IndexOptionsTest < Minitest::Test
   def setup
     Song.destroy_all
   end
@@ -9,6 +9,13 @@ class CaseSensitiveTest < Minitest::Test
     with_options(Song, case_sensitive: true) do
       store_names ["Test", "test"], Song
       assert_search "test", ["test"], {misspellings: false}, Song
+    end
+  end
+
+  def test_no_stemming
+    with_options(Song, stem: false) do
+      store_names ["milk", "milks"], Song
+      assert_search "milks", ["milks"], {misspellings: false}, Song
     end
   end
 end

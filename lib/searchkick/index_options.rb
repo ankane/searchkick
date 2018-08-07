@@ -226,9 +226,14 @@ module Searchkick
         end
 
         if options[:case_sensitive]
-          # delete lowercase analyzer from each
           settings[:analysis][:analyzer].each do |_, analyzer|
             analyzer[:filter].delete("lowercase")
+          end
+        end
+
+        if options[:stem] == false
+          settings[:analysis][:analyzer].each do |_, analyzer|
+            analyzer[:filter].delete("searchkick_stemmer")
           end
         end
 
