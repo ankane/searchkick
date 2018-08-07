@@ -77,6 +77,11 @@ class PaginationTest < Minitest::Test
     assert products.first_page?
   end
 
+  def test_total_entries
+    products = Product.search("product", total_entries: 4)
+    assert_equal 4, products.total_entries
+  end
+
   def test_kaminari
     skip unless defined?(Kaminari)
 

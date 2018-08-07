@@ -4,6 +4,7 @@
 - Made `exclude` option work with match all
 - Added `case_sensitive` option
 - Added `stem` option
+- Added `total_entries` option
 
 ## 3.1.0
 

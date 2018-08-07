@@ -132,7 +132,7 @@ module Searchkick
     end
 
     def total_count
-      response["hits"]["total"]
+      options[:total_entries] || response["hits"]["total"]
     end
     alias_method :total_entries, :total_count
 
