@@ -281,7 +281,7 @@ Option | Matches | Example
 `:text_middle` | any part of text | `een app` matches `green apple`
 `:text_end` | end of text | `ple` matches `green apple`, `een` does not match
 
-The default is `:word`.
+The default is `:word`. The most matches will happen with `:word_middle`.
 
 ### Exact Matches
 
