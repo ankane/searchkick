@@ -1739,6 +1739,14 @@ Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
 ```
 
+Set options across all models
+
+```ruby
+Searchkick.model_options = {
+  batch_size: 200
+}
+```
+
 Reindex conditionally
 
 ```ruby
