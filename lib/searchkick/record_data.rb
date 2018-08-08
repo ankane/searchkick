@@ -112,7 +112,7 @@ module Searchkick
           # performance
           if v.is_a?(BigDecimal)
             obj[k] = v.to_f
-          elsif v.is_a?(Enumerable) ||
+          elsif v.is_a?(Enumerable)
             obj[k] = cast_big_decimal(v)
           end
         end

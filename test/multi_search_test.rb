@@ -27,7 +27,7 @@ class MultiSearchTest < Minitest::Test
     assert_equal ["abc", "abd"], products.map(&:name)
   end
 
-  def test_error
+  def test_query_error
     products = Product.search("*", order: {bad_column: :asc}, execute: false)
     Searchkick.multi_search([products])
     assert products.error
