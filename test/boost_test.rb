@@ -149,6 +149,15 @@ class BoostTest < Minitest::Test
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_where: {user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}]}
   end
 
+  def test_boost_where_negative_boost
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", user_ids: [2]},
+      {name: "Tomato C", user_ids: [2]}
+    ]
+    assert_first "tomato", "Tomato A", boost_where: {user_ids: {value: 2, factor: 0.5}}
+  end
+
   def test_boost_by_recency
     store [
       {name: "Article 1", created_at: 2.days.ago},
