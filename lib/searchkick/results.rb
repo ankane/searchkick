@@ -195,7 +195,7 @@ module Searchkick
     end
 
     def with_highlights(multiple: false)
-      with_hit do |result, hit|
+      with_hit.map do |result, hit|
         [result, hit_highlights(hit, multiple: multiple)]
       end
     end

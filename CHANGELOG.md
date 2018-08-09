@@ -5,6 +5,7 @@
 - Added `case_sensitive` option
 - Added `stem` option
 - Added `total_entries` option
+- Fixed `with_highlights` method
 
 ## 3.1.0
 
