@@ -13,21 +13,17 @@ notifications:
   email:
     on_success: never
     on_failure: change
-gemfile:
-  - Gemfile
-  - test/gemfiles/activerecord51.gemfile
-  - test/gemfiles/activerecord50.gemfile
-  - test/gemfiles/activerecord42.gemfile
-  - test/gemfiles/mongoid5.gemfile
-  - test/gemfiles/mongoid6.gemfile
 env:
-  - ELASTICSEARCH_VERSION=6.3.1
+  - ELASTICSEARCH_VERSION=6.3.2
 jdk: oraclejdk8
 matrix:
   include:
     - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.0.1
-    - gemfile: Gemfile
-      env: ELASTICSEARCH_VERSION=5.6.10
-    - gemfile: Gemfile
+    - gemfile: test/gemfiles/activerecord51.gemfile
       env: ELASTICSEARCH_VERSION=6.0.0
+    - gemfile: test/gemfiles/activerecord50.gemfile
+      env: ELASTICSEARCH_VERSION=5.6.10
+    - gemfile: test/gemfiles/activerecord42.gemfile
+      env: ELASTICSEARCH_VERSION=5.0.1
+    - gemfile: test/gemfiles/mongoid6.gemfile
+    - gemfile: test/gemfiles/mongoid5.gemfile
