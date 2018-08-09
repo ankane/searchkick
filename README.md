@@ -412,7 +412,7 @@ Turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
-Specify which fields can include misspellings with: [master]
+Specify which fields can include misspellings with:
 
 ```ruby
 Product.search "zucini", fields: [:name, :color], misspellings: {fields: [:name]}
@@ -1684,7 +1684,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Turn off stemming [master]
+Turn off stemming
 
 ```ruby
 class Product < ApplicationRecord
@@ -1708,7 +1708,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Make search case-sensitive [master]
+Make search case-sensitive
 
 ```ruby
 class Product < ApplicationRecord

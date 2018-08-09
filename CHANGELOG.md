@@ -1,10 +1,10 @@
-## 3.1.1 [unreleased]
+## 3.1.1
 
 - Added per-field misspellings
-- Made `exclude` option work with match all
 - Added `case_sensitive` option
 - Added `stem` option
 - Added `total_entries` option
+- Fixed `exclude` option with match all
 - Fixed `with_highlights` method
 
 ## 3.1.0
