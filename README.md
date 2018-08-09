@@ -1505,6 +1505,12 @@ Search across multiple models/indices with:
 Searchkick.search "milk", index_name: [Product, Category]
 ```
 
+Specify conditions for different indices
+
+```ruby
+where: {_or: [{_type: "product", in_stock: true}, {_type: "category", active: true}]}
+```
+
 Boost specific indices with:
 
 ```ruby
