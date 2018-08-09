@@ -1488,18 +1488,18 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-fresh_products = Product.search("fresh", execute: false)
-frozen_products = Product.search("frozen", execute: false)
-Searchkick.multi_search([fresh_products, frozen_products])
+products = Product.search("snacks", execute: false)
+coupons = Coupon.search("snacks", execute: false)
+Searchkick.multi_search([products, coupons])
 ```
 
-Then use `fresh_products` and `frozen_products` as typical results.
+Then use `products` and `coupons` as typical results.
 
-**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
+**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors.
 
 ## Multiple Indices
 
-Search across multiple indices with:
+Search across multiple models/indices with:
 
 ```ruby
 Searchkick.search "milk", index_name: [Product, Category]
