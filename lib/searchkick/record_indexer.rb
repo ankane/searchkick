@@ -20,7 +20,16 @@ module Searchkick
           raise Searchkick::Error, "Partial reindex not supported with queue option"
         end
 
-        index.reindex_queue.push(record.id.to_s)
+        # always pass routing in case record is deleted
+        # before the queue job runs
+        if record.respond_to?(:search_routing)
+          routing = record.search_routing
+        end
+
+        # escape pipe with double pipe
+        value = queue_escape(record.id.to_s)
+        value = "#{value}|#{queue_escape(routing)}" if routing
+        index.reindex_queue.push(value)
       when :async
         unless defined?(ActiveJob)
           raise Searchkick::Error, "Active Job not found"
@@ -46,6 +55,10 @@ module Searchkick
     end
 
     private
+
+    def queue_escape(value)
+      value.gsub("|", "||")
+    end
 
     def reindex_record(method_name)
       if record.destroyed? || !record.persisted? || !record.should_index?

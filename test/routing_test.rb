@@ -31,7 +31,7 @@ class RoutingTest < Minitest::Test
   end
 
   def test_routing_queue
-    skip # unless defined?(ActiveJob) && defined?(Redis)
+    skip unless defined?(ActiveJob) && defined?(Redis)
 
     with_options(Song, routing: true, callbacks: :queue) do
       store_names ["Dollar Tree"], Song
