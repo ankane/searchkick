@@ -26,6 +26,8 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
+        # always pass routing in case record is deleted
+        # before the async job runs
         if record.respond_to?(:search_routing)
           routing = record.search_routing
         end
