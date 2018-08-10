@@ -26,6 +26,8 @@ module Searchkick
           routing = record.search_routing
         end
 
+        # TODO before merge
+        # only escape separator character
         value = CGI.escape(record.id.to_s)
         value = "#{value}|#{CGI.escape(routing)}" if routing
         index.reindex_queue.push(value)
