@@ -529,6 +529,10 @@ end
 
 class Song
   searchkick
+
+  def search_routing
+    name
+  end
 end
 
 Product.searchkick_index.delete if Product.searchkick_index.exists?

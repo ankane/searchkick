@@ -1,3 +1,7 @@
+## 3.1.2 [unreleased]
+
+- Fixed deletes with routing and `async` callbacks
+
 ## 3.1.1
 
 - Added per-field misspellings

@@ -20,4 +20,13 @@ class RoutingTest < Minitest::Test
     store_names ["Dollar Tree"], Store
     assert_search "*", ["Dollar Tree"], {routing: "Boom"}, Store
   end
+
+  def test_routing_async
+    skip unless defined?(ActiveJob)
+
+    with_options(Song, routing: true, callbacks: :async) do
+      store_names ["Dollar Tree"], Song
+      Song.destroy_all
+    end
+  end
 end

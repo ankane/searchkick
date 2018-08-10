@@ -26,10 +26,13 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
+        routing = record.search_routing if record.destroyed? && record.respond_to?(:search_routing)
+
         Searchkick::ReindexV2Job.perform_later(
           record.class.name,
           record.id.to_s,
-          method_name ? method_name.to_s : nil
+          method_name ? method_name.to_s : nil,
+          routing: routing
         )
       else # bulk, inline/true/nil
         reindex_record(method_name)
