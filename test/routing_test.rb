@@ -29,4 +29,14 @@ class RoutingTest < Minitest::Test
       Song.destroy_all
     end
   end
+
+  def test_routing_queue
+    skip # unless defined?(ActiveJob) && defined?(Redis)
+
+    with_options(Song, routing: true, callbacks: :queue) do
+      store_names ["Dollar Tree"], Song
+      Song.destroy_all
+      Searchkick::ProcessQueueJob.perform_later(class_name: "Song")
+    end
+  end
 end
