@@ -4,7 +4,7 @@ module Searchkick
 
     def perform(class_name:, record_ids:)
       # separate routing from id
-      routing = Hash[record_ids.map { |r| r.split("|", 2) }]
+      routing = Hash[record_ids.map { |r| r.split("|").map { |v| CGI.unescape(v) } }]
       record_ids = routing.keys
 
       klass = class_name.constantize

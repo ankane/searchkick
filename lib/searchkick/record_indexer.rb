@@ -26,10 +26,8 @@ module Searchkick
           routing = record.search_routing
         end
 
-        # TODO before merge
-        # escape separator character
-        value = record.id.to_s
-        value = "#{value}|#{routing}" if routing
+        value = CGI.escape(record.id.to_s)
+        value = "#{value}|#{CGI.escape(routing)}" if routing
         index.reindex_queue.push(value)
       when :async
         unless defined?(ActiveJob)
