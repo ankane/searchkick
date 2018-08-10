@@ -26,7 +26,8 @@ module Searchkick
           routing = record.search_routing
         end
 
-        value = [record.id.to_s, routing].join("|")
+        value = record.id.to_s
+        value = "#{value}|#{routing}" if routing
         index.reindex_queue.push(value)
       when :async
         unless defined?(ActiveJob)
