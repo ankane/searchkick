@@ -26,7 +26,7 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
-        if record.destroyed? && record.respond_to?(:search_routing)
+        if record.respond_to?(:search_routing)
           routing = record.search_routing
         end
 
