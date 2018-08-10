@@ -30,7 +30,7 @@ Plus:
 
 ---
 
-Does your startup use Searchkick? Want a free hour of advising? Fill out [this application](https://goo.gl/forms/Or1HQTRb2rgQCNtd2). I’ll reach out to a few companies.
+Does your startup use Searchkick? Want free advising? Fill out [this application](https://goo.gl/forms/Or1HQTRb2rgQCNtd2)
 
 ---
 
