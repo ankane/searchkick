@@ -1738,6 +1738,16 @@ Create index without importing
 Product.reindex(import: false)
 ```
 
+Use a different id
+
+```ruby
+class Product < ApplicationRecord
+  def search_document_id
+    custom_id
+  end
+end
+```
+
 Lazy searching
 
 ```ruby
