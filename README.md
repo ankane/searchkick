@@ -439,6 +439,12 @@ exclude_queries = {
 Product.search query, exclude: exclude_queries[query]
 ```
 
+You can demote results by boosting with a factor less than one:
+
+```ruby
+Product.search("butter", boost_where: {category: {value: "pantry", factor: 0.5}})
+```
+
 ### Emoji
 
 Search :ice_cream::cake: and get `ice cream cake`!
