@@ -1005,11 +1005,14 @@ Dog.search "*"                      # just dogs
 Animal.search "*", type: [Dog, Cat] # just cats and dogs
 ```
 
-**Note:** The `suggest` option retrieves suggestions from the parent at the moment.
+**Notes:**
 
-```ruby
-Dog.search "airbudd", suggest: true # suggestions for all animals
-```
+1. The `suggest` option retrieves suggestions from the parent at the moment.
+
+    ```ruby
+    Dog.search "airbudd", suggest: true # suggestions for all animals
+    ```
+2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take presidence. 
 
 ## Debugging Queries
 
