@@ -467,7 +467,10 @@ class Store
     mappings: {
       store: {
         properties: {
-          name: {type: "keyword"}
+          name: {type: "keyword"},
+          products: {
+            type: 'nested'
+          }
         }
       }
     }
@@ -478,6 +481,15 @@ class Store
 
   def search_routing
     name
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      products: {
+        name: products.last.try(:name),
+        aisle: products.last.try(:aisle)
+      }
+    )
   end
 end
 

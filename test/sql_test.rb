@@ -157,6 +157,49 @@ class SqlTest < Minitest::Test
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
   end
 
+  def test_where_nested
+    store [
+      {name: 'Amazon', products: [Product.create(name: 'ProductA', aisle: 1)]},
+      {name: 'Costco', products: [Product.create(name: 'ProductB', aisle: 2)]},
+      {name: 'Walmart', products: [Product.create(name: 'ProductC', aisle: 3)]}
+    ], Store
+
+    assert_search "store", ["Amazon"], {where: {
+                                         name: 'Amazon',
+                                         nested: {
+                                           path: 'products',
+                                           where: {
+                                             'name' => 'ProductA',
+                                             'aisle' => 1,
+                                           }
+                                         }
+                                       }
+                                     }, Store
+
+    assert_search "store", [], {where: {
+                                         name: 'Amazon',
+                                         nested: {
+                                           path: 'products',
+                                           where: {
+                                             'name' => 'ProductB',
+                                             'aisle' => 1,
+                                           }
+                                         }
+                                       }
+                                     }, Store
+
+    assert_search "store", ['Costco'], {where: {
+                                         nested: {
+                                           path: 'products',
+                                           where: {
+                                             'name' => 'ProductB',
+                                             'aisle' => 2,
+                                           }
+                                         }
+                                       }
+                                     }, Store
+  end
+
   # other tests
 
   def test_includes
