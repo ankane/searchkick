@@ -37,6 +37,30 @@ ActiveRecord::Schema.define do
 
   create_table :stores do |t|
     t.string :name
+    t.json :nested_json
+  end
+
+  create_table :employees do |t|
+    t.string :name
+    t.integer :age
+    t.integer :store_id
+  end
+
+  create_table :time_cards do |t|
+    t.integer :hours
+    t.integer :employee_id
+  end
+
+  create_table :reviews do |t|
+    t.string :name
+    t.integer :stars
+    t.integer :employee_id
+  end
+
+  create_table :comments do |t|
+    t.string :status
+    t.string :message
+    t.integer :review_id
   end
 
   create_table :regions do |t|
@@ -77,8 +101,28 @@ class Product < ActiveRecord::Base
   belongs_to :store
 end
 
+class Review < ActiveRecord::Base
+  belongs_to :employee
+  has_many :comments
+end
+
+class Comment < ActiveRecord::Base
+  belongs_to :review
+end
+
+class Employee < ActiveRecord::Base
+  belongs_to :store
+  has_many :reviews
+  has_many :time_cards
+end
+
+class TimeCard < ActiveRecord::Base
+  belongs_to :employee
+end
+
 class Store < ActiveRecord::Base
   has_many :products
+  has_many :employees
 end
 
 class Region < ActiveRecord::Base

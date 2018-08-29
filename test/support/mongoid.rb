@@ -30,6 +30,13 @@ class Store
   field :name
 end
 
+class Review
+  include Mongoid::Document
+  belongs_to :product
+
+  field :name
+end
+
 class Region
   include Mongoid::Document
 

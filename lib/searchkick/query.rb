@@ -21,7 +21,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where, :nested]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -144,7 +144,8 @@ module Searchkick
         total_entries: options[:total_entries],
         index_mapping: @index_mapping,
         suggest: options[:suggest],
-        scroll: options[:scroll]
+        scroll: options[:scroll],
+        nested: options[:nested]
       }
 
       if options[:debug]
@@ -270,7 +271,7 @@ module Searchkick
         ignored_options = options.keys & [:aggs, :boost,
           :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :match, :misspellings, :operator, :order,
-          :profile, :select, :smart_aggs, :suggest, :where]
+          :profile, :select, :smart_aggs, :suggest, :where, :nested]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
@@ -470,6 +471,7 @@ module Searchkick
 
         # start everything as efficient filters
         # move to post_filters as aggs demand
+
         filters = where_filters(where)
         post_filters = []
 
@@ -584,6 +586,32 @@ module Searchkick
           [default_match == :word ? "*.analyzed" : "*.#{default_match}"]
         end
       [boost_fields, fields]
+    end
+
+    def nested_query(nested, filters)
+      nested = nested.delete(:nested)
+      filters.reject!(&:none?)
+
+      # find next nested document and recursively build
+      # query again if one exists
+      additional_nested = filters.detect { |f| f.include?(:nested) }
+      query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
+
+      # Handle multiple nested sibling queries which will
+      # be an array here. Insert the array into a
+      # bool: must: array
+      if query.is_a?(Array)
+        query = { bool:
+                  { must: query }
+                }
+      end
+
+      { nested:
+        {
+          path: nested[:path],
+          query: query
+        }
+      }
     end
 
     def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
@@ -892,6 +920,11 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
+
+        # Ensure nested JSON field keys are symbols
+        # and not strings for processing below
+        value.try(:deep_symbolize_keys!)
+
         field = :_id if field.to_s == "id"
 
         if field == :or
@@ -904,6 +937,11 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
+        elsif field.to_sym == :nested
+          Array.wrap(value).each { |v| filters << nested_filters(v) }
+        elsif value.try(:keys).try(:include?, :nested)
+          # Handle nested field containing JSON data
+          Array.wrap(value).each { |v| filters << nested_filters(value[:nested]) }
         # elsif field == :_script
         #   filters << {script: {script: {source: value, lang: "painless"}}}
         else
@@ -1027,6 +1065,25 @@ module Searchkick
         end
       end
       filters
+    end
+
+    def nested_filters(value)
+      nested_where = {}
+      value[:where].each do |key, val|
+        key = "#{value[:path]}.#{key}" if key != :nested
+        nested_where.merge!({key => val})
+      end
+
+      {
+        nested: {
+          path: value[:path],
+          query: {
+            bool: {
+              must: where_filters(nested_where)
+            }
+          }
+        }
+      }
     end
 
     def term_filters(field, value)

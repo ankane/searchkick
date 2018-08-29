@@ -104,6 +104,7 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_string_operators
+    skip # Foundry supports the stringular operators
     error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
     end

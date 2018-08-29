@@ -8,7 +8,7 @@ tenants = ["tenant1", "tenant2"]
 Apartment.configure do |config|
   config.tenant_names = tenants
   config.database_schema_file = false
-  config.excluded_models = ["Product", "Store", "Region", "Speaker", "Animal", "Dog", "Cat", "Sku", "Song", "Band"]
+  config.excluded_models = ["Product", "Store", "Region", "Speaker", "Animal", "Dog", "Cat", "Sku", "Song", "Band", "Review"]
 end
 
 class Tenant < ActiveRecord::Base

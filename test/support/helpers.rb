@@ -21,6 +21,12 @@ class Minitest::Test
     setup_model(Speaker)
   end
 
+  def setup_nested_models
+    [Comment, Employee, Review, TimeCard].each do |model|
+      setup_model(model)
+    end
+  end
+
   def setup_model(model)
     # reindex once
     ($setup_model ||= {})[model] ||= (model.reindex || true)

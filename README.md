@@ -2,6 +2,81 @@
 
 :rocket: Intelligent search made easy
 
+---
+
+## ! Custom Foundry features presenting in this fork only !
+
+### Nested queries
+
+Everfi engineering forked this repo and added advanced nested query support to avoid using the ES DSL. We now support multiple nested queries via `and/or`. In both cases we will wrap an `and/or` operation around all nested queries. Further more, in both scenarios the nested where clauses utilize the `and` boolean operation.
+
+Example 1: Multiple nested queries via `and`
+```ruby
+User.search(where: {
+  _and: [
+    {
+      "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    },
+    {
+     "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    }
+  ]
+})
+```
+
+Example 2: Multiple nested queries via `or`
+```ruby
+User.search(where: {
+  _or: [
+    {
+      "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    },
+    {
+     "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    }
+  ]
+})
+```
+
+Example 3: Single nested query
+```ruby
+User.search(where: {
+  "nested"=>{
+    "path"=>"some path",
+    "where"=>{}
+  }
+})
+```
+
+Example 3: Single nested query with inner nested queries
+```ruby
+User.search(where: {
+  "nested"=>{
+    "path"=>"some path",
+    "where"=>{
+      "nested"=>{
+        "path"=>"some path",
+        "where"=>{}
+      }
+    }
+  }
+})
+```
+
+---
+
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
 
 Searchkick handles:
