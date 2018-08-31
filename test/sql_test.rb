@@ -177,7 +177,10 @@ class SqlTest < Minitest::Test
 
   def test_where_nested
     store [
-      {name: 'Amazon', employees: [Employee.create(name: 'Jim', age: 22, reviews: [Review.create(name: 'Review A')])]},
+      {name: 'Amazon', employees: [
+        Employee.create(name: 'Jim', age: 22, reviews: [Review.create(name: 'Review A')]),
+        Employee.create(name: 'Jamie', age: 32, reviews: [Review.create(name: 'Review C')])
+      ]},
       {name: 'Costco', employees: [Employee.create(name: 'Bob', age: 34, reviews: [Review.create(name: 'Review B')])]},
       {name: 'Walmart', employees: [Employee.create(name: 'Karen', age: 19, reviews: [Review.create(name: 'Review C')])]}
     ], Store
@@ -231,6 +234,44 @@ class SqlTest < Minitest::Test
                                          }
                                        }
                                      }, Store
+
+
+    # With all
+    result = Store.search "*", {where:
+                                 {nested: {
+                                   path: 'employees',
+                                   where: {
+                                     name: 'Jamie'
+                                   }
+                                 }}
+                               }
+
+    assert_equal result.results.first.name, 'Amazon'
+
+    result = Store.search "*", {where:
+                                 {nested: {
+                                   path: 'employees',
+                                   where: {
+                                     name: 'Bob'
+                                   }
+                                 }}
+                               }
+
+    assert_equal result.results.first.name, 'Costco'
+
+    # With range
+    result = Store.search "*", {where:
+                                 {nested: {
+                                   path: 'employees',
+                                   where: {
+                                     age: {
+                                       lt: 20
+                                     }
+                                   }
+                                 }}
+                               }
+
+    assert_equal result.results.first.name, 'Walmart'
   end
 
   # other tests

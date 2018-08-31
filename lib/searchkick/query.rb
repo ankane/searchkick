@@ -522,9 +522,10 @@ module Searchkick
     def build_nested(bool, filters, query=[])
       nested = filters.select{|f| f.include?(:nested) }.first
       if nested.present?
+        return bool if bool.dig(:must, :match_all)
         nested = nested.delete(:nested)
         filters.reject!(&:none?)
-        storage = bool.dig(:must, :dis_max, :queries) || bool.dig(:must, :match_all)
+        storage = bool.dig(:must, :dis_max, :queries)
         storage <<
         {
           nested:

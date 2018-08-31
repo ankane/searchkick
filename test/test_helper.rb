@@ -542,14 +542,17 @@ class Store
   end
 
   def search_data
-    serializable_hash.except("id", "_id").merge(
-      employees: {
-        name: employees.last.try(:name),
-        age: employees.last.try(:age),
+    data = {employees: []}
+    employees.map{|e| data[:employees] << {
+        name: e.try(:name),
+        age: e.try(:age),
         reviews: {
-          name: employees.last.try(:reviews).try(:last).try(:name)
+          name: e.try(:reviews).try(:last).try(:name)
         }
       }
+    }
+    serializable_hash.except("id", "_id").merge(
+      data
     )
   end
 end
