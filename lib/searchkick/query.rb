@@ -519,17 +519,18 @@ module Searchkick
       [boost_fields, fields]
     end
 
-    def build_nested(bool, filters)
+    def build_nested(bool, filters, query=[])
       nested = filters.select{|f| f.include?(:nested) }.first
       if nested.present?
         nested = nested.delete(:nested)
         filters.reject!(&:none?)
-        bool[:must][:dis_max][:queries] <<
+        storage = bool.dig(:must, :dis_max, :queries) || bool.dig(:must, :match_all)
+        storage <<
         {
           nested:
             {
               path: nested[:path],
-              query: build_query(nested[:query], [], [], [], [], [])
+              query: query.any? ? build_nested(bool, filters) : nested[:query]
             }
         }
       end
@@ -565,7 +566,6 @@ module Searchkick
           }
         }
       end
-
       query
     end
 
@@ -854,7 +854,8 @@ module Searchkick
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
           value[:where].each do |k,v|
-            value[:where] = {"#{value[:path]}.#{k}" => v}
+            key = k != :nested ? "#{value[:path]}.#{k}" : k
+            value[:where] = {key => v}
             filters << {
               nested: {
                 path: value[:path],

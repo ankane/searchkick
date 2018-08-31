@@ -157,11 +157,29 @@ class SqlTest < Minitest::Test
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
   end
 
+  def test_nested_one_level
+    store [
+      {name: 'ProductA', aisle: 1, reviews: [Review.create(name: 'Review A')]},
+      {name: 'ProductB', aisle: 2, reviews: [Review.create(name: 'Review B')]},
+      {name: 'ProductC', aisle: 3, reviews: [Review.create(name: 'Review C')]}
+    ], Product
+
+    assert_search "product", ['ProductB'], {where: {
+                                                 nested: {
+                                                   path: 'reviews',
+                                                   where: {
+                                                     name: 'Review B'
+                                                   }
+                                                 }
+                                               }
+                                           }, Product
+  end
+
   def test_where_nested
     store [
-      {name: 'Amazon', products: [Product.create(name: 'ProductA', aisle: 1)]},
-      {name: 'Costco', products: [Product.create(name: 'ProductB', aisle: 2)]},
-      {name: 'Walmart', products: [Product.create(name: 'ProductC', aisle: 3)]}
+      {name: 'Amazon', products: [Product.create(name: 'ProductA', aisle: 1, reviews: [Review.create(name: 'Review A')])]},
+      {name: 'Costco', products: [Product.create(name: 'ProductB', aisle: 2, reviews: [Review.create(name: 'Review B')])]},
+      {name: 'Walmart', products: [Product.create(name: 'ProductC', aisle: 3, reviews: [Review.create(name: 'Review C')])]}
     ], Store
 
     assert_search "store", ["Amazon"], {where: {
@@ -194,6 +212,22 @@ class SqlTest < Minitest::Test
                                            where: {
                                              'name' => 'ProductB',
                                              'aisle' => 2,
+                                           }
+                                         }
+                                       }
+                                     }, Store
+
+
+    assert_search "store", ['Costco'], {where: {
+                                         nested: {
+                                           path: 'products',
+                                           where: {
+                                             nested: {
+                                               path: 'products.reviews',
+                                               where: {
+                                                 name: 'Review B'
+                                               }
+                                             }
                                            }
                                          }
                                        }

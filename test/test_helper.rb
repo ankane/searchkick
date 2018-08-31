@@ -79,6 +79,13 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Review
+    include Mongoid::Document
+    belongs_to :product
+
+    field :name
+  end
+
   class Region
     include Mongoid::Document
 
@@ -146,6 +153,14 @@ elsif defined?(NoBrainer)
 
     field :id,   type: Object
     field :name, type: String
+  end
+
+  class Review
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+    belongs_to :product, validates: false
   end
 
   class Region
@@ -235,6 +250,19 @@ elsif defined?(Cequel)
     end
   end
 
+  class Review
+    include Cequel::Record
+
+    key :id, :timeuuid, auto: true
+    column :name, :text
+
+    def search_data
+      {
+        name: name
+      }
+    end
+  end
+
   class Region
     include Cequel::Record
 
@@ -284,7 +312,7 @@ elsif defined?(Cequel)
     column :name, :text
   end
 
-  [Product, Store, Region, Speaker, Animal, Sku, Song].each(&:synchronize_schema)
+  [Product, Store, Review, Region, Speaker, Animal, Sku, Song].each(&:synchronize_schema)
 else
   require "active_record"
 
@@ -311,7 +339,7 @@ else
     Apartment.configure do |config|
       config.tenant_names = tenants
       config.database_schema_file = false
-      config.excluded_models = ["Product", "Store", "Animal", "Dog", "Cat"]
+      config.excluded_models = ["Product", "Store", "Animal", "Dog", "Cat", "Review"]
     end
 
     class Tenant < ActiveRecord::Base
@@ -357,6 +385,11 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :reviews do |t|
+    t.string :name
+    t.integer :product_id
+  end
+
   ActiveRecord::Migration.create_table :regions do |t|
     t.string :name
     t.text :text
@@ -381,6 +414,11 @@ else
 
   class Product < ActiveRecord::Base
     belongs_to :store
+    has_many :reviews
+  end
+
+  class Review < ActiveRecord::Base
+    belongs_to :product
   end
 
   class Store < ActiveRecord::Base
@@ -432,9 +470,21 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    filterable: [:name, :color, :description],
+    #filterable: [:name, :color, :description],
     similarity: "BM25",
-    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
+    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      product: {
+        properties: {
+          name: {type: "keyword"},
+          reviews: {
+            type: 'nested'
+          }
+        }
+      }
+    }
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 
@@ -445,7 +495,10 @@ class Product
       location: {lat: latitude, lon: longitude},
       multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
       aisle: aisle,
-      details: details
+      details: details,
+      reviews: {
+        name: reviews.last.try(:name)
+      }
     )
   end
 
@@ -458,6 +511,10 @@ class Product
       name: name
     }
   end
+
+  def search_routing
+    name
+  end
 end
 
 class Store
@@ -469,7 +526,12 @@ class Store
         properties: {
           name: {type: "keyword"},
           products: {
-            type: 'nested'
+            type: 'nested',
+            properties: {
+              reviews: {
+                type: 'nested'
+              }
+            }
           }
         }
       }
@@ -487,8 +549,38 @@ class Store
     serializable_hash.except("id", "_id").merge(
       products: {
         name: products.last.try(:name),
-        aisle: products.last.try(:aisle)
+        aisle: products.last.try(:aisle),
+        reviews: {
+          name: products.last.try(:reviews).try(:last).try(:name)
+        }
       }
+    )
+  end
+end
+
+class Review
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      review: {
+        properties: {
+          name: {type: "keyword"}
+        }
+      }
+    }
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    name
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      name: name
     )
   end
 end
@@ -556,6 +648,7 @@ Store.reindex
 Animal.reindex
 Speaker.reindex
 Region.reindex
+Review.reindex
 
 class Minitest::Test
   def setup
@@ -563,6 +656,7 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Review.destroy_all
   end
 
   protected
