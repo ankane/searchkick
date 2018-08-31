@@ -385,9 +385,15 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :employees do |t|
+    t.string :name
+    t.integer :age
+    t.integer :store_id
+  end
+
   ActiveRecord::Migration.create_table :reviews do |t|
     t.string :name
-    t.integer :product_id
+    t.integer :employee_id
   end
 
   ActiveRecord::Migration.create_table :regions do |t|
@@ -414,15 +420,20 @@ else
 
   class Product < ActiveRecord::Base
     belongs_to :store
-    has_many :reviews
   end
 
   class Review < ActiveRecord::Base
-    belongs_to :product
+    belongs_to :employee
+  end
+
+  class Employee < ActiveRecord::Base
+    belongs_to :store
+    has_many :reviews
   end
 
   class Store < ActiveRecord::Base
     has_many :products
+    has_many :employees
   end
 
   class Region < ActiveRecord::Base
@@ -470,21 +481,9 @@ class Product
     word_middle: [:name],
     word_end: [:name],
     highlight: [:name],
-    #filterable: [:name, :color, :description],
+    filterable: [:name, :color, :description],
     similarity: "BM25",
-    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
-    routing: true,
-    merge_mappings: true,
-    mappings: {
-      product: {
-        properties: {
-          name: {type: "keyword"},
-          reviews: {
-            type: 'nested'
-          }
-        }
-      }
-    }
+    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 
@@ -495,10 +494,7 @@ class Product
       location: {lat: latitude, lon: longitude},
       multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
       aisle: aisle,
-      details: details,
-      reviews: {
-        name: reviews.last.try(:name)
-      }
+      details: details
     )
   end
 
@@ -525,7 +521,7 @@ class Store
       store: {
         properties: {
           name: {type: "keyword"},
-          products: {
+          employees: {
             type: 'nested',
             properties: {
               reviews: {
@@ -547,11 +543,11 @@ class Store
 
   def search_data
     serializable_hash.except("id", "_id").merge(
-      products: {
-        name: products.last.try(:name),
-        aisle: products.last.try(:aisle),
+      employees: {
+        name: employees.last.try(:name),
+        age: employees.last.try(:age),
         reviews: {
-          name: products.last.try(:reviews).try(:last).try(:name)
+          name: employees.last.try(:reviews).try(:last).try(:name)
         }
       }
     )
@@ -581,6 +577,41 @@ class Review
   def search_data
     serializable_hash.except("id", "_id").merge(
       name: name
+    )
+  end
+end
+
+class Employee
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      employee: {
+        properties: {
+          name: {type: "keyword"},
+          age: {type: "keyword"},
+          reviews: {
+            type: 'nested'
+          }
+        }
+      }
+    }
+
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    name
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      name: name,
+      reviews: {
+        name: reviews.last.try(:name)
+      }
     )
   end
 end
@@ -649,6 +680,7 @@ Animal.reindex
 Speaker.reindex
 Region.reindex
 Review.reindex
+Employee.reindex
 
 class Minitest::Test
   def setup
@@ -657,6 +689,7 @@ class Minitest::Test
     Animal.destroy_all
     Speaker.destroy_all
     Review.destroy_all
+    Employee.destroy_all
   end
 
   protected

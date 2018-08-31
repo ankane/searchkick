@@ -159,12 +159,12 @@ class SqlTest < Minitest::Test
 
   def test_nested_one_level
     store [
-      {name: 'ProductA', aisle: 1, reviews: [Review.create(name: 'Review A')]},
-      {name: 'ProductB', aisle: 2, reviews: [Review.create(name: 'Review B')]},
-      {name: 'ProductC', aisle: 3, reviews: [Review.create(name: 'Review C')]}
-    ], Product
+      {name: 'Jim', reviews: [Review.create(name: 'Review A')]},
+      {name: 'Bob', reviews: [Review.create(name: 'Review B')]},
+      {name: 'Karen', reviews: [Review.create(name: 'Review C')]}
+    ], Employee
 
-    assert_search "product", ['ProductB'], {where: {
+    assert_search "Employee", ['Bob'], {where: {
                                                  nested: {
                                                    path: 'reviews',
                                                    where: {
@@ -172,23 +172,22 @@ class SqlTest < Minitest::Test
                                                    }
                                                  }
                                                }
-                                           }, Product
+                                           }, Employee
   end
 
   def test_where_nested
     store [
-      {name: 'Amazon', products: [Product.create(name: 'ProductA', aisle: 1, reviews: [Review.create(name: 'Review A')])]},
-      {name: 'Costco', products: [Product.create(name: 'ProductB', aisle: 2, reviews: [Review.create(name: 'Review B')])]},
-      {name: 'Walmart', products: [Product.create(name: 'ProductC', aisle: 3, reviews: [Review.create(name: 'Review C')])]}
+      {name: 'Amazon', employees: [Employee.create(name: 'Jim', age: 22, reviews: [Review.create(name: 'Review A')])]},
+      {name: 'Costco', employees: [Employee.create(name: 'Bob', age: 34, reviews: [Review.create(name: 'Review B')])]},
+      {name: 'Walmart', employees: [Employee.create(name: 'Karen', age: 19, reviews: [Review.create(name: 'Review C')])]}
     ], Store
 
     assert_search "store", ["Amazon"], {where: {
                                          name: 'Amazon',
                                          nested: {
-                                           path: 'products',
+                                           path: 'employees',
                                            where: {
-                                             'name' => 'ProductA',
-                                             'aisle' => 1,
+                                             'name' => 'Jim'
                                            }
                                          }
                                        }
@@ -197,10 +196,10 @@ class SqlTest < Minitest::Test
     assert_search "store", [], {where: {
                                          name: 'Amazon',
                                          nested: {
-                                           path: 'products',
+                                           path: 'employees',
                                            where: {
-                                             'name' => 'ProductB',
-                                             'aisle' => 1,
+                                             'name' => 'Karen',
+                                             'age' => 1,
                                            }
                                          }
                                        }
@@ -208,10 +207,10 @@ class SqlTest < Minitest::Test
 
     assert_search "store", ['Costco'], {where: {
                                          nested: {
-                                           path: 'products',
+                                           path: 'employees',
                                            where: {
-                                             'name' => 'ProductB',
-                                             'aisle' => 2,
+                                             'name' => 'Bob',
+                                             'age' => 34,
                                            }
                                          }
                                        }
@@ -220,10 +219,10 @@ class SqlTest < Minitest::Test
 
     assert_search "store", ['Costco'], {where: {
                                          nested: {
-                                           path: 'products',
+                                           path: 'employees',
                                            where: {
                                              nested: {
-                                               path: 'products.reviews',
+                                               path: 'employees.reviews',
                                                where: {
                                                  name: 'Review B'
                                                }
