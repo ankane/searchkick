@@ -426,6 +426,9 @@ module Searchkick
         # post filters
         set_post_filters(payload, post_filters) if post_filters.any?
 
+        # first nested where
+        nested = filters.select{|f| f.include?(:nested) }.first
+
         custom_filters = []
         multiply_filters = []
 
@@ -434,7 +437,7 @@ module Searchkick
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
 
-        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
+        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
 
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
@@ -519,32 +522,40 @@ module Searchkick
       [boost_fields, fields]
     end
 
-    def build_nested(bool, filters, query=[])
-      nested = filters.select{|f| f.include?(:nested) }.first
-      if nested.present?
-        return bool if bool.dig(:must, :match_all)
-        nested = nested.delete(:nested)
-        filters.reject!(&:none?)
-        storage = bool.dig(:must, :dis_max, :queries)
-        storage <<
-        {
-          nested:
-            {
-              path: nested[:path],
-              query: query.any? ? build_nested(bool, filters) : nested[:query]
-            }
+    def nested_query(nested, filters)
+      nested = nested.delete(:nested)
+      filters.reject!(&:none?)
+      additional_nested = filters.select{|f| f.include?(:nested) }.first
+      query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
+      q = if query.class == Array
+        { bool:
+          { must: query }
         }
+      else
+        query
       end
+      { nested:
+          {
+            path: nested[:path],
+            query: q
+          }
+      }
+    end
+
+    def build_nested(bool, nested, filters)
+      return bool if bool.dig(:must, :match_all)
+      storage = bool.dig(:must, :dis_max, :queries)
+      storage << nested_query(nested, filters)
       bool
     end
 
-    def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
+    def build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
       if filters.any? || must_not.any? || should.any?
         bool = {must: query}
         bool[:filter] = filters if filters.any?      # where
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
-        bool = build_nested(bool, filters)
+        bool = build_nested(bool, nested, filters) if nested # nested query
         query = {bool: bool}
       end
 
@@ -854,16 +865,17 @@ module Searchkick
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
+          nested_where = {}
           value[:where].each do |k,v|
             key = k != :nested ? "#{value[:path]}.#{k}" : k
-            value[:where] = {key => v}
-            filters << {
-              nested: {
-                path: value[:path],
-                query: where_filters(value[:where]).first
-              }
-            }
+            nested_where.merge!({key => v})
           end
+          filters << {
+            nested: {
+              path: value[:path],
+              query: where_filters(nested_where)
+            }
+          }
         else
           # expand ranges
           if value.is_a?(Range)

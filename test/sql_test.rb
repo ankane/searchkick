@@ -235,6 +235,21 @@ class SqlTest < Minitest::Test
                                        }
                                      }, Store
 
+    assert_search "store", ['Amazon', 'Walmart'], {where: {
+                                         nested: {
+                                           path: 'employees',
+                                           where: {
+                                             nested: {
+                                               path: 'employees.reviews',
+                                               where: {
+                                                 name: 'Review C'
+                                               }
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }, Store
+
 
     # With all
     result = Store.search "*", {where:
@@ -272,6 +287,25 @@ class SqlTest < Minitest::Test
                                }
 
     assert_equal result.results.first.name, 'Walmart'
+
+    assert_search "store", ['Walmart'], {where: {
+                                         nested: {
+                                           path: 'employees',
+                                           where: {
+                                             age: {
+                                               lt: 20
+                                             },
+                                             nested: {
+                                               path: 'employees.reviews',
+                                               where: {
+                                                 name: 'Review C'
+                                               }
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }, Store
+
   end
 
   # other tests
