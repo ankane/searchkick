@@ -178,11 +178,23 @@ class SqlTest < Minitest::Test
   def test_where_nested
     store [
       {name: 'Amazon', employees: [
-        Employee.create(name: 'Jim', age: 22, reviews: [Review.create(name: 'Review A')]),
-        Employee.create(name: 'Jamie', age: 32, reviews: [Review.create(name: 'Review C')])
+        Employee.create(name: 'Jim', age: 22, reviews: [
+          Review.create(name: 'Review A', stars: 3, comments: [Comment.create(status: 'denied')])
+        ]),
+        Employee.create(name: 'Jamie', age: 32, reviews: [
+          Review.create(name: 'Review C', stars: 5, comments: [Comment.create(status: 'denied')])
+        ])
       ]},
-      {name: 'Costco', employees: [Employee.create(name: 'Bob', age: 34, reviews: [Review.create(name: 'Review B')])]},
-      {name: 'Walmart', employees: [Employee.create(name: 'Karen', age: 19, reviews: [Review.create(name: 'Review C')])]}
+      {name: 'Costco', employees: [
+        Employee.create(name: 'Bob', age: 34, reviews: [
+          Review.create(name: 'Review B', stars: 2, comments: [Comment.create(status: 'approved')])
+        ])
+      ]},
+      {name: 'Walmart', employees: [
+        Employee.create(name: 'Karen', age: 19, reviews: [
+          Review.create(name: 'Review C', stars: 4, comments: [Comment.create(status: 'approved')])
+        ])
+      ]}
     ], Store
 
     assert_search "store", ["Amazon"], {where: {
@@ -298,7 +310,16 @@ class SqlTest < Minitest::Test
                                              nested: {
                                                path: 'employees.reviews',
                                                where: {
-                                                 name: 'Review C'
+                                                 name: 'Review C',
+                                                 stars: {
+                                                   gt: 3
+                                                 },
+                                                 nested: {
+                                                   path: 'employees.reviews.comments',
+                                                   where: {
+                                                     status: 'approved'
+                                                   }
+                                                 }
                                                }
                                              }
                                            }

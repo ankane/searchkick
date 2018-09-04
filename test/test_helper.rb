@@ -393,7 +393,14 @@ else
 
   ActiveRecord::Migration.create_table :reviews do |t|
     t.string :name
+    t.integer :stars
     t.integer :employee_id
+  end
+
+  ActiveRecord::Migration.create_table :comments do |t|
+    t.string :status
+    t.string :message
+    t.integer :review_id
   end
 
   ActiveRecord::Migration.create_table :regions do |t|
@@ -424,6 +431,11 @@ else
 
   class Review < ActiveRecord::Base
     belongs_to :employee
+    has_many :comments
+  end
+
+  class Comment < ActiveRecord::Base
+    belongs_to :review
   end
 
   class Employee < ActiveRecord::Base
@@ -525,7 +537,12 @@ class Store
             type: 'nested',
             properties: {
               reviews: {
-                type: 'nested'
+                type: 'nested',
+                properties: {
+                  comments: {
+                    type: 'nested'
+                  }
+                }
               }
             }
           }
@@ -547,7 +564,11 @@ class Store
         name: e.try(:name),
         age: e.try(:age),
         reviews: {
-          name: e.try(:reviews).try(:last).try(:name)
+          name: e.try(:reviews).try(:last).try(:name),
+          stars: e.try(:reviews).try(:last).try(:stars),
+          comments: {
+            status: e.try(:reviews).try(:last).try(:comments).try(:last).try(:status)
+          }
         }
       }
     }
@@ -564,7 +585,8 @@ class Review
     mappings: {
       review: {
         properties: {
-          name: {type: "keyword"}
+          name: {type: "keyword"},
+          stars: {type: "keyword"}
         }
       }
     }
@@ -579,7 +601,37 @@ class Review
 
   def search_data
     serializable_hash.except("id", "_id").merge(
-      name: name
+      name: name,
+      stars: stars
+    )
+  end
+end
+
+class Comment
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      comment: {
+        properties: {
+          status: {type: "keyword"},
+          message: {type: "keyword"}
+        }
+      }
+    }
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    status
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      status: status,
+      message: message 
     )
   end
 end
@@ -684,6 +736,7 @@ Speaker.reindex
 Region.reindex
 Review.reindex
 Employee.reindex
+Comment.reindex
 
 class Minitest::Test
   def setup
@@ -693,6 +746,7 @@ class Minitest::Test
     Speaker.destroy_all
     Review.destroy_all
     Employee.destroy_all
+    Comment.destroy_all
   end
 
   protected
