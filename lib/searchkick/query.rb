@@ -578,6 +578,7 @@ module Searchkick
           }
         }
       end
+
       query
     end
 

@@ -271,6 +271,20 @@ class SqlTest < Minitest::Test
                                                     }
                                                   }, Store
 
+    assert_search "store", [], { where: {
+                                          nested: {
+                                            path: 'employees',
+                                            where: {
+                                              nested: {
+                                                path: 'employees.reviews',
+                                                where: {
+                                                  name: 'Review F'
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }, Store
 
     # With all
     result = Store.search "*", { where: {
@@ -360,6 +374,32 @@ class SqlTest < Minitest::Test
                                                      }
                                                    }
                                                  }, Store
+  end
+
+  def test_nested_json
+    store [
+      {name: 'Jim', reviews: [Review.create(name: 'Review A')]},
+      {name: 'Bob', reviews: [Review.create(name: 'Review B')]},
+      {name: 'Karen', reviews: [Review.create(name: 'Review C')]}
+    ], Employee
+
+    result = Employee.search({ body: {
+                                 query: {
+                                   nested: {
+                                     path: 'reviews',
+                                       query: {
+                                         bool: {
+                                           must: [
+                                             { match: {'reviews.name' => 'Review B'} }
+                                           ]
+                                         }
+                                       }
+                                     }
+                                   }
+                                }
+                             })
+
+    assert_equal result.results.first.name, 'Bob'
   end
 
   # other tests
