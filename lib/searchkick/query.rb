@@ -527,17 +527,17 @@ module Searchkick
       filters.reject!(&:none?)
       additional_nested = filters.select{|f| f.include?(:nested) }.first
       query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
-      q = if query.class == Array
+
+      query = if query.class == Array
         { bool:
           { must: query }
         }
-      else
-        query
       end
+
       { nested:
           {
             path: nested[:path],
-            query: q
+            query: query
           }
       }
     end
@@ -866,9 +866,9 @@ module Searchkick
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
           nested_where = {}
-          value[:where].each do |k,v|
-            key = k != :nested ? "#{value[:path]}.#{k}" : k
-            nested_where.merge!({key => v})
+          value[:where].each do |key, val|
+            key = "#{value[:path]}.#{key}" if key != :nested
+            nested_where.merge!({key => val})
           end
           filters << {
             nested: {

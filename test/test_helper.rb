@@ -563,11 +563,16 @@ class Store
     employees.map{|e| data[:employees] << {
         name: e.try(:name),
         age: e.try(:age),
-        reviews: {
-          name: e.try(:reviews).try(:last).try(:name),
-          stars: e.try(:reviews).try(:last).try(:stars),
-          comments: {
-            status: e.try(:reviews).try(:last).try(:comments).try(:last).try(:status)
+        reviews: e.try(:reviews).collect{ |r|
+          {
+            name: r.try(:name),
+            stars: r.try(:stars),
+            comments: r.comments.collect{ |c|
+              {
+                status: c.try(:status),
+                message: c.try(:message)
+              }
+            }
           }
         }
       }

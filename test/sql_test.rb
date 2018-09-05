@@ -179,154 +179,187 @@ class SqlTest < Minitest::Test
     store [
       {name: 'Amazon', employees: [
         Employee.create(name: 'Jim', age: 22, reviews: [
-          Review.create(name: 'Review A', stars: 3, comments: [Comment.create(status: 'denied')])
+          Review.create(name: 'Review A', stars: 3, comments: [
+            Comment.create(status: 'denied', message: 'bad')
+          ])
         ]),
         Employee.create(name: 'Jamie', age: 32, reviews: [
-          Review.create(name: 'Review C', stars: 5, comments: [Comment.create(status: 'denied')])
+          Review.create(name: 'Review C', stars: 5, comments: [
+            Comment.create(status: 'denied', message: 'bad')
+          ])
         ])
       ]},
       {name: 'Costco', employees: [
         Employee.create(name: 'Bob', age: 34, reviews: [
-          Review.create(name: 'Review B', stars: 2, comments: [Comment.create(status: 'approved')])
+          Review.create(name: 'Review B', stars: 2, comments: [
+            Comment.create(status: 'approved', message: 'good')
+          ])
         ])
       ]},
       {name: 'Walmart', employees: [
         Employee.create(name: 'Karen', age: 19, reviews: [
-          Review.create(name: 'Review C', stars: 4, comments: [Comment.create(status: 'approved')])
+          Review.create(name: 'Review C', stars: 4, comments: [
+            Comment.create(status: 'approved', message: 'good'),
+            Comment.create(status: 'denied', message: 'good')
+          ])
         ])
       ]}
     ], Store
 
-    assert_search "store", ["Amazon"], {where: {
-                                         name: 'Amazon',
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             'name' => 'Jim'
-                                           }
-                                         }
-                                       }
-                                     }, Store
-
-    assert_search "store", [], {where: {
-                                         name: 'Amazon',
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             'name' => 'Karen',
-                                             'age' => 1,
-                                           }
-                                         }
-                                       }
-                                     }, Store
-
-    assert_search "store", ['Costco'], {where: {
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             'name' => 'Bob',
-                                             'age' => 34,
-                                           }
-                                         }
-                                       }
-                                     }, Store
-
-
-    assert_search "store", ['Costco'], {where: {
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             nested: {
-                                               path: 'employees.reviews',
-                                               where: {
-                                                 name: 'Review B'
-                                               }
+    assert_search "store", ["Amazon"], { where: {
+                                           name: 'Amazon',
+                                           nested: {
+                                             path: 'employees',
+                                             where: {
+                                               'name' => 'Jim'
                                              }
                                            }
                                          }
-                                       }
-                                     }, Store
+                                       }, Store
 
-    assert_search "store", ['Amazon', 'Walmart'], {where: {
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             nested: {
-                                               path: 'employees.reviews',
-                                               where: {
-                                                 name: 'Review C'
-                                               }
-                                             }
-                                           }
-                                         }
-                                       }
-                                     }, Store
-
-
-    # With all
-    result = Store.search "*", {where:
-                                 {nested: {
-                                   path: 'employees',
-                                   where: {
-                                     name: 'Jamie'
-                                   }
-                                 }}
-                               }
-
-    assert_equal result.results.first.name, 'Amazon'
-
-    result = Store.search "*", {where:
-                                 {nested: {
-                                   path: 'employees',
-                                   where: {
-                                     name: 'Bob'
-                                   }
-                                 }}
-                               }
-
-    assert_equal result.results.first.name, 'Costco'
-
-    # With range
-    result = Store.search "*", {where:
-                                 {nested: {
-                                   path: 'employees',
-                                   where: {
-                                     age: {
-                                       lt: 20
+    assert_search "store", [], { where: {
+                                   name: 'Amazon',
+                                   nested: {
+                                     path: 'employees',
+                                     where: {
+                                       'name' => 'Karen',
+                                       'age' => 1,
                                      }
                                    }
-                                 }}
-                               }
+                                 }
+                               }, Store
 
-    assert_equal result.results.first.name, 'Walmart'
+    assert_search "store", ['Costco'], { where: {
+                                           nested: {
+                                             path: 'employees',
+                                             where: {
+                                               'name' => 'Bob',
+                                               'age' => 34,
+                                             }
+                                           }
+                                         }
+                                       }, Store
 
-    assert_search "store", ['Walmart'], {where: {
-                                         nested: {
-                                           path: 'employees',
-                                           where: {
-                                             age: {
-                                               lt: 20
-                                             },
-                                             nested: {
-                                               path: 'employees.reviews',
-                                               where: {
-                                                 name: 'Review C',
-                                                 stars: {
-                                                   gt: 3
-                                                 },
-                                                 nested: {
-                                                   path: 'employees.reviews.comments',
-                                                   where: {
-                                                     status: 'approved'
-                                                   }
+
+    assert_search "store", ['Costco'], { where: {
+                                           nested: {
+                                             path: 'employees',
+                                             where: {
+                                               nested: {
+                                                 path: 'employees.reviews',
+                                                 where: {
+                                                   name: 'Review B'
                                                  }
                                                }
                                              }
                                            }
                                          }
-                                       }
-                                     }, Store
+                                       }, Store
 
+    assert_search "store", ['Amazon', 'Walmart'], { where: {
+                                                      nested: {
+                                                        path: 'employees',
+                                                        where: {
+                                                          nested: {
+                                                            path: 'employees.reviews',
+                                                            where: {
+                                                              name: 'Review C'
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }, Store
+
+
+    # With all
+    result = Store.search "*", { where: {
+                                   nested: {
+                                     path: 'employees',
+                                     where: {
+                                       name: 'Jamie'
+                                     }
+                                   }
+                                 }
+                               }
+
+    assert_equal result.results.first.name, 'Amazon'
+
+    result = Store.search "*", { where: {
+                                   nested: {
+                                     path: 'employees',
+                                     where: {
+                                       name: 'Bob'
+                                     }
+                                   }
+                                 }
+                               }
+
+    assert_equal result.results.first.name, 'Costco'
+
+    # With range
+    result = Store.search "*", { where: {
+                                   nested: {
+                                     path: 'employees',
+                                     where: {
+                                       age: {
+                                         lt: 20
+                                       }
+                                     }
+                                   }
+                                 }
+                               }
+
+    assert_equal result.results.first.name, 'Walmart'
+
+    # Deeply nested
+    assert_search "store", ['Walmart'], { where: {
+                                            nested: {
+                                              path: 'employees',
+                                              where: {
+                                                age: {
+                                                  lt: 20
+                                                },
+                                                nested: {
+                                                  path: 'employees.reviews',
+                                                  where: {
+                                                    name: 'Review C',
+                                                    stars: {
+                                                      gt: 3
+                                                    },
+                                                    nested: {
+                                                      path: 'employees.reviews.comments',
+                                                      where: {
+                                                        status: 'approved'
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }, Store
+
+    assert_search "store", ['Costco', 'Walmart'], { where: {
+                                                      nested: {
+                                                       path: 'employees',
+                                                       where: {
+                                                         nested: {
+                                                           path: 'employees.reviews',
+                                                           where: {
+                                                             nested: {
+                                                               path: 'employees.reviews.comments',
+                                                               where: {
+                                                                 status: 'approved',
+                                                                 message: 'good'
+                                                               }
+                                                             }
+                                                           }
+                                                         }
+                                                       }
+                                                     }
+                                                   }
+                                                 }, Store
   end
 
   # other tests
