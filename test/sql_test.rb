@@ -182,11 +182,15 @@ class SqlTest < Minitest::Test
           Review.create(name: 'Review A', stars: 3, comments: [
             Comment.create(status: 'denied', message: 'bad')
           ])
+        ], time_cards: [
+          TimeCard.create(hours: 5)
         ]),
         Employee.create(name: 'Jamie', age: 32, reviews: [
           Review.create(name: 'Review C', stars: 5, comments: [
             Comment.create(status: 'denied', message: 'bad')
           ])
+        ], time_cards: [
+          TimeCard.create(hours: 8)
         ])
       ]},
       {name: 'Costco', employees: [
@@ -194,6 +198,8 @@ class SqlTest < Minitest::Test
           Review.create(name: 'Review B', stars: 2, comments: [
             Comment.create(status: 'approved', message: 'good')
           ])
+        ], time_cards: [
+          TimeCard.create(hours: 7)
         ])
       ]},
       {name: 'Walmart', employees: [
@@ -202,6 +208,8 @@ class SqlTest < Minitest::Test
             Comment.create(status: 'approved', message: 'good'),
             Comment.create(status: 'denied', message: 'good')
           ])
+        ], time_cards: [
+          TimeCard.create(hours: 12)
         ])
       ]}
     ], Store
@@ -272,18 +280,39 @@ class SqlTest < Minitest::Test
                                                   }, Store
 
     assert_search "store", [], { where: {
+                                  nested: {
+                                    path: 'employees',
+                                    where: {
+                                      nested: {
+                                        path: 'employees.reviews',
+                                        where: {
+                                          name: 'Review F'
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }, Store
+
+    assert_search "store", ['Walmart'], { where: {
                                           nested: {
                                             path: 'employees',
                                             where: {
-                                              nested: {
-                                                path: 'employees.reviews',
-                                                where: {
-                                                  name: 'Review F'
-                                                }
+                                              nested: [
+                                                {
+                                                  path: 'employees.reviews',
+                                                  where: {
+                                                    name: 'Review C'
+                                                  }
+                                                }, {
+                                                  path: 'employees.time_cards',
+                                                  where: {
+                                                    hours: {gt: 10}
+                                                  }
+                                                }]
                                               }
                                             }
                                           }
-                                        }
                                       }, Store
 
     # With all
@@ -374,6 +403,7 @@ class SqlTest < Minitest::Test
                                                      }
                                                    }
                                                  }, Store
+
   end
 
   def test_nested_json

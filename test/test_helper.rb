@@ -391,6 +391,11 @@ else
     t.integer :store_id
   end
 
+  ActiveRecord::Migration.create_table :time_cards do |t|
+    t.integer :hours
+    t.integer :employee_id
+  end
+
   ActiveRecord::Migration.create_table :reviews do |t|
     t.string :name
     t.integer :stars
@@ -441,6 +446,11 @@ else
   class Employee < ActiveRecord::Base
     belongs_to :store
     has_many :reviews
+    has_many :time_cards
+  end
+
+  class TimeCard < ActiveRecord::Base
+    belongs_to :employee
   end
 
   class Store < ActiveRecord::Base
@@ -543,6 +553,9 @@ class Store
                     type: 'nested'
                   }
                 }
+              },
+              time_cards: {
+                type: 'nested'
               }
             }
           }
@@ -573,6 +586,11 @@ class Store
                 message: c.try(:message)
               }
             }
+          }
+        },
+        time_cards: e.try(:time_cards).collect{ |tc|
+          {
+            hours: tc.try(:hours)
           }
         }
       }
@@ -652,6 +670,9 @@ class Employee
           age: {type: "keyword"},
           reviews: {
             type: 'nested'
+          },
+          time_cards: {
+            type: 'nested'
           }
         }
       }
@@ -671,7 +692,38 @@ class Employee
       name: name,
       reviews: {
         name: reviews.last.try(:name)
+      },
+      time_cards: {
+        hours: time_cards.last.try(:hours)
       }
+    )
+  end
+end
+
+class TimeCard
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      time_card: {
+        properties: {
+          hours: {type: 'keyword'}
+        }
+      }
+    }
+
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    hours
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      hours: hours
     )
   end
 end
@@ -742,6 +794,7 @@ Region.reindex
 Review.reindex
 Employee.reindex
 Comment.reindex
+TimeCard.reindex
 
 class Minitest::Test
   def setup
@@ -752,6 +805,7 @@ class Minitest::Test
     Review.destroy_all
     Employee.destroy_all
     Comment.destroy_all
+    TimeCard.destroy_all
   end
 
   protected
