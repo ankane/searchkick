@@ -1012,7 +1012,7 @@ Animal.search "*", type: [Dog, Cat] # just cats and dogs
     ```ruby
     Dog.search "airbudd", suggest: true # suggestions for all animals
     ```
-2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take presidence. 
+2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take precedence.
 
 ## Debugging Queries
 
