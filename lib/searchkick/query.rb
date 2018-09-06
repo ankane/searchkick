@@ -427,7 +427,7 @@ module Searchkick
         set_post_filters(payload, post_filters) if post_filters.any?
 
         # first nested where
-        nested = filters.select{|f| f.include?(:nested) }.first
+        nested = filters.detect{ |f| f.include?(:nested) }
 
         custom_filters = []
         multiply_filters = []
@@ -528,7 +528,7 @@ module Searchkick
 
       # find next nested document and recursively build
       # query again if one exists
-      additional_nested = filters.select{|f| f.include?(:nested) }.first
+      additional_nested = filters.detect{ |f| f.include?(:nested) }
       query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
 
       if query.is_a?(Array)
@@ -871,10 +871,10 @@ module Searchkick
         elsif field == :nested
           if value.is_a?(Array)
             value.each do |sub_value|
-              nested_filters(sub_value, filters)
+              filters << nested_filters(sub_value)
             end
           else
-            nested_filters(value, filters)
+            filters << nested_filters(value)
           end
         else
           # expand ranges
@@ -971,13 +971,13 @@ module Searchkick
       filters
     end
 
-    def nested_filters(value, filters)
+    def nested_filters(value)
       nested_where = {}
       value[:where].each do |key, val|
         key = "#{value[:path]}.#{key}" if key != :nested
         nested_where.merge!({key => val})
       end
-      filters << {
+      {
         nested: {
           path: value[:path],
           query: where_filters(nested_where)
