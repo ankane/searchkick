@@ -525,20 +525,23 @@ module Searchkick
     def nested_query(nested, filters)
       nested = nested.delete(:nested)
       filters.reject!(&:none?)
+
+      # find next nested document and recursively build
+      # query again if one exists
       additional_nested = filters.select{|f| f.include?(:nested) }.first
       query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
 
-      if query.class == Array
+      if query.is_a?(Array)
         query = { bool:
                   { must: query }
                 }
       end
 
       { nested:
-          {
-            path: nested[:path],
-            query: query
-          }
+        {
+          path: nested[:path],
+          query: query
+        }
       }
     end
 
@@ -866,7 +869,7 @@ module Searchkick
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
-          if value.class == Array
+          if value.is_a?(Array)
             value.each do |sub_value|
               nested_filters(sub_value, filters)
             end

@@ -214,6 +214,7 @@ class SqlTest < Minitest::Test
       ]}
     ], Store
 
+    # Single nested
     assert_search "store", ["Amazon"], { where: {
                                            name: 'Amazon',
                                            nested: {
@@ -249,6 +250,7 @@ class SqlTest < Minitest::Test
                                        }, Store
 
 
+    # multiple nested
     assert_search "store", ['Costco'], { where: {
                                            nested: {
                                              path: 'employees',
@@ -294,6 +296,7 @@ class SqlTest < Minitest::Test
                                 }
                               }, Store
 
+    # Nested sibling documents
     assert_search "store", ['Walmart'], { where: {
                                           nested: {
                                             path: 'employees',
