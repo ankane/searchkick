@@ -545,20 +545,18 @@ module Searchkick
       }
     end
 
-    def build_nested(bool, nested, filters)
-      return bool if bool.dig(:must, :match_all)
-      storage = bool.dig(:must, :dis_max, :queries)
-      storage << nested_query(nested, filters)
-      bool
-    end
-
     def build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
       if filters.any? || must_not.any? || should.any?
         bool = {must: query}
         bool[:filter] = filters if filters.any?      # where
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
-        bool = build_nested(bool, nested, filters) if nested # nested query
+
+        # nested query and does not contain match all
+        if nested && !bool.dig(:must, :match_all)
+          bool.dig(:must, :dis_max, :queries) << nested_query(nested, filters)
+        end
+
         query = {bool: bool}
       end
 
