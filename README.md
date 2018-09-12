@@ -782,8 +782,10 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
 Order
 
 ```ruby
-Product.search "wingtips", aggs: {color: {order: {"_term" => "asc"}}} # alphabetically
+Product.search "wingtips", aggs: {color: {order: {"_key" => "asc"}}} # alphabetically
 ```
+
+**Note:** Use `_term` instead of `_key` in ElasticSearch 5
 
 [All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
 
@@ -805,6 +807,8 @@ Script support
 ```ruby
 Product.search "*", aggs: {color: {script: {source: "'Color: ' + _value"}}}
 ```
+
+**Note:** Use `inline` instead of `source` before Elasticsearch 5.6
 
 Date histogram
 
