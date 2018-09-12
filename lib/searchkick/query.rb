@@ -660,11 +660,11 @@ module Searchkick
     def set_boost_by_indices(payload)
       return unless options[:indices_boost]
 
-      indices_boost = options[:indices_boost].each_with_object({}) do |(key, boost), memo|
+      indices_boost = options[:indices_boost].map do |key, boost|
         index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
         # try to use index explicitly instead of alias: https://github.com/elasticsearch/elasticsearch/issues/4756
         index_by_alias = Searchkick.client.indices.get_alias(index: index).keys.first
-        memo[index_by_alias || index] = boost
+        {(index_by_alias || index) => boost}
       end
 
       payload[:indices_boost] = indices_boost
@@ -812,7 +812,7 @@ module Searchkick
     # TODO id transformation for arrays
     def set_order(payload)
       order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      id_field = :_uid
+      id_field = below60? ? :_uid : :_id
       payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
     end
 
