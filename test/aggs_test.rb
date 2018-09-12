@@ -20,7 +20,8 @@ class AggsTest < Minitest::Test
   end
 
   def test_order
-    agg = Product.search("Product", aggs: {color: {order: {"_term" => "desc"}}}).aggs["color"]
+    order_key = Searchkick.server_below?("6.0") ? "_term" : "_key"
+    agg = Product.search("Product", aggs: {color: {order: {order_key => "desc"}}}).aggs["color"]
     assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
   end
 
