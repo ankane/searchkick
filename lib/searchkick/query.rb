@@ -660,11 +660,20 @@ module Searchkick
     def set_boost_by_indices(payload)
       return unless options[:indices_boost]
 
-      indices_boost = options[:indices_boost].map do |key, boost|
-        index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
-        # try to use index explicitly instead of alias: https://github.com/elasticsearch/elasticsearch/issues/4756
-        index_by_alias = Searchkick.client.indices.get_alias(index: index).keys.first
-        {(index_by_alias || index) => boost}
+      if below52?
+        indices_boost = options[:indices_boost].each_with_object({}) do |(key, boost), memo|
+          index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
+          # try to use index explicitly instead of alias: https://github.com/elasticsearch/elasticsearch/issues/4756
+          index_by_alias = Searchkick.client.indices.get_alias(index: index).keys.first
+          memo[index_by_alias || index] = boost
+        end
+      else
+        # array format supports alias resolution
+        # https://github.com/elastic/elasticsearch/pull/21393
+        indices_boost = options[:indices_boost].map do |key, boost|
+          index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
+          {index => boost}
+        end
       end
 
       payload[:indices_boost] = indices_boost
@@ -996,6 +1005,10 @@ module Searchkick
       else
         value
       end
+    end
+
+    def below52?
+      Searchkick.server_below?("5.2.0")
     end
 
     def below60?

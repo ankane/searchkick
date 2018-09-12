@@ -1,5 +1,6 @@
 ## 3.1.2 [unreleased]
 
+- Improved performance of indices boost
 - Fixed deletes with routing and `async` callbacks
 - Fixed deletes with routing and `queue` callbacks
 - Fixed deprecation warnings
