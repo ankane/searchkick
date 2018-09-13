@@ -528,9 +528,12 @@ module Searchkick
 
       # find next nested document and recursively build
       # query again if one exists
-      additional_nested = filters.detect{ |f| f.include?(:nested) }
+      additional_nested = filters.detect { |f| f.include?(:nested) }
       query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
 
+      # Handle multiple nested sibling queries which will
+      # be an array here. Insert the array into a
+      # bool: must: array
       if query.is_a?(Array)
         query = { bool:
                   { must: query }
@@ -867,13 +870,7 @@ module Searchkick
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
-          if value.is_a?(Array)
-            value.each do |sub_value|
-              filters << nested_filters(sub_value)
-            end
-          else
-            filters << nested_filters(value)
-          end
+          Array.wrap(value).each { |v| filters << nested_filters(v) }
         else
           # expand ranges
           if value.is_a?(Range)
