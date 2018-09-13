@@ -19,7 +19,8 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track,
+        :type, :where, :nested]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -117,7 +118,8 @@ module Searchkick
         term: term,
         scope_results: options[:scope_results],
         index_name: options[:index_name],
-        total_entries: options[:total_entries]
+        total_entries: options[:total_entries],
+        nested: options[:nested]
       }
 
       if options[:debug]
@@ -229,7 +231,7 @@ module Searchkick
         ignored_options = options.keys & [:aggs, :boost,
           :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :match, :misspellings, :operator, :order,
-          :profile, :select, :smart_aggs, :suggest, :where]
+          :profile, :select, :smart_aggs, :suggest, :where, :nested]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
         payload = @json
       else
@@ -414,6 +416,7 @@ module Searchkick
 
         # start everything as efficient filters
         # move to post_filters as aggs demand
+
         filters = where_filters(where)
         post_filters = []
 
@@ -423,6 +426,9 @@ module Searchkick
         # post filters
         set_post_filters(payload, post_filters) if post_filters.any?
 
+        # first nested where
+        nested = filters.detect{ |f| f.include?(:nested) }
+
         custom_filters = []
         multiply_filters = []
 
@@ -431,7 +437,7 @@ module Searchkick
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
 
-        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
+        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
 
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
@@ -516,12 +522,44 @@ module Searchkick
       [boost_fields, fields]
     end
 
-    def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
+    def nested_query(nested, filters)
+      nested = nested.delete(:nested)
+      filters.reject!(&:none?)
+
+      # find next nested document and recursively build
+      # query again if one exists
+      additional_nested = filters.detect { |f| f.include?(:nested) }
+      query = additional_nested ? nested_query(additional_nested, filters) : nested[:query]
+
+      # Handle multiple nested sibling queries which will
+      # be an array here. Insert the array into a
+      # bool: must: array
+      if query.is_a?(Array)
+        query = { bool:
+                  { must: query }
+                }
+      end
+
+      { nested:
+        {
+          path: nested[:path],
+          query: query
+        }
+      }
+    end
+
+    def build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
       if filters.any? || must_not.any? || should.any?
         bool = {must: query}
         bool[:filter] = filters if filters.any?      # where
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
+
+        # nested query and does not contain match all
+        if nested && !bool.dig(:must, :match_all)
+          bool.dig(:must, :dis_max, :queries) << nested_query(nested, filters)
+        end
+
         query = {bool: bool}
       end
 
@@ -831,6 +869,8 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
+        elsif field == :nested
+          Array.wrap(value).each { |v| filters << nested_filters(v) }
         else
           # expand ranges
           if value.is_a?(Range)
@@ -924,6 +964,20 @@ module Searchkick
         end
       end
       filters
+    end
+
+    def nested_filters(value)
+      nested_where = {}
+      value[:where].each do |key, val|
+        key = "#{value[:path]}.#{key}" if key != :nested
+        nested_where.merge!({key => val})
+      end
+      {
+        nested: {
+          path: value[:path],
+          query: where_filters(nested_where)
+        }
+      }
     end
 
     def term_filters(field, value)

@@ -79,6 +79,13 @@ if defined?(Mongoid)
     field :name
   end
 
+  class Review
+    include Mongoid::Document
+    belongs_to :product
+
+    field :name
+  end
+
   class Region
     include Mongoid::Document
 
@@ -146,6 +153,14 @@ elsif defined?(NoBrainer)
 
     field :id,   type: Object
     field :name, type: String
+  end
+
+  class Review
+    include NoBrainer::Document
+
+    field :id,   type: Object
+    field :name, type: String
+    belongs_to :product, validates: false
   end
 
   class Region
@@ -235,6 +250,19 @@ elsif defined?(Cequel)
     end
   end
 
+  class Review
+    include Cequel::Record
+
+    key :id, :timeuuid, auto: true
+    column :name, :text
+
+    def search_data
+      {
+        name: name
+      }
+    end
+  end
+
   class Region
     include Cequel::Record
 
@@ -284,7 +312,7 @@ elsif defined?(Cequel)
     column :name, :text
   end
 
-  [Product, Store, Region, Speaker, Animal, Sku, Song].each(&:synchronize_schema)
+  [Product, Store, Review, Region, Speaker, Animal, Sku, Song].each(&:synchronize_schema)
 else
   require "active_record"
 
@@ -311,7 +339,7 @@ else
     Apartment.configure do |config|
       config.tenant_names = tenants
       config.database_schema_file = false
-      config.excluded_models = ["Product", "Store", "Animal", "Dog", "Cat"]
+      config.excluded_models = ["Product", "Store", "Animal", "Dog", "Cat", "Review"]
     end
 
     class Tenant < ActiveRecord::Base
@@ -357,6 +385,29 @@ else
     t.string :name
   end
 
+  ActiveRecord::Migration.create_table :employees do |t|
+    t.string :name
+    t.integer :age
+    t.integer :store_id
+  end
+
+  ActiveRecord::Migration.create_table :time_cards do |t|
+    t.integer :hours
+    t.integer :employee_id
+  end
+
+  ActiveRecord::Migration.create_table :reviews do |t|
+    t.string :name
+    t.integer :stars
+    t.integer :employee_id
+  end
+
+  ActiveRecord::Migration.create_table :comments do |t|
+    t.string :status
+    t.string :message
+    t.integer :review_id
+  end
+
   ActiveRecord::Migration.create_table :regions do |t|
     t.string :name
     t.text :text
@@ -383,8 +434,28 @@ else
     belongs_to :store
   end
 
+  class Review < ActiveRecord::Base
+    belongs_to :employee
+    has_many :comments
+  end
+
+  class Comment < ActiveRecord::Base
+    belongs_to :review
+  end
+
+  class Employee < ActiveRecord::Base
+    belongs_to :store
+    has_many :reviews
+    has_many :time_cards
+  end
+
+  class TimeCard < ActiveRecord::Base
+    belongs_to :employee
+  end
+
   class Store < ActiveRecord::Base
     has_many :products
+    has_many :employees
   end
 
   class Region < ActiveRecord::Base
@@ -458,6 +529,10 @@ class Product
       name: name
     }
   end
+
+  def search_routing
+    name
+  end
 end
 
 class Store
@@ -467,7 +542,23 @@ class Store
     mappings: {
       store: {
         properties: {
-          name: {type: "keyword"}
+          name: {type: "keyword"},
+          employees: {
+            type: 'nested',
+            properties: {
+              reviews: {
+                type: 'nested',
+                properties: {
+                  comments: {
+                    type: 'nested'
+                  }
+                }
+              },
+              time_cards: {
+                type: 'nested'
+              }
+            }
+          }
         }
       }
     }
@@ -478,6 +569,162 @@ class Store
 
   def search_routing
     name
+  end
+
+  def search_data
+    data = {employees: []}
+    employees.map{|e| data[:employees] << {
+        name: e.try(:name),
+        age: e.try(:age),
+        reviews: e.try(:reviews).collect{ |r|
+          {
+            name: r.try(:name),
+            stars: r.try(:stars),
+            comments: r.comments.collect{ |c|
+              {
+                status: c.try(:status),
+                message: c.try(:message)
+              }
+            }
+          }
+        },
+        time_cards: e.try(:time_cards).collect{ |tc|
+          {
+            hours: tc.try(:hours)
+          }
+        }
+      }
+    }
+    serializable_hash.except("id", "_id").merge(
+      data
+    )
+  end
+end
+
+class Review
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      review: {
+        properties: {
+          name: {type: "keyword"},
+          stars: {type: "keyword"}
+        }
+      }
+    }
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    name
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      name: name,
+      stars: stars
+    )
+  end
+end
+
+class Comment
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      comment: {
+        properties: {
+          status: {type: "keyword"},
+          message: {type: "keyword"}
+        }
+      }
+    }
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    status
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      status: status,
+      message: message 
+    )
+  end
+end
+
+class Employee
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      employee: {
+        properties: {
+          name: {type: "keyword"},
+          age: {type: "keyword"},
+          reviews: {
+            type: 'nested'
+          },
+          time_cards: {
+            type: 'nested'
+          }
+        }
+      }
+    }
+
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    name
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      name: name,
+      reviews: {
+        name: reviews.last.try(:name)
+      },
+      time_cards: {
+        hours: time_cards.last.try(:hours)
+      }
+    )
+  end
+end
+
+class TimeCard
+  searchkick \
+    routing: true,
+    merge_mappings: true,
+    mappings: {
+      time_card: {
+        properties: {
+          hours: {type: 'keyword'}
+        }
+      }
+    }
+
+
+  def search_document_id
+    id
+  end
+
+  def search_routing
+    hours
+  end
+
+  def search_data
+    serializable_hash.except("id", "_id").merge(
+      hours: hours
+    )
   end
 end
 
@@ -544,6 +791,10 @@ Store.reindex
 Animal.reindex
 Speaker.reindex
 Region.reindex
+Review.reindex
+Employee.reindex
+Comment.reindex
+TimeCard.reindex
 
 class Minitest::Test
   def setup
@@ -551,6 +802,10 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Review.destroy_all
+    Employee.destroy_all
+    Comment.destroy_all
+    TimeCard.destroy_all
   end
 
   protected
