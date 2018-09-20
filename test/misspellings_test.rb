@@ -100,6 +100,6 @@ class MisspellingsTest < Minitest::Test
 
   def test_misspellings_field_word_start
     store_names ["Sriracha"]
-    assert_search "siracha", ["Sriracha"], fields: [{name: :word_middle}], misspellings: {fields: [{name: :word_middle}]}
+    assert_search "siracha", ["Sriracha"], fields: [{name: :word_middle}], misspellings: {fields: [:name]}
   end
 end

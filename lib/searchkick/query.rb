@@ -281,10 +281,10 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
-            misspellings_fields = misspellings.is_a?(Hash) && misspellings.key?(:fields) && misspellings[:fields].map { |f| f.is_a?(Hash) ? f.to_a.join(".") : "#{f}.#{@match_suffix}" }
+            misspellings_fields = misspellings.is_a?(Hash) && misspellings.key?(:fields) && misspellings[:fields].map(&:to_s)
 
             if misspellings_fields
-              missing_fields = misspellings_fields - fields
+              missing_fields = misspellings_fields - fields.map { |f| base_field(f) }
               if missing_fields.any?
                 raise ArgumentError, "All fields in per-field misspellings must also be specified in fields option"
               end
@@ -324,7 +324,7 @@ module Searchkick
             exclude_analyzer = nil
             exclude_field = field
 
-            field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(field))
+            field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(base_field(field)))
 
             if field == "_all" || field.end_with?(".analyzed")
               shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
@@ -1005,6 +1005,10 @@ module Searchkick
       else
         value
       end
+    end
+
+    def base_field(k)
+      k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
     end
 
     def below52?
