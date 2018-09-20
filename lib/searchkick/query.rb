@@ -281,7 +281,7 @@ module Searchkick
             prefix_length = (misspellings.is_a?(Hash) && misspellings[:prefix_length]) || 0
             default_max_expansions = @misspellings_below ? 20 : 3
             max_expansions = (misspellings.is_a?(Hash) && misspellings[:max_expansions]) || default_max_expansions
-            misspellings_fields = misspellings.is_a?(Hash) && misspellings.key?(:fields) && misspellings[:fields].map { |f| "#{f}.#{@match_suffix}" }
+            misspellings_fields = misspellings.is_a?(Hash) && misspellings.key?(:fields) && misspellings[:fields].map { |f| f.is_a?(Hash) ? f.to_a.join(".") : "#{f}.#{@match_suffix}" }
 
             if misspellings_fields
               missing_fields = misspellings_fields - fields

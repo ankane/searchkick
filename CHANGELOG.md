@@ -4,6 +4,7 @@
 - Fixed deletes with routing and `async` callbacks
 - Fixed deletes with routing and `queue` callbacks
 - Fixed deprecation warnings
+- Fixed field misspellings for older partial match format
 
 ## 3.1.1
 

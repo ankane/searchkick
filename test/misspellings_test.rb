@@ -97,4 +97,9 @@ class MisspellingsTest < Minitest::Test
       assert_search "siracha", ["Sriracha"], {misspellings: {fields: [:name]}}
     end
   end
+
+  def test_misspellings_field_word_start
+    store_names ["Sriracha"]
+    assert_search "siracha", ["Sriracha"], fields: [{name: :word_middle}], misspellings: {fields: [{name: :word_middle}]}
+  end
 end
