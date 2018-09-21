@@ -555,8 +555,14 @@ module Searchkick
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
 
-        # nested query and does not contain match all
-        if nested && !bool.dig(:must, :match_all)
+        # nested query
+        if nested
+          # If query is nested ensure dis_max queries
+          # is available. This allows processing of JSON
+          # field as nested without adding to mappings
+          unless bool.dig(:must, :dis_max, :queries)
+            bool[:must] = { dis_max: { queries: [] } }
+          end
           bool.dig(:must, :dis_max, :queries) << nested_query(nested, filters)
         end
 
