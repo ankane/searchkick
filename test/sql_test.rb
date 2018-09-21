@@ -411,11 +411,12 @@ class SqlTest < Minitest::Test
 
   def test_json_field
     store [
-      {name: 'Amazon', nested_json: {nested_field: {name: 'test1'}}},
-      {name: 'Costco', nested_json: {nested_field: {name: 'test2'}}},
-      {name: 'Walmart', nested_json: {nested_field: {name: 'test3'}}}
+      {name: 'Amazon', nested_json: {foo: 'bar', nested_field: {name: 'test1'}}},
+      {name: 'Costco', nested_json: {foo: 'boo', nested_field: {name: 'test2'}}},
+      {name: 'Walmart', nested_json: {foo: 'boo', nested_field: {name: 'test3'}}}
     ], Store
 
+    # Flattened dot notation
     result = Store.search "*", { where: {
                                    'nested_json.nested_field.name': 'test1'
                                  }
@@ -423,12 +424,30 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.first.name, 'Amazon'
 
+    # Directly access nested JSON field
     result = Store.search "*", { where: {
                                    name: 'Amazon',
                                    nested: {
                                      path: 'nested_field',
                                      where: {
-                                        name: 'test1'
+                                       name: 'test1'
+                                     }
+                                   }
+                                 }
+                               }
+
+    assert_equal result.results.first.name, 'Amazon'
+
+    # Access JSON from field then nested mapping
+    result = Store.search "*", { where: {
+                                   name: 'Amazon',
+                                   nested_json: {
+                                     foo: 'bar',
+                                     nested: {
+                                       path: 'nested_field',
+                                       where: {
+                                         name: 'test1'
+                                       }
                                      }
                                    }
                                  }

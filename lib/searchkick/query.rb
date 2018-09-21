@@ -863,6 +863,11 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
+
+        # Ensure nested JSON field keys are symbols
+        # and not strings for processing below
+        value.try(:deep_symbolize_keys!)
+
         field = :_id if field.to_s == "id"
 
         if field == :or
@@ -877,6 +882,9 @@ module Searchkick
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :nested
           Array.wrap(value).each { |v| filters << nested_filters(v) }
+        elsif value.try(:keys).try(:include?, :nested)
+          # Handle nested field containing JSON data
+          Array.wrap(value).each { |v| filters << nested_filters(value[:nested]) }
         else
           # expand ranges
           if value.is_a?(Range)
