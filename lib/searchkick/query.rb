@@ -880,7 +880,7 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-        elsif field == :nested
+        elsif field.to_sym == :nested
           Array.wrap(value).each { |v| filters << nested_filters(v) }
         elsif value.try(:keys).try(:include?, :nested)
           # Handle nested field containing JSON data
