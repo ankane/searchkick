@@ -555,8 +555,14 @@ module Searchkick
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
 
-        # nested query and does not contain match all
-        if nested && !bool.dig(:must, :match_all)
+        # nested query
+        if nested
+          # If query is nested ensure dis_max queries
+          # is available. This allows processing of JSON
+          # field as nested without adding to mappings
+          unless bool.dig(:must, :dis_max, :queries)
+            bool[:must] = { dis_max: { queries: [] } }
+          end
           bool.dig(:must, :dis_max, :queries) << nested_query(nested, filters)
         end
 
@@ -857,6 +863,11 @@ module Searchkick
     def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
+
+        # Ensure nested JSON field keys are symbols
+        # and not strings for processing below
+        value.try(:deep_symbolize_keys!)
+
         field = :_id if field.to_s == "id"
 
         if field == :or
@@ -869,8 +880,11 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-        elsif field == :nested
+        elsif field.to_sym == :nested
           Array.wrap(value).each { |v| filters << nested_filters(v) }
+        elsif value.try(:keys).try(:include?, :nested)
+          # Handle nested field containing JSON data
+          Array.wrap(value).each { |v| filters << nested_filters(value[:nested]) }
         else
           # expand ranges
           if value.is_a?(Range)

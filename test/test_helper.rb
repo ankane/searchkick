@@ -383,6 +383,7 @@ else
 
   ActiveRecord::Migration.create_table :stores do |t|
     t.string :name
+    t.json :nested_json
   end
 
   ActiveRecord::Migration.create_table :employees do |t|
@@ -542,7 +543,12 @@ class Store
     mappings: {
       store: {
         properties: {
-          name: {type: "keyword"},
+          nested_field: {
+            type: 'nested',
+            properties: {
+              name: {type: 'text'}
+            }
+          },
           employees: {
             type: 'nested',
             properties: {
@@ -595,6 +601,7 @@ class Store
         }
       }
     }
+    data[:nested_field] = nested_json&.dig('nested_field')
     serializable_hash.except("id", "_id").merge(
       data
     )
