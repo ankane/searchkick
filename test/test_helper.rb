@@ -6,14 +6,15 @@ require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
-Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
-
 ENV["RACK_ENV"] = "test"
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
 Searchkick.client.transport.logger = $logger
 Searchkick.search_timeout = 5
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
+
+puts "Running against Elasticsearch #{Searchkick.server_version}"
 
 if defined?(Redis)
   if defined?(ConnectionPool)
@@ -23,8 +24,6 @@ if defined?(Redis)
   end
 end
 
-puts "Running against Elasticsearch #{Searchkick.server_version}"
-
 I18n.config.enforce_available_locales = true
 
 if defined?(ActiveJob)
@@ -33,14 +32,6 @@ if defined?(ActiveJob)
 end
 
 ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
-
-def nobrainer?
-  defined?(NoBrainer)
-end
-
-def cequel?
-  defined?(Cequel)
-end
 
 if defined?(Mongoid)
   require_relative "support/mongoid"
@@ -123,5 +114,13 @@ class Minitest::Test
       klass.searchkick_options.clear
       klass.searchkick_options.merge!(previous_options)
     end
+  end
+
+  def nobrainer?
+    defined?(NoBrainer)
+  end
+
+  def cequel?
+    defined?(Cequel)
   end
 end
