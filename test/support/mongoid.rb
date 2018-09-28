@@ -1,5 +1,5 @@
-Mongoid.logger.level = Logger::INFO
-Mongo::Logger.logger.level = Logger::INFO if defined?(Mongo::Logger)
+Mongoid.logger = $logger
+Mongo::Logger.logger = $logger if defined?(Mongo::Logger)
 
 Mongoid.configure do |config|
   config.connect_to "searchkick_test"

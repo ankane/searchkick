@@ -10,7 +10,9 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 ENV["RACK_ENV"] = "test"
 
-Searchkick.client.transport.logger = ActiveSupport::Logger.new(STDOUT) if ENV["VERBOSE"]
+$logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
+
+Searchkick.client.transport.logger = $logger
 Searchkick.search_timeout = 5
 
 if defined?(Redis)

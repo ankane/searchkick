@@ -5,7 +5,7 @@ cequel =
     keyspace: "searchkick_test",
     default_consistency: :all
   )
-cequel.logger = ActiveSupport::Logger.new(STDOUT) if ENV["VERBOSE"]
+cequel.logger = $logger
 cequel.schema.drop! if cequel.schema.exists?
 cequel.schema.create!
 Cequel::Record.connection = cequel
