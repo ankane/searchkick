@@ -10,11 +10,7 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 ENV["RACK_ENV"] = "test"
 
-if !defined?(ParallelTests) || ParallelTests.first_process?
-  File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
-end
-
-Searchkick.client.transport.logger = Logger.new("elasticsearch.log")
+Searchkick.client.transport.logger = ActiveSupport::Logger.new(STDOUT) if ENV["VERBOSE"]
 Searchkick.search_timeout = 5
 
 if defined?(Redis)

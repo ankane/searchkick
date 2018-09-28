@@ -1,7 +1,7 @@
 require "active_record"
 
 # for debugging
-ActiveRecord::Base.logger = Logger.new(STDOUT) if ENV["VERBOSE"]
+ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT) if ENV["VERBOSE"]
 
 # rails does this in activerecord/lib/active_record/railtie.rb
 ActiveRecord::Base.default_timezone = :utc
