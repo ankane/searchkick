@@ -1,4 +1,4 @@
-## 3.1.2 [unreleased]
+## 3.1.2
 
 - Improved performance of indices boost
 - Fixed deletes with routing and `async` callbacks
