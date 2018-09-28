@@ -46,10 +46,6 @@ Does your company use Searchkick? Want free advising? Fill out [this application
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
 
-**Searchkick 3.0 was recently released!** See [how to upgrade](docs/Searchkick-3-Upgrade.md)
-
-Thinking of upgrading from Elasticsearch 5 to 6? [Read this first](#elasticsearch-5-to-6-upgrade)
-
 ## Getting Started
 
 [Install Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html). For Homebrew, use:
@@ -1909,6 +1905,10 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 ## Multi-Tenancy
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
+
+## Upgrading
+
+See [how to upgrade to Searchkick 3](docs/Searchkick-3-Upgrade.md)
 
 ## Elasticsearch 5 to 6 Upgrade
 
