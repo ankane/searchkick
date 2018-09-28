@@ -2,7 +2,6 @@ sudo: false
 language: ruby
 rvm: 2.5.1
 services:
-  - mongodb
   - redis-server
 before_install:
   - ./test/ci/before_install.sh
@@ -26,4 +25,8 @@ matrix:
     - gemfile: test/gemfiles/activerecord42.gemfile
       env: ELASTICSEARCH_VERSION=5.0.1
     - gemfile: test/gemfiles/mongoid6.gemfile
+      services:
+      - mongodb
     - gemfile: test/gemfiles/mongoid5.gemfile
+      services:
+      - mongodb
