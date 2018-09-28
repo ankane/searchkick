@@ -6,7 +6,7 @@ require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
-Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
+Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 
 ENV["RACK_ENV"] = "test"
 
@@ -28,7 +28,7 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 I18n.config.enforce_available_locales = true
 
 if defined?(ActiveJob)
-  ActiveJob::Base.logger = nil
+  ActiveJob::Base.logger = $logger
   ActiveJob::Base.queue_adapter = :inline
 end
 
