@@ -10,8 +10,6 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 ENV["RACK_ENV"] = "test"
 
-Minitest::Test = Minitest::Unit::TestCase unless defined?(Minitest::Test)
-
 if !defined?(ParallelTests) || ParallelTests.first_process?
   File.delete("elasticsearch.log") if File.exist?("elasticsearch.log")
 end
