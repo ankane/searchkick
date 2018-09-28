@@ -27,6 +27,8 @@ matrix:
     - gemfile: test/gemfiles/mongoid6.gemfile
       services:
       - mongodb
+      - redis-server
     - gemfile: test/gemfiles/mongoid5.gemfile
       services:
       - mongodb
+      - redis-server
