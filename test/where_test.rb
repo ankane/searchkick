@@ -74,6 +74,11 @@ class WhereTest < Minitest::Test
     assert_search "*", ["Product A"], where: {name: /Pro.+/}
   end
 
+  def test_prefix
+    store_names ["Product A", "Product B", "Item C"]
+    assert_search "*", ["Product A", "Product B"], where: { name: { prefix: 'Pro'}}
+  end
+
   def test_alternate_regexp
     store_names ["Product A", "Item B"]
     assert_search "*", ["Product A"], where: {name: {regexp: "Pro.+"}}
