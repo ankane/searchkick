@@ -1,3 +1,7 @@
+## 3.1.3 [unreleased]
+
+- Added `prefix` to `where`
+
 ## 3.1.2
 
 - Improved performance of indices boost
