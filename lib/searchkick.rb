@@ -17,14 +17,8 @@ require "searchkick/record_indexer"
 require "searchkick/results"
 require "searchkick/version"
 
+require "searchkick/railtie" if defined?(Rails)
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
-
-begin
-  require "rake"
-rescue LoadError
-  # do nothing
-end
-require "searchkick/tasks" if defined?(Rake)
 
 # background jobs
 begin

@@ -13,17 +13,15 @@ namespace :searchkick do
     end
   end
 
-  if defined?(Rails)
-    namespace :reindex do
-      desc "reindex all models"
-      task all: :environment do
-        Rails.application.eager_load!
-        Searchkick.models.each do |model|
-          puts "Reindexing #{model.name}..."
-          model.reindex
-        end
-        puts "Reindex complete"
+  namespace :reindex do
+    desc "reindex all models"
+    task all: :environment do
+      Rails.application.eager_load!
+      Searchkick.models.each do |model|
+        puts "Reindexing #{model.name}..."
+        model.reindex
       end
+      puts "Reindex complete"
     end
   end
 end
