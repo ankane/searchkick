@@ -1,4 +1,4 @@
-require "active_model"
+require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "elasticsearch"
 require "hashie"
@@ -228,6 +228,7 @@ module Searchkick
 end
 
 # TODO find better ActiveModel hook
+require "active_model/callbacks"
 ActiveModel::Callbacks.include(Searchkick::Model)
 
 ActiveSupport.on_load(:active_record) do
