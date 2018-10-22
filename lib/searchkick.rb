@@ -20,20 +20,13 @@ require "searchkick/version"
 require "searchkick/railtie" if defined?(Rails)
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
-# background jobs
-begin
-  require "active_job"
-rescue LoadError
-  # do nothing
-end
-if defined?(ActiveJob)
-  require "searchkick/bulk_reindex_job"
-  require "searchkick/process_batch_job"
-  require "searchkick/process_queue_job"
-  require "searchkick/reindex_v2_job"
-end
-
 module Searchkick
+  # background jobs
+  autoload :BulkReindexJob,  "searchkick/bulk_reindex_job"
+  autoload :ProcessBatchJob, "searchkick/process_batch_job"
+  autoload :ProcessQueueJob, "searchkick/process_queue_job"
+  autoload :ReindexV2Job,    "searchkick/reindex_v2_job"
+
   class Error < StandardError; end
   class MissingIndexError < Error; end
   class UnsupportedVersionError < Error; end
