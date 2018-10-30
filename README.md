@@ -1459,8 +1459,6 @@ And use the `body` option to search:
 products = Product.search body: {query: {match: {name: "milk"}}}
 ```
 
-**Note:** This replaces the entire body, so other options are ignored.
-
 View the response with:
 
 ```ruby
