@@ -144,6 +144,15 @@ module Searchkick
           }
         }
 
+        if below60
+          # ES docs say standard token filter does nothing in ES 5
+          # (and therefore isn't needed at at), but tests say otherwise
+          # https://www.elastic.co/guide/en/elasticsearch/reference/5.0/analysis-standard-tokenfilter.html
+          [default_analyzer, :searchkick_search, :searchkick_search2].each do |analyzer|
+            settings[:analysis][:analyzer][analyzer][:filter].unshift("standard")
+          end
+        end
+
         case language
         when "chinese"
           settings[:analysis][:analyzer].merge!(
