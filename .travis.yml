@@ -13,7 +13,7 @@ notifications:
     on_success: never
     on_failure: change
 env:
-  - ELASTICSEARCH_VERSION=6.4.1
+  - ELASTICSEARCH_VERSION=6.5.0
 jdk: oraclejdk8
 matrix:
   include:
