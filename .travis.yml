@@ -8,9 +8,11 @@ services:
   - redis-server
 script: bundle exec rake test
 before_install:
-  - gem install bundler
   - psql -c 'CREATE DATABASE searchkick_test;' -U postgres || true
-  - ./test/ci/before_install.sh
+  - ./test/ci/install_elasticsearch.sh
+cache:
+  directories:
+    - $HOME/elasticsearch
 env:
   - ELASTICSEARCH_VERSION=6.5.0
 jdk: oraclejdk8
