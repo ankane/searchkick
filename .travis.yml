@@ -33,6 +33,8 @@ matrix:
       services:
         - mongodb
         - redis-server
+    - gemfile: Gemfile
+      env: ELASTICSEARCH_VERSION=7.0.0-alpha1
   allow_failures:
     - gemfile: Gemfile
       env: ELASTICSEARCH_VERSION=7.0.0-alpha1
