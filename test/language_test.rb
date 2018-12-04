@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class LanguageTest < Minitest::Test
   def setup
-    skip unless ENV["LANGUAGE"]
+    skip unless ENV["TEST_LANGUAGE"]
 
     Song.destroy_all
   end

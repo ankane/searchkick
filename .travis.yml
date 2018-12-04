@@ -1,17 +1,16 @@
-sudo: false
+dist: xenial
 language: ruby
-rvm: 2.5.1
+rvm: 2.5.3
+gemfile:
+  - Gemfile
 services:
+  - postgresql
   - redis-server
-before_install:
-  - ./test/ci/before_install.sh
 script: bundle exec rake test
-before_script:
-  - psql -c 'create database searchkick_test;' -U postgres
-notifications:
-  email:
-    on_success: never
-    on_failure: change
+before_install:
+  - gem install bundler
+  - psql -c 'CREATE DATABASE searchkick_test;' -U postgres || true
+  - ./test/ci/before_install.sh
 env:
   - ELASTICSEARCH_VERSION=6.5.0
 jdk: oraclejdk8
@@ -26,9 +25,13 @@ matrix:
       env: ELASTICSEARCH_VERSION=5.0.1
     - gemfile: test/gemfiles/mongoid6.gemfile
       services:
-      - mongodb
-      - redis-server
+        - mongodb
+        - redis-server
     - gemfile: test/gemfiles/mongoid5.gemfile
       services:
-      - mongodb
-      - redis-server
+        - mongodb
+        - redis-server
+notifications:
+  email:
+    on_success: never
+    on_failure: change
