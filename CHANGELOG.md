@@ -1,7 +1,7 @@
 ## 3.1.3 [unreleased]
 
 - Added `prefix` to `where`
-- Fixed error with Japanese stemmer and Elasticsearch 6.5
+- Fixed error with language stemmers and Elasticsearch 6.5
 
 ## 3.1.2
 

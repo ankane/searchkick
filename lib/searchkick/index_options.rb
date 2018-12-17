@@ -153,6 +153,8 @@ module Searchkick
           end
         end
 
+        stem = options[:stem]
+
         case language
         when "chinese"
           settings[:analysis][:analyzer].merge!(
@@ -167,7 +169,7 @@ module Searchkick
             }
           )
 
-          settings[:analysis][:filter].delete(:searchkick_stemmer)
+          stem = false
         when "japanese"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
@@ -181,7 +183,7 @@ module Searchkick
             }
           )
 
-          settings[:analysis][:filter].delete(:searchkick_stemmer)
+          stem = false
         when "korean"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
@@ -194,6 +196,8 @@ module Searchkick
               type: "openkoreantext-analyzer"
             }
           )
+
+          stem = false
         when "vietnamese"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
@@ -206,6 +210,8 @@ module Searchkick
               type: "vi_analyzer"
             }
           )
+
+          stem = false
         when "polish", "ukrainian", "smartcn"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
@@ -218,6 +224,8 @@ module Searchkick
               type: language
             }
           )
+
+          stem = false
         end
 
         if Searchkick.env == "test"
@@ -242,9 +250,10 @@ module Searchkick
           end
         end
 
-        if options[:stem] == false
+        if stem == false
+          settings[:analysis][:filter].delete(:searchkick_stemmer)
           settings[:analysis][:analyzer].each do |_, analyzer|
-            analyzer[:filter].delete("searchkick_stemmer")
+            analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
           end
         end
 
