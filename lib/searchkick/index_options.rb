@@ -180,6 +180,8 @@ module Searchkick
               type: "kuromoji"
             }
           )
+
+          settings[:analysis][:filter].delete(:searchkick_stemmer)
         when "korean"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
