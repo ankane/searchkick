@@ -843,7 +843,12 @@ module Searchkick
         else
           # expand ranges
           if value.is_a?(Range)
-            value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
+            # infinite? added in Ruby 2.4
+            if value.end.nil? || (value.end.respond_to?(:infinite?) && value.end.infinite?)
+              value = {gte: value.first}
+            else
+              value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
+            end
           end
 
           value = {in: value} if value.is_a?(Array)

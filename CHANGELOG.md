@@ -1,5 +1,6 @@
 ## 3.1.3 [unreleased]
 
+- Added support for endless ranges
 - Added `prefix` to `where`
 - Fixed error with some language stemmers and Elasticsearch 6.5
 
