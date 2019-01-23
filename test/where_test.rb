@@ -35,7 +35,9 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product C", "Product D"], where: {store_id: {not: [1, 2]}}
     assert_search "product", ["Product C", "Product D"], where: {store_id: {_not: [1, 2]}}
     assert_search "product", ["Product A"], where: {user_ids: {lte: 2, gte: 2}}
+    assert_search "product", ["Product A", "Product B", "Product C", "Product D"], where: {store_id: -Float::INFINITY..Float::INFINITY}
     assert_search "product", ["Product C", "Product D"], where: {store_id: 3..Float::INFINITY}
+    assert_search "product", ["Product A", "Product B"], where: {store_id: -Float::INFINITY..2}
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.6.0")
       # use eval to prevent parse error
       assert_search "product", ["Product C", "Product D"], where: {store_id: 3..eval("0..")}
