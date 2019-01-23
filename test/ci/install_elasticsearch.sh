@@ -22,4 +22,4 @@ fi
 
 cd $CACHE_DIR
 bin/elasticsearch -d
-wget -O- --waitretry=5 --tries=12 --retry-connrefused -v http://127.0.0.1:9200/
+for i in {1..12}; do wget -O- -v http://127.0.0.1:9200/ && break || sleep 5; done
