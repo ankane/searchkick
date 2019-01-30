@@ -19,7 +19,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where, :simple_query_string]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -236,7 +236,16 @@ module Searchkick
         must_not = []
         should = []
 
-        if options[:similar]
+        if options[:simple_query_string]
+          query = {
+            simple_query_string: {
+              query: term,
+              default_operator: operator,
+              fields: fields,
+              analyze_wildcard: true
+            }
+          }
+        elsif options[:similar]
           query = {
             more_like_this: {
               like: term,
