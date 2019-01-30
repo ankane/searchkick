@@ -384,15 +384,8 @@ module Searchkick
             end
           end
 
-          # all + exclude option
-          if all
+          if !all
             query = {
-              match_all: {}
-            }
-
-            should = []
-          else
-            payload = {
               dis_max: {
                 queries: queries
               }
@@ -400,8 +393,6 @@ module Searchkick
 
             should.concat(set_conversions)
           end
-
-          query = payload
         end
 
         payload = {}
