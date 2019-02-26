@@ -8,8 +8,8 @@ module Searchkick
       raise Searchkick::Error, "Searchkick.redis not set" unless Searchkick.redis
     end
 
-    def push(record_id)
-      Searchkick.with_redis { |r| r.lpush(redis_key, record_id) }
+    def push(record_ids)
+      Searchkick.with_redis { |r| r.lpush(redis_key, Array(record_ids)) }
     end
 
     # TODO use reliable queuing
