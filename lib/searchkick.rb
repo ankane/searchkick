@@ -32,7 +32,9 @@ module Searchkick
   class UnsupportedVersionError < Error; end
   class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
   class DangerousOperation < Error; end
-  class ImportError < Error; end
+  class ImportError < Error
+    attr_accessor :failures
+  end
 
   class << self
     attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options

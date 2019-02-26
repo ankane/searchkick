@@ -3,7 +3,7 @@ module Searchkick
     attr_reader :queued_items
 
     def initialize
-      @queued_items = []
+      reset_queue!
     end
 
     def queue(items)
@@ -13,16 +13,31 @@ module Searchkick
 
     def perform
       items = @queued_items
+      reset_queue!
+      return if items.none?
+
+      response = Searchkick.client.bulk(body: items)
+      raise_bulk_indexing_exception!(response) if response['errors']
+    end
+
+    private
+
+    def reset_queue!
       @queued_items = []
-      if items.any?
-        response = Searchkick.client.bulk(body: items)
-        if response["errors"]
-          first_with_error = response["items"].map do |item|
-            (item["index"] || item["delete"] || item["update"])
-          end.find { |item| item["error"] }
-          raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
-        end
+    end
+
+    def raise_bulk_indexing_exception!(response)
+      item_responses = response["items"].map do |item|
+        (item["index"] || item["delete"] || item["update"])
       end
+
+      failures, successes = item_responses.partition { |item| item["error"] }
+      first_with_error = failures.first
+
+      e = Searchkick::ImportError.new "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'. Succeeded: #{successes.size}, Failed: #{failures.size}"
+      e.failures = failures
+
+      raise e
     end
   end
 end

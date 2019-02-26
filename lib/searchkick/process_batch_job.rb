@@ -27,9 +27,29 @@ module Searchkick
 
       # bulk reindex
       index = klass.searchkick_index
-      Searchkick.callbacks(:bulk) do
-        index.bulk_index(records) if records.any?
-        index.bulk_delete(delete_records) if delete_records.any?
+      with_rejection_handling(index) do
+        Searchkick.callbacks(:bulk) do
+          index.bulk_index(records) if records.any?
+          index.bulk_delete(delete_records) if delete_records.any?
+        end
+      end
+    end
+
+    private
+
+    def with_rejection_handling(index)
+      begin
+        yield
+      rescue Searchkick::ImportError => e
+        raise e unless e.failures
+
+        retryable, non_retryable = e.failures.partition {|failed_item| failed_item['error']['type'] == 'es_rejected_execution_exception'}
+
+        retryable.each do |failure|
+          index.reindex_queue.push failure['_id']
+        end
+
+        raise e if non_retryable.any?
       end
     end
   end
