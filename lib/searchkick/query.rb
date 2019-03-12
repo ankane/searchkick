@@ -2,7 +2,7 @@ module Searchkick
   class Query
     extend Forwardable
 
-    @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
+    @@metric_aggs = [:avg, :cardinality, :max, :min, :sum, :stats, :extended_stats]
 
     attr_reader :klass, :term, :options
     attr_accessor :body
