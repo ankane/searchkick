@@ -178,6 +178,34 @@ class AggsTest < Minitest::Test
     assert_equal 3, products.aggs["total_stores"]["value"]
   end
 
+  def test_aggs_stats
+    products =
+      Product.search("*", {
+        aggs: {
+          price_stats: {
+            stats: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 66, products.aggs["price_stats"]["sum"]
+  end
+
+  def test_aggs_extended_stats
+    products =
+      Product.search("*", {
+        aggs: {
+          price_extended_stats: {
+            extended_stats: {
+              field: :price
+            }
+          }
+        }
+      })
+    assert_equal 1316, products.aggs["price_extended_stats"]["sum_of_squares"]
+  end
+
   def test_aggs_min_max
     products =
       Product.search("*", {
