@@ -91,8 +91,8 @@ module Searchkick
       end
     end
 
+    options = options.merge(block: block) if block
     query = Searchkick::Query.new(klass, term, options)
-    block.call(query.body) if block
     if options[:execute] == false
       query
     else

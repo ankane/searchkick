@@ -15,7 +15,7 @@ module Searchkick
       :out_of_range?, :hits, :response, :to_a, :first
 
     def initialize(klass, term = "*", **options)
-      unknown_keywords = options.keys - [:aggs, :body, :body_options, :boost,
+      unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
@@ -482,6 +482,9 @@ module Searchkick
 
       # merge more body options
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]
+
+      # run block
+      options[:block].call(payload) if options[:block]
 
       @body = payload
       @page = page

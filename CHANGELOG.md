@@ -3,6 +3,7 @@
 - Added support for endless ranges
 - Added `prefix` to `where`
 - Fixed error with some language stemmers and Elasticsearch 6.5
+- Fixed issue with misspellings below and body block
 
 ## 3.1.2
 
