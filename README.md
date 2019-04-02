@@ -2,12 +2,6 @@
 
 :rocket: Intelligent search made easy
 
----
-
-Have a minute to make Searchkick better? Take the [2019 Searchkick Survey](https://docs.google.com/forms/d/e/1FAIpQLSeeolxIL5euBsKF_C0l8_02JpYb9CIddemYDpGYJIma4DYWhw/viewform)
-
----
-
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
 
 Searchkick handles:
