@@ -91,11 +91,12 @@ module Searchkick
     alias_method :swap, :promote
 
     def retrieve(record)
-      client.get(
-        index: name,
-        type: document_type(record),
-        id: search_id(record)
-      )["_source"]
+      record_data = RecordData.new(self, record).record_data
+
+      # remove underscore
+      get_options = Hash[record_data.map { |k, v| [k.to_s.sub(/\A_/, "").to_sym, v] }]
+
+      client.get(get_options)["_source"]
     end
 
     def all_indices(unaliased: false)

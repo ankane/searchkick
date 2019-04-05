@@ -25,4 +25,9 @@ class SimilarTest < Minitest::Test
     store_names ["1% Organic Milk", "2% Organic Milk", "Fat Free Organic Milk", "Popcorn"]
     assert_equal ["2% Organic Milk"], Product.where(name: "1% Organic Milk").first.similar(fields: ["name"], order: ["name"], per_page: 1).map(&:name)
   end
+
+  def test_routing
+    store_names ["Test"], Store
+    assert_equal [], Store.first.similar(fields: ["name"]).map(&:name)
+  end
 end

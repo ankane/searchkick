@@ -39,8 +39,6 @@ module Searchkick
       @routing_key ||= Searchkick.server_below?("6.0.0") ? :_routing : :routing
     end
 
-    private
-
     def record_data
       data = {
         _index: index.name,
@@ -50,6 +48,8 @@ module Searchkick
       data[self.class.routing_key] = record.search_routing if record.respond_to?(:search_routing)
       data
     end
+
+    private
 
     def search_data(method_name = nil)
       partial_reindex = !method_name.nil?
