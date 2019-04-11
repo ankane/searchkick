@@ -37,7 +37,7 @@ module Searchkick
   end
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
-  self.timeout = 10
+  self.timeout = 30
   self.models = []
   self.client_options = {}
 
