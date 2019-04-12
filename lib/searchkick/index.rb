@@ -13,7 +13,12 @@ module Searchkick
     end
 
     def create(body = {})
-      client.indices.create index: name, body: body
+      include_type_name = body.delete(:include_type_name)
+      if include_type_name
+        client.indices.create index: name, body: body, include_type_name: include_type_name
+      else
+        client.indices.create index: name, body: body
+      end
     end
 
     def delete

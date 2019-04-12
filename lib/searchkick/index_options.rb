@@ -4,6 +4,10 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
+      include_type_name = {}
+      if options[:include_type_name]
+        include_type_name.merge!(include_type_name: options[:include_type_name])
+      end
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
@@ -423,7 +427,7 @@ module Searchkick
       {
         settings: settings,
         mappings: mappings
-      }
+      }.merge(include_type_name)
     end
   end
 end
