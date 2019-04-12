@@ -1,8 +1,9 @@
-## 3.1.3 [unreleased]
+## 3.1.3
 
 - Added support for endless ranges
 - Added support for routing to `similar` method
 - Added `prefix` to `where`
+- Fixed error with elasticsearch-ruby 6.3
 - Fixed error with some language stemmers and Elasticsearch 6.5
 - Fixed issue with misspellings below and body block
 
