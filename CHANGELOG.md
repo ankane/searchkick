@@ -1,4 +1,4 @@
-## 4.0.0 [unreleased]
+## 4.0.0
 
 - Added support for Elasticsearch 7
 - Added `models` option
