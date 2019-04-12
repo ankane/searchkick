@@ -102,7 +102,11 @@ module Searchkick
     def all_indices(unaliased: false)
       indices =
         begin
-          client.indices.get_aliases
+          if client.indices.respond_to?(:get_alias)
+            client.indices.get_alias
+          else
+            client.indices.get_aliases
+          end
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           {}
         end
