@@ -53,7 +53,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-The latest version works with Elasticsearch 5 and 6. For Elasticsearch 2, use version 2.5.0 and [this readme](https://github.com/ankane/searchkick/blob/v2.5.0/README.md).
+The latest version works with Elasticsearch 6 and 7. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -312,13 +312,13 @@ A few languages require plugins:
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
+  searchkick synonyms: [["burger", "hamburger"], ["sneakers", "shoes"]]
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
 
-Synonyms cannot be more than two words at the moment.
+Synonyms cannot be multiple words at the moment.
 
 To read synonyms from a file, use:
 
@@ -796,8 +796,6 @@ Script support
 Product.search "*", aggs: {color: {script: {source: "'Color: ' + _value"}}}
 ```
 
-**Note:** Use `inline` instead of `source` before Elasticsearch 5.6
-
 Date histogram
 
 ```ruby
@@ -924,9 +922,7 @@ You can also index and search geo shapes.
 
 ```ruby
 class Restaurant < ApplicationRecord
-  searchkick geo_shape: {
-    bounds: {tree: "geohash", precision: "1km"}
-  }
+  searchkick geo_shape: [:bounds]
 
   def search_data
     attributes.merge(
@@ -957,12 +953,6 @@ Not touching the query shape
 
 ```ruby
 Restaurant.search "burger", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
-```
-
-Containing the query shape
-
-```ruby
-Restaurant.search "fries", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
 ## Inheritance
@@ -1496,21 +1486,15 @@ Then use `products` and `coupons` as typical results.
 
 **Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors.
 
-## Multiple Indices
+## Multiple Models
 
-Search across multiple models/indices with:
-
-```ruby
-Searchkick.search "milk", index_name: [Product, Category]
-```
-
-Specify conditions for different indices
+Search across multiple models with:
 
 ```ruby
-where: {_or: [{_type: "product", in_stock: true}, {_type: "category", active: true}]}
+Searchkick.search "milk", models: [Product, Category]
 ```
 
-Boost specific indices with:
+Boost specific models with:
 
 ```ruby
 indices_boost: {Category => 2, Product => 1}
@@ -1657,7 +1641,7 @@ Product.search "milk", includes: [:brand, :stores]
 Eager load different associations by model
 
 ```ruby
-Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
+Searchkick.search("*",  models: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Run additional scopes on results
@@ -1899,6 +1883,11 @@ Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenan
 ## Upgrading
 
 See [how to upgrade to Searchkick 3](docs/Searchkick-3-Upgrade.md)
+
+## Elasticsearch 6 to 7 Upgrade
+
+1. Install Searchkick 4
+2. Upgrade your Elasticsearch cluster
 
 ## Elasticsearch 5 to 6 Upgrade
 

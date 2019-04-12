@@ -25,9 +25,16 @@ module Searchkick
           # results can have different types
           results = {}
 
-          hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
-            klass = (!options[:index_name] && @klass) || type.camelize.constantize
-            results[type] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
+          hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
+            klass =
+              if @klass
+                @klass
+              else
+                index_alias = index.split("_")[0..-2].join("_")
+                (options[:index_mapping] || {})[index_alias]
+              end
+            raise Searchkick::Error, "Unknown model for index: #{index}" unless klass
+            results[index] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
           end
 
           missing_ids = []
@@ -35,7 +42,7 @@ module Searchkick
           # sort
           results =
             hits.map do |hit|
-              result = results[hit["_type"]][hit["_id"].to_s]
+              result = results[hit["_index"]][hit["_id"].to_s]
               if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
                 if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
                   highlights = hit_highlights(hit)
@@ -132,7 +139,13 @@ module Searchkick
     end
 
     def total_count
-      options[:total_entries] || response["hits"]["total"]
+      if options[:total_entries]
+        options[:total_entries]
+      elsif response["hits"]["total"].is_a?(Hash)
+        response["hits"]["total"]["value"]
+      else
+        response["hits"]["total"]
+      end
     end
     alias_method :total_entries, :total_count
 

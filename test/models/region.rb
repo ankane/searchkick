@@ -1,8 +1,6 @@
 class Region
   searchkick \
-    geo_shape: {
-      territory: {tree: "quadtree", precision: "10km"}
-    }
+    geo_shape: [:territory]
 
   attr_accessor :territory
 

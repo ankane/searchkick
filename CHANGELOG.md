@@ -1,3 +1,13 @@
+## 4.0.0 [unreleased]
+
+- Added support for Elasticsearch 7
+- Added `models` option
+
+Breaking changes
+
+- Removed support for Elasticsearch 5
+- Removed support for multi-word synonyms (they no longer work with shingles)
+
 ## 3.1.3
 
 - Added support for endless ranges

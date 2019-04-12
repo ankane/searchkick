@@ -67,6 +67,7 @@ class BoostTest < Minitest::Test
   end
 
   def test_conversions_weight
+    Product.reindex
     store [
       {name: "Product Boost", orders_count: 20},
       {name: "Product Conversions", conversions: {"product" => 10}}
@@ -229,6 +230,6 @@ class BoostTest < Minitest::Test
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
 
-    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Store
+    assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
   end
 end

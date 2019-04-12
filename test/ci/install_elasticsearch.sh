@@ -5,15 +5,13 @@ set -e
 CACHE_DIR=$HOME/elasticsearch/$ELASTICSEARCH_VERSION
 
 if [ ! -d "$CACHE_DIR" ]; then
-  if [[ $ELASTICSEARCH_VERSION == 1* ]]; then
-    URL=https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
-  elif [[ $ELASTICSEARCH_VERSION == 2* ]]; then
-    URL=https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/$ELASTICSEARCH_VERSION/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
+  if [[ $ELASTICSEARCH_VERSION == 7* ]]; then
+    URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION-linux-x86_64.tar.gz
   else
     URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
   fi
 
-  wget $URL
+  wget -O elasticsearch-$ELASTICSEARCH_VERSION.tar.gz $URL
   tar xvfz elasticsearch-$ELASTICSEARCH_VERSION.tar.gz
   mv elasticsearch-$ELASTICSEARCH_VERSION $CACHE_DIR
 else

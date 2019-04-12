@@ -78,16 +78,36 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
+  # memoize for performance
+  def self.server_below7?
+    unless defined?(@server_below7)
+      @server_below7 = server_below?("7.0.0")
+    end
+    @server_below7
+  end
+
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
 
-    # make Searchkick.search(index_name: [Product]) and Product.search equivalent
+    # convert index_name into models if possible
+    # this should allow for easier upgrade
+    if options[:index_name] && !options[:models] && Array(options[:index_name]).all? { |v| v.respond_to?(:searchkick_index) }
+      options[:models] = options.delete(:index_name)
+    end
+
+    # make Searchkick.search(models: [Product]) and Product.search equivalent
     unless klass
-      index_name = Array(options[:index_name])
-      if index_name.size == 1 && index_name.first.respond_to?(:searchkick_index)
-        klass = index_name.first
-        options.delete(:index_name)
+      models = Array(options[:models])
+      if models.size == 1
+        klass = models.first
+        options.delete(:models)
+      end
+    end
+
+    if klass
+      if (options[:models] && Array(options[:models]) != [klass]) || Array(options[:index_name]).any? { |v| v.respond_to?(:searchkick_index) && v != klass }
+        raise ArgumentError, "Use Searchkick.search to search multiple models"
       end
     end
 

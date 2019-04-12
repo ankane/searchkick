@@ -18,7 +18,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
-        :match, :misspellings, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
+        :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -39,6 +39,7 @@ module Searchkick
       @misspellings = false
       @misspellings_below = nil
       @highlighted_fields = nil
+      @index_mapping = nil
 
       prepare
     end
@@ -56,9 +57,18 @@ module Searchkick
     end
 
     def params
+      if options[:models]
+        @index_mapping = {}
+        Array(options[:models]).each do |model|
+          @index_mapping[model.searchkick_index.name] = model
+        end
+      end
+
       index =
         if options[:index_name]
           Array(options[:index_name]).map { |v| v.respond_to?(:searchkick_index) ? v.searchkick_index.name : v }.join(",")
+        elsif options[:models]
+          @index_mapping.keys.join(",")
         elsif searchkick_index
           searchkick_index.name
         else
@@ -116,8 +126,8 @@ module Searchkick
         misspellings: @misspellings,
         term: term,
         scope_results: options[:scope_results],
-        index_name: options[:index_name],
-        total_entries: options[:total_entries]
+        total_entries: options[:total_entries],
+        index_mapping: @index_mapping
       }
 
       if options[:debug]
@@ -166,7 +176,7 @@ module Searchkick
     end
 
     def retry_misspellings?(response)
-      @misspellings_below && response["hits"]["total"] < @misspellings_below
+      @misspellings_below && Searchkick::Results.new(searchkick_klass, response).total_count < @misspellings_below
     end
 
     private
@@ -377,7 +387,7 @@ module Searchkick
               queries_to_add.concat(q2)
             end
 
-            queries.concat(queries_to_add)
+            queries << queries_to_add
 
             if options[:exclude]
               must_not.concat(set_exclude(exclude_field, exclude_analyzer))
@@ -392,9 +402,10 @@ module Searchkick
 
             should = []
           else
+            # higher score for matching more fields
             payload = {
-              dis_max: {
-                queries: queries
+              bool: {
+                should: queries.map { |qs| {dis_max: {queries: qs}} }
               }
             }
 
@@ -663,20 +674,9 @@ module Searchkick
     def set_boost_by_indices(payload)
       return unless options[:indices_boost]
 
-      if below52?
-        indices_boost = options[:indices_boost].each_with_object({}) do |(key, boost), memo|
-          index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
-          # try to use index explicitly instead of alias: https://github.com/elasticsearch/elasticsearch/issues/4756
-          index_by_alias = Searchkick.client.indices.get_alias(index: index).keys.first
-          memo[index_by_alias || index] = boost
-        end
-      else
-        # array format supports alias resolution
-        # https://github.com/elastic/elasticsearch/pull/21393
-        indices_boost = options[:indices_boost].map do |key, boost|
-          index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
-          {index => boost}
-        end
+      indices_boost = options[:indices_boost].map do |key, boost|
+        index = key.respond_to?(:searchkick_index) ? key.searchkick_index.name : key
+        {index => boost}
       end
 
       payload[:indices_boost] = indices_boost
@@ -713,7 +713,7 @@ module Searchkick
     def set_highlights(payload, fields)
       payload[:highlight] = {
         fields: Hash[fields.map { |f| [f, {}] }],
-        fragment_size: below60? ? 30000 : 0
+        fragment_size: 0
       }
 
       if options[:highlight].is_a?(Hash)
@@ -824,7 +824,7 @@ module Searchkick
     # TODO id transformation for arrays
     def set_order(payload)
       order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      id_field = below60? ? :_uid : :_id
+      id_field = :_id
       payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
     end
 
@@ -1021,16 +1021,12 @@ module Searchkick
       k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
     end
 
-    def below52?
-      Searchkick.server_below?("5.2.0")
-    end
-
-    def below60?
-      Searchkick.server_below?("6.0.0")
-    end
-
     def below61?
       Searchkick.server_below?("6.1.0")
+    end
+
+    def below70?
+      Searchkick.server_below?("7.0.0")
     end
   end
 end

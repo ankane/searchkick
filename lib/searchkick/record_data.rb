@@ -34,18 +34,13 @@ module Searchkick
       index.klass_document_type(record.class, ignore_type)
     end
 
-    # memoize
-    def self.routing_key
-      @routing_key ||= Searchkick.server_below?("6.0.0") ? :_routing : :routing
-    end
-
     def record_data
       data = {
         _index: index.name,
-        _id: search_id,
-        _type: document_type
+        _id: search_id
       }
-      data[self.class.routing_key] = record.search_routing if record.respond_to?(:search_routing)
+      data[:_type] = document_type if Searchkick.server_below7?
+      data[:routing] = record.search_routing if record.respond_to?(:search_routing)
       data
     end
 

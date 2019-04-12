@@ -77,6 +77,20 @@ class InheritanceTest < Minitest::Test
   def test_multiple_indices
     store_names ["Product A"]
     store_names ["Product B"], Animal
-    assert_search "product", ["Product A", "Product B"], index_name: [Product.searchkick_index.name, Animal.searchkick_index.name], conversions: false
+    assert_search "product", ["Product A", "Product B"], {models: [Product, Animal], conversions: false}, Searchkick
+    assert_search "product", ["Product A", "Product B"], {index_name: [Product, Animal], conversions: false}, Searchkick
+  end
+
+  def test_index_name_model
+    store_names ["Product A"]
+    assert_equal ["Product A"], Searchkick.search("product", index_name: [Product]).map(&:name)
+  end
+
+  def test_index_name_string
+    store_names ["Product A"]
+    error = assert_raises Searchkick::Error do
+      Searchkick.search("product", index_name: [Product.searchkick_index.name]).map(&:name)
+    end
+    assert_includes error.message, "Unknown model"
   end
 end

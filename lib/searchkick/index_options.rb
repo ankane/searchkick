@@ -4,15 +4,13 @@ module Searchkick
       options = @options
       language = options[:language]
       language = language.call if language.respond_to?(:call)
-      index_type = options[:_type]
-      index_type = index_type.call if index_type.respond_to?(:call)
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
         mappings = options[:mappings]
       else
-        below60 = Searchkick.server_below?("6.0.0")
         below62 = Searchkick.server_below?("6.2.0")
+        below70 = Searchkick.server_below?("7.0.0")
 
         default_type = "text"
         default_analyzer = :searchkick_index
@@ -144,15 +142,6 @@ module Searchkick
           }
         }
 
-        if below60
-          # ES docs say standard token filter does nothing in ES 5
-          # (and therefore isn't needed at at), but tests say otherwise
-          # https://www.elastic.co/guide/en/elasticsearch/reference/5.0/analysis-standard-tokenfilter.html
-          [default_analyzer, :searchkick_search, :searchkick_search2].each do |analyzer|
-            settings[:analysis][:analyzer][analyzer][:filter].unshift("standard")
-          end
-        end
-
         stem = options[:stem]
 
         case language
@@ -279,8 +268,7 @@ module Searchkick
           # - Only apply the synonym expansion at index time
           # - Don't have the synonym filter applied search
           # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_synonym") if below60
-          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_synonym"
+          settings[:analysis][:analyzer][default_analyzer][:filter].insert(2, "searchkick_synonym")
 
           %w(word_start word_middle word_end).each do |type|
             settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
@@ -391,10 +379,6 @@ module Searchkick
           "{name}" => keyword_mapping
         }
 
-        if below60 && all
-          dynamic_fields["{name}"][:include_in_all] = !options[:searchable]
-        end
-
         if options.key?(:filterable)
           dynamic_fields["{name}"] = {type: default_type, index: index_false_value}
         end
@@ -413,25 +397,24 @@ module Searchkick
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
         mappings = {
-          index_type => {
-            properties: mapping,
-            _routing: routing,
-            # https://gist.github.com/kimchy/2898285
-            dynamic_templates: [
-              {
-                string_template: {
-                  match: "*",
-                  match_mapping_type: "string",
-                  mapping: multi_field
-                }
+          properties: mapping,
+          _routing: routing,
+          # https://gist.github.com/kimchy/2898285
+          dynamic_templates: [
+            {
+              string_template: {
+                match: "*",
+                match_mapping_type: "string",
+                mapping: multi_field
               }
-            ]
-          }
+            }
+          ]
         }
 
-        if below60
-          all_enabled = all && (!options[:searchable] || options[:searchable].to_a.map(&:to_s).include?("_all"))
-          mappings[index_type][:_all] = all_enabled ? analyzed_field_options : {enabled: false}
+        if below70
+          index_type = options[:_type]
+          index_type = index_type.call if index_type.respond_to?(:call)
+          mappings = {index_type => mappings}
         end
 
         mappings = mappings.symbolize_keys.deep_merge((options[:mappings] || {}).symbolize_keys)

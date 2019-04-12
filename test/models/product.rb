@@ -2,11 +2,8 @@ class Product
   searchkick \
     synonyms: [
       ["clorox", "bleach"],
-      ["scallion", "greenonion"],
-      ["saran wrap", "plastic wrap"],
-      ["qtip", "cottonswab"],
       ["burger", "hamburger"],
-      ["bandaid", "bandag"],
+      ["bandaid", "bandages"],
       ["UPPERCASE", "lowercase"],
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
