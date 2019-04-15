@@ -67,7 +67,7 @@ module Searchkick
   end
 
   def self.search_timeout
-    @search_timeout || timeout
+    (defined?(@search_timeout) && @search_timeout) || timeout
   end
 
   def self.server_version
