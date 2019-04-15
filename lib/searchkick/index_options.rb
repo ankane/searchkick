@@ -16,7 +16,6 @@ module Searchkick
         default_analyzer = :searchkick_index
         keyword_mapping = {type: "keyword"}
 
-        all = options.key?(:_all) ? options[:_all] : false
         index_true_value = true
         index_false_value = false
 
