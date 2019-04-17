@@ -78,8 +78,8 @@ module Searchkick
   end
 
   def self.get_current_client_id
-    return nil unless Thread.current['searhckick_client_id'].present?
-    Thread.current['searhckick_client_id'].to_i
+    return nil unless Thread.current['search_kick_client_id'].present?
+    Thread.current['search_kick_client_id'].to_i
   end
 
   def self.writing_clients
@@ -89,8 +89,8 @@ module Searchkick
       when 1
         [client]
       when 2
-        [new_client] if new_client().present?
-        raise Exception, 'new_client not defined'
+        raise Exception, 'new_client not defined' if Searchkick.new_client.nil?
+        [Searchkick.new_client]
       else
         raise Exception, 'Invalid value for RequestStoreService.get_current_client_id can be 1 or 2. nil as legacy support'
       end

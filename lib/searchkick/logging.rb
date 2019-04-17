@@ -46,16 +46,20 @@ module Searchkick
     end
 
     def import(records, options = {})
-      Thread.current['searhckick_client_id'] = options[:client_id]
+      begin
+        Thread.current['search_kick_client_id'] = options[:client_id]
 
-      if records.any?
-        event = {
-          name: "#{records.first.searchkick_klass.name} Import",
-          count: records.size
-        }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+        if records.any?
+          event = {
+            name: "#{records.first.searchkick_klass.name} Import",
+            count: records.size
+          }
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super(records)
+          end
         end
+      ensure
+        Thread.current['searhckick_client_id'] = nil
       end
     end
   end
