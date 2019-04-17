@@ -45,7 +45,9 @@ module Searchkick
       end
     end
 
-    def import(records)
+    def import(records, options = {})
+      Thread.current['searhckick_client_id'] = options[:client_id]
+
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",
