@@ -30,18 +30,24 @@ module Searchkick
       end
     end
 
-    def remove(record)
-      name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
-      event = {
-        name: name,
-        id: search_id(record)
-      }
-      if Searchkick.callbacks_value == :bulk
-        super
-      else
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+    def remove(record, options = {})
+      begin
+        Thread.current['search_kick_client_id'] = options[:client_id]
+
+        name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
+        event = {
+          name: name,
+          id: search_id(record)
+        }
+        if Searchkick.callbacks_value == :bulk
           super
+        else
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super
+          end
         end
+      ensure
+        Thread.current['searhckick_client_id'] = nil
       end
     end
 
