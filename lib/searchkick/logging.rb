@@ -30,7 +30,7 @@ module Searchkick
       end
     end
 
-    def remove(record)
+    def remove(record, options = {})
       name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
       event = {
         name: name,
