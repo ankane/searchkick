@@ -89,10 +89,10 @@ module Searchkick
       when 1
         return [client]
       when 2
-        raise Exception, 'new_client not defined' if new_client.nil?
+        raise StandardError, 'new_client not defined' if new_client.nil?
         return [new_client]
       else
-        raise Exception, 'Invalid value for RequestStoreService.get_current_client_id can be 1 or 2. nil as legacy support'
+        raise StandardError, 'Invalid value for RequestStoreService.get_current_client_id can be 1 or 2. nil as legacy support'
       end
     end
 
