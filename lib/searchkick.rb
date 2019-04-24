@@ -87,13 +87,13 @@ module Searchkick
     if current_client.present?
       case current_client
       when 1
-        raise StandardError, 'client not defined' if client.nil?
+        raise 'client not defined' if client.nil?
         return [client]
       when 2
-        raise StandardError, 'new_client not defined' if new_client.nil?
+        raise 'new_client not defined' if new_client.nil?
         return [new_client]
       else
-        raise StandardError, 'Invalid value for Thread.current.search_kick_client_id can be 1 or 2. nil as legacy support'
+        raise 'Invalid value for Thread.current.search_kick_client_id can be 1 or 2. nil as legacy support'
       end
     end
 
