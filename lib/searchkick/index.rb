@@ -54,8 +54,14 @@ module Searchkick
       bulk_index([record])
     end
 
-    def remove(record)
-      bulk_delete([record])
+    def remove(record, options={})
+      begin
+        Thread.current['search_kick_client_id'] = options[:client_id]
+
+        bulk_delete([record])
+      ensure
+        Thread.current['searhckick_client_id'] = nil
+      end
     end
 
     def bulk_delete(records)

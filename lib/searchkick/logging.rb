@@ -30,7 +30,7 @@ module Searchkick
       end
     end
 
-    def remove(record)
+    def remove(record, options = {})
       name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} Remove" : "Remove"
       event = {
         name: name,
@@ -45,15 +45,21 @@ module Searchkick
       end
     end
 
-    def import(records)
-      if records.any?
-        event = {
-          name: "#{records.first.searchkick_klass.name} Import",
-          count: records.size
-        }
-        ActiveSupport::Notifications.instrument("request.searchkick", event) do
-          super(records)
+    def import(records, options = {})
+      begin
+        Thread.current['search_kick_client_id'] = options[:client_id]
+
+        if records.any?
+          event = {
+            name: "#{records.first.searchkick_klass.name} Import",
+            count: records.size
+          }
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            super(records)
+          end
         end
+      ensure
+        Thread.current['searhckick_client_id'] = nil
       end
     end
   end

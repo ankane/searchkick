@@ -77,7 +77,26 @@ module Searchkick
       end
   end
 
+  def self.get_current_client_id
+    return nil unless Thread.current['search_kick_client_id'].present?
+    Thread.current['search_kick_client_id'].to_i
+  end
+
   def self.writing_clients
+    current_client = get_current_client_id
+    if current_client.present?
+      case current_client
+      when 1
+        raise 'client not defined' if client.nil?
+        return [client]
+      when 2
+        raise 'new_client not defined' if new_client.nil?
+        return [new_client]
+      else
+        raise 'Invalid value for Thread.current.search_kick_client_id can be 1 or 2. nil as legacy support'
+      end
+    end
+
     return @writing_clients if @writing_clients.present?
     @writing_clients = [client]
     @writing_clients << new_client() if new_client().present?
