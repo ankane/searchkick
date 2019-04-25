@@ -21,6 +21,10 @@ class SuggestTest < Minitest::Test
     assert_suggest "How to catch a big tiger shar", "how to catch a big tiger shark", fields: [:name]
   end
 
+  def test_empty
+    assert_suggest "hi", nil
+  end
+
   def test_without_option
     store_names ["hi"] # needed to prevent ElasticsearchException - seed 668
     assert_raises(RuntimeError) { Product.search("hi").suggestions }

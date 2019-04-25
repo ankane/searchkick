@@ -1,3 +1,7 @@
+## 4.0.1 [unreleased]
+
+- Fixed error when suggestions empty
+
 ## 4.0.0
 
 - Added support for Elasticsearch 7

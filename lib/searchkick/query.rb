@@ -127,7 +127,8 @@ module Searchkick
         term: term,
         scope_results: options[:scope_results],
         total_entries: options[:total_entries],
-        index_mapping: @index_mapping
+        index_mapping: @index_mapping,
+        suggest: options[:suggest]
       }
 
       if options[:debug]
