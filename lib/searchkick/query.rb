@@ -431,7 +431,7 @@ module Searchkick
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
 
-        # uncommented once aliases are supported with _index
+        # uncomment once aliases are supported with _index
         # models = Array(options[:models])
         # if models.any? { |m| m != m.searchkick_klass }
         #   index_type_or =
