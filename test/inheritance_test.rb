@@ -88,10 +88,13 @@ class InheritanceTest < Minitest::Test
     Animal.reindex
     assert_equal 2, Searchkick.search("bear", models: [Cat, Product]).size
 
-    # pagination will be off with this approach
+    # hits and pagination will be off with this approach (for now)
     # ideal case is add where conditions (index a, type a OR index b)
-    # however, we don't know the exact index name, and aliases don't work for filters
+    # however, we don't know the exact index name and aliases don't work for filters
+    # see https://github.com/elastic/elasticsearch/issues/23306
     # show warning for now
+    # alternative is disallow inherited models with models option
+    assert_equal 3, Searchkick.search("bear", models: [Cat, Product]).hits.size
     assert_equal 3, Searchkick.search("bear", models: [Cat, Product], per_page: 1).total_pages
   end
 
