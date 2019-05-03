@@ -63,10 +63,6 @@ module Searchkick
           # there can be multiple models per index name due to inheritance - see #1259
           (@index_mapping[model.searchkick_index.name] ||= []) << model
         end
-
-        if options[:per_page] && @index_mapping.values.flatten.any? { |m| m != m.searchkick_klass }
-          warn "[searchkick] Passing child models to the models option throws off pagination"
-        end
       end
 
       index =
@@ -135,6 +131,12 @@ module Searchkick
         index_mapping: @index_mapping,
         suggest: options[:suggest]
       }
+
+      # not great place, but params method is called multiple times
+      # and we want warning to show up only once
+      if options[:models] && options[:per_page] && @index_mapping.values.flatten.any? { |m| m != m.searchkick_klass }
+        warn "[searchkick] WARNING: Passing child models to the models option throws off pagination - use type option instead"
+      end
 
       if options[:debug]
         require "pp"
