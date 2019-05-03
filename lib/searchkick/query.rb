@@ -132,12 +132,6 @@ module Searchkick
         suggest: options[:suggest]
       }
 
-      # not great place, but params method is called multiple times
-      # and we want warning to show up only once
-      if options[:models] && options[:per_page] && @index_mapping.values.flatten.any? { |m| m != m.searchkick_klass }
-        warn "[searchkick] WARNING: Passing child models to models option throws off pagination - use type option instead"
-      end
-
       if options[:debug]
         require "pp"
 
@@ -431,18 +425,20 @@ module Searchkick
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
 
-        # uncomment once aliases are supported with _index
-        # models = Array(options[:models])
-        # if models.any? { |m| m != m.searchkick_klass }
-        #   index_type_or =
-        #     models.map do |m|
-        #       v = {_index: m.searchkick_index.name}
-        #       v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
-        #       v
-        #     end
+        models = Array(options[:models])
+        if models.any? { |m| m != m.searchkick_klass }
+          warn "[searchkick] WARNING: Passing child models to models option throws off hits and pagination - use type option instead"
 
-        #   where[:or] = Array(where[:or]) + [index_type_or]
-        # end
+          # uncomment once aliases are supported with _index
+          # index_type_or =
+          #   models.map do |m|
+          #     v = {_index: m.searchkick_index.name}
+          #     v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
+          #     v
+          #   end
+
+          # where[:or] = Array(where[:or]) + [index_type_or]
+        end
 
         # start everything as efficient filters
         # move to post_filters as aggs demand
