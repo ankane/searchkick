@@ -87,6 +87,12 @@ class InheritanceTest < Minitest::Test
     store_names ["Bear C"]
     Animal.reindex
     assert_equal 2, Searchkick.search("bear", models: [Cat, Product]).size
+
+    # pagination will be off with this approach
+    # ideal case is add where conditions (index a, type a OR index b)
+    # however, we don't know the exact index name, and aliases don't work for filters
+    # show warning for now
+    assert_equal 3, Searchkick.search("bear", models: [Cat, Product], per_page: 1).total_pages
   end
 
   # TODO move somewhere better
