@@ -72,12 +72,14 @@ class InheritanceTest < Minitest::Test
     assert_equal 2, Animal.search("bear").size
   end
 
-  # def test_child_models_option
-  #   store_names ["Bear A"], Cat
-  #   store_names ["Bear B"], Dog
-  #   Animal.reindex
-  #   assert_equal 2, Searchkick.search("bear", models: [Cat, Dog]).size
-  # end
+  def test_child_models_option
+    store_names ["Bear A"], Cat
+    store_names ["Bear B"], Dog
+    Animal.reindex
+    # note: the models option is less efficient than Animal.search("bear", type: [Cat, Dog])
+    # since it requires two database calls instead of one to Animal
+    assert_equal 2, Searchkick.search("bear", models: [Cat, Dog]).size
+  end
 
   def test_inherited_and_non_inherited_models
     store_names ["Bear A"], Cat

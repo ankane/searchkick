@@ -26,15 +26,19 @@ module Searchkick
           results = {}
 
           hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
-            klass =
+            klasses =
               if @klass
-                @klass
+                [@klass]
               else
                 index_alias = index.split("_")[0..-2].join("_")
-                (options[:index_mapping] || {})[index_alias]
+                Array((options[:index_mapping] || {})[index_alias])
               end
-            raise Searchkick::Error, "Unknown model for index: #{index}" unless klass
-            results[index] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
+            raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
+
+            results[index] = {}
+            klasses.each do |klass|
+              results[index].merge!(results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s })
+            end
           end
 
           missing_ids = []

@@ -1,6 +1,7 @@
 ## 4.0.1 [unreleased]
 
 - Fixed error when suggestions empty
+- Fixed `models` option with inheritance
 
 ## 4.0.0
 
