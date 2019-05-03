@@ -60,7 +60,7 @@ module Searchkick
       if options[:models]
         @index_mapping = {}
         Array(options[:models]).each do |model|
-          @index_mapping[model.searchkick_index.name] = model.searchkick_klass
+          @index_mapping[model.searchkick_index.name] = model
         end
       end
 
