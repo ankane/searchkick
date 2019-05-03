@@ -441,7 +441,7 @@ module Searchkick
         #       v
         #     end
 
-        #   (where[:or] ||= []) << index_type_or
+        #   where[:or] = Array(where[:or]) + [index_type_or]
         # end
 
         # start everything as efficient filters
