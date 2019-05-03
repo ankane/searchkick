@@ -431,6 +431,19 @@ module Searchkick
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
 
+        # uncommented once aliases are supported with _index
+        # models = Array(options[:models])
+        # if models.any? { |m| m != m.searchkick_klass }
+        #   index_type_or =
+        #     models.map do |m|
+        #       v = {_index: m.searchkick_index.name}
+        #       v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
+        #       v
+        #     end
+
+        #   (where[:or] ||= []) << index_type_or
+        # end
+
         # start everything as efficient filters
         # move to post_filters as aggs demand
         filters = where_filters(where)
