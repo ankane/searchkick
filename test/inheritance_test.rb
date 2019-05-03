@@ -72,6 +72,13 @@ class InheritanceTest < Minitest::Test
     assert_equal 2, Animal.search("bear").size
   end
 
+  def test_multiple_models
+    store_names ["Bear A"], Cat
+    store_names ["Bear B"], Dog
+    Animal.reindex
+    assert_equal 2, Searchkick.search("bear", models: [Cat, Dog]).size
+  end
+
   # TODO move somewhere better
 
   def test_multiple_indices
