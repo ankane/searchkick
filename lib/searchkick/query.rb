@@ -135,7 +135,7 @@ module Searchkick
       # not great place, but params method is called multiple times
       # and we want warning to show up only once
       if options[:models] && options[:per_page] && @index_mapping.values.flatten.any? { |m| m != m.searchkick_klass }
-        warn "[searchkick] WARNING: Passing child models to the models option throws off pagination - use type option instead"
+        warn "[searchkick] WARNING: Passing child models to models option throws off pagination - use type option instead"
       end
 
       if options[:debug]
