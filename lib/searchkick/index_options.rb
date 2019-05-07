@@ -5,12 +5,24 @@ module Searchkick
       language = options[:language]
       language = language.call if language.respond_to?(:call)
 
+      below62 = Searchkick.server_below?("6.2.0")
+      below70 = Searchkick.server_below?("7.0.0")
+
+      if below70
+        index_type = options[:_type]
+        index_type = index_type.call if index_type.respond_to?(:call)
+      end
+
+      custom_mapping = (options[:mapping] || {}).symbolize_keys
+      if below70 && custom_mapping.any? && custom_mapping.key?(:properties)
+        # add type
+        custom_mapping = {index_type.to_sym => custom_mapping}
+      end
+
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
-        mappings = options[:mappings]
+        mappings = custom_mapping
       else
-        below62 = Searchkick.server_below?("6.2.0")
-        below70 = Searchkick.server_below?("7.0.0")
 
         default_type = "text"
         default_analyzer = :searchkick_index
@@ -411,12 +423,10 @@ module Searchkick
         }
 
         if below70
-          index_type = options[:_type]
-          index_type = index_type.call if index_type.respond_to?(:call)
           mappings = {index_type => mappings}
         end
 
-        mappings = mappings.symbolize_keys.deep_merge((options[:mappings] || {}).symbolize_keys)
+        mappings = mappings.symbolize_keys.deep_merge(custom_mapping)
       end
 
       {

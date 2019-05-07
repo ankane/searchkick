@@ -1,5 +1,6 @@
 ## 4.0.1 [unreleased]
 
+- Made type optional for custom mapping for Elasticsearch 6
 - Fixed error when suggestions empty
 - Fixed `models` option with inheritance
 

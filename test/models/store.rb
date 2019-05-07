@@ -4,7 +4,6 @@ class Store
       name: {type: "keyword"}
     }
   }
-  mappings = {store: mappings} if Searchkick.server_below?("7.0.0")
 
   searchkick \
     routing: true,
