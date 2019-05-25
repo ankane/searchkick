@@ -1038,8 +1038,7 @@ heroku addons:create foundelasticsearch
 heroku addons:open foundelasticsearch
 ```
 
-Visit the Shield page and reset your password. You’ll need to add the username and password to your url.
-Also, verify your port number in your dashboard, It sould be `9243`
+Visit the Shield page and reset your password. You’ll need to add the username and password to your url. Also, verify the port number on the Overview page.
 
 Get the existing url with:
 
@@ -1047,7 +1046,7 @@ Get the existing url with:
 heroku config:get FOUNDELASTICSEARCH_URL
 ```
 
-And add `elastic:password@` right after `https://`, add the port at the end:
+And add `elastic:password@` right after `https://` and add the port at the end:
 
 ```sh
 heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws.found.io:9243
