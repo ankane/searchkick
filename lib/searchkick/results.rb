@@ -25,9 +25,20 @@ module Searchkick
           # results can have different types
           results = {}
 
-          hits.group_by { |hit, _| hit["_type"] }.each do |type, grouped_hits|
-            klass = (!options[:index_name] && @klass) || type.camelize.constantize
-            results[type] = results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s }
+          hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
+            klasses =
+              if @klass
+                [@klass]
+              else
+                index_alias = index.split("_")[0..-2].join("_")
+                Array((options[:index_mapping] || {})[index_alias])
+              end
+            raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
+
+            results[index] = {}
+            klasses.each do |klass|
+              results[index].merge!(results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s })
+            end
           end
 
           missing_ids = []
@@ -35,7 +46,7 @@ module Searchkick
           # sort
           results =
             hits.map do |hit|
-              result = results[hit["_type"]][hit["_id"].to_s]
+              result = results[hit["_index"]][hit["_id"].to_s]
               if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
                 if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
                   highlights = hit_highlights(hit)
@@ -83,7 +94,7 @@ module Searchkick
     def suggestions
       if response["suggest"]
         response["suggest"].values.flat_map { |v| v.first["options"] }.sort_by { |o| -o["score"] }.map { |o| o["text"] }.uniq
-      elsif options[:term] == "*"
+      elsif options[:suggest] || options[:term] == "*" # TODO remove 2nd term
         []
       else
         raise "Pass `suggest: true` to the search method for suggestions"
@@ -132,7 +143,13 @@ module Searchkick
     end
 
     def total_count
-      response["hits"]["total"]
+      if options[:total_entries]
+        options[:total_entries]
+      elsif response["hits"]["total"].is_a?(Hash)
+        response["hits"]["total"]["value"]
+      else
+        response["hits"]["total"]
+      end
     end
     alias_method :total_entries, :total_count
 
@@ -195,7 +212,7 @@ module Searchkick
     end
 
     def with_highlights(multiple: false)
-      with_hit do |result, hit|
+      with_hit.map do |result, hit|
         [result, hit_highlights(hit, multiple: multiple)]
       end
     end

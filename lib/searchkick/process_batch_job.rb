@@ -3,6 +3,10 @@ module Searchkick
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids:)
+      # separate routing from id
+      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
+      record_ids = routing.keys
+
       klass = class_name.constantize
       scope = Searchkick.load_records(klass, record_ids)
       scope = scope.search_import if scope.respond_to?(:search_import)
@@ -10,7 +14,16 @@ module Searchkick
 
       # determine which records to delete
       delete_ids = record_ids - records.map { |r| r.id.to_s }
-      delete_records = delete_ids.map { |id| m = klass.new; m.id = id; m }
+      delete_records = delete_ids.map do |id|
+        m = klass.new
+        m.id = id
+        if routing[id]
+          m.define_singleton_method(:search_routing) do
+            routing[id]
+          end
+        end
+        m
+      end
 
       # bulk reindex
       index = klass.searchkick_index

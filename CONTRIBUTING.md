@@ -2,17 +2,15 @@
 
 First, thanks for wanting to contribute. You’re awesome! :heart:
 
-## Questions
+## Help
 
-Use [Stack Overflow](https://stackoverflow.com/) with the tag `searchkick`.
+We’re not able to provide support through GitHub Issues. If you’re looking for help with your code, try posting on [Stack Overflow](https://stackoverflow.com/).
 
-## Feature Requests
+All features should be documented. If you don’t see a feature in the docs, assume it doesn’t exist.
 
-Create an issue. Start the title with `[Idea]`.
+## Bugs
 
-## Issues
-
-Think you’ve discovered an issue?
+Think you’ve discovered a bug?
 
 1. Search existing issues to see if it’s been reported.
 2. Try the `master` branch to make sure it hasn’t been fixed.
@@ -31,6 +29,10 @@ If the above steps don’t help, create an issue.
 
 - Recreate the problem by forking [this gist](https://gist.github.com/ankane/f80b0923d9ae2c077f41997f7b704e5c). Include a link to your gist and the output in the issue.
 - For exceptions, include the complete backtrace.
+
+## New Features
+
+If you’d like to discuss a new feature, create an issue and start the title with `[Idea]`.
 
 ## Pull Requests
 

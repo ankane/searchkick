@@ -34,17 +34,17 @@ module Searchkick
       index.klass_document_type(record.class, ignore_type)
     end
 
-    private
-
     def record_data
       data = {
         _index: index.name,
-        _id: search_id,
-        _type: document_type
+        _id: search_id
       }
-      data[:_routing] = record.search_routing if record.respond_to?(:search_routing)
+      data[:_type] = document_type if Searchkick.server_below7?
+      data[:routing] = record.search_routing if record.respond_to?(:search_routing)
       data
     end
+
+    private
 
     def search_data(method_name = nil)
       partial_reindex = !method_name.nil?
@@ -112,7 +112,7 @@ module Searchkick
           # performance
           if v.is_a?(BigDecimal)
             obj[k] = v.to_f
-          elsif v.is_a?(Enumerable) ||
+          elsif v.is_a?(Enumerable)
             obj[k] = cast_big_decimal(v)
           end
         end

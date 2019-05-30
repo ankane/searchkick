@@ -17,7 +17,7 @@ module Searchkick
     end
 
     def delete
-      if !Searchkick.server_below?("6.0.0") && alias_exists?
+      if alias_exists?
         # can't call delete directly on aliases in ES 6
         indices = client.indices.get_alias(name: name).keys
         client.indices.delete index: indices
@@ -68,7 +68,7 @@ module Searchkick
           }
         )
 
-      response["hits"]["total"]
+      Searchkick::Results.new(nil, response).total_count
     end
 
     def promote(new_name, update_refresh_interval: false)
@@ -91,17 +91,22 @@ module Searchkick
     alias_method :swap, :promote
 
     def retrieve(record)
-      client.get(
-        index: name,
-        type: document_type(record),
-        id: search_id(record)
-      )["_source"]
+      record_data = RecordData.new(self, record).record_data
+
+      # remove underscore
+      get_options = Hash[record_data.map { |k, v| [k.to_s.sub(/\A_/, "").to_sym, v] }]
+
+      client.get(get_options)["_source"]
     end
 
     def all_indices(unaliased: false)
       indices =
         begin
-          client.indices.get_aliases
+          if client.indices.respond_to?(:get_alias)
+            client.indices.get_alias
+          else
+            client.indices.get_aliases
+          end
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           {}
         end

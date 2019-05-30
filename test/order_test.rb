@@ -17,7 +17,7 @@ class OrderTest < Minitest::Test
     store_names ["Product A", "Product B"]
     product_a = Product.where(name: "Product A").first
     product_b = Product.where(name: "Product B").first
-    assert_order "product", [product_a, product_b].sort_by(&:id).map(&:name), order: {id: :asc}
+    assert_order "product", [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name), order: {id: :asc}
   end
 
   def test_order_multiple

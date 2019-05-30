@@ -20,7 +20,7 @@ class AggsTest < Minitest::Test
   end
 
   def test_order
-    agg = Product.search("Product", aggs: {color: {order: {"_term" => "desc"}}}).aggs["color"]
+    agg = Product.search("Product", aggs: {color: {order: {_key: "desc"}}}).aggs["color"]
     assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
   end
 
@@ -32,6 +32,12 @@ class AggsTest < Minitest::Test
 
   def test_min_doc_count
     assert_equal ({2 => 2}), store_agg(aggs: {store_id: {min_doc_count: 2}})
+  end
+
+  def test_script
+    source = "'Color: ' + _value"
+    agg = Product.search("Product", aggs: {color: {script: {source: source}}}).aggs["color"]
+    assert_equal ({"Color: blue" => 1, "Color: green" => 1, "Color: red" => 1}), buckets_as_hash(agg)
   end
 
   def test_no_aggs
@@ -114,6 +120,32 @@ class AggsTest < Minitest::Test
       })
 
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
+  end
+
+  def test_aggs_with_time_zone
+    start_time = Time.at(1529366400)
+
+    store [
+      {name: "Opera House Pass", created_at: start_time},
+      {name: "London Eye Pass", created_at: start_time + 16.hours},
+      {name: "London Tube Pass", created_at: start_time + 16.hours}
+    ]
+
+    sydney_search = search_aggregate_by_day_with_time_zone('Pass', '+10:00') # Sydney
+    london_search = search_aggregate_by_day_with_time_zone('Pass', '+01:00') # London
+
+    # London search will return all 3 in one bucket because of time zone offset
+    expected_london_buckets = [
+      {"key_as_string" => "2018-06-19T00:00:00.000+01:00", "key" => 1529362800000, "doc_count" => 3}
+    ]
+    assert_equal expected_london_buckets, london_search.aggs["products_per_day"]["buckets"]
+
+    # Sydney search will return them in separate buckets due to time zone offset
+    expected_sydney_buckets = [
+      {"key_as_string" => "2018-06-19T00:00:00.000+10:00", "key" => 1529330400000, "doc_count" => 1},
+      {"key_as_string" => "2018-06-20T00:00:00.000+10:00", "key" => 1529416800000, "doc_count" => 2}
+    ]
+    assert_equal expected_sydney_buckets, sydney_search.aggs["products_per_day"]["buckets"]
   end
 
   def test_aggs_avg
@@ -199,6 +231,23 @@ class AggsTest < Minitest::Test
   end
 
   protected
+
+  def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
+    Product.search(query, {
+      where: {
+        created_at: {lt: Time.now}
+      },
+      aggs: {
+        products_per_day: {
+          date_histogram: {
+            field: :created_at,
+            interval: :day,
+            time_zone: time_zone
+          }
+        }
+      }
+    })
+  end
 
   def buckets_as_hash(agg)
     Hash[agg["buckets"].map { |v| [v["key"], v["doc_count"]] }]

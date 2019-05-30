@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class SuggestTest < Minitest::Test
+  def setup
+    super
+    Product.reindex
+  end
+
   def test_basic
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
     assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [:name]
@@ -14,6 +19,10 @@ class SuggestTest < Minitest::Test
   def test_phrase
     store_names ["Big Tiger Shark", "Tiger Sharp Teeth", "Tiger Sharp Mind"]
     assert_suggest "How to catch a big tiger shar", "how to catch a big tiger shark", fields: [:name]
+  end
+
+  def test_empty
+    assert_suggest "hi", nil
   end
 
   def test_without_option

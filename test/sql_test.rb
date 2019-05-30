@@ -37,6 +37,7 @@ class SqlTest < Minitest::Test
   end
 
   def test_fields_both_match
+    # have same score due to dismax
     store [
       {name: "Blue A", color: "red"},
       {name: "Blue B", color: "light blue"}
@@ -172,7 +173,7 @@ class SqlTest < Minitest::Test
     store_names ["Store A"], Store
 
     associations = {Product => [:store], Store => [:products]}
-    result = Searchkick.search("*", index_name: [Product, Store], model_includes: associations)
+    result = Searchkick.search("*", models: [Product, Store], model_includes: associations)
 
     assert_equal 2, result.length
 

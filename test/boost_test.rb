@@ -67,6 +67,7 @@ class BoostTest < Minitest::Test
   end
 
   def test_conversions_weight
+    Product.reindex
     store [
       {name: "Product Boost", orders_count: 20},
       {name: "Product Conversions", conversions: {"product" => 10}}
@@ -149,6 +150,15 @@ class BoostTest < Minitest::Test
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_where: {user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}]}
   end
 
+  def test_boost_where_negative_boost
+    store [
+      {name: "Tomato A"},
+      {name: "Tomato B", user_ids: [2]},
+      {name: "Tomato C", user_ids: [2]}
+    ]
+    assert_first "tomato", "Tomato A", boost_where: {user_ids: {value: 2, factor: 0.5}}
+  end
+
   def test_boost_by_recency
     store [
       {name: "Article 1", created_at: 2.days.ago},
@@ -220,6 +230,6 @@ class BoostTest < Minitest::Test
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
 
-    assert_order "Rex", ["Rexx", "Rex"], {index_name: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Store
+    assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
   end
 end

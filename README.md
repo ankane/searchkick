@@ -22,17 +22,9 @@ Plus:
 - supports many languages
 - works with ActiveRecord, Mongoid, and NoBrainer
 
-:speech_balloon: Get [handcrafted updates](https://chartkick.us7.list-manage.com/subscribe?u=952c861f99eb43084e0a49f98&id=6ea6541e8e&group[0][4]=true) for new features
-
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
 [![Build Status](https://travis-ci.org/ankane/searchkick.svg?branch=master)](https://travis-ci.org/ankane/searchkick)
-
----
-
-Does your startup use Searchkick? Want a free hour of advising? Fill out [this application](https://goo.gl/forms/Or1HQTRb2rgQCNtd2). I’ll reach out to a few companies.
-
----
 
 ## Contents
 
@@ -45,10 +37,6 @@ Does your startup use Searchkick? Want a free hour of advising? Fill out [this a
 - [Performance](#performance)
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
-
-**Searchkick 3.0 was recently released!** See [how to upgrade](docs/Searchkick-3-Upgrade.md)
-
-Thinking of upgrading from Elasticsearch 5 to 6? [Read this first](#elasticsearch-5-to-6-upgrade)
 
 ## Getting Started
 
@@ -65,7 +53,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-The latest version works with Elasticsearch 5 and 6. For Elasticsearch 2, use version 2.5.0 and [this readme](https://github.com/ankane/searchkick/blob/v2.5.0/README.md).
+The latest version works with Elasticsearch 6 and 7. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -271,15 +259,17 @@ Product.search "back", fields: [:name], match: :word_start
 
 Available options are:
 
-```ruby
-:word # default
-:word_start
-:word_middle
-:word_end
-:text_start
-:text_middle
-:text_end
-```
+Option | Matches | Example
+--- | --- | ---
+`:word` | entire word | `apple` matches `apple`
+`:word_start` | start of word | `app` matches `apple`
+`:word_middle` | any part of word | `ppl` matches `apple`
+`:word_end` | end of word | `ple` matches `apple`
+`:text_start` | start of text | `gre` matches `green apple`, `app` does not match
+`:text_middle` | any part of text | `een app` matches `green apple`
+`:text_end` | end of text | `ple` matches `green apple`, `een` does not match
+
+The default is `:word`. The most matches will happen with `:word_middle`.
 
 ### Exact Matches
 
@@ -322,13 +312,13 @@ A few languages require plugins:
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick synonyms: [["scallion", "green onion"], ["qtip", "cotton swab"]]
+  searchkick synonyms: [["burger", "hamburger"], ["sneakers", "shoes"]]
 end
 ```
 
 Call `Product.reindex` after changing synonyms.
 
-Synonyms cannot be more than two words at the moment.
+Synonyms cannot be multiple words at the moment.
 
 To read synonyms from a file, use:
 
@@ -365,27 +355,6 @@ Search with:
 Product.search query, fields: [:name_tagged]
 ```
 
-### WordNet
-
-Prepopulate English synonyms with the [WordNet database](https://en.wikipedia.org/wiki/WordNet).
-
-Download [WordNet 3.0](http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz) to each Elasticsearch server and move `wn_s.pl` to the `/var/lib` directory.
-
-```sh
-cd /tmp
-curl -o wordnet.tar.gz http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz
-tar -zxvf wordnet.tar.gz
-mv prolog/wn_s.pl /var/lib
-```
-
-Tell each model to use it:
-
-```ruby
-class Product < ApplicationRecord
-  searchkick wordnet: true
-end
-```
-
 ### Misspellings
 
 By default, Searchkick handles misspelled queries by returning results with an [edit distance](https://en.wikipedia.org/wiki/Levenshtein_distance) of one.
@@ -410,6 +379,14 @@ Turn off misspellings with:
 Product.search "zuchini", misspellings: false # no zucchini
 ```
 
+Specify which fields can include misspellings with:
+
+```ruby
+Product.search "zucini", fields: [:name, :color], misspellings: {fields: [:name]}
+```
+
+> When doing this, you must also specify fields to search
+
 ### Bad Matches
 
 If a user searches `butter`, they may also get results for `peanut butter`. To prevent this, use:
@@ -427,6 +404,12 @@ exclude_queries = {
 }
 
 Product.search query, exclude: exclude_queries[query]
+```
+
+You can demote results by boosting by a factor less than one:
+
+```ruby
+Product.search("butter", boost_where: {category: {value: "pantry", factor: 0.5}})
 ```
 
 ### Emoji
@@ -645,7 +628,7 @@ Product.search "milk", boost_where: {orderer_ids: current_user.id}
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
-![Autocomplete](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/autocomplete.png)
+![Autocomplete](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/autocomplete.png)
 
 **Note:** To autocomplete on general categories (like `cereal` rather than product names), check out [Autosuggest](https://github.com/ankane/autosuggest).
 
@@ -711,7 +694,7 @@ Then add the search box and JavaScript code to a view.
 
 ### Suggestions
 
-![Suggest](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/recursion.png)
+![Suggest](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/recursion.png)
 
 ```ruby
 class Product < ApplicationRecord
@@ -730,7 +713,7 @@ products.suggestions # ["peanut butter"]
 
 [Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
-![Aggregations](https://raw.githubusercontent.com/ankane/searchkick/gh-pages/facets.png)
+![Aggregations](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/facets.png)
 
 ```ruby
 products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
@@ -766,8 +749,10 @@ Product.search "apples", aggs: {store_id: {limit: 10}}
 Order
 
 ```ruby
-Product.search "wingtips", aggs: {color: {order: {"_term" => "asc"}}} # alphabetically
+Product.search "wingtips", aggs: {color: {order: {"_key" => "asc"}}} # alphabetically
 ```
+
+**Note:** Use `_term` instead of `_key` in Elasticsearch 5
 
 [All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
 
@@ -782,6 +767,12 @@ Minimum document count
 
 ```ruby
 Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
+```
+
+Script support
+
+```ruby
+Product.search "*", aggs: {color: {script: {source: "'Color: ' + _value"}}}
 ```
 
 Date histogram
@@ -910,9 +901,7 @@ You can also index and search geo shapes.
 
 ```ruby
 class Restaurant < ApplicationRecord
-  searchkick geo_shape: {
-    bounds: {tree: "geohash", precision: "1km"}
-  }
+  searchkick geo_shape: [:bounds]
 
   def search_data
     attributes.merge(
@@ -943,12 +932,6 @@ Not touching the query shape
 
 ```ruby
 Restaurant.search "burger", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
-```
-
-Containing the query shape
-
-```ruby
-Restaurant.search "fries", where: {bounds: {geo_shape: {type: "envelope", relation: "contains", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
 ```
 
 ## Inheritance
@@ -983,11 +966,14 @@ Dog.search "*"                      # just dogs
 Animal.search "*", type: [Dog, Cat] # just cats and dogs
 ```
 
-**Note:** The `suggest` option retrieves suggestions from the parent at the moment.
+**Notes:**
 
-```ruby
-Dog.search "airbudd", suggest: true # suggestions for all animals
-```
+1. The `suggest` option retrieves suggestions from the parent at the moment.
+
+    ```ruby
+    Dog.search "airbudd", suggest: true # suggestions for all animals
+    ```
+2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take precedence.
 
 ## Debugging Queries
 
@@ -1045,7 +1031,7 @@ heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
 ```
 
-For Found:
+For Elastic Cloud (previously Found):
 
 ```sh
 heroku addons:create foundelasticsearch
@@ -1058,10 +1044,10 @@ Visit the Shield page and reset your password. You’ll need to add the username
 heroku config:get FOUNDELASTICSEARCH_URL
 ```
 
-And add `elastic:password@` right after `https://`:
+And add `elastic:password@` right after `https://` and add port `9243` at the end:
 
 ```sh
-heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws.found.io
+heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws.found.io:9243
 ```
 
 Then deploy and reindex:
@@ -1078,7 +1064,7 @@ Create an initializer `config/initializers/elasticsearch.rb` with:
 ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com"
 ```
 
-To use signed request, include in your Gemfile:
+To use signed requests, include in your Gemfile:
 
 ```ruby
 gem 'faraday_middleware-aws-sigv4'
@@ -1105,7 +1091,7 @@ rake searchkick:reindex CLASS=Product
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "http://username:password@api.searchbox.io"
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host"
 ```
 
 Then deploy and reindex:
@@ -1114,12 +1100,18 @@ Then deploy and reindex:
 rake searchkick:reindex CLASS=Product
 ```
 
+### Data Protection
+
+We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you send [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users to Elasticsearch.
+
+Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest and HTTPS.
+
 ### Automatic Failover
 
 Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "http://localhost:9200,http://localhost:9201"
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
 See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
@@ -1218,7 +1210,7 @@ Searchkick.reindex_status(index_name)
 You can also have Searchkick wait for reindexing to complete
 
 ```ruby
-Searchkick.reindex(async: {wait: true})
+Product.reindex(async: {wait: true})
 ```
 
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
@@ -1404,10 +1396,8 @@ Create a custom mapping:
 ```ruby
 class Product < ApplicationRecord
   searchkick mappings: {
-    product: {
-      properties: {
-        name: {type: "keyword"}
-      }
+    properties: {
+      name: {type: "keyword"}
     }
   }
 end
@@ -1427,10 +1417,8 @@ end
 And use the `body` option to search:
 
 ```ruby
-products = Product.search body: {match: {name: "milk"}}
+products = Product.search body: {query: {match: {name: "milk"}}}
 ```
-
-**Note:** This replaces the entire body, so other options are ignored.
 
 View the response with:
 
@@ -1466,24 +1454,24 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-fresh_products = Product.search("fresh", execute: false)
-frozen_products = Product.search("frozen", execute: false)
-Searchkick.multi_search([fresh_products, frozen_products])
+products = Product.search("snacks", execute: false)
+coupons = Coupon.search("snacks", execute: false)
+Searchkick.multi_search([products, coupons])
 ```
 
-Then use `fresh_products` and `frozen_products` as typical results.
+Then use `products` and `coupons` as typical results.
 
-**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors. Also, if you use the `below` option for misspellings, misspellings will be disabled.
+**Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors.
 
-## Multiple Indices
+## Multiple Models
 
-Search across multiple indices with:
+Search across multiple models with:
 
 ```ruby
-Searchkick.search "milk", index_name: [Product, Category]
+Searchkick.search "milk", models: [Product, Category]
 ```
 
-Boost specific indices with:
+Boost specific models with:
 
 ```ruby
 indices_boost: {Category => 2, Product => 1}
@@ -1630,7 +1618,7 @@ Product.search "milk", includes: [:brand, :stores]
 Eager load different associations by model
 
 ```ruby
-Searchkick.search("*",  index_name: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
+Searchkick.search("*",  models: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Run additional scopes on results
@@ -1656,6 +1644,22 @@ class Product < ApplicationRecord
 end
 ```
 
+Turn off stemming
+
+```ruby
+class Product < ApplicationRecord
+  searchkick stem: false
+end
+```
+
+Turn on stemming for conversions
+
+```ruby
+class Product < ApplicationRecord
+  searchkick stem_conversions: true
+end
+```
+
 Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) for scoring
 
 ```ruby
@@ -1663,6 +1667,16 @@ class Product < ApplicationRecord
   searchkick similarity: "classic"
 end
 ```
+
+Make search case-sensitive
+
+```ruby
+class Product < ApplicationRecord
+  searchkick case_sensitive: true
+end
+```
+
+**Note:** If misspellings are enabled (default), results with a single character case difference will match. Turn off misspellings if this is not desired.
 
 Change import batch size
 
@@ -1678,6 +1692,16 @@ Create index without importing
 Product.reindex(import: false)
 ```
 
+Use a different id
+
+```ruby
+class Product < ApplicationRecord
+  def search_document_id
+    custom_id
+  end
+end
+```
+
 Lazy searching
 
 ```ruby
@@ -1689,6 +1713,14 @@ Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference
 
 ```ruby
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
+```
+
+Set options across all models
+
+```ruby
+Searchkick.model_options = {
+  batch_size: 200
+}
 ```
 
 Reindex conditionally
@@ -1825,6 +1857,15 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
+## Upgrading
+
+See [how to upgrade to Searchkick 3](docs/Searchkick-3-Upgrade.md)
+
+## Elasticsearch 6 to 7 Upgrade
+
+1. Install Searchkick 4
+2. Upgrade your Elasticsearch cluster
+
 ## Elasticsearch 5 to 6 Upgrade
 
 Elasticsearch 6 removes the ability to reindex with the `_all` field. Before you upgrade, we recommend disabling this field manually and specifying default fields on your models.
@@ -1877,11 +1918,6 @@ View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.
 ## Thanks
 
 Thanks to Karel Minarik for [Elasticsearch Ruby](https://github.com/elasticsearch/elasticsearch-ruby) and [Tire](https://github.com/karmi/retire), Jaroslav Kalistsuk for [zero downtime reindexing](https://gist.github.com/jarosan/3124884), and Alex Leschenko for [Elasticsearch autocomplete](https://github.com/leschenko/elasticsearch_autocomplete).
-
-## Roadmap
-
-- Reindex API
-- Incorporate human eval
 
 ## Contributing
 

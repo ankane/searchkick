@@ -84,4 +84,8 @@ class ReindexTest < Minitest::Test
     assert_equal "1s", index.refresh_interval
     assert_equal "1s", Product.search_index.refresh_interval
   end
+
+  def test_resume
+    assert Product.reindex(resume: true)
+  end
 end

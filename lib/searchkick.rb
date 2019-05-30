@@ -1,4 +1,4 @@
-require "active_model"
+require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "elasticsearch"
 require "hashie"
@@ -17,29 +17,16 @@ require "searchkick/record_indexer"
 require "searchkick/results"
 require "searchkick/version"
 
+require "searchkick/railtie" if defined?(Rails)
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
-begin
-  require "rake"
-rescue LoadError
-  # do nothing
-end
-require "searchkick/tasks" if defined?(Rake)
-
-# background jobs
-begin
-  require "active_job"
-rescue LoadError
-  # do nothing
-end
-if defined?(ActiveJob)
-  require "searchkick/bulk_reindex_job"
-  require "searchkick/process_batch_job"
-  require "searchkick/process_queue_job"
-  require "searchkick/reindex_v2_job"
-end
-
 module Searchkick
+  # background jobs
+  autoload :BulkReindexJob,  "searchkick/bulk_reindex_job"
+  autoload :ProcessBatchJob, "searchkick/process_batch_job"
+  autoload :ProcessQueueJob, "searchkick/process_queue_job"
+  autoload :ReindexV2Job,    "searchkick/reindex_v2_job"
+
   class Error < StandardError; end
   class MissingIndexError < Error; end
   class UnsupportedVersionError < Error; end
@@ -80,7 +67,7 @@ module Searchkick
   end
 
   def self.search_timeout
-    @search_timeout || timeout
+    (defined?(@search_timeout) && @search_timeout) || timeout
   end
 
   def self.server_version
@@ -91,21 +78,41 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
+  # memoize for performance
+  def self.server_below7?
+    unless defined?(@server_below7)
+      @server_below7 = server_below?("7.0.0")
+    end
+    @server_below7
+  end
+
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
 
-    # make Searchkick.search(index_name: [Product]) and Product.search equivalent
+    # convert index_name into models if possible
+    # this should allow for easier upgrade
+    if options[:index_name] && !options[:models] && Array(options[:index_name]).all? { |v| v.respond_to?(:searchkick_index) }
+      options[:models] = options.delete(:index_name)
+    end
+
+    # make Searchkick.search(models: [Product]) and Product.search equivalent
     unless klass
-      index_name = Array(options[:index_name])
-      if index_name.size == 1 && index_name.first.respond_to?(:searchkick_index)
-        klass = index_name.first
-        options.delete(:index_name)
+      models = Array(options[:models])
+      if models.size == 1
+        klass = models.first
+        options.delete(:models)
       end
     end
 
+    if klass
+      if (options[:models] && Array(options[:models]) != [klass]) || Array(options[:index_name]).any? { |v| v.respond_to?(:searchkick_index) && v != klass }
+        raise ArgumentError, "Use Searchkick.search to search multiple models"
+      end
+    end
+
+    options = options.merge(block: block) if block
     query = Searchkick::Query.new(klass, term, options)
-    block.call(query.body) if block
     if options[:execute] == false
       query
     else
@@ -241,6 +248,7 @@ module Searchkick
 end
 
 # TODO find better ActiveModel hook
+require "active_model/callbacks"
 ActiveModel::Callbacks.include(Searchkick::Model)
 
 ActiveSupport.on_load(:active_record) do
