@@ -1,4 +1,4 @@
-## 4.0.1 [unreleased]
+## 4.0.1
 
 - Added support for scroll API
 - Made type optional for custom mapping for Elasticsearch 6
