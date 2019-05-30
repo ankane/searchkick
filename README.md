@@ -1477,7 +1477,7 @@ Boost specific models with:
 indices_boost: {Category => 2, Product => 1}
 ```
 
-### Scroll API [master]
+## Scroll API [master]
 
 To retrieve a large number of results, use the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html).
 
