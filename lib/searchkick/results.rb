@@ -222,27 +222,24 @@ module Searchkick
     end
 
     def scroll_id
-      @response['_scroll_id']
+      @response["_scroll_id"]
     end
 
     def scroll
-      if scroll_id.present? && options[:scroll].nil?
-        raise Searchkick::Error, "Scroll error - scroll keepalive must be defined"
-      elsif scroll_id.nil?
-        raise Searchkick::Error, "Scroll error - a scroll id has not been provided"
-      else
-        begin
-          params = {
-            scroll: options[:scroll],
-            scroll_id: scroll_id
-          }
-          Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-          if e.class.to_s =~ /NotFound/ && e.message =~ /search_context_missing_exception/i 
-            raise Searchkick::Error, "Scroll error - a scroll id does not exist or has expired"
-          else 
-            raise e 
-          end 
+      raise Searchkick::Error, "Pass `scroll` option to the search method for scrolling" unless scroll_id
+
+      params = {
+        scroll: options[:scroll],
+        scroll_id: scroll_id
+      }
+
+      begin
+        Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+        if e.class.to_s =~ /NotFound/ && e.message =~ /search_context_missing_exception/i
+          raise Searchkick::Error, "Scroll id has expired"
+        else
+          raise e
         end
       end
     end

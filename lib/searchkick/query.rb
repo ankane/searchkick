@@ -19,7 +19,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where, :scroll]
+        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -110,8 +110,8 @@ module Searchkick
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
-      params = ['pretty']
-      params << 'scroll=' + options[:scroll] if options[:scroll]
+      params = ["pretty"]
+      params << "scroll=#{options[:scroll]}" if options[:scroll]
       "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
     end
 

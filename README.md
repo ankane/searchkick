@@ -229,21 +229,6 @@ View with will_paginate
 <%= will_paginate @products %>
 ```
 
-### Scroll API
-
-For large datasets, a scroll context is more efficient than deep pagination. Create a scroll context by passing in the desired keep-alive time and the number of records per page.
-
-Request the next set of records in the scroll context. You can either use the original search context or any subsequent record set to fetch the next batch of records.
-
-```ruby
-products = Product.search "milk", per_page: 10, scroll: '1m'
-while products.any?
-  # code ...
-
-  products = products.scroll
-end
-```
-
 ### Partial Matches
 
 By default, results must match all words in the query.
@@ -1491,6 +1476,21 @@ Boost specific models with:
 ```ruby
 indices_boost: {Category => 2, Product => 1}
 ```
+
+### Scroll API [master]
+
+To retrieve a large number of results, use the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html).
+
+```ruby
+products = Product.search "*", scroll: "1m"
+while products.any?
+  # do something ...
+
+  products = products.scroll
+end
+```
+
+You should call `scroll` on each new set of results, not the original result.
 
 ## Nested Data
 

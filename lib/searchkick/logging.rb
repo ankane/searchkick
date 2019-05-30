@@ -167,8 +167,8 @@ module Searchkick
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
-      params = ['pretty']
-      params << 'scroll=' + payload[:query][:scroll] if payload[:query][:scroll]
+      params = ["pretty"]
+      params << "scroll=#{payload[:query][:scroll]}" if payload[:query][:scroll]
       debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{payload[:query][:body].to_json}'"
     end
 
