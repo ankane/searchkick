@@ -8,24 +8,10 @@ class ScrollTest < Minitest::Test
     assert_equal "product", products.entry_name
     assert_equal "1m", products.options[:scroll]
     assert_equal products.response["_scroll_id"], products.scroll_id
-    assert_nil products.current_page
-    assert_nil products.padding
-    assert_nil products.per_page
     assert_equal 2, products.size
     assert_equal 2, products.length
-    assert_nil products.total_pages
     assert_equal 6, products.total_count
     assert_equal 6, products.total_entries
-    assert_nil products.limit_value
-    assert_nil products.offset_value
-    assert_nil products.offset
-    assert_nil products.next_page
-    assert_nil products.previous_page
-    assert_nil products.prev_page
-    assert !products.first_page?
-    assert !products.last_page?
-    assert !products.empty?
-    assert !products.out_of_range?
     assert products.any?
 
     # scroll for next 2
@@ -49,24 +35,10 @@ class ScrollTest < Minitest::Test
     assert_equal "product", products.entry_name
     assert_equal "1m", products.options[:scroll]
     assert_equal products.response["_scroll_id"], products.scroll_id
-    assert_nil products.current_page
-    assert_nil products.padding
-    assert_nil products.per_page
     assert_equal 2, products.size
     assert_equal 2, products.length
-    assert_nil products.total_pages
     assert_equal 6, products.total_count
     assert_equal 6, products.total_entries
-    assert_nil products.limit_value
-    assert_nil products.offset_value
-    assert_nil products.offset
-    assert_nil products.next_page
-    assert_nil products.previous_page
-    assert_nil products.prev_page
-    assert !products.first_page?
-    assert !products.last_page?
-    assert !products.empty?
-    assert !products.out_of_range?
     assert products.any?
 
     # scroll for next 2
