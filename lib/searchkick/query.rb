@@ -12,14 +12,14 @@ module Searchkick
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
-      :out_of_range?, :hits, :response, :to_a, :first
+      :out_of_range?, :hits, :response, :to_a, :first, :scroll
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :request_params, :routing, :scope_results, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where, :scroll]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -82,6 +82,7 @@ module Searchkick
       }
       params[:type] = @type if @type
       params[:routing] = @routing if @routing
+      params[:scroll] = @scroll if @scroll
       params.merge!(options[:request_params]) if options[:request_params]
       params
     end
@@ -109,7 +110,9 @@ module Searchkick
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?pretty -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
+      params = ['pretty']
+      params << 'scroll=' + options[:scroll] if options[:scroll]
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
     end
 
     def handle_response(response)
@@ -129,7 +132,8 @@ module Searchkick
         scope_results: options[:scope_results],
         total_entries: options[:total_entries],
         index_mapping: @index_mapping,
-        suggest: options[:suggest]
+        suggest: options[:suggest],
+        scroll: options[:scroll]
       }
 
       if options[:debug]
@@ -230,6 +234,7 @@ module Searchkick
       per_page = (options[:limit] || options[:per_page] || 10_000).to_i
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
+      scroll = options[:scroll]
 
       # model and eager loading
       load = options[:load].nil? ? true : options[:load]
@@ -519,6 +524,7 @@ module Searchkick
       @per_page = per_page
       @padding = padding
       @load = load
+      @scroll = scroll
     end
 
     def set_fields
