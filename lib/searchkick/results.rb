@@ -236,12 +236,7 @@ module Searchkick
             scroll: options[:scroll],
             scroll_id: scroll_id
           }
-          es_results = Searchkick.client.scroll(params)
-          if scroll_id != es_results['_scroll_id']
-            # update the scroll id so we can keep reusing the same result set
-            @response['_scroll_id'] = es_results['_scroll_id'] 
-          end
-          Searchkick::Results.new(@klass, es_results, @options)
+          Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           if e.class.to_s =~ /NotFound/ && e.message =~ /search_context_missing_exception/i 
             raise Searchkick::Error, "Scroll error - a scroll id does not exist or has expired"

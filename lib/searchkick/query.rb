@@ -469,10 +469,6 @@ module Searchkick
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
 
-        # scroll
-        raise ArgumentError, "From parameter cannot be used with scroll" if scroll && !payload[:from].nil?
-        payload[:size] = per_page if scroll
-
         # order
         set_order(payload) if options[:order]
 

@@ -54,14 +54,4 @@ class ScrollTest < Minitest::Test
     assert_equal [], products.map(&:name)
     assert_equal "product", products.entry_name
   end
-
-  def test_scroll_nil_scroll
-    store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
-    products = Product.search("product", order: {name: :asc}, scroll: nil, per_page: 2)
-    assert_equal ["Product A", "Product B"], products.map(&:name)
-    assert_equal 1, products.current_page
-    assert products.first_page?
-    assert_nil products.options[:scroll]
-    assert_nil products.scroll_id
-  end
 end
