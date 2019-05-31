@@ -1490,6 +1490,8 @@ while products.any?
 end
 ```
 
+You should call `scroll` on each new set of results, not the original result.
+
 On the master branch, you can also do:
 
 ```ruby
@@ -1497,8 +1499,6 @@ Product.search("*", scroll: "1m").scroll do |batch|
   # process batch ...
 end
 ```
-
-You should call `scroll` on each new set of results, not the original result.
 
 ## Nested Data
 
