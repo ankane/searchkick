@@ -250,6 +250,7 @@ module Searchkick
         }
 
         begin
+          # TODO Active Support notifications for this scroll call
           Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           if e.class.to_s =~ /NotFound/ && e.message =~ /search_context_missing_exception/i
