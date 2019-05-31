@@ -37,6 +37,7 @@ Plus:
 - [Performance](#performance)
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
+- [Testing](#testing)
 
 ## Getting Started
 
