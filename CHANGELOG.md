@@ -1,3 +1,7 @@
+## 4.0.2 [unreleased]
+
+- Added block form of `scroll`
+
 ## 4.0.1
 
 - Added support for scroll API

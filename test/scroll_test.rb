@@ -61,4 +61,14 @@ class ScrollTest < Minitest::Test
     end
     assert_match /Pass .+ option/, error.message
   end
+
+  def test_scroll_block
+    store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
+    batches_count = 0
+    Product.search("*", scroll: "1m", per_page: 2).scroll do |batch|
+      assert_equal 2, batch.size
+      batches_count += 1
+    end
+    assert_equal 3, batches_count
+  end
 end

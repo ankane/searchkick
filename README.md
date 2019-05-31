@@ -1484,9 +1484,17 @@ To retrieve a very large number of results, use the [scroll API](https://www.ela
 ```ruby
 products = Product.search "*", scroll: "1m"
 while products.any?
-  # do something ...
+  # process batch ...
 
   products = products.scroll
+end
+```
+
+On the master branch, you can also do:
+
+```ruby
+Product.search("*", scroll: "1m").scroll do |batch|
+  # process batch ...
 end
 ```
 
