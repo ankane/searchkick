@@ -1,6 +1,6 @@
 dist: xenial
 language: ruby
-rvm: 2.6.2
+rvm: 2.6.3
 gemfile:
   - Gemfile
 services:
@@ -14,7 +14,7 @@ cache:
   directories:
     - $HOME/elasticsearch
 env:
-  - ELASTICSEARCH_VERSION=7.1.0
+  - ELASTICSEARCH_VERSION=7.1.1
 jdk: openjdk10
 matrix:
   include:
