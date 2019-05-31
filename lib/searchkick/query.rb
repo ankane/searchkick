@@ -435,6 +435,7 @@ module Searchkick
           warn "[searchkick] WARNING: Passing child models to models option throws off hits and pagination - use type option instead"
 
           # uncomment once aliases are supported with _index
+          # see https://github.com/elastic/elasticsearch/issues/23306
           # index_type_or =
           #   models.map do |m|
           #     v = {_index: m.searchkick_index.name}
