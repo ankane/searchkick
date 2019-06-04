@@ -1,7 +1,7 @@
 class Store
   mappings = {
     properties: {
-      name: {type: "keyword"}
+      name: {type: "text"}
     }
   }
 

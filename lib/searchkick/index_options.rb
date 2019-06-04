@@ -13,7 +13,7 @@ module Searchkick
         index_type = index_type.call if index_type.respond_to?(:call)
       end
 
-      custom_mapping = options[:mapping] || {}
+      custom_mapping = options[:mappings] || {}
       if below70 && custom_mapping.keys.map(&:to_sym).include?(:properties)
         # add type
         custom_mapping = {index_type => custom_mapping}
