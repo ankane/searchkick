@@ -9,7 +9,7 @@ class ErrorsTest < Minitest::Test
         name: {type: "date"}
       }
     }
-    index = Searchkick::Index.new "dogs", mappings: mapping
+    index = Searchkick::Index.new "dogs", mappings: mapping, _type: "dog"
     index.delete if index.exists?
     index.create_index
     index.store valid_dog
