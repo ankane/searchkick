@@ -1,6 +1,7 @@
 ## 4.0.2 [unreleased]
 
 - Added block form of `scroll`
+- Added `clear_scroll` method
 - Fixed custom mappings
 
 ## 4.0.1
