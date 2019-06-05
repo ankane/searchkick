@@ -1483,22 +1483,22 @@ indices_boost: {Category => 2, Product => 1}
 Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
 
 ```ruby
+Product.search("*", scroll: "1m").scroll do |batch|
+  # process batch ...
+end
+```
+
+You can also scroll batches manually.
+
+```ruby
 products = Product.search "*", scroll: "1m"
 while products.any?
   # process batch ...
 
   products = products.scroll
 end
-```
 
-You should call `scroll` on each new set of results, not the original result.
-
-On the master branch, you can also do:
-
-```ruby
-Product.search("*", scroll: "1m").scroll do |batch|
-  # process batch ...
-end
+products.clear_scroll
 ```
 
 ## Nested Data
