@@ -995,8 +995,20 @@ module Searchkick
           warn "[searchkick] Regular expressions are always anchored in Elasticsearch"
         end
 
-        # remove \A and \z
-        source = source.sub(/\\A/, "").sub(/\\z\z/, "")
+        # TODO handle other anchor characters, like ^, $, \Z
+        if source.start_with?("\\A")
+          source = source[2..-1]
+        else
+          # TODO uncomment in future release
+          # source = ".*#{source}"
+        end
+
+        if source.end_with?("\\z")
+          source = source[0..-3]
+        else
+          # TODO uncomment in future release
+          # source = "#{source}.*"
+        end
 
         {regexp: {field => {value: source, flags: "NONE"}}}
       else
