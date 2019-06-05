@@ -193,7 +193,7 @@ module Searchkick
   end
 
   def self.warn(message)
-    warn "[searchkick] WARNING: #{message}"
+    super("[searchkick] WARNING: #{message}")
   end
 
   # private
