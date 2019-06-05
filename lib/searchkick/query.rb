@@ -985,7 +985,20 @@ module Searchkick
       elsif value.nil?
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
-        {regexp: {field => {value: value.source, flags: "NONE"}}}
+        if value.casefold?
+          warn "[searchkick] Case-insensitive flag does not work with Elasticsearch"
+        end
+
+        source = value.source
+        unless source.start_with?("\\A") && source.end_with?("\\z")
+          # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
+          warn "[searchkick] Regular expressions are always anchored in Elasticsearch"
+        end
+
+        # remove \A and \z
+        source = source.sub(/\\A/, "").sub(/\\z\z/, "")
+
+        {regexp: {field => {value: source, flags: "NONE"}}}
       else
         {term: {field => value}}
       end
