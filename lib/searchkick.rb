@@ -192,6 +192,10 @@ module Searchkick
     end
   end
 
+  def self.warn(message)
+    warn "[searchkick] WARNING: #{message}"
+  end
+
   # private
   def self.load_records(records, ids)
     records =

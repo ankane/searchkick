@@ -62,7 +62,7 @@ module Searchkick
             end
 
           if missing_ids.any?
-            warn "[searchkick] WARNING: Records in search index do not exist in database: #{missing_ids.join(", ")}"
+            Searchkick.warn("Records in search index do not exist in database: #{missing_ids.join(", ")}")
           end
 
           results
