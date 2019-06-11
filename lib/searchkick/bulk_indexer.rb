@@ -89,7 +89,7 @@ module Searchkick
 
         starting_id =
           begin
-            scope.minimum(primary_key)
+            scope.except(:includes, :preload).minimum(primary_key)
           rescue ActiveRecord::StatementInvalid
             false
           end
@@ -97,7 +97,7 @@ module Searchkick
         if starting_id.nil?
           # no records, do nothing
         elsif starting_id.is_a?(Numeric)
-          max_id = scope.maximum(primary_key)
+          max_id = scope.except(:includes, :preload).maximum(primary_key)
           batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
           batches_count.times do |i|
