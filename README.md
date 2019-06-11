@@ -631,7 +631,7 @@ Autocomplete predicts what a user will type, making the search experience faster
 
 ![Autocomplete](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/autocomplete.png)
 
-**Note:** To autocomplete on general categories (like `cereal` rather than product names), check out [Autosuggest](https://github.com/ankane/autosuggest).
+**Note:** To autocomplete on search terms rather than results, check out [Autosuggest](https://github.com/ankane/autosuggest).
 
 **Note 2:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
 
@@ -1483,22 +1483,22 @@ indices_boost: {Category => 2, Product => 1}
 Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
 
 ```ruby
+Product.search("*", scroll: "1m").scroll do |batch|
+  # process batch ...
+end
+```
+
+You can also scroll batches manually.
+
+```ruby
 products = Product.search "*", scroll: "1m"
 while products.any?
   # process batch ...
 
   products = products.scroll
 end
-```
 
-You should call `scroll` on each new set of results, not the original result.
-
-On the master branch, you can also do:
-
-```ruby
-Product.search("*", scroll: "1m").scroll do |batch|
-  # process batch ...
-end
+products.clear_scroll
 ```
 
 ## Nested Data

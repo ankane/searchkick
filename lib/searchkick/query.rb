@@ -432,7 +432,7 @@ module Searchkick
 
         models = Array(options[:models])
         if models.any? { |m| m != m.searchkick_klass }
-          warn "[searchkick] WARNING: Passing child models to models option throws off hits and pagination - use type option instead"
+          Searchkick.warn("Passing child models to models option throws off hits and pagination - use type option instead")
 
           # uncomment once aliases are supported with _index
           # see https://github.com/elastic/elasticsearch/issues/23306
@@ -985,7 +985,32 @@ module Searchkick
       elsif value.nil?
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
-        {regexp: {field => {value: value.source, flags: "NONE"}}}
+        if value.casefold?
+          Searchkick.warn("Case-insensitive flag does not work with Elasticsearch")
+        end
+
+        source = value.source
+        unless source.start_with?("\\A") && source.end_with?("\\z")
+          # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
+          Searchkick.warn("Regular expressions are always anchored in Elasticsearch")
+        end
+
+        # TODO handle other anchor characters, like ^, $, \Z
+        if source.start_with?("\\A")
+          source = source[2..-1]
+        else
+          # TODO uncomment in future release
+          # source = ".*#{source}"
+        end
+
+        if source.end_with?("\\z")
+          source = source[0..-3]
+        else
+          # TODO uncomment in future release
+          # source = "#{source}.*"
+        end
+
+        {regexp: {field => {value: source, flags: "NONE"}}}
       else
         {term: {field => value}}
       end

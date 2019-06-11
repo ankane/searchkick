@@ -23,7 +23,6 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = custom_mapping
       else
-
         default_type = "text"
         default_analyzer = :searchkick_index
         keyword_mapping = {type: "keyword"}

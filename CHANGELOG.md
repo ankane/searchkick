@@ -1,6 +1,13 @@
-## 4.0.2 [unreleased]
+## 4.0.3 [unreleased]
+
+- Added warnings for certain regular expressions
+- Fixed anchored regular expressions
+
+## 4.0.2
 
 - Added block form of `scroll`
+- Added `clear_scroll` method
+- Fixed custom mappings
 
 ## 4.0.1
 

@@ -78,7 +78,7 @@ class WhereTest < Minitest::Test
 
   def test_regexp
     store_names ["Product A"]
-    assert_search "*", ["Product A"], where: {name: /Pro.+/}
+    assert_search "*", ["Product A"], where: {name: /\APro.+\z/}
   end
 
   def test_alternate_regexp
@@ -88,7 +88,31 @@ class WhereTest < Minitest::Test
 
   def test_special_regexp
     store_names ["Product <A>", "Item <B>"]
-    assert_search "*", ["Product <A>"], where: {name: /Pro.+<.+/}
+    assert_search "*", ["Product <A>"], where: {name: /\APro.+<.+\z/}
+  end
+
+  def test_regexp_not_anchored
+    store_names ["abcde"]
+    # regular expressions are always anchored right now
+    # TODO change in future release
+    assert_search "*", [], where: {name: /abcd/}
+    assert_search "*", [], where: {name: /bcde/}
+    assert_search "*", ["abcde"], where: {name: /abcde/}
+    assert_search "*", ["abcde"], where: {name: /.*bcd.*/}
+  end
+
+  def test_regexp_anchored
+    store_names ["abcde"]
+    assert_search "*", ["abcde"], where: {name: /\Aabcde\z/}
+    assert_search "*", [], where: {name: /\Abcd/}
+    assert_search "*", [], where: {name: /bcd\z/}
+  end
+
+  def test_regexp_case
+    store_names ["abcde"]
+    assert_search "*", [], where: {name: /\AABCDE\z/}
+    # flags don't work
+    assert_search "*", [], where: {name: /\AABCDE\z/i}
   end
 
   def test_prefix

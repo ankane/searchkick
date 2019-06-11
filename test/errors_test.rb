@@ -9,8 +9,7 @@ class ErrorsTest < Minitest::Test
         name: {type: "date"}
       }
     }
-    mapping = {product: mapping} if Searchkick.server_below?("7.0.0")
-    index = Searchkick::Index.new "dogs", mappings: mapping
+    index = Searchkick::Index.new "dogs", mappings: mapping, _type: "dog"
     index.delete if index.exists?
     index.create_index
     index.store valid_dog
