@@ -87,30 +87,11 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
-        starting_id =
-          begin
-            scope.except(:includes, :preload).minimum(primary_key)
-          rescue ActiveRecord::StatementInvalid
-            false
-          end
+        scope.except(:includes, :preload).select(primary_key).find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
+          batch_id = i + 1
+          record_ids = batch.map { |record| record.public_send(primary_key).to_s }
 
-        if starting_id.nil?
-          # no records, do nothing
-        elsif starting_id.is_a?(Numeric)
-          max_id = scope.except(:includes, :preload).maximum(primary_key)
-          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
-
-          batches_count.times do |i|
-            batch_id = i + 1
-            min_id = starting_id + (i * batch_size)
-            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
-          end
-        else
-          scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
-            batch_id = i + 1
-
-            bulk_reindex_job scope, batch_id, record_ids: batch.map { |record| record.id.to_s }
-          end
+          bulk_reindex_job scope, batch_id, record_ids: record_ids
         end
       else
         batch_id = 1
