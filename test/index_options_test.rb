@@ -25,8 +25,4 @@ class IndexOptionsTest < Minitest::Test
       assert_search "jalapeno", [], {misspellings: false}, Song
     end
   end
-
-  def test_custom_mappings_with_merge_option
-    assert_equal Song.search_index.mapping.values.first['mappings']['properties']['lyrics']['type'], 'text'
-  end
 end
