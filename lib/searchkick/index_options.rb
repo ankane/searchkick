@@ -114,7 +114,7 @@ module Searchkick
                 type: "shingle",
                 token_separator: ""
               },
-              # lucky find http://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
+              # lucky find https://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
               searchkick_search_shingle: {
                 type: "shingle",
                 token_separator: "",
