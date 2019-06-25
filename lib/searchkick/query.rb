@@ -891,6 +891,17 @@ module Searchkick
               case op
               when :within, :bottom_right, :bottom_left
                 # do nothing
+              when :not_near
+                filters << {
+                  bool: {
+                    must_not: {
+                      geo_distance: {
+                        field => location_value(op_value),
+                        distance: value[:within] || "50mi"
+                      }
+                    }
+                  }
+                }  
               when :near
                 filters << {
                   geo_distance: {

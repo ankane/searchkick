@@ -178,12 +178,28 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco"], where: {location: {near: [37.5, -122.5]}}
   end
 
+  def test_not_near
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Antonio"], where: {location: {not_near: [37.5, -122.5]}}
+  end
+
   def test_near_hash
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
       {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
     ]
     assert_search "san", ["San Francisco"], where: {location: {near: {lat: 37.5, lon: -122.5}}}
+  end
+
+  def test_not_near_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000}
+    ]
+    assert_search "san", ["San Antonio"], where: {location: {not_near: {lat: 37.5, lon: -122.5}}}
   end
 
   def test_near_within
@@ -195,6 +211,15 @@ class WhereTest < Minitest::Test
     assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: [37, -122], within: "2000mi"}}
   end
 
+  def test_not_near_within
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_search "san", ["San Marino"], where: {location: {not_near: [37, -122], within: "2000mi"}}
+  end
+
   def test_near_within_hash
     store [
       {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
@@ -202,6 +227,15 @@ class WhereTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_search "san", ["San Francisco", "San Antonio"], where: {location: {near: {lat: 37, lon: -122}, within: "2000mi"}}
+  end
+
+  def test_not_near_within_hash
+    store [
+      {name: "San Francisco", latitude: 37.7833, longitude: -122.4167},
+      {name: "San Antonio", latitude: 29.4167, longitude: -98.5000},
+      {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
+    ]
+    assert_search "san", ["San Marino"], where: {location: {not_near: {lat: 37, lon: -122}, within: "2000mi"}}
   end
 
   def test_geo_polygon
