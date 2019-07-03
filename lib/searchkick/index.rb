@@ -192,7 +192,7 @@ module Searchkick
         true
       elsif scoped && !full
         # reindex association
-        import_scope(relation, scope: scope)
+        import_scope(relation, scope: scope, **options)
         self.refresh if refresh
         true
       else
