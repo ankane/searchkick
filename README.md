@@ -106,7 +106,9 @@ where: {
   aisle_id: {not: [25, 30]},  # not in
   user_ids: {all: [1, 3]},    # all elements in array
   category: /frozen .+/,      # regexp
-  _or: [{in_stock: true}, {backordered: true}]
+  _or: [{in_stock: true}, {backordered: true}],
+  _and: [{in_stock: true}, {backordered: true}],
+  _not: {store_id: 1}         # negate a condition
 }
 ```
 
