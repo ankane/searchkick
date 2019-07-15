@@ -936,7 +936,7 @@ module Searchkick
                   }
                 }
               when :like
-                regex = Regexp.escape(op_value).gsub("%", ".*").gsub("_", ".")
+                regex = Regexp.escape(op_value).gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
                 filters << {regexp: {field => {value: regex}}}
               when :prefix
                 filters << {prefix: {field => op_value}}

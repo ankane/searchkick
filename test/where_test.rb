@@ -138,6 +138,11 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product ABC"], where: {name: {like: "Product_ABC"}}
   end
 
+  def test_like_escape
+    store_names ["Product 100%", "Product B"]
+    assert_search "product", ["Product 100%"], where: {name: {like: "% 100\\%"}}
+  end
+
   # def test_script
   #   store [
   #     {name: "Product A", store_id: 1},
