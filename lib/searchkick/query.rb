@@ -935,6 +935,9 @@ module Searchkick
                     }
                   }
                 }
+              when :like
+                regex = Regexp.escape(op_value).gsub("%", ".*").gsub("_", ".")
+                filters << {regexp: {field => {value: regex}}}
               when :prefix
                 filters << {prefix: {field => op_value}}
               when :regexp # support for regexp queries without using a regexp ruby object

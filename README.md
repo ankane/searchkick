@@ -105,6 +105,7 @@ where: {
   store_id: {not: 2},           # not
   aisle_id: {not: [25, 30]},    # not in
   user_ids: {all: [1, 3]},      # all elements in array
+  category: {like: "%frozen%"}, # like [master]
   category: /frozen .+/,        # regexp
   store_id: {exists: true},     # exists [master]
   category: {prefix: "Frozen"}, # prefix

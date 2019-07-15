@@ -128,6 +128,16 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: {exists: true}}
   end
 
+  def test_like
+    store_names ["Product ABC", "Product DEF"]
+    assert_search "product", ["Product ABC"], where: {name: {like: "%ABC%"}}
+    assert_search "product", ["Product ABC"], where: {name: {like: "%ABC"}}
+    assert_search "product", [], where: {name: {like: "ABC"}}
+    assert_search "product", [], where: {name: {like: "ABC%"}}
+    assert_search "product", [], where: {name: {like: "ABC%"}}
+    assert_search "product", ["Product ABC"], where: {name: {like: "Product_ABC"}}
+  end
+
   # def test_script
   #   store [
   #     {name: "Product A", store_id: 1},
