@@ -128,6 +128,14 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: {exists: true}}
   end
 
+  # def test_script
+  #   store [
+  #     {name: "Product A", store_id: 1},
+  #     {name: "Product B", store_id: 10}
+  #   ]
+  #   assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
+  # end
+
   def test_where_string
     store [
       {name: "Product A", color: "RED"}
