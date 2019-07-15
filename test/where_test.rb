@@ -67,10 +67,6 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1, 3]}}
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {_not: [2], in: [1, 3]}}
 
-    # exists
-    assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {exists: true}}
-    assert_search "product", ["Product A", "Product B", "Product C", "Product D"], where: {store_id: {exists: true}}
-
     # not
     assert_search "product", ["Product D"], where: {user_ids: nil}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
@@ -122,6 +118,14 @@ class WhereTest < Minitest::Test
   def test_prefix
     store_names ["Product A", "Product B", "Item C"]
     assert_search "*", ["Product A", "Product B"], where: {name: {prefix: "Pro"}}
+  end
+
+  def test_exists
+    store [
+      {name: "Product A", user_ids: [1, 2]},
+      {name: "Product B"}
+    ]
+    assert_search "product", ["Product A"], where: {user_ids: {exists: true}}
   end
 
   def test_where_string
