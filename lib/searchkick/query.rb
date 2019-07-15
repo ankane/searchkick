@@ -945,6 +945,8 @@ module Searchkick
                 end
               when :in
                 filters << term_filters(field, op_value)
+              when :_exists
+                filters << {exists: {field: field}}
               else
                 range_query =
                   case op

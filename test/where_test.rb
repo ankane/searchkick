@@ -67,7 +67,11 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {not: [2], in: [1, 3]}}
     assert_search "product", ["Product B", "Product C"], where: {user_ids: {_not: [2], in: [1, 3]}}
 
-    # not / exists
+    # exists
+    assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {_exists: true}}
+    assert_search "product", ["Product A", "Product B", "Product C", "Product D"], where: {store_id: {_exists: true}}
+
+    # not
     assert_search "product", ["Product D"], where: {user_ids: nil}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {not: nil}}
     assert_search "product", ["Product A", "Product B", "Product C"], where: {user_ids: {_not: nil}}
