@@ -76,6 +76,18 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B"], where: {user_ids: {_not: [3, nil]}}
   end
 
+  def test_where_string_operators
+    store [
+      {name: "Product A", store_id: 1},
+      {name: "Product B", store_id: 2}
+    ]
+
+    error = assert_raises RuntimeError do
+      assert_search "product", [], where: {store_id: {"lt" => 2}}
+    end
+    assert_includes error.message, "Unknown where operator"
+  end
+
   def test_regexp
     store_names ["Product A"]
     assert_search "*", ["Product A"], where: {name: /\APro.+\z/}
