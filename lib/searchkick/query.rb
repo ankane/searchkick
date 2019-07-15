@@ -1011,14 +1011,14 @@ module Searchkick
         if source.start_with?("\\A")
           source = source[2..-1]
         else
-          # TODO uncomment in future release
+          # TODO uncomment in Searchkick 5
           # source = ".*#{source}"
         end
 
         if source.end_with?("\\z")
           source = source[0..-3]
         else
-          # TODO uncomment in future release
+          # TODO uncomment in Searchkick 5
           # source = "#{source}.*"
         end
 
