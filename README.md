@@ -1166,7 +1166,7 @@ If you run into issues on Windows, check out [this post](https://www.rastating.c
 
 ### Searchable Fields
 
-By default, all string fields are searchable (can be used in `fields` option). Speed up indexing and reduce index size by only making some fields searchable. This disables the `_all` field unless it’s listed.
+By default, all string fields are searchable (can be used in `fields` option). Speed up indexing and reduce index size by only making some fields searchable.
 
 ```ruby
 class Product < ApplicationRecord
