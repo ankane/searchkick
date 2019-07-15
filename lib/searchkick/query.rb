@@ -936,6 +936,11 @@ module Searchkick
                   }
                 }
               when :like
+                # based on Postgres
+                # https://www.postgresql.org/docs/current/functions-matching.html
+                # % matches zero or more characters
+                # _ matches one character
+                # \ is escape character
                 regex = Regexp.escape(op_value).gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
                 filters << {regexp: {field => {value: regex}}}
               when :prefix
