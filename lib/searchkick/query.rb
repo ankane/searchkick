@@ -1024,6 +1024,8 @@ module Searchkick
         end
 
         {regexp: {field => {value: source, flags: "NONE"}}}
+      elsif value.is_a?(String) && value[0] == '"' && value[-1] == '"'
+        {match_phrase: {field => {query: value[1..-2]}}}
       else
         {term: {field => value}}
       end
