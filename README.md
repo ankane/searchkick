@@ -112,6 +112,27 @@ where: {
   _or: [{in_stock: true}, {backordered: true}],
   _and: [{in_stock: true}, {backordered: true}],
   _not: {store_id: 1}           # negate a condition
+  _raw: [
+    {
+      nested: {
+        path: 'dates',
+        query: {
+          bool: {
+            must: [
+              {
+                range: {
+                  'dates.start_at' => {
+                    gte: '2019-07-01',
+                    format: 'yyyy-MM-dd'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
