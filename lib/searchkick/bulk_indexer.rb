@@ -61,7 +61,7 @@ module Searchkick
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
-            class_name: records.first.class.name,
+            class_name: records.first.model_name.name,
             record_ids: records.map(&:id),
             index_name: index.name,
             method_name: method_name ? method_name.to_s : nil
