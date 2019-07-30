@@ -49,7 +49,7 @@ module Searchkick
 
   def self.client
     @client ||= begin
-      require "typhoeus/adapters/faraday" if defined?(Typhoeus)
+      require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
 
       Elasticsearch::Client.new({
         url: ENV["ELASTICSEARCH_URL"],
