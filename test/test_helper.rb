@@ -21,9 +21,9 @@ puts "Running against Elasticsearch #{Searchkick.server_version}"
 
 if defined?(Redis)
   if defined?(ConnectionPool)
-    Searchkick.redis = ConnectionPool.new { Redis.new }
+    Searchkick.redis = ConnectionPool.new { Redis.new(logger: $logger) }
   else
-    Searchkick.redis = Redis.new
+    Searchkick.redis = Redis.new(logger: $logger)
   end
 end
 
