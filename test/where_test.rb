@@ -77,13 +77,15 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_string_operators
-    store [
-      {name: "Product A", store_id: 1},
-      {name: "Product B", store_id: 2}
-    ]
-
     error = assert_raises RuntimeError do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
+    end
+    assert_includes error.message, "Unknown where operator"
+  end
+
+  def test_unknown_operator
+    error = assert_raises RuntimeError do
+      assert_search "product", [], where: {store_id: {ilike: "%2%"}}
     end
     assert_includes error.message, "Unknown where operator"
   end
