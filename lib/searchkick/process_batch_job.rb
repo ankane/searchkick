@@ -2,7 +2,7 @@ module Searchkick
   class ProcessBatchJob < ActiveJob::Base
     queue_as { Searchkick.queue_name }
 
-    def perform(class_name:, record_ids:)
+    def perform(class_name:, record_ids:, index_name: nil)
       # separate routing from id
       routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
       record_ids = routing.keys
@@ -26,7 +26,7 @@ module Searchkick
       end
 
       # bulk reindex
-      index = klass.searchkick_index
+      index = klass.searchkick_index(name: index_name)
       Searchkick.callbacks(:bulk) do
         index.bulk_index(records) if records.any?
         index.bulk_delete(delete_records) if delete_records.any?

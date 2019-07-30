@@ -15,6 +15,7 @@ module Searchkick
       Searchkick.models << self
 
       options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
+      options[:class_name] = name
 
       callbacks = options.key?(:callbacks) ? options[:callbacks] : :inline
       unless [:inline, true, false, :async, :queue].include?(callbacks)
@@ -44,8 +45,8 @@ module Searchkick
           end
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
-          def searchkick_index
-            index = class_variable_get(:@@searchkick_index)
+          def searchkick_index(name: nil)
+            index = name || class_variable_get(:@@searchkick_index)
             index = index.call if index.respond_to?(:call)
             index_cache = class_variable_get(:@@searchkick_index_cache)
             index_cache[index] ||= Searchkick::Index.new(index, searchkick_options)
