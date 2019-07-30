@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "activerecord", "~> 6.0.0.rc1"
-gem "activejob", "~> 6.0.0.rc1"
+gem "activejob", "~> 6.0.0.rc1", require: "active_job"
 gem "actionpack", "~> 6.0.0.rc1"
 gem "sqlite3"
 gem "gemoji-parser"

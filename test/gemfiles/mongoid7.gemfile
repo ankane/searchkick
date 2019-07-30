@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec path: "../../"
 
 gem "mongoid", "~> 7.0.0"
-gem "activejob"
+gem "activejob", require: "active_job"
 gem "redis"
 
 # kaminari
