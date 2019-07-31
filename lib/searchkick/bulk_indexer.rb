@@ -61,7 +61,7 @@ module Searchkick
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
-            class_name: records.first.model_name.name,
+            class_name: records.first.class.searchkick_options[:class_name],
             record_ids: records.map(&:id),
             index_name: index.name,
             method_name: method_name ? method_name.to_s : nil
@@ -140,7 +140,7 @@ module Searchkick
     def bulk_reindex_job(scope, batch_id, options)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
       Searchkick::BulkReindexJob.perform_later({
-        class_name: scope.model_name.name,
+        class_name: scope.searchkick_options[:class_name],
         index_name: index.name,
         batch_id: batch_id
       }.merge(options))

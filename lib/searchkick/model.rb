@@ -15,6 +15,7 @@ module Searchkick
       Searchkick.models << self
 
       options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
+      options[:class_name] = model_name.name
 
       callbacks = options.key?(:callbacks) ? options[:callbacks] : :inline
       unless [:inline, true, false, :async, :queue].include?(callbacks)
