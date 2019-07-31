@@ -9,13 +9,18 @@ module Searchkick
       loop do
         record_ids = model.searchkick_index(name: index_name).reindex_queue.reserve(limit: limit)
         if record_ids.any?
-          perform_method = inline ? :perform_now : :perform_later
-          Searchkick::ProcessBatchJob.send(
-            perform_method,
+          batch_options = {
             class_name: class_name,
             record_ids: record_ids,
             index_name: index_name
-          )
+          }
+
+          if inline
+            Searchkick::ProcessBatchJob.new.perform(**batch_options)
+          else
+            Searchkick::ProcessBatchJob.perform_later(**batch_options)
+          end
+
           # TODO when moving to reliable queuing, mark as complete
         end
         break unless record_ids.size == limit
