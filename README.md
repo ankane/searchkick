@@ -10,7 +10,7 @@ Searchkick handles:
 - special characters - `jalapeno` matches `jalapeño`
 - extra whitespace - `dishwasher` matches `dish washer`
 - misspellings - `zuchini` matches `zucchini`
-- custom synonyms - `qtip` matches `cotton swab`
+- custom synonyms - `pop` matches `soda`
 
 Plus:
 
@@ -318,7 +318,7 @@ A few languages require plugins:
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick synonyms: [["burger", "hamburger"], ["sneakers", "shoes"]]
+  searchkick synonyms: [["pop", "soda"], ["burger", "hamburger"]]
 end
 ```
 
