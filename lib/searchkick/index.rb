@@ -259,6 +259,10 @@ module Searchkick
       @bulk_indexer ||= BulkIndexer.new(self)
     end
 
+    def import_before_promotion(index, relation, **import_options)
+      index.import_scope(relation, **import_options)
+    end
+
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def reindex_scope(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
@@ -284,8 +288,7 @@ module Searchkick
       # check if alias exists
       alias_exists = alias_exists?
       if alias_exists
-        # import before promotion
-        index.import_scope(relation, **import_options) if import
+        import_before_promotion(index, relation, **import_options) if import
 
         # get existing indices to remove
         unless async
