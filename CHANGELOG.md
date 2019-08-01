@@ -1,4 +1,4 @@
-## 4.0.3 [unreleased]
+## 4.1.0
 
 - Added `like` operator
 - Added `exists` operator

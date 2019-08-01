@@ -105,10 +105,10 @@ where: {
   store_id: {not: 2},           # not
   aisle_id: {not: [25, 30]},    # not in
   user_ids: {all: [1, 3]},      # all elements in array
-  category: {like: "%frozen%"}, # like [master]
+  category: {like: "%frozen%"}, # like
   category: /frozen .+/,        # regexp
   category: {prefix: "frozen"}, # prefix
-  store_id: {exists: true},     # exists [master]
+  store_id: {exists: true},     # exists
   _or: [{in_stock: true}, {backordered: true}],
   _and: [{in_stock: true}, {backordered: true}],
   _not: {store_id: 1}           # negate a condition
