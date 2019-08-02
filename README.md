@@ -1105,7 +1105,7 @@ rake searchkick:reindex CLASS=Product
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "https://user:password@host"
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
 ```
 
 Then deploy and reindex:
