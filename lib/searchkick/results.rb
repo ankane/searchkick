@@ -221,6 +221,10 @@ module Searchkick
       @options[:misspellings]
     end
 
+    def operator_below?
+      @options[:operator_below]
+    end
+
     def scroll_id
       @response["_scroll_id"]
     end

@@ -257,6 +257,15 @@ To change this, use:
 Product.search "fresh honey", operator: "or" # fresh OR honey
 ```
 
+Or if you prefer, Searchkick can first perform a search where results match all the words, and if there are too few results, perform another with partial matches enabled.
+
+```ruby
+Product.search "fresh honey", operator: {below: 5}
+```
+
+If there are fewer than 5 results, a 2nd search is performed with the `or` operator. The result of this query is returned.
+
+
 By default, results must match the entire word - `back` will not match `backpack`. You can change this behavior with:
 
 ```ruby
@@ -386,6 +395,15 @@ Product.search "zuchini", misspellings: {below: 5}
 ```
 
 If there are fewer than 5 results, a 2nd search is performed with misspellings enabled. The result of this query is returned.
+
+You can also combine this behavior with partial matches enabled:
+
+```ruby
+Product.search "zuchini flower", misspellings: {below: 5}, operator: {below: 10}
+```
+
+If there are fewer than 5 results, a 2nd search is performed with misspellings enabled, and if there are fewer than 10 results a 3rd search is performed with partial matches (`or` operator) enabled. The result of this query is returned.
+
 
 Turn off misspellings with:
 

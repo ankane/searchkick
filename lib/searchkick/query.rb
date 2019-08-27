@@ -3,6 +3,7 @@ module Searchkick
     extend Forwardable
 
     @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
+    @@retry_order = [:misspellings, :operator]
 
     attr_reader :klass, :term, :options
     attr_accessor :body
@@ -21,6 +22,7 @@ module Searchkick
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
+      @retry_count = 0
 
       term = term.to_s
 
@@ -38,6 +40,8 @@ module Searchkick
       @routing = nil
       @misspellings = false
       @misspellings_below = nil
+      @operator = :and
+      @operator_below = nil
       @highlighted_fields = nil
       @index_mapping = nil
 
@@ -92,6 +96,12 @@ module Searchkick
         begin
           response = execute_search
           if retry_misspellings?(response)
+            @retry_count += 1
+            prepare
+            response = execute_search
+          end
+          if retry_operator_below?(response)
+            @retry_count += 1
             prepare
             response = execute_search
           end
@@ -128,6 +138,7 @@ module Searchkick
         highlight: options[:highlight],
         highlighted_fields: @highlighted_fields || [],
         misspellings: @misspellings,
+        operator_below: @operator_below && @operator == :or,
         term: term,
         scope_results: options[:scope_results],
         total_entries: options[:total_entries],
@@ -186,7 +197,27 @@ module Searchkick
       @misspellings_below && Searchkick::Results.new(searchkick_klass, response).total_count < @misspellings_below
     end
 
+    def retry_operator_below?(response)
+      @operator_below && Searchkick::Results.new(searchkick_klass, response).total_count < @operator_below
+    end
+
     private
+
+    def retry_below_order?(search_options, field)
+      # perform no below filters if we are on the first search
+      return false if @retry_count == 0
+      # go over all below fields
+      @@retry_order.each_with_index{|f,i|
+        # skip fields whose chance to retry already passed
+        next if (i + 1) < @retry_count
+        # check if any field has a below clause
+        if search_options.key?(f) && search_options[f].is_a?(Hash) && search_options[f][:below]
+          # returns false if there is another field before the one we are querying for
+          return (f == field)
+        end
+      }
+      return false
+    end
 
     def handle_error(e)
       status_code = e.message[1..3].to_i
@@ -228,7 +259,7 @@ module Searchkick
     def prepare
       boost_fields, fields = set_fields
 
-      operator = options[:operator] || "and"
+      @operator = options[:operator] || "and"
 
       # pagination
       page = [options[:page].to_i, 1].max
@@ -313,6 +344,13 @@ module Searchkick
             @misspellings = false
           end
 
+          # Defaults operator to :and if we have `operator { below: x }` key
+          if @operator.is_a?(Hash) && @operator[:below]
+            @operator_below = @operator[:below].to_i
+            # defaults operator to and unless `operator` is next in the below order, then switch to OR operator
+            @operator = retry_below_order?(options, :operator) ? :or : :and
+          end
+
           fields.each do |field|
             queries_to_add = []
             qs = []
@@ -337,7 +375,7 @@ module Searchkick
                 :match
               end
 
-            shared_options[:operator] = operator if match_type == :match
+            shared_options[:operator] = @operator if match_type == :match
 
             exclude_analyzer = nil
             exclude_field = field
@@ -345,7 +383,7 @@ module Searchkick
             field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(base_field(field)))
 
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
+              shared_options[:cutoff_frequency] = 0.001 unless @operator.to_s == "and" || field_misspellings == false
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
