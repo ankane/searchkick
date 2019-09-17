@@ -437,7 +437,12 @@ module Searchkick
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
 
-        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
+        additional_search_data = where.dig(:_additional_search_data)
+        payload[:query] = if additional_search_data
+          build_additional_search_data_query(completed_content: additional_search_data.dig(:completed_content))
+        else
+          build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
+        end
 
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
@@ -544,6 +549,53 @@ module Searchkick
         {
           path: nested[:path],
           query: query
+        }
+      }
+    end
+
+    def build_additional_search_data_query(completed_content:)
+      return {} if completed_content.empty?
+
+      {
+        "bool": {
+          "filter": [
+            {
+              "bool": {
+                "must": completed_content.map do |completed_content|
+                  {
+                    "bool": {
+                      "filter": [
+                        {
+                          "nested": {
+                            "path": "additional_search_data.completed_content",
+                            "query": {
+                            "bool": {
+                              "must": [
+                                {
+                                  "range": {
+                                    "additional_search_data.completed_content.completed_at": {
+                                      "to": "#{completed_content[:completed_at_range]}",
+                                      "include_upper": true
+                                    }
+                                  }
+                                },
+                                {
+                                  "term": {
+                                    "additional_search_data.completed_content.content_id": "#{completed_content[:content_id]}"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                end
+              }
+            }
+          ]
         }
       }
     end
@@ -896,7 +948,7 @@ module Searchkick
           if value.is_a?(Hash)
             value.each do |op, op_value|
               case op
-              when :within, :bottom_right, :bottom_left
+              when :within, :bottom_right, :bottom_left, :completed_content
                 # do nothing
               when :near
                 filters << {
