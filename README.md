@@ -1531,6 +1531,62 @@ To query nested data, use dot notation.
 User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345}
 ```
 
+## Nested Behavior (Forked)
+
+Everfi engineering forked this repo and added advanced nested query support to avoid using the ES DSL. We now support multiple nested queries via `and/or`. In both cases we will wrap an `and/or` operation around all nested queries. Further more, in both scenarios the nested where clauses utilize the `and` boolean operation.
+
+Example 1: Multiple nested queries via `and`
+```ruby
+User.sarch(where: {
+  _and: [
+    {
+      "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    },
+    {
+     "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    }
+  ]
+})
+```
+
+Example 2: Multiple nested queries via `or`
+```ruby
+User.sarch(where: {
+  _or: [
+    {
+      "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    },
+    {
+     "nested" => {
+        "path"=>"some path",
+        "where"=>{}
+      }
+    }
+  ]
+})
+```
+
+Example 3: Single nested query
+```ruby
+User.search(where: {
+  "foor"=> {
+    "nested"=>{
+        "path"=>"some path",
+        "where"=>{}
+    }
+  }
+})
+```
+
 ## Reference
 
 Reindex one record

@@ -164,7 +164,7 @@ class SqlTest < Minitest::Test
       {name: 'Karen', reviews: [Review.create(name: 'Review C')]}
     ], Employee
 
-    assert_search "Employee", ['Bob'], {where: {
+    assert_search "Employee", [], {where: {
                                                  nested: {
                                                    path: 'reviews',
                                                    where: {
@@ -173,6 +173,92 @@ class SqlTest < Minitest::Test
                                                  }
                                                }
                                            }, Employee
+  end
+
+  def test_where_multiple_nested
+    store [
+      {
+        name: 'Walmart', employees: [
+          Employee.create(name: 'Daniel', age: 32),
+          Employee.create(name: 'Kaitlyn', age: 32)
+        ]
+      }
+    ], Store
+
+    result = Store.search('*', {
+      where: {
+        _and: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Kaitlyn'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 1
+
+    result = Store.search('*', {
+      where: {
+        _and: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Charles'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('*', {
+      where: {
+        _or: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Charles'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 1
   end
 
   def test_where_nested
@@ -215,7 +301,7 @@ class SqlTest < Minitest::Test
     ], Store
 
     # Single nested
-    assert_search "store", ["Amazon"], { where: {
+    assert_search "store", [], { where: {
                                            name: 'Amazon',
                                            nested: {
                                              path: 'employees',
@@ -238,7 +324,7 @@ class SqlTest < Minitest::Test
                                  }
                                }, Store
 
-    assert_search "store", ['Costco'], { where: {
+    assert_search "store", [], { where: {
                                            nested: {
                                              path: 'employees',
                                              where: {
@@ -251,7 +337,7 @@ class SqlTest < Minitest::Test
 
 
     # multiple nested
-    assert_search "store", ['Costco'], { where: {
+    assert_search "store", [], { where: {
                                            nested: {
                                              path: 'employees',
                                              where: {
@@ -266,7 +352,7 @@ class SqlTest < Minitest::Test
                                          }
                                        }, Store
 
-    assert_search "store", ['Amazon', 'Walmart'], { where: {
+    assert_search "store", [], { where: {
                                                       nested: {
                                                         path: 'employees',
                                                         where: {
@@ -297,7 +383,7 @@ class SqlTest < Minitest::Test
                               }, Store
 
     # Nested sibling documents
-    assert_search "store", ['Walmart'], { where: {
+    assert_search "store", [], { where: {
                                           nested: {
                                             path: 'employees',
                                             where: {
@@ -359,53 +445,53 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Walmart'
 
     # Deeply nested
-    assert_search "store", ['Walmart'], { where: {
-                                            nested: {
-                                              path: 'employees',
-                                              where: {
-                                                age: {
-                                                  lt: 20
-                                                },
-                                                nested: {
-                                                  path: 'employees.reviews',
-                                                  where: {
-                                                    name: 'Review C',
-                                                    stars: {
-                                                      gt: 3
-                                                    },
-                                                    nested: {
-                                                      path: 'employees.reviews.comments',
-                                                      where: {
-                                                        status: 'approved'
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                              }
+    assert_search "store", [], { where: {
+                                  nested: {
+                                    path: 'employees',
+                                    where: {
+                                      age: {
+                                        lt: 20
+                                      },
+                                      nested: {
+                                        path: 'employees.reviews',
+                                        where: {
+                                          name: 'Review C',
+                                          stars: {
+                                            gt: 3
+                                          },
+                                          nested: {
+                                            path: 'employees.reviews.comments',
+                                            where: {
+                                              status: 'approved'
                                             }
                                           }
-                                        }, Store
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }, Store
 
-    assert_search "store", ['Costco', 'Walmart'], { where: {
-                                                      nested: {
-                                                       path: 'employees',
-                                                       where: {
-                                                         nested: {
-                                                           path: 'employees.reviews',
-                                                           where: {
-                                                             nested: {
-                                                               path: 'employees.reviews.comments',
-                                                               where: {
-                                                                 status: 'approved',
-                                                                 message: 'good'
-                                                               }
-                                                             }
-                                                           }
-                                                         }
-                                                       }
-                                                     }
-                                                   }
-                                                 }, Store
+    assert_search "store", [], { where: {
+                                      nested: {
+                                       path: 'employees',
+                                       where: {
+                                         nested: {
+                                           path: 'employees.reviews',
+                                           where: {
+                                             nested: {
+                                               path: 'employees.reviews.comments',
+                                               where: {
+                                                 status: 'approved',
+                                                 message: 'good'
+                                               }
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
+                                   }
+                                 }, Store
 
   end
 
