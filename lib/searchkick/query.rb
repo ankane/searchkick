@@ -426,9 +426,6 @@ module Searchkick
         # post filters
         set_post_filters(payload, post_filters) if post_filters.any?
 
-        # first nested where
-        nested = filters.detect{ |f| f.include?(:nested) }
-
         custom_filters = []
         multiply_filters = []
 
@@ -437,7 +434,7 @@ module Searchkick
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
 
-        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
+        payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
 
         payload[:explain] = options[:explain] if options[:explain]
         payload[:profile] = options[:profile] if options[:profile]
@@ -548,24 +545,12 @@ module Searchkick
       }
     end
 
-    def build_query(query, filters, should, must_not, custom_filters, multiply_filters, nested)
+    def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
       if filters.any? || must_not.any? || should.any?
         bool = {must: query}
         bool[:filter] = filters if filters.any?      # where
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions
-
-        # nested query
-        if nested
-          # If query is nested ensure dis_max queries
-          # is available. This allows processing of JSON
-          # field as nested without adding to mappings
-          unless bool.dig(:must, :dis_max, :queries)
-            bool[:must] = { dis_max: { queries: [] } }
-          end
-          bool.dig(:must, :dis_max, :queries) << nested_query(nested, filters)
-        end
-
         query = {bool: bool}
       end
 
@@ -986,10 +971,15 @@ module Searchkick
         key = "#{value[:path]}.#{key}" if key != :nested
         nested_where.merge!({key => val})
       end
+
       {
         nested: {
           path: value[:path],
-          query: where_filters(nested_where)
+          query: {
+            bool: {
+              must: where_filters(nested_where)
+            }
+          }
         }
       }
     end

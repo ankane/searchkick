@@ -157,22 +157,90 @@ class SqlTest < Minitest::Test
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
   end
 
-  def test_nested_one_level
+  def test_where_multiple_nested
     store [
-      {name: 'Jim', reviews: [Review.create(name: 'Review A')]},
-      {name: 'Bob', reviews: [Review.create(name: 'Review B')]},
-      {name: 'Karen', reviews: [Review.create(name: 'Review C')]}
-    ], Employee
+      {
+        name: 'Walmart', employees: [
+          Employee.create(name: 'Daniel', age: 32),
+          Employee.create(name: 'Kaitlyn', age: 32)
+        ]
+      }
+    ], Store
 
-    assert_search "Employee", ['Bob'], {where: {
-                                                 nested: {
-                                                   path: 'reviews',
-                                                   where: {
-                                                     name: 'Review B'
-                                                   }
-                                                 }
-                                               }
-                                           }, Employee
+    result = Store.search('*', {
+      where: {
+        _and: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Kaitlyn'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 1
+
+    result = Store.search('*', {
+      where: {
+        _and: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Charles'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('*', {
+      where: {
+        _or: [
+          {
+            nested: {
+              path: 'employees',
+              where:  {
+                name: 'Daniel'
+              }
+            }
+          },
+          {
+            nested: {
+              path: 'employees',
+              where: {
+                name: 'Charles'
+              }
+            }
+          }
+        ]
+      }
+    })
+
+    assert_equal result.results.count, 1
   end
 
   def test_where_nested
@@ -215,108 +283,226 @@ class SqlTest < Minitest::Test
     ], Store
 
     # Single nested
-    assert_search "store", ["Amazon"], { where: {
-                                           name: 'Amazon',
-                                           nested: {
-                                             path: 'employees',
-                                             where: {
-                                               'name' => 'Jim'
-                                             }
-                                           }
-                                         }
-                                       }, Store
+    result = Store.search('*', {
+      where: {
+        name: 'Amazon',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Jim'
+          }
+        }
+      }
+    })
 
-    assert_search "store", [], { where: {
-                                   name: 'Amazon',
-                                   nested: {
-                                     path: 'employees',
-                                     where: {
-                                       'name' => 'Karen',
-                                       'age' => 1,
-                                     }
-                                   }
-                                 }
-                               }, Store
+    assert_equal result.results.count, 1
 
-    assert_search "store", ['Costco'], { where: {
-                                           nested: {
-                                             path: 'employees',
-                                             where: {
-                                               'name' => 'Bob',
-                                               'age' => 34,
-                                             }
-                                           }
-                                         }
-                                       }, Store
+    result = Store.search('Amazon', {
+      where: {
+        name: 'Amazon',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Jim'
+          }
+        }
+      }
+    })
 
+    assert_equal result.results.count, 1
+
+    result = Store.search('foo', {
+      where: {
+        name: 'Amazon',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Jim'
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('*', {
+      where: {
+        name: 'Amazon',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Karen',
+            'age' => 1,
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('*', {
+      where: {
+        name: 'Amazon',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Bob',
+            'age' => 34,
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('*', {
+      where: {
+        name: 'Costco',
+        nested: {
+          path: 'employees',
+          where: {
+            'name' => 'Bob',
+            'age' => 34,
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 1
 
     # multiple nested
-    assert_search "store", ['Costco'], { where: {
-                                           nested: {
-                                             path: 'employees',
-                                             where: {
-                                               nested: {
-                                                 path: 'employees.reviews',
-                                                 where: {
-                                                   name: 'Review B'
-                                                 }
-                                               }
-                                             }
-                                           }
-                                         }
-                                       }, Store
+    result = Store.search('*', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: {
+              path: 'employees.reviews',
+              where: {
+              name: 'Review B'
+              }
+            }
+          }
+        }
+      }
+    })
 
-    assert_search "store", ['Amazon', 'Walmart'], { where: {
-                                                      nested: {
-                                                        path: 'employees',
-                                                        where: {
-                                                          nested: {
-                                                            path: 'employees.reviews',
-                                                            where: {
-                                                              name: 'Review C'
-                                                            }
-                                                          }
-                                                        }
-                                                      }
-                                                    }
-                                                  }, Store
+    assert_equal result.results.count, 1
 
-    assert_search "store", [], { where: {
-                                  nested: {
-                                    path: 'employees',
-                                    where: {
-                                      nested: {
-                                        path: 'employees.reviews',
-                                        where: {
-                                          name: 'Review F'
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }, Store
+    result = Store.search('Costco', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: {
+              path: 'employees.reviews',
+              where: {
+              name: 'Review B'
+              }
+            }
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 1
+
+    result = Store.search('Amazon', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: {
+              path: 'employees.reviews',
+              where: {
+              name: 'Review B'
+              }
+            }
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
 
     # Nested sibling documents
-    assert_search "store", ['Walmart'], { where: {
-                                          nested: {
-                                            path: 'employees',
-                                            where: {
-                                              nested: [
-                                                {
-                                                  path: 'employees.reviews',
-                                                  where: {
-                                                    name: 'Review C'
-                                                  }
-                                                }, {
-                                                  path: 'employees.time_cards',
-                                                  where: {
-                                                    hours: {gt: 10}
-                                                  }
-                                                }]
-                                              }
-                                            }
-                                          }
-                                      }, Store
+    result = Store.search('*', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: [
+              {
+                path: 'employees.reviews',
+                where: {
+                  name: 'Review C'
+                }
+              },
+              {
+                path: 'employees.time_cards',
+                where: {
+                  hours: {gt: 5}
+                }
+              }
+            ]
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 2
+
+    result = Store.search('*', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: [
+              {
+                path: 'employees.reviews',
+                where: {
+                  name: 'Review C'
+                }
+              },
+              {
+                path: 'employees.time_cards',
+                where: {
+                  hours: {gt: 9}
+                }
+              }
+            ]
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 1
+
+    result = Store.search('foo', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            nested: [
+              {
+                path: 'employees.reviews',
+                where: {
+                  name: 'Review C'
+                }
+              },
+              {
+                path: 'employees.time_cards',
+                where: {
+                  hours: {gt: 9}
+                }
+              }
+            ]
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
 
     # With all
     result = Store.search "*", { where: {
@@ -359,54 +545,126 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Walmart'
 
     # Deeply nested
-    assert_search "store", ['Walmart'], { where: {
-                                            nested: {
-                                              path: 'employees',
-                                              where: {
-                                                age: {
-                                                  lt: 20
-                                                },
-                                                nested: {
-                                                  path: 'employees.reviews',
-                                                  where: {
-                                                    name: 'Review C',
-                                                    stars: {
-                                                      gt: 3
-                                                    },
-                                                    nested: {
-                                                      path: 'employees.reviews.comments',
-                                                      where: {
-                                                        status: 'approved'
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }, Store
+    result = Store.search('*', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            age: {
+              lt: 20
+            },
+            nested: {
+              path: 'employees.reviews',
+              where: {
+                name: 'Review C',
+                stars: {
+                  gt: 3
+                },
+                nested: {
+                  path: 'employees.reviews.comments',
+                  where: {
+                    status: 'approved'
+                  }
+                }
+             }
+            }
+          }
+        }
+      }
+    })
 
-    assert_search "store", ['Costco', 'Walmart'], { where: {
-                                                      nested: {
-                                                       path: 'employees',
-                                                       where: {
-                                                         nested: {
-                                                           path: 'employees.reviews',
-                                                           where: {
-                                                             nested: {
-                                                               path: 'employees.reviews.comments',
-                                                               where: {
-                                                                 status: 'approved',
-                                                                 message: 'good'
-                                                               }
-                                                             }
-                                                           }
-                                                         }
-                                                       }
-                                                     }
-                                                   }
-                                                 }, Store
+    assert_equal result.results.count, 1
 
+    result = Store.search('Walmart', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            age: {
+              lt: 20
+            },
+            nested: {
+              path: 'employees.reviews',
+              where: {
+                name: 'Review C',
+                stars: {
+                  gt: 3
+                },
+                nested: {
+                  path: 'employees.reviews.comments',
+                  where: {
+                    status: 'approved'
+                  }
+                }
+             }
+            }
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 1
+
+    result = Store.search('Amazon', {
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            age: {
+              lt: 20
+            },
+            nested: {
+              path: 'employees.reviews',
+              where: {
+                name: 'Review C',
+                stars: {
+                  gt: 3
+                },
+                nested: {
+                  path: 'employees.reviews.comments',
+                  where: {
+                    status: 'approved'
+                  }
+                }
+             }
+            }
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 0
+
+    result = Store.search('Walmart Amazon', {
+      operator: 'or',
+      where: {
+        nested: {
+          path: 'employees',
+          where: {
+            age: {
+              lt: 40
+            },
+            nested: {
+              path: 'employees.reviews',
+              where: {
+                name: 'Review C',
+                stars: {
+                  gt: 3
+                },
+                nested: {
+                  path: 'employees.reviews.comments',
+                  where: {
+                    status: /.*(approved|denied).*/
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    assert_equal result.results.count, 2
   end
 
   def test_json_field
