@@ -37,4 +37,13 @@ class OrderTest < Minitest::Test
     store [{name: "San Francisco", latitude: 37.7833, longitude: -122.4167}]
     assert_order "francisco", ["San Francisco"], order: [{_geo_distance: {location: "0,0"}}]
   end
+
+  def test_order_with_search_after
+    store [
+      {name: "Product A", color: "red", store_id: 1},
+      {name: "Product B", color: "blue", store_id: 3},
+      {name: "Product C", color: "red", store_id: 2}
+    ]
+    assert_order "product", ["Product A"], order: [{color: :asc}, {name: :desc}], search_after: ["red", "Product C"]
+  end
 end

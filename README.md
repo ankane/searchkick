@@ -131,6 +131,13 @@ order: {_score: :desc} # most relevant first - default
 
 [All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html)
 
+[Search after](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-search-after)
+
+```
+order: [{user_id: :desc}, {store_id: asc}], search_after: [3, 1]
+
+```
+
 Limit / offset
 
 ```ruby

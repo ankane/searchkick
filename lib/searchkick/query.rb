@@ -19,7 +19,7 @@ module Searchkick
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where, :search_after]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -474,6 +474,9 @@ module Searchkick
         # order
         set_order(payload) if options[:order]
 
+        # search_after
+        set_search_after(payload) if options[:search_after]
+
         # indices_boost
         set_boost_by_indices(payload)
 
@@ -857,6 +860,18 @@ module Searchkick
       order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
       id_field = :_id
       payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
+    end
+
+    def set_search_after(payload)
+      unless options[:search_after].is_a?(Array)
+        raise ArgumentError, ":search_after option must be array"
+      end
+
+      unless options[:order]
+        raise ArgumentError, ":search_after option requires :order"
+      end
+
+      payload[:search_after] = options[:search_after]
     end
 
     def where_filters(where)
