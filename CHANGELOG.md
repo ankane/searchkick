@@ -1,3 +1,7 @@
+## 4.1.1 [unreleased]
+
+- Improved performance of async full reindex
+
 ## 4.1.0
 
 - Added `like` operator

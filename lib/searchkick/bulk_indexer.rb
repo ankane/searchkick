@@ -87,6 +87,8 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
+        scope = scope.select(primary_key).except(:includes, :preload)
+
         starting_id =
           begin
             scope.minimum(primary_key)
