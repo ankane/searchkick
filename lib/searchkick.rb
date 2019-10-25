@@ -169,15 +169,9 @@ module Searchkick
   end
 
   def self.reindex_status(index_name)
-    if redis
-      batches_left = Searchkick::Index.new(index_name).batches_left
-      {
-        completed: batches_left == 0,
-        batches_left: batches_left
-      }
-    else
-      raise Searchkick::Error, "Redis not configured"
-    end
+    raise Searchkick::Error, 'Redis not configured' unless redis
+
+    Searchkick::Index.new(index_name).bulk_indexer.status
   end
 
   def self.with_redis

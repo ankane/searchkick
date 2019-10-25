@@ -55,6 +55,13 @@ module Searchkick
       Searchkick.with_redis { |r| r.scard(batches_key) }
     end
 
+    def status
+      {
+        completed: batches_left == 0,
+        batches_left: batches_left
+      }
+    end
+
     private
 
     def import_or_update(records, method_name, async)
