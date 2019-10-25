@@ -169,20 +169,18 @@ module Searchkick
   end
 
   def self.reindex_status(index_name)
-    raise Searchkick::Error, 'Redis not configured' unless redis
-
-    Searchkick::Index.new(index_name).bulk_indexer.status
+    Searchkick::Index.new(index_name).reindex_status
   end
 
   def self.with_redis
-    if redis
-      if redis.respond_to?(:with)
-        redis.with do |r|
-          yield r
-        end
-      else
-        yield redis
+    raise Searchkick::Error, 'Redis not configured' unless redis
+
+    if redis.respond_to?(:with)
+      redis.with do |r|
+        yield r
       end
+    else
+      yield redis
     end
   end
 

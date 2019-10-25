@@ -249,6 +249,10 @@ module Searchkick
       end
     end
 
+    def reindex_status
+      bulk_indexer.status
+    end
+
     protected
 
     def client
@@ -307,10 +311,7 @@ module Searchkick
         if async.is_a?(Hash) && async[:wait]
           puts "Created index: #{index.name}"
           puts "Jobs queued. Waiting..."
-          loop do
-            sleep 3
-            status = bulk_indexer.status
-            break if status[:completed]
+          bulk_indexer.wait_for_completion do |status|
             puts "Batches left: #{status[:batches_left]}"
           end
           # already promoted if alias didn't exist

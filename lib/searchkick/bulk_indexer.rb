@@ -62,6 +62,16 @@ module Searchkick
       }
     end
 
+    def wait_for_completion
+      loop do
+        sleep 3
+        current_status = status
+        break if current_status[:completed]
+
+        yield current_status if block_given?
+      end
+    end
+
     private
 
     def import_or_update(records, method_name, async)
