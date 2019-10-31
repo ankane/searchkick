@@ -11,6 +11,10 @@ class WhereTest < Minitest::Test
     ]
     assert_search "product", ["Product A", "Product B"], where: {in_stock: true}
 
+    # arrays
+    assert_search "product", ["Product A"], where: {user_ids: 2}
+    assert_search "product", ["Product A", "Product C"], where: {user_ids: [2, 3]}
+
     # due to precision
     unless cequel?
       # date
