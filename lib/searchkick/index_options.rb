@@ -197,6 +197,20 @@ module Searchkick
           )
 
           stem = false
+        when "korean2"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "nori"
+            },
+            searchkick_search: {
+              type: "nori"
+            },
+            searchkick_search2: {
+              type: "nori"
+            }
+          )
+
+          stem = false
         when "vietnamese"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {

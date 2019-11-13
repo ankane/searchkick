@@ -48,6 +48,16 @@ class LanguageTest < Minitest::Test
     end
   end
 
+  def test_korean2
+    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-nori.html
+    with_options(Song, language: "korean2") do
+      store_names ["한국어를 처리하는 예시입니닼ㅋㅋ"], Song
+      assert_language_search "처리", ["한국어를 처리하는 예시입니닼ㅋㅋ"]
+      assert_language_search "한국어", ["한국어를 처리하는 예시입니닼ㅋㅋ"]
+      assert_language_search "를", []
+    end
+  end
+
   def test_polish
     # requires https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-stempel.html
     with_options(Song, language: "polish") do
