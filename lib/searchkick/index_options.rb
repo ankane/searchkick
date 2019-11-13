@@ -169,6 +169,20 @@ module Searchkick
           )
 
           stem = false
+        when "chinese2", "smartcn"
+          settings[:analysis][:analyzer].merge!(
+            default_analyzer => {
+              type: "smartcn"
+            },
+            searchkick_search: {
+              type: "smartcn"
+            },
+            searchkick_search2: {
+              type: "smartcn"
+            }
+          )
+
+          stem = false
         when "japanese"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
@@ -225,7 +239,7 @@ module Searchkick
           )
 
           stem = false
-        when "polish", "ukrainian", "smartcn"
+        when "polish", "ukrainian"
           settings[:analysis][:analyzer].merge!(
             default_analyzer => {
               type: language

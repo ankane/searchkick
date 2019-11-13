@@ -1,6 +1,6 @@
 ## 4.1.1 [unreleased]
 
-- Added `korean2` language
+- Added `chinese2` and `korean2` languages
 - Improved performance of async full reindex
 
 ## 4.1.0

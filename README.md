@@ -316,6 +316,7 @@ end
 A few languages require plugins:
 
 - `chinese` - [analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
+- `chinese2` - [analysis-smartcn plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-smartcn.html)
 - `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-kuromoji.html)
 - `korean` - [analysis-openkoreantext plugin](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext)
 - `korean2` - [analysis-nori plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-nori.html) [master]

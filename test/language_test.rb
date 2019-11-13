@@ -17,10 +17,9 @@ class LanguageTest < Minitest::Test
     end
   end
 
-  # experimental
-  def test_smartcn
-    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-smartcn.html
-    with_options(Song, language: "smartcn") do
+  def test_chinese2
+    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-smartcn.html
+    with_options(Song, language: "chinese2") do
       store_names ["中华人民共和国国歌"], Song
       assert_language_search "中华人民共和国", ["中华人民共和国国歌"]
       # assert_language_search "国歌", ["中华人民共和国国歌"]
@@ -29,7 +28,7 @@ class LanguageTest < Minitest::Test
   end
 
   def test_japanese
-    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-kuromoji.html
+    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-kuromoji.html
     with_options(Song, language: "japanese") do
       store_names ["JR新宿駅の近くにビールを飲みに行こうか"], Song
       assert_language_search "飲む", ["JR新宿駅の近くにビールを飲みに行こうか"]
@@ -59,7 +58,7 @@ class LanguageTest < Minitest::Test
   end
 
   def test_polish
-    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-stempel.html
+    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-stempel.html
     with_options(Song, language: "polish") do
       store_names ["polski"], Song
       assert_language_search "polskimi", ["polski"]
@@ -67,7 +66,7 @@ class LanguageTest < Minitest::Test
   end
 
   def test_ukrainian
-    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/6.2/analysis-ukrainian.html
+    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-ukrainian.html
     with_options(Song, language: "ukrainian") do
       store_names ["ресторани"], Song
       assert_language_search "ресторан", ["ресторани"]
