@@ -3,27 +3,27 @@
 - Added `chinese2` and `korean2` languages
 - Improved performance of async full reindex
 
-## 4.1.0
+## 4.1.0 (2019-08-01)
 
 - Added `like` operator
 - Added `exists` operator
 - Added warnings for certain regular expressions
 - Fixed anchored regular expressions
 
-## 4.0.2
+## 4.0.2 (2019-06-04)
 
 - Added block form of `scroll`
 - Added `clear_scroll` method
 - Fixed custom mappings
 
-## 4.0.1
+## 4.0.1 (2019-05-30)
 
 - Added support for scroll API
 - Made type optional for custom mapping for Elasticsearch 6
 - Fixed error when suggestions empty
 - Fixed `models` option with inheritance
 
-## 4.0.0
+## 4.0.0 (2019-04-11)
 
 - Added support for Elasticsearch 7
 - Added `models` option
@@ -33,7 +33,7 @@ Breaking changes
 - Removed support for Elasticsearch 5
 - Removed support for multi-word synonyms (they no longer work with shingles)
 
-## 3.1.3
+## 3.1.3 (2019-04-11)
 
 - Added support for endless ranges
 - Added support for routing to `similar` method
@@ -42,7 +42,7 @@ Breaking changes
 - Fixed error with some language stemmers and Elasticsearch 6.5
 - Fixed issue with misspellings below and body block
 
-## 3.1.2
+## 3.1.2 (2018-09-27)
 
 - Improved performance of indices boost
 - Fixed deletes with routing and `async` callbacks
@@ -50,7 +50,7 @@ Breaking changes
 - Fixed deprecation warnings
 - Fixed field misspellings for older partial match format
 
-## 3.1.1
+## 3.1.1 (2018-08-09)
 
 - Added per-field misspellings
 - Added `case_sensitive` option
@@ -59,7 +59,7 @@ Breaking changes
 - Fixed `exclude` option with match all
 - Fixed `with_highlights` method
 
-## 3.1.0
+## 3.1.0 (2018-05-12)
 
 - Added `:inline` as alias for `true` for `callbacks` and `mode` options
 - Friendlier error message for bad mapping with partial matches
@@ -68,7 +68,7 @@ Breaking changes
 - Fixed `with_hit` and `with_highlights` when records in search index do not exist in database
 - Fixed error with highlights and match all
 
-## 3.0.3
+## 3.0.3 (2018-04-22)
 
 - Added support for pagination with `body` option
 - Added `boost_by_recency` option
@@ -77,19 +77,19 @@ Breaking changes
 - Fixed error with optional operators in Ruby regexp
 - Fixed deprecation warnings for Elasticsearch 6.2+
 
-## 3.0.2
+## 3.0.2 (2018-03-26)
 
 - Added support for Korean and Vietnamese
 - Fixed `Unsupported argument type: Symbol` for async partial reindex
 - Fixed infinite recursion with multi search and misspellings below
 - Do not raise an error when `id` is indexed
 
-## 3.0.1
+## 3.0.1 (2018-03-14)
 
 - Added `scope` option for partial reindex
 - Added support for Japanese, Polish, and Ukrainian
 
-## 3.0.0
+## 3.0.0 (2018-03-03)
 
 - Added support for Chinese
 - No longer requires fields to query for Elasticsearch 6
@@ -112,7 +112,7 @@ Breaking changes
 - Removed `with_details` - use `with_highlights` instead
 - Bumped default `limit` to 10,000
 
-## 2.5.0
+## 2.5.0 (2018-02-15)
 
 - Try requests 3 times before raising error
 - Better exception when trying to access results for failed multi-search query
@@ -123,14 +123,14 @@ Breaking changes
 - Added `scope_results` option
 - Added `factor` option to `boost_by_distance`
 
-## 2.4.0
+## 2.4.0 (2017-11-14)
 
 - Fixed `similar` for Elasticsearch 6
 - Added `inheritance` option
 - Added `_type` option
 - Fixed `Must specify fields to search` error when searching `*`
 
-## 2.3.2
+## 2.3.2 (2017-09-08)
 
 - Added `_all` and `default_fields` options
 - Added global `index_prefix` option
@@ -142,14 +142,14 @@ Breaking changes
 - Fixed bug where `routing` and `type` options were silently ignored with `body` option
 - Fixed `reindex(async: true)` for non-numeric primary keys in Postgres
 
-## 2.3.1
+## 2.3.1 (2017-07-06)
 
 - Added support for `reindex(async: true)` for non-numeric primary keys
 - Added `conversions_term` option
 - Added support for passing fields to `suggest` option
 - Fixed `page_view_entries` for Kaminari
 
-## 2.3.0
+## 2.3.0 (2017-05-06)
 
 - Fixed analyzer on dynamically mapped fields
 - Fixed error with `similar` method and `_all` field
@@ -157,54 +157,54 @@ Breaking changes
 - Added `queue_name` option
 - No longer require synonyms to be lowercase
 
-## 2.2.1
+## 2.2.1 (2017-04-16)
 
 - Added `avg`, `cardinality`, `max`, `min`, and `sum` aggregations
 - Added `load: {dumpable: true}` option
 - Added `index_suffix` option
 - Accept string for `exclude` option
 
-## 2.2.0
+## 2.2.0 (2017-03-19)
 
 - Fixed bug with text values longer than 256 characters and `_all` field - see [#850](https://github.com/ankane/searchkick/issues/850)
 - Fixed issue with `_all` field in `searchable`
 - Fixed `exclude` option with `word_start`
 
-## 2.1.1
+## 2.1.1 (2017-01-17)
 
 - Fixed duplicate notifications
 - Added support for `connection_pool`
 - Added `exclude` option
 
-## 2.1.0
+## 2.1.0 (2017-01-15)
 
 - Background reindexing and queues are officially supported
 - Log updates and deletes
 
-## 2.0.4
+## 2.0.4 (2017-01-15)
 
 - Added support for queuing updates [experimental]
 - Added `refresh_interval` option to `reindex`
 - Prefer `search_index` over `searchkick_index`
 
-## 2.0.3
+## 2.0.3 (2017-01-12)
 
 - Added `async` option to `reindex` [experimental]
 - Added `misspellings?` method to results
 
-## 2.0.2
+## 2.0.2 (2017-01-08)
 
 - Added `retain` option to `reindex`
 - Added support for attributes in highlight tags
 - Fixed potentially silent errors in reindex job
 - Improved syntax for `boost_by_distance`
 
-## 2.0.1
+## 2.0.1 (2016-12-30)
 
 - Added `search_hit` and `search_highlights` methods to models
 - Improved reindex performance
 
-## 2.0.0
+## 2.0.0 (2016-12-28)
 
 - Added support for `reindex` on associations
 
@@ -223,75 +223,75 @@ Breaking changes
 - The `unsearchable` and `only_analyzed` options have been removed in favor of `searchable` and `filterable`
 - `load: false` no longer returns an array in Elasticsearch 2
 
-## 1.5.1
+## 1.5.1 (2016-12-28)
 
 - Added `client_options`
 - Added `refresh` option to `reindex` method
 - Improved syntax for partial reindex
 
-## 1.5.0
+## 1.5.0 (2016-12-23)
 
 - Added support for geo shape indexing and queries
 - Added `_and`, `_or`, `_not` to `where` option
 
-## 1.4.2
+## 1.4.2 (2016-12-21)
 
 - Added support for directional synonyms
 - Easier AWS setup
 - Fixed `total_docs` method for ES 5+
 - Fixed exception on update errors
 
-## 1.4.1
+## 1.4.1 (2016-12-11)
 
 - Added `partial_reindex` method
 - Added `debug` option to `search` method
 - Added `profile` option
 
-## 1.4.0
+## 1.4.0 (2016-10-26)
 
 - Official support for Elasticsearch 5
 - Boost exact matches for partial matching
 - Added `searchkick_debug` method
 - Added `geo_polygon` filter
 
-## 1.3.6
+## 1.3.6 (2016-10-08)
 
 - Fixed `Job adapter not found` error
 
-## 1.3.5
+## 1.3.5 (2016-09-27)
 
 - Added support for Elasticsearch 5.0 beta
 - Added `request_params` option
 - Added `filterable` option
 
-## 1.3.4
+## 1.3.4 (2016-08-23)
 
 - Added `resume` option to reindex
 - Added search timeout to payload
 
-## 1.3.3
+## 1.3.3 (2016-08-02)
 
 - Fix for namespaced models (broken in 1.3.2)
 
-## 1.3.2
+## 1.3.2 (2016-08-01)
 
 - Added `body_options` option
 - Added `date_histogram` aggregation
 - Added `indices_boost` option
 - Added support for multiple conversions
 
-## 1.3.1
+## 1.3.1 (2016-07-10)
 
 - Fixed error with Ruby 2.0
 - Fixed error with indexing large fields
 
-## 1.3.0
+## 1.3.0 (2016-05-04)
 
 - Added support for Elasticsearch 5.0 alpha
 - Added support for phrase matches
 - Added support for procs for `index_prefix` option
 
-## 1.2.1
+## 1.2.1 (2016-02-15)
 
 - Added `multi_search` method
 - Added support for routing for Elasticsearch 2
@@ -299,7 +299,7 @@ Breaking changes
 - Fixed error with instrumentation for searching multiple models
 - Fixed instrumentation for bulk updates
 
-## 1.2.0
+## 1.2.0 (2016-02-03)
 
 - Fixed deprecation warnings with `alias_method_chain`
 - Added `analyzed_only` option for large text fields
@@ -307,18 +307,18 @@ Breaking changes
 - Fixed issue in `similar` method with `per_page` option
 - Added basic support for multiple models
 
-## 1.1.2
+## 1.1.2 (2015-12-18)
 
 - Added bulk updates with `callbacks` method
 - Added `bulk_delete` method
 - Added `search_timeout` option
 - Fixed bug with new location format for `boost_by_distance`
 
-## 1.1.1
+## 1.1.1 (2015-12-14)
 
 - Added support for `{lat: lat, lon: lon}` as preferred format for locations
 
-## 1.1.0
+## 1.1.0 (2015-12-08)
 
 - Added `below` option to misspellings to improve performance
 - Fixed synonyms for `word_*` partial matches
@@ -328,25 +328,25 @@ Breaking changes
 - Added `word` option
 - Added highlighted fields to `load: false`
 
-## 1.0.3
+## 1.0.3 (2015-11-27)
 
 - Added support for Elasticsearch 2.1
 
-## 1.0.2
+## 1.0.2 (2015-11-15)
 
 - Throw `Searchkick::ImportError` for errors when importing records
 - Errors now inherit from `Searchkick::Error`
 - Added `order` option to aggregations
 - Added `mapping` method
 
-## 1.0.1
+## 1.0.1 (2015-11-05)
 
 - Added aggregations method to get raw response
 - Use `execute: false` for lazy loading
 - Return nil when no aggs
 - Added emoji search
 
-## 1.0.0
+## 1.0.0 (2015-10-30)
 
 - Added support for Elasticsearch 2.0
 - Added support for aggregations
@@ -360,7 +360,7 @@ Breaking changes
 - Enabled misspellings by default for partial matches
 - Enabled transpositions by default for misspellings
 
-## 0.9.1
+## 0.9.1 (2015-08-31)
 
 - `and` now matches `&`
 - Added `transpositions` option to misspellings
@@ -368,18 +368,18 @@ Breaking changes
 - Added `prefix_length` option to `misspellings`
 - Added ability to set env
 
-## 0.9.0
+## 0.9.0 (2015-06-07)
 
 - Much better performance for where queries if no facets
 - Added basic support for regex
 - Added support for routing
 - Made `Searchkick.disable_callbacks` thread-safe
 
-## 0.8.7
+## 0.8.7 (2015-02-14)
 
 - Fixed Mongoid import
 
-## 0.8.6
+## 0.8.6 (2015-02-10)
 
 - Added support for NoBrainer
 - Added `stem_conversions: false` option
@@ -388,26 +388,26 @@ Breaking changes
 - Fixed suggestions with partial match boost
 - Fixed redefining existing instance methods in models
 
-## 0.8.5
+## 0.8.5 (2014-11-11)
 
 - Added support for Elasticsearch 1.4
 - Added `unsearchable` option
 - Added `select: true` option
 - Added `body` option
 
-## 0.8.4
+## 0.8.4 (2014-11-05)
 
 - Added `boost_by_distance`
 - More flexible highlight options
 - Better `env` logic
 
-## 0.8.3
+## 0.8.3 (2014-09-20)
 
 - Added support for ActiveJob
 - Added `timeout` setting
 - Fixed import with no records
 
-## 0.8.2
+## 0.8.2 (2014-08-18)
 
 - Added `async` to `callbacks` option
 - Added `wordnet` option
@@ -415,17 +415,17 @@ Breaking changes
 - Catch misspelling of `misspellings` option
 - Improved logging
 
-## 0.8.1
+## 0.8.1 (2014-08-16)
 
 - Added `search_method_name` option
 - Fixed `order` for array of hashes
 - Added support for Mongoid 2
 
-## 0.8.0
+## 0.8.0 (2014-07-12)
 
 - Added support for Elasticsearch 1.2
 
-## 0.7.9
+## 0.7.9 (2014-06-30)
 
 - Added `tokens` method
 - Added `json` option
@@ -433,86 +433,86 @@ Breaking changes
 - Added `prev_page` for Kaminari pagination
 - Added `import` option to reindex
 
-## 0.7.8
+## 0.7.8 (2014-06-22)
 
 - Added `boost_by` and `boost_where` options
 - Added ability to boost fields - `name^10`
 - Added `select` option for `load: false`
 
-## 0.7.7
+## 0.7.7 (2014-06-10)
 
 - Added support for automatic failover
 - Fixed `operator` option (and default) for partial matches
 
-## 0.7.6
+## 0.7.6 (2014-05-20)
 
 - Added `stats` option to facets
 - Added `padding` option
 
-## 0.7.5
+## 0.7.5 (2014-05-13)
 
 - Do not throw errors when index becomes out of sync with database
 - Added custom exception types
 - Fixed `offset` and `offset_value`
 
-## 0.7.4
+## 0.7.4 (2014-05-06)
 
 - Fixed reindex with inheritance
 
-## 0.7.3
+## 0.7.3 (2014-04-30)
 
 - Fixed multi-index searches
 - Fixed suggestions for partial matches
 - Added `offset` and `length` for improved pagination
 
-## 0.7.2
+## 0.7.2 (2014-04-24)
 
 - Added smart facets
 - Added more fields to `load: false` result
 - Fixed logging for multi-index searches
 - Added `first_page?` and `last_page?` for improved Kaminari support
 
-## 0.7.1
+## 0.7.1 (2014-04-12)
 
 - Fixed huge issue w/ zero-downtime reindexing on 0.90
 
-## 0.7.0
+## 0.7.0 (2014-04-10)
 
 - Added support for Elasticsearch 1.1
 - Dropped support for Elasticsearch below 0.90.4 (unfortunate side effect of above)
 
-## 0.6.3
+## 0.6.3 (2014-04-08)
 
 - Removed patron since no support for Windows
 - Added error if `searchkick` is called multiple times
 
-## 0.6.2
+## 0.6.2 (2014-04-05)
 
 - Added logging
 - Fixed index_name option
 - Added ability to use proc as the index name
 
-## 0.6.1
+## 0.6.1 (2014-03-24)
 
 - Fixed huge issue w/ zero-downtime reindexing on 0.90 and elasticsearch-ruby 1.0
 - Restore load: false behavior
 - Restore total_entries method
 
-## 0.6.0
+## 0.6.0 (2014-03-22)
 
 - Moved to elasticsearch-ruby
 - Added support for modifying the query and viewing the response
 - Added support for page_entries_info method
 
-## 0.5.3
+## 0.5.3 (2014-02-24)
 
 - Fixed bug w/ word_* queries
 
-## 0.5.2
+## 0.5.2 (2014-02-12)
 
 - Use after_commit hook for ActiveRecord to prevent data inconsistencies
 
-## 0.5.1
+## 0.5.1 (2014-02-12)
 
 - Replaced stop words with common terms query
 - Added language option
@@ -520,89 +520,89 @@ Breaking changes
 - Fixed bug with MongoDB integer _id
 - Fixed reindex bug when callbacks disabled
 
-## 0.5.0
+## 0.5.0 (2014-01-20)
 
 - Better control over partial matches
 - Added merge_mappings option
 - Added batch_size option
 - Fixed bug with nil where clauses
 
-## 0.4.2
+## 0.4.2 (2013-12-29)
 
 - Added `should_index?` method to control which records are indexed
 - Added ability to temporarily disable callbacks
 - Added custom mappings
 
-## 0.4.1
+## 0.4.1 (2013-12-19)
 
 - Fixed issue w/ inheritance mapping
 
-## 0.4.0
+## 0.4.0 (2013-12-11)
 
 - Added support for Mongoid 4
 - Added support for multiple locations
 
-## 0.3.5
+## 0.3.5 (2013-12-08)
 
 - Added facet ranges
 - Added all operator
 
-## 0.3.4
+## 0.3.4 (2013-11-22)
 
 - Added highlighting
 - Added :distance option to misspellings
 - Fixed issue w/ BigDecimal serialization
 
-## 0.3.3
+## 0.3.3 (2013-11-04)
 
 - Better error messages
 - Added where: {field: nil} queries
 
-## 0.3.2
+## 0.3.2 (2013-11-02)
 
 - Added support for single table inheritance
 - Removed Tire::Model::Search
 
-## 0.3.1
+## 0.3.1 (2013-11-02)
 
 - Added index_prefix option
 - Fixed ES issue with incorrect facet counts
 - Added option to turn off special characters
 
-## 0.3.0
+## 0.3.0 (2013-11-02)
 
 - Fixed reversed coordinates
 - Added bounded by a box queries
 - Expanded `or` queries
 
-## 0.2.8
+## 0.2.8 (2013-09-30)
 
 - Added option to disable callbacks
 - Fixed bug with facets with Elasticsearch 0.90.5
 
-## 0.2.7
+## 0.2.7 (2013-09-23)
 
 - Added limit to facet
 - Improved similar items
 
-## 0.2.6
+## 0.2.6 (2013-09-10)
 
 - Added option to disable misspellings
 
-## 0.2.5
+## 0.2.5 (2013-08-30)
 
 - Added geospartial searches
 - Create alias before importing document if no alias exists
 - Fixed exception when :per_page option is a string
 - Check `RAILS_ENV` if `RACK_ENV` is not set
 
-## 0.2.4
+## 0.2.4 (2013-08-20)
 
 - Use `to_hash` instead of `as_json` for default `search_data` method
 - Works for Mongoid 1.3
 - Use one shard in test environment for consistent scores
 
-## 0.2.3
+## 0.2.3 (2013-08-16)
 
 - Setup Travis
 - Clean old indices before reindex
@@ -610,33 +610,33 @@ Breaking changes
 - Fixed pagination
 - Added `similar` method
 
-## 0.2.2
+## 0.2.2 (2013-08-11)
 
 - Clean old indices after reindex
 - More expansions for fuzzy queries
 
-## 0.2.1
+## 0.2.1 (2013-08-11)
 
 - Added Rails logger
 - Only fetch ids when `load: true`
 
-## 0.2.0
+## 0.2.0 (2013-08-10)
 
 - Added autocomplete
 - Added “Did you mean” suggestions
 - Added personalized searches
 
-## 0.1.4
+## 0.1.4 (2013-08-03)
 
 - Bug fix
 
-## 0.1.3
+## 0.1.3 (2013-08-03)
 
 - Changed edit distance to one for misspellings
 - Raise errors when indexing fails
 - Fixed pagination
 - Fixed :include option
 
-## 0.1.2
+## 0.1.2 (2013-07-30)
 
 - Launch
