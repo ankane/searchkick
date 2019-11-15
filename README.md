@@ -6,7 +6,7 @@
 
 ---
 
-[Searchkick Pro](https://searchkick.dev/pro?utm_source=readme) is now available!
+[Searchkick Pro](https://searchkick.org/pro?utm_source=readme) is now available!
 
 ---
 
