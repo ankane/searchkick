@@ -180,7 +180,7 @@ Get the full response from Elasticsearch
 results.response
 ```
 
-**Note:** By default, Elasticsearch [limits paging](#deep-paging-master) to the first 10,000 results for performance. This applies to the total count as well.
+**Note:** By default, Elasticsearch [limits paging](#deep-paging-master) to the first 10,000 results for performance. With Elasticsearch 7, this applies to the total count as well.
 
 ### Boosting
 
@@ -1528,7 +1528,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you just need an accurate total count, you can instead use:
+If you just need an accurate total count with Elasticsearch 7, you can instead use:
 
 ```ruby
 Product.search("pears", body_options: {track_total_hits: true})

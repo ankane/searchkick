@@ -518,7 +518,7 @@ module Searchkick
       # routing
       @routing = options[:routing] if options[:routing]
 
-      if searchkick_options[:deep_paging]
+      if searchkick_options[:deep_paging] && !below70?
         payload[:track_total_hits] = true
       end
 
