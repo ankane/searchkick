@@ -1,4 +1,4 @@
-## 4.1.1 [unreleased]
+## 4.1.1 (2019-11-19)
 
 - Added `chinese2` and `korean2` languages
 - Improved performance of async full reindex
