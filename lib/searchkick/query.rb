@@ -232,7 +232,9 @@ module Searchkick
 
       # pagination
       page = [options[:page].to_i, 1].max
-      per_page = (options[:limit] || options[:per_page] || 10_000).to_i
+      # maybe use index.max_result_window in the future
+      default_limit = searchkick_options[:deep_paging] ? 1_000_000_000 : 10_000
+      per_page = (options[:limit] || options[:per_page] || default_limit).to_i
       padding = [options[:padding].to_i, 0].max
       offset = options[:offset] || (page - 1) * per_page + padding
       scroll = options[:scroll]
@@ -515,6 +517,10 @@ module Searchkick
 
       # routing
       @routing = options[:routing] if options[:routing]
+
+      if searchkick_options[:deep_paging]
+        payload[:track_total_hits] = true
+      end
 
       # merge more body options
       payload = payload.deep_merge(options[:body_options]) if options[:body_options]

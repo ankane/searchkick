@@ -137,8 +137,6 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
-**Note:** By default, Elasticsearch [limits pagination](#deep-pagination) to the first 10,000 results for performance
-
 Select
 
 ```ruby
@@ -181,6 +179,8 @@ Get the full response from Elasticsearch
 ```ruby
 results.response
 ```
+
+**Note:** By default, Elasticsearch [limits paging](#deep-paging-master) to the first 10,000 results for performance. This applies to the total count as well.
 
 ### Boosting
 
@@ -1518,20 +1518,20 @@ end
 products.clear_scroll
 ```
 
-## Deep Pagination
+## Deep Paging [master]
 
-By default, Elasticsearch limits pagination to the first 10,000 results [for performance](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you need to, you can use:
+By default, Elasticsearch limits paging to the first 10,000 results. [Here’s why](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you really need all results, you can use:
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick settings: {index: {max_result_window: 1000000000}}
+  searchkick deep_paging: true
 end
 ```
 
-And search with:
+If you just need an accurate total count, you can instead use:
 
 ```ruby
-Product.search("pears", limit: 1000000000, body_options: {track_total_hits: true})
+Product.search("pears", body_options: {track_total_hits: true})
 ```
 
 ## Nested Data

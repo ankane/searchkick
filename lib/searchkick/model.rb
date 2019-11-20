@@ -3,7 +3,7 @@ module Searchkick
     def searchkick(**options)
       options = Searchkick.model_options.merge(options)
 
-      unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :case_sensitive, :conversions, :default_fields,
+      unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :case_sensitive, :conversions, :deep_paging, :default_fields,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :settings, :similarity,
         :special_characters, :stem, :stem_conversions, :suggest, :synonyms, :text_end,

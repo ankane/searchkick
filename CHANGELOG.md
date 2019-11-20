@@ -1,3 +1,7 @@
+## 4.1.2 (unreleased)
+
+- Added `deep_paging` option
+
 ## 4.1.1 (2019-11-19)
 
 - Added `chinese2` and `korean2` languages
