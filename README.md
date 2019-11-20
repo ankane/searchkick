@@ -137,6 +137,8 @@ Limit / offset
 limit: 20, offset: 40
 ```
 
+**Note:** By default, Elasticsearch [limits pagination](#deep-pagination) to the first 10,000 results for performance
+
 Select
 
 ```ruby
@@ -1514,6 +1516,22 @@ while products.any?
 end
 
 products.clear_scroll
+```
+
+## Deep Pagination
+
+By default, Elasticsearch limits pagination to the first 10,000 results [for performance](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you need to, you can use:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick settings: {index: {max_result_window: 1000000000}}
+end
+```
+
+And search with:
+
+```ruby
+Product.search("pears", limit: 1000000000, body_options: {track_total_hits: true})
 ```
 
 ## Nested Data
