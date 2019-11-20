@@ -2,6 +2,7 @@
 
 - Added `chinese2` and `korean2` languages
 - Improved performance of async full reindex
+- Fixed `searchkick:reindex:all` rake task for Rails 6
 
 ## 4.1.0 (2019-08-01)
 

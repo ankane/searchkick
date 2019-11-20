@@ -16,7 +16,13 @@ namespace :searchkick do
   namespace :reindex do
     desc "reindex all models"
     task all: :environment do
-      Rails.application.eager_load!
+      if Rails.respond_to?(:autoloaders) && Rails.autoloaders.zeitwerk_enabled?
+        # fix for https://github.com/rails/rails/issues/37006
+        Zeitwerk::Loader.eager_load_all
+      else
+        Rails.application.eager_load!
+      end
+
       Searchkick.models.each do |model|
         puts "Reindexing #{model.name}..."
         model.reindex
