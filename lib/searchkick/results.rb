@@ -150,7 +150,7 @@ module Searchkick
     end
 
     def total_pages
-      (total_count / per_page.to_f).ceil
+      ([total_count, 10_000].min / per_page.to_f).ceil
     end
     alias_method :num_pages, :total_pages
 
