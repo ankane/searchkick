@@ -94,8 +94,9 @@ class InheritanceTest < Minitest::Test
     # see https://github.com/elastic/elasticsearch/issues/23306
     # show warning for now
     # alternative is disallow inherited models with models option
-    assert_equal 3, Searchkick.search("bear", models: [Cat, Product]).hits.size
-    assert_equal 3, Searchkick.search("bear", models: [Cat, Product], per_page: 1).total_pages
+    expected = Searchkick.server_below?("7.5.0") ? 3 : 2
+    assert_equal expected, Searchkick.search("bear", models: [Cat, Product]).hits.size
+    assert_equal expected, Searchkick.search("bear", models: [Cat, Product], per_page: 1).total_pages
   end
 
   # TODO move somewhere better

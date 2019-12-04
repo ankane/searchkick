@@ -435,19 +435,20 @@ module Searchkick
 
         models = Array(options[:models])
         if models.any? { |m| m != m.searchkick_klass }
-          Searchkick.warn("Passing child models to models option throws off hits and pagination - use type option instead")
-
-          # TODO uncomment once aliases are supported with _index
-          # should be ES 7.5
+          # aliases are not supported with _index in ES below 7.5
           # see https://github.com/elastic/elasticsearch/pull/46640
-          # index_type_or =
-          #   models.map do |m|
-          #     v = {_index: m.searchkick_index.name}
-          #     v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
-          #     v
-          #   end
+          if below75?
+            Searchkick.warn("Passing child models to models option throws off hits and pagination - use type option instead")
+          else
+            index_type_or =
+              models.map do |m|
+                v = {_index: m.searchkick_index.name}
+                v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
+                v
+              end
 
-          # where[:or] = Array(where[:or]) + [index_type_or]
+            where[:or] = Array(where[:or]) + [index_type_or]
+          end
         end
 
         # start everything as efficient filters
@@ -1102,6 +1103,10 @@ module Searchkick
 
     def below70?
       Searchkick.server_below?("7.0.0")
+    end
+
+    def below75?
+      Searchkick.server_below?("7.5.0")
     end
   end
 end
