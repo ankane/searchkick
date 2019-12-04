@@ -1,11 +1,13 @@
-dist: xenial
+dist: bionic
 language: ruby
-rvm: 2.6.3
+rvm: 2.6
 gemfile:
   - Gemfile
 services:
   - postgresql
   - redis-server
+addons:
+  postgresql: 10
 script: bundle exec rake test
 before_install:
   - createdb searchkick_test || true
@@ -14,7 +16,7 @@ cache:
   directories:
     - $HOME/elasticsearch
 env:
-  - ELASTICSEARCH_VERSION=7.4.2
+  - ELASTICSEARCH_VERSION=7.5.0
 jdk: openjdk10
 matrix:
   include:
