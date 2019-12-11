@@ -240,7 +240,7 @@ module Searchkick
       scroll = options[:scroll]
 
       # model and eager loading
-      load = options[:load].nil? ? true : options[:load]
+      load = options[:load].nil? ? searchkick_options[:load] : options[:load]
 
       all = term == "*"
 
