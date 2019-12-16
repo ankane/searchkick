@@ -1,5 +1,6 @@
 ## 4.1.2 (unreleased)
 
+- Added safety check for multiple `Model.reindex`
 - Added `deep_paging` option
 
 ## 4.1.1 (2019-11-19)

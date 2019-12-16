@@ -249,6 +249,11 @@ module Searchkick
       end
     end
 
+    # private
+    def uuid
+      settings.values.first["settings"]["index"]["uuid"]
+    end
+
     protected
 
     def client
@@ -285,6 +290,8 @@ module Searchkick
         scope: scope
       }
 
+      uuid = index.uuid
+
       # check if alias exists
       alias_exists = alias_exists?
       if alias_exists
@@ -292,6 +299,7 @@ module Searchkick
 
         # get existing indices to remove
         unless async
+          check_uuid(uuid, index.uuid)
           promote(index.name, update_refresh_interval: !refresh_interval.nil?)
           clean_indices unless retain
         end
@@ -316,6 +324,7 @@ module Searchkick
           # already promoted if alias didn't exist
           if alias_exists
             puts "Jobs complete. Promoting..."
+            check_uuid(uuid, index.uuid)
             promote(index.name, update_refresh_interval: !refresh_interval.nil?)
           end
           clean_indices unless retain
@@ -333,6 +342,16 @@ module Searchkick
       end
 
       raise e
+    end
+
+    # safety check
+    # still a chance for race condition since its called before promotion
+    # ideal is for user to disable automatic index creation
+    # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#index-creation
+    def check_uuid(old_uuid, new_uuid)
+      if old_uuid != new_uuid
+        raise Searchkick::Error, "Safety check failed - only run one Model.reindex per model at a time"
+      end
     end
   end
 end
