@@ -554,7 +554,7 @@ Searchkick.callbacks(false) do
 end
 ```
 
-#### Associations
+### Associations
 
 Data is **not** automatically synced when an association is updated. If this is desired, add a callback to reindex:
 
