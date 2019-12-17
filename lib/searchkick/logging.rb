@@ -8,7 +8,7 @@ module Searchkick
       event = {
         name: name,
         query: params,
-        term: term
+        term: options[:body] ? nil : term
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
         super
@@ -164,7 +164,8 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {query: payload[:term]}
+      message = {}
+      message[:query] = payload[:term] if payload[:term]
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
@@ -185,7 +186,8 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {query: payload[:term]}
+      message = {}
+      message[:query] = payload[:term] if payload[:term]
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
