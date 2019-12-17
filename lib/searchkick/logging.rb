@@ -164,7 +164,7 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {term: payload[:term]}
+      message = {query: payload[:term]}
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
@@ -185,7 +185,7 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {term: payload[:term]}
+      message = {query: payload[:term]}
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
