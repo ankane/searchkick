@@ -164,11 +164,14 @@ module Searchkick
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
       type = payload[:query][:type]
       index = payload[:query][:index].is_a?(Array) ? payload[:query][:index].join(",") : payload[:query][:index]
+      request_params = payload[:query].except(:index, :type, :body)
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       params = ["pretty"]
-      params << "scroll=#{payload[:query][:scroll]}" if payload[:query][:scroll]
+      request_params.each do |k, v|
+        params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
+      end
       debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{payload[:query][:body].to_json}'"
     end
 

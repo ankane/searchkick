@@ -106,12 +106,15 @@ module Searchkick
       query = params
       type = query[:type]
       index = query[:index].is_a?(Array) ? query[:index].join(",") : query[:index]
+      request_params = query.except(:index, :type, :body)
 
       # no easy way to tell which host the client will use
       host = Searchkick.client.transport.hosts.first
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
       params = ["pretty"]
-      params << "scroll=#{options[:scroll]}" if options[:scroll]
+      request_params.each do |k, v|
+        params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
+      end
       "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
     end
 
