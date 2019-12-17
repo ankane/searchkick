@@ -4,7 +4,7 @@ module Searchkick
 
     @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
 
-    attr_reader :klass, :term, :options
+    attr_reader :klass, :term, :options, :original_term
     attr_accessor :body
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
@@ -23,6 +23,7 @@ module Searchkick
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
+      @original_term = options[:body] ? nil : term
 
       if options[:emoji]
         term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip

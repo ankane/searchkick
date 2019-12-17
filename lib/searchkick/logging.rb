@@ -8,7 +8,7 @@ module Searchkick
       event = {
         name: name,
         query: params,
-        term: options[:body] ? nil : term
+        term: original_term
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
         super
@@ -134,7 +134,7 @@ module Searchkick
       event = {
         name: "Multi Search",
         body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
-        terms: searches.map { |q| q.options[:body] ? nil : q.term }
+        terms: searches.map { |q| q.original_term }
       }
       ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
         super
