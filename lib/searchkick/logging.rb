@@ -7,7 +7,8 @@ module Searchkick
       name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
       event = {
         name: name,
-        query: params
+        query: params,
+        term: term
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
         super
@@ -132,7 +133,8 @@ module Searchkick
     def multi_search(searches)
       event = {
         name: "Multi Search",
-        body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join
+        body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
+        term: searches.first.term
       }
       ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
         super
@@ -162,17 +164,9 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      type = payload[:query][:type]
-      index = payload[:query][:index].is_a?(Array) ? payload[:query][:index].join(",") : payload[:query][:index]
-      request_params = payload[:query].except(:index, :type, :body)
+      message = {term: payload[:term]}
 
-      # no easy way to tell which host the client will use
-      host = Searchkick.client.transport.hosts.first
-      params = ["pretty"]
-      request_params.each do |k, v|
-        params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
-      end
-      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{payload[:query][:body].to_json}'"
+      debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
 
     def request(event)
@@ -191,10 +185,9 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
+      message = {term: payload[:term]}
 
-      # no easy way to tell which host the client will use
-      host = Searchkick.client.transport.hosts.first
-      debug "  #{color(name, YELLOW, true)}  curl #{host[:protocol]}://#{host[:host]}:#{host[:port]}/_msearch?pretty -H 'Content-Type: application/json' -d '#{payload[:body]}'"
+      debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
   end
 

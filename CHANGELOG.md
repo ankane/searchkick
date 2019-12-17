@@ -1,8 +1,9 @@
-## 4.1.2 (unreleased)
+## 4.2.0 (unreleased)
 
 - Added safety check for multiple `Model.reindex`
 - Added `deep_paging` option
 - Added request parameters to `curl` representation
+- Cleaned up search notifications
 
 ## 4.1.1 (2019-11-19)
 
