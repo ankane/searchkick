@@ -47,7 +47,7 @@ module Searchkick
     end
 
     def refresh_interval
-      settings.values.first["settings"]["index"]["refresh_interval"]
+      index_settings["refresh_interval"]
     end
 
     def update_settings(settings)
@@ -251,7 +251,7 @@ module Searchkick
 
     # private
     def uuid
-      settings.values.first["settings"]["index"]["uuid"]
+      index_settings["uuid"]
     end
 
     protected
@@ -262,6 +262,10 @@ module Searchkick
 
     def bulk_indexer
       @bulk_indexer ||= BulkIndexer.new(self)
+    end
+
+    def index_settings
+      settings.values.first["settings"]["index"]
     end
 
     def import_before_promotion(index, relation, **import_options)
