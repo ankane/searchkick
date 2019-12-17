@@ -134,7 +134,7 @@ module Searchkick
       event = {
         name: "Multi Search",
         body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
-        term: searches.first.term
+        terms: searches.map { |q| q.options[:body] ? nil : q.term }
       }
       ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
         super
@@ -165,7 +165,7 @@ module Searchkick
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
       message = {}
-      message[:query] = payload[:term] if payload[:term]
+      message[:query] = payload[:term] || "[custom]"
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
@@ -187,7 +187,7 @@ module Searchkick
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
       message = {}
-      message[:query] = payload[:term] if payload[:term]
+      message[:queries] = payload[:terms].map { |q| q || "[custom]" }
 
       debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
     end
