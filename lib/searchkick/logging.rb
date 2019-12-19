@@ -172,7 +172,7 @@ module Searchkick
         params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
       end
 
-      debug "  #{color(name, YELLOW, true)}  #{index}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search#{params.any? ? "?" + params.join('&') : nil} #{payload[:query][:body].to_json}"
+      debug "  #{color(name, YELLOW, true)}  #{index}#{type ? "/#{type.join(',')}" : ''}/_search#{params.any? ? '?' + params.join('&') : nil} #{payload[:query][:body].to_json}"
     end
 
     def request(event)
