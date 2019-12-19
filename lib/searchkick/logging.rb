@@ -7,8 +7,7 @@ module Searchkick
       name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
       event = {
         name: name,
-        query: params,
-        term: original_term
+        query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
         super
@@ -134,7 +133,6 @@ module Searchkick
       event = {
         name: "Multi Search",
         body: searches.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
-        terms: searches.map { |q| q.original_term }
       }
       ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
         super
@@ -164,10 +162,17 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {}
-      message[:query] = payload[:term] || "[custom]"
 
-      debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
+      index = payload[:query][:index].is_a?(Array) ? payload[:query][:index].join(",") : payload[:query][:index]
+      type = payload[:query][:type]
+      request_params = payload[:query].except(:index, :type, :body)
+
+      params = []
+      request_params.each do |k, v|
+        params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
+      end
+
+      debug "  #{color(name, YELLOW, true)}  #{index}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search#{params.any? ? "?" + params.join('&') : nil} #{payload[:query][:body].to_json}"
     end
 
     def request(event)
@@ -186,10 +191,8 @@ module Searchkick
 
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
-      message = {}
-      message[:queries] = payload[:terms].map { |q| q || "[custom]" }
 
-      debug "  #{color(name, YELLOW, true)}  #{message.to_json}"
+      debug "  #{color(name, YELLOW, true)}  _msearch #{payload[:body]}"
     end
   end
 

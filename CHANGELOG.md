@@ -3,7 +3,7 @@
 - Added safety check for multiple `Model.reindex`
 - Added `deep_paging` option
 - Added request parameters to `curl` representation
-- Cleaned up search notifications
+- Removed curl from search notifications to prevent confusion
 
 ## 4.1.1 (2019-11-19)
 
