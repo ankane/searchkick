@@ -113,7 +113,7 @@ class AggsTest < Minitest::Test
           products_per_year: {
             date_histogram: {
               field: :created_at,
-              interval: :year
+              interval_key => :year
             }
           }
         }
@@ -241,7 +241,7 @@ class AggsTest < Minitest::Test
         products_per_day: {
           date_histogram: {
             field: :created_at,
-            interval: :day,
+            interval_key => :day,
             time_zone: time_zone
           }
         }
@@ -262,5 +262,9 @@ class AggsTest < Minitest::Test
     Hash[Product.search("Product", options).aggs.map do |field, filtered_agg|
       [field, buckets_as_hash(filtered_agg)]
     end]
+  end
+
+  def interval_key
+    Searchkick.server_below?("7.4.0") ? :interval : :calendar_interval
   end
 end
