@@ -1518,7 +1518,7 @@ end
 products.clear_scroll
 ```
 
-## Deep Paging [master]
+## Deep Paging
 
 By default, Elasticsearch limits paging to the first 10,000 results. [Here’s why](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you really need all results, you can use:
 
