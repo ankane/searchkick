@@ -13,9 +13,6 @@ module Searchkick
         index_type = index_type.call if index_type.respond_to?(:call)
       end
 
-      ngram_type = below70 ? "nGram" : "ngram"
-      edge_ngram_type = below70 ? "edgeNGram" : "edge_ngram"
-
       custom_mapping = options[:mappings] || {}
       if below70 && custom_mapping.keys.map(&:to_sym).include?(:properties)
         # add type
@@ -129,12 +126,12 @@ module Searchkick
                 max_shingle_size: 5
               },
               searchkick_edge_ngram: {
-                type: edge_ngram_type,
+                type: "edge_ngram",
                 min_gram: 1,
                 max_gram: 50
               },
               searchkick_ngram: {
-                type: ngram_type,
+                type: "ngram",
                 min_gram: 1,
                 max_gram: 50
               },
