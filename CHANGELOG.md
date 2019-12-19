@@ -1,3 +1,7 @@
+## 4.2.1 (unreleased)
+
+- Fixed deprecation warning
+
 ## 4.2.0 (2019-12-18)
 
 - Added safety check for multiple `Model.reindex`

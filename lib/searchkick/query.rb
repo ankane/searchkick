@@ -350,7 +350,7 @@ module Searchkick
             field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(base_field(field)))
 
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false
+              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false || (!below73? && !track_total_hits?)
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for ukrainian
@@ -522,7 +522,7 @@ module Searchkick
       # routing
       @routing = options[:routing] if options[:routing]
 
-      if searchkick_options[:deep_paging] && !below70?
+      if track_total_hits?
         payload[:track_total_hits] = true
       end
 
@@ -1100,12 +1100,24 @@ module Searchkick
       k.sub(/\.(analyzed|word_start|word_middle|word_end|text_start|text_middle|text_end|exact)\z/, "")
     end
 
+    def track_total_hits?
+      (searchkick_options[:deep_paging] && !below70?) || body_options[:track_total_hits]
+    end
+
+    def body_options
+      options[:body_options] || {}
+    end
+
     def below61?
       Searchkick.server_below?("6.1.0")
     end
 
     def below70?
       Searchkick.server_below?("7.0.0")
+    end
+
+    def below73?
+      Searchkick.server_below?("7.3.0")
     end
 
     def below75?
