@@ -1,6 +1,7 @@
 ## 4.2.1 (unreleased)
 
-- Fixed deprecation warning
+- Fixed deprecation warnings with Elasticsearch
+- Fixed deprecation warnings in Ruby 2.7
 
 ## 4.2.0 (2019-12-18)
 

@@ -84,19 +84,19 @@ class Minitest::Test
 
   # no order
   def assert_search(term, expected, options = {}, klass = Product)
-    assert_equal expected.sort, klass.search(term, options).map(&:name).sort
+    assert_equal expected.sort, klass.search(term, **options).map(&:name).sort
   end
 
   def assert_order(term, expected, options = {}, klass = Product)
-    assert_equal expected, klass.search(term, options).map(&:name)
+    assert_equal expected, klass.search(term, **options).map(&:name)
   end
 
   def assert_equal_scores(term, options = {}, klass = Product)
-    assert_equal 1, klass.search(term, options).hits.map { |a| a["_score"] }.uniq.size
+    assert_equal 1, klass.search(term, **options).hits.map { |a| a["_score"] }.uniq.size
   end
 
   def assert_first(term, expected, options = {}, klass = Product)
-    assert_equal expected, klass.search(term, options).map(&:name).first
+    assert_equal expected, klass.search(term, **options).map(&:name).first
   end
 
   def assert_misspellings(term, expected, misspellings = {}, klass = Product)

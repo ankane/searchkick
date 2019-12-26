@@ -105,7 +105,7 @@ class AggsTest < Minitest::Test
   def test_aggs_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
     products =
-      Product.search("Product", {
+      Product.search("Product",
         where: {
           created_at: {lt: Time.now}
         },
@@ -117,7 +117,7 @@ class AggsTest < Minitest::Test
             }
           }
         }
-      })
+      )
 
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
@@ -150,7 +150,7 @@ class AggsTest < Minitest::Test
 
   def test_aggs_avg
     products =
-      Product.search("*", {
+      Product.search("*",
         aggs: {
           avg_price: {
             avg: {
@@ -158,13 +158,13 @@ class AggsTest < Minitest::Test
             }
           }
         }
-      })
+      )
     assert_equal 16.5, products.aggs["avg_price"]["value"]
   end
 
   def test_aggs_cardinality
     products =
-      Product.search("*", {
+      Product.search("*",
         aggs: {
           total_stores: {
             cardinality: {
@@ -172,13 +172,13 @@ class AggsTest < Minitest::Test
             }
           }
         }
-      })
+      )
     assert_equal 3, products.aggs["total_stores"]["value"]
   end
 
   def test_aggs_min_max
     products =
-      Product.search("*", {
+      Product.search("*",
         aggs: {
           min_price: {
             min: {
@@ -191,14 +191,14 @@ class AggsTest < Minitest::Test
             }
           }
         }
-      })
+      )
     assert_equal 5, products.aggs["min_price"]["value"]
     assert_equal 25, products.aggs["max_price"]["value"]
   end
 
   def test_aggs_sum
     products =
-      Product.search("*", {
+      Product.search("*",
         aggs: {
           sum_price: {
             sum: {
@@ -206,7 +206,7 @@ class AggsTest < Minitest::Test
             }
           }
         }
-      })
+      )
     assert_equal 66, products.aggs["sum_price"]["value"]
   end
 
@@ -233,7 +233,7 @@ class AggsTest < Minitest::Test
   protected
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
-    Product.search(query, {
+    Product.search(query,
       where: {
         created_at: {lt: Time.now}
       },
@@ -246,7 +246,7 @@ class AggsTest < Minitest::Test
           }
         }
       }
-    })
+    )
   end
 
   def buckets_as_hash(agg)
@@ -254,12 +254,12 @@ class AggsTest < Minitest::Test
   end
 
   def store_agg(options, agg_key = "store_id")
-    buckets = Product.search("Product", options).aggs[agg_key]
+    buckets = Product.search("Product", **options).aggs[agg_key]
     buckets_as_hash(buckets)
   end
 
   def store_multiple_aggs(options)
-    Hash[Product.search("Product", options).aggs.map do |field, filtered_agg|
+    Hash[Product.search("Product", **options).aggs.map do |field, filtered_agg|
       [field, buckets_as_hash(filtered_agg)]
     end]
   end
