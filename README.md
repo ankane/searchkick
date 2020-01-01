@@ -4,12 +4,6 @@
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
 
----
-
-[Searchkick Pro](https://searchkick.org/pro?utm_source=readme) is now available!
-
----
-
 Searchkick handles:
 
 - stemming - `tomatoes` matches `tomato`
