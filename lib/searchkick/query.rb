@@ -92,6 +92,8 @@ module Searchkick
           client = Searchkick.client
         when 2
           client = Searchkick.new_client
+        else
+          client = nil
         end
       else
         client = @options[:new_cluster] ? Searchkick.new_client : Searchkick.client
