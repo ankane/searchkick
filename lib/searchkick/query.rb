@@ -86,18 +86,21 @@ module Searchkick
     end
 
     def choose_client
+      client = nil
+
       if ENV["SEARCHKICK_READ_CLIENT_ID"].present?
         case ENV["SEARCHKICK_READ_CLIENT_ID"].to_i
         when 1
           client = Searchkick.client
         when 2
-          client = Searchkick.new_client
-        else
-          client = nil
+          client = Searchkick.new_client          
         end
-      else
+      end
+
+      if client == nil
         client = @options[:new_cluster] ? Searchkick.new_client : Searchkick.client
       end
+      
       client || Searchkick.client
     end
 
