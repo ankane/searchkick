@@ -87,17 +87,20 @@ module Searchkick
 
     def choose_client
       client = @options[:new_cluster] ? Searchkick.new_client : nil
-
-      if client == nil && ENV["SEARCHKICK_READ_CLIENT_ID"].present?
-        case ENV["SEARCHKICK_READ_CLIENT_ID"].to_i
-        when 1
-          client = Searchkick.client
-        when 2
-          client = Searchkick.new_client          
-        end
+      
+      if client == nil && use_new_cluster?
+        client = Searchkick.new_client
       end
 
       client || Searchkick.client
+    end
+
+    def use_new_cluster?
+      use_new_cluster = false
+      if ENV["SEARCHKICK_READ_CLIENT_ID"].present?
+        use_new_cluster = ENV["SEARCHKICK_READ_CLIENT_ID"].to_i == 2
+      end
+      use_new_cluster
     end
 
     def to_curl
@@ -1014,22 +1017,22 @@ module Searchkick
     end
 
     def below12?
-      new_client = options[:new_cluster] == true
+      new_client = options[:new_cluster] == true || use_new_cluster?
       Searchkick.server_below?("1.2.0", new_client)
     end
 
     def below14?
-      new_client = options[:new_cluster] == true
+      new_client = options[:new_cluster] == true || use_new_cluster?
       Searchkick.server_below?("1.4.0", new_client)
     end
 
     def below20?
-      new_client = options[:new_cluster] == true
+      new_client = options[:new_cluster] == true || use_new_cluster?
       Searchkick.server_below?("2.0.0", new_client)
     end
 
     def below50?
-      new_client = options[:new_cluster] == true
+      new_client = options[:new_cluster] == true || use_new_cluster?
       Searchkick.server_below?("5.0.0-alpha1", new_client)
     end
   end
