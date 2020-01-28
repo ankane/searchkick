@@ -161,6 +161,13 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product 100%"], where: {name: {like: "% 100\\%"}}
   end
 
+  def test_like_special_characters
+    store_names ["Product ABC\"", "Product B"]
+    like = "%ABC\""
+    assert_equal 1, Product.where("name LIKE ?", like).count
+    assert_search "product", ["Product ABC\""], where: {name: {like: like}}
+  end
+
   # def test_script
   #   store [
   #     {name: "Product A", store_id: 1},

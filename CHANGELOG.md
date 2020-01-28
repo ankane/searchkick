@@ -1,3 +1,7 @@
+## 4.2.2 (unreleased)
+
+- Fixed `like` queries with `"` character
+
 ## 4.2.1 (2020-01-27)
 
 - Fixed deprecation warnings with Elasticsearch

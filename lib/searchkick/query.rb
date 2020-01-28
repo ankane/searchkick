@@ -953,7 +953,14 @@ module Searchkick
                 # % matches zero or more characters
                 # _ matches one character
                 # \ is escape character
-                regex = Regexp.escape(op_value).gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
+                # escape Lucene reserved characters
+                # https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html#regexp-optional-operators
+                reserved = %w(. ? + * | { } [ ] ( ) " \\)
+                regex = op_value.dup
+                reserved.each do |v|
+                  regex.gsub!(v, "\\" + v)
+                end
+                regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
                 filters << {regexp: {field => {value: regex}}}
               when :prefix
                 filters << {prefix: {field => op_value}}
