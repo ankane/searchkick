@@ -1,4 +1,4 @@
-## 4.2.1 (unreleased)
+## 4.2.1 (2020-01-27)
 
 - Fixed deprecation warnings with Elasticsearch
 - Fixed deprecation warnings in Ruby 2.7
