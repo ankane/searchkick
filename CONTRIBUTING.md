@@ -4,7 +4,7 @@ First, thanks for wanting to contribute. You’re awesome! :heart:
 
 ## Help
 
-We’re not able to provide support through GitHub Issues. If you’re looking for help with your code, try posting on [Stack Overflow](https://stackoverflow.com/).
+We’re not able to provide support through GitHub Issues. If you’re looking for help with your code, try posting on [Stack Overflow](https://stackoverflow.com/questions/tagged/searchkick).
 
 All features should be documented. If you don’t see a feature in the docs, assume it doesn’t exist.
 
