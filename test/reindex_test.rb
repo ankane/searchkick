@@ -89,7 +89,7 @@ class ReindexTest < Minitest::Test
     assert Product.reindex(resume: true)
   end
 
-  def test_full_reindex
+  def test_refresh_full_reindex
     Product.reindex(refresh: true)
   end
 end
