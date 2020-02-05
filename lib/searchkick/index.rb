@@ -184,6 +184,7 @@ module Searchkick
 
     def reindex(relation, method_name, scoped:, full: false, scope: nil, **options)
       refresh = options.fetch(:refresh, !scoped)
+      options.delete(:refresh)
 
       if method_name
         # update
