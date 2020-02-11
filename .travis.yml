@@ -16,7 +16,7 @@ cache:
   directories:
     - $HOME/elasticsearch
 env:
-  - ELASTICSEARCH_VERSION=7.5.2
+  - ELASTICSEARCH_VERSION=7.6.0
 jdk: openjdk10
 matrix:
   include:
