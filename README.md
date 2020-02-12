@@ -137,7 +137,7 @@ Select
 select: [:name]
 ```
 
-[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html)
+[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-source-filtering)
 
 ### Results
 
