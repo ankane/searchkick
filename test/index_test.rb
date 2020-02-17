@@ -177,13 +177,14 @@ class IndexTest < Minitest::Test
       {}
     end
 
-    store_names ["Product A"]
     Searchkick.client.stub :bulk, bulk_receiver do
+      store_names ["Product A"]
       Product.reindex
     end
 
-    assert_equal(refresh_calls.size, 1)
+    assert_equal(refresh_calls.size, 2)
     assert_equal(refresh_calls.first, "wait_for")
+    assert_equal(refresh_calls.last, "wait_for")
   ensure
     Searchkick.refresh_wait_for = old_refresh_wait_for
   end
