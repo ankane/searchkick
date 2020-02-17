@@ -540,13 +540,26 @@ Searchkick.callbacks(:bulk) do
 end
 ```
 
-Or temporarily skip updates.
+Temporarily skip updates.
 
 ```ruby
 Searchkick.callbacks(false) do
   User.find_each(&:update_fields)
 end
 ```
+
+or restore the default behavior.
+
+```ruby
+Searchkick.enable_callbacks
+ 
+# OR
+
+Searchkick.callbacks(nil) do
+  User.find_each(&:update_fields)
+end
+```
+
 
 ### Associations
 
