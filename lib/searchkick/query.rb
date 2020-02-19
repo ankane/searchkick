@@ -963,7 +963,7 @@ module Searchkick
                 regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
                 filters << {regexp: {field => {value: regex}}}
               when :prefix
-                filters << {prefix: {field => op_value}}
+                filters << {prefix: {field => {value: op_value}}}
               when :regexp # support for regexp queries without using a regexp ruby object
                 filters << {regexp: {field => {value: op_value}}}
               when :not, :_not # not equal
