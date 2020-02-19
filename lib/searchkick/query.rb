@@ -871,10 +871,10 @@ module Searchkick
     end
 
     def where_filters(where)
-      if where.respond_to?(:permitted?) && !where.permitted?
-        # TODO check in more places
-        Searchkick.warn("Passing unpermitted parameters will raise an exception in Searchkick 5")
-      end
+      # if where.respond_to?(:permitted?) && !where.permitted?
+      #   # TODO check in more places
+      #   Searchkick.warn("Passing unpermitted parameters will raise an exception in Searchkick 5")
+      # end
 
       filters = []
       (where || {}).each do |field, value|
