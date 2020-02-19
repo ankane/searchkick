@@ -1,6 +1,7 @@
-## 4.2.2 (unreleased)
+## 4.3.0 (2020-02-19)
 
 - Fixed `like` queries with `"` character
+- Better error when invalid parameters passed to `where`
 
 ## 4.2.1 (2020-01-27)
 
