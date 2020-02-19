@@ -1043,7 +1043,7 @@ module Searchkick
 
         {regexp: {field => {value: source, flags: "NONE"}}}
       else
-        {term: {field => value}}
+        {term: {field => {value: value}}}
       end
     end
 
