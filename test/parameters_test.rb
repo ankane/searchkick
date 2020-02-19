@@ -7,6 +7,19 @@ class ParametersTest < Minitest::Test
     super
   end
 
+  def test_where_unpermitted
+    # TODO raise error in Searchkick 6
+    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_search "product", ["Product A"], where: params
+  end
+
+  def test_where_permitted
+    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_search "product", ["Product A"], where: params.permit!
+  end
+
   def test_where_hash
     params = ActionController::Parameters.new({store_id: {value: 10, boost: 2}})
     # TODO make TypeError

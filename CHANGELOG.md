@@ -1,5 +1,6 @@
 ## 4.2.2 (unreleased)
 
+- Added warning for unpermitted parameters
 - Fixed `like` queries with `"` character
 
 ## 4.2.1 (2020-01-27)
