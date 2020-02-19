@@ -1043,6 +1043,14 @@ module Searchkick
 
         {regexp: {field => {value: source, flags: "NONE"}}}
       else
+        # TODO add this for other values
+        if value.as_json.is_a?(Enumerable)
+          # query will fail, but this is better
+          # same message as Active Record
+          # TODO make TypeError
+          raise "can't cast #{value.class.name}"
+        end
+
         {term: {field => {value: value}}}
       end
     end
