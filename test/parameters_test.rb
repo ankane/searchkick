@@ -23,9 +23,9 @@ class ParametersTest < Minitest::Test
   def test_where_hash
     params = ActionController::Parameters.new({store_id: {value: 10, boost: 2}})
     # TODO make TypeError
-    error = assert_raises RuntimeError do
+    error = assert_raises Searchkick::InvalidQueryError do
       assert_search "product", [], where: {store_id: params[:store_id]}
     end
-    assert_includes error.message, "can't cast ActionController::Parameters"
+    assert_equal error.message, "can't cast ActionController::Parameters"
   end
 end

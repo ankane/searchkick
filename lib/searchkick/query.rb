@@ -1053,7 +1053,8 @@ module Searchkick
           # query will fail, but this is better
           # same message as Active Record
           # TODO make TypeError
-          raise "can't cast #{value.class.name}"
+          # raise InvalidQueryError for backward compatibility
+          raise Searchkick::InvalidQueryError, "can't cast #{value.class.name}"
         end
 
         {term: {field => {value: value}}}
