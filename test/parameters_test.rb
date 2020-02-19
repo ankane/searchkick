@@ -24,7 +24,7 @@ class ParametersTest < Minitest::Test
     params = ActionController::Parameters.new({store_id: {value: 10, boost: 2}})
     # TODO make TypeError
     error = assert_raises RuntimeError do
-      assert_search "product", [], where: params
+      assert_search "product", [], where: {store_id: params[:store_id]}
     end
     assert_includes error.message, "can't cast ActionController::Parameters"
   end
