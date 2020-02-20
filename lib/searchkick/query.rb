@@ -767,6 +767,11 @@ module Searchkick
         if (fragment_size = options[:highlight][:fragment_size])
           payload[:highlight][:fragment_size] = fragment_size
         end
+
+        if (boundary_chars = options[:highlight][:boundary_chars])
+          payload[:highlight][:boundary_chars] = boundary_chars
+        end
+
         if (encoder = options[:highlight][:encoder])
           payload[:highlight][:encoder] = encoder
         end

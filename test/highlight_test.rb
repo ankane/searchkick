@@ -92,6 +92,13 @@ class HighlightTest < Minitest::Test
     end
   end
 
+  def test_boundary_chars_highlights
+    store_names ["Two <strong>Door Cinema Club Some Other Words And Much More Doors Cinema</strong>Club"]
+    highlight = Product.search("cinema", highlight: {boundary_chars: '/<strong>'}).first.search_highlights[:name]
+    
+    assert_equal "<strong>Door <em>Cinema</em> Club Some Other Words And Much More Doors <em>Cinema</em></strong>", highlight
+  end
+
   def test_search_highlights_method
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", highlight: true).first.search_highlights[:name]
