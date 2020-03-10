@@ -1,3 +1,7 @@
+## 4.3.1 (unreleased)
+
+- Added `nested` option
+
 ## 4.3.0 (2020-02-19)
 
 - Fixed `like` queries with `"` character

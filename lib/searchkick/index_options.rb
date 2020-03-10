@@ -434,6 +434,10 @@ module Searchkick
         # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
         multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
+        (options[:nested] || []).each do |field|
+          mapping[field] = {type: "nested"}
+        end
+
         mappings = {
           properties: mapping,
           _routing: routing,

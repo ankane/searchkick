@@ -20,9 +20,10 @@ class Product
     highlight: [:name],
     filterable: [:name, :color, :description],
     similarity: "BM25",
-    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
+    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
+    nested: [:categories]
 
-  attr_accessor :conversions, :user_ids, :aisle, :details
+  attr_accessor :conversions, :user_ids, :aisle, :details, :categories
 
   def search_data
     serializable_hash.except("id", "_id").merge(
@@ -31,7 +32,8 @@ class Product
       location: {lat: latitude, lon: longitude},
       multiple_locations: [{lat: latitude, lon: longitude}, {lat: 0, lon: 0}],
       aisle: aisle,
-      details: details
+      details: details,
+      categories: categories
     )
   end
 
