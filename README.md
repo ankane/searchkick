@@ -764,8 +764,6 @@ Order
 Product.search "wingtips", aggs: {color: {order: {"_key" => "asc"}}} # alphabetically
 ```
 
-**Note:** Use `_term` instead of `_key` in Elasticsearch 5
-
 [All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
 
 Ranges
