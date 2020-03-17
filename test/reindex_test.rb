@@ -92,4 +92,10 @@ class ReindexTest < Minitest::Test
   def test_refresh_full_reindex
     Product.reindex(refresh: true)
   end
+
+  def test_partial_async
+    store_names ["Product A"]
+    # warn for now
+    Product.reindex(:search_name, async: true)
+  end
 end
