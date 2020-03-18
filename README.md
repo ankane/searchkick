@@ -970,7 +970,7 @@ And to search, use:
 ```ruby
 Animal.search("*")                   # all animals
 Dog.search("*")                      # just dogs
-Animal.search("*").type(Dog, Cat)  # just cats and dogs
+Animal.search("*").type(Dog, Cat)    # just cats and dogs
 ```
 
 **Notes:**
