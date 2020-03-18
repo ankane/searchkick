@@ -236,6 +236,15 @@ module Searchkick
       self
     end
 
+    def match(value)
+      spawn.match!(value)
+    end
+
+    def match!(value)
+      options[:match] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

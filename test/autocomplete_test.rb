@@ -4,6 +4,7 @@ class AutocompleteTest < Minitest::Test
   def test_autocomplete
     store_names ["Hummus"]
     assert_search "hum", ["Hummus"], match: :text_start
+    assert_search_relation ["Hummus"], Product.search("hum", relation: true).match(:text_start)
   end
 
   def test_autocomplete_two_words
