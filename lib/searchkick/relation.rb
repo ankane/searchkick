@@ -9,7 +9,7 @@ module Searchkick
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :total_pages, :num_pages,
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
-      :out_of_range?, :hits, :response, :to_a, :first, :highlights
+      :out_of_range?, :hits, :response, :to_a, :first, :highlights, :group_by
 
     def_delegators :query, :body, :params
 
@@ -404,7 +404,8 @@ module Searchkick
     end
 
     def spawn
-      Relation.new(klass, term, options.deep_dup)
+      # cannot deep dup due to model classes
+      Relation.new(klass, term, options.dup)
     end
   end
 end

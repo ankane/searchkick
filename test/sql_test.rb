@@ -256,8 +256,6 @@ class SqlTest < Minitest::Test
       assert records.first.association(associations[klass].first).loaded?
     end
 
-    skip "Not working yet"
-
     result = Searchkick.search("*", relation: true).models(Product, Store).model_includes(associations)
     assert_equal 2, result.length
     result.group_by(&:class).each_pair do |klass, records|
