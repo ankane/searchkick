@@ -107,6 +107,10 @@ class Minitest::Test
     assert_equal expected, klass.search(term, **options).map(&:name).first
   end
 
+  def assert_first_relation(expected, relation)
+    assert_equal expected, relation.map(&:name).first
+  end
+
   def assert_misspellings(term, expected, misspellings = {}, klass = Product)
     options = {
       fields: [:name, :color],

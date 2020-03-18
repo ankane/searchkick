@@ -182,6 +182,16 @@ module Searchkick
       self
     end
 
+    def boost_where(value)
+      spawn.boost_where!(value)
+    end
+
+    # TODO merge options
+    def boost_where!(value)
+      options[:boost_where] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

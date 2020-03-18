@@ -149,6 +149,8 @@ class BoostTest < Minitest::Test
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: 2, factor: 10}}
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: [1, 4], factor: 10}}
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_where: {user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}]}
+
+    assert_first_relation "Tomato B", Product.search("tomato", relation: true).boost_where(user_ids: 2)
   end
 
   def test_boost_where_negative_boost
