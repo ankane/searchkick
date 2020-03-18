@@ -7,7 +7,7 @@ module Searchkick
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
       :records, :results, :suggestions, :each_with_hit, :with_details, :aggregations, :aggs,
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
-      :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
+      :current_page, :per_page, :limit_value, :total_pages, :num_pages,
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response, :to_a, :first, :scroll
 
@@ -82,6 +82,33 @@ module Searchkick
       self
     end
 
+    def page(value)
+      spawn.page!(value)
+    end
+
+    def page!(value)
+      options[:page] = value
+      self
+    end
+
+    def per_page(value)
+      spawn.per_page!(value)
+    end
+
+    def per_page!(value)
+      options[:per_page] = value
+      self
+    end
+
+    def padding(value)
+      spawn.padding!(value)
+    end
+
+    def padding!(value)
+      options[:padding] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
@@ -100,8 +127,9 @@ module Searchkick
       end
     end
 
+    # TODO reset when ! methods called
     def execute
-      Query.new(klass, term, options).execute
+      @execute ||= Query.new(klass, term, options).execute
     end
 
     def spawn

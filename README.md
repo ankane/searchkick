@@ -215,7 +215,7 @@ You can also boost by:
 Use a `*` for the query.
 
 ```ruby
-Product.search "*"
+Product.search("*")
 ```
 
 ### Pagination
@@ -224,7 +224,7 @@ Plays nicely with kaminari and will_paginate.
 
 ```ruby
 # controller
-@products = Product.search "milk", page: params[:page], per_page: 20
+@products = Product.search("milk").page(params[:page]).per_page(20)
 ```
 
 View with kaminari
