@@ -115,6 +115,7 @@ class BoostTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: [:orders_count]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
+    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato", relation: true).boost_by(orders_count: {factor: 10})
   end
 
   def test_boost_by_missing

@@ -172,6 +172,16 @@ module Searchkick
       self
     end
 
+    # TODO support boost_by(:order, :other)
+    def boost_by(value)
+      spawn.boost_by!(value)
+    end
+
+    def boost_by!(value)
+      options[:boost_by] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
