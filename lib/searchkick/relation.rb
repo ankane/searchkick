@@ -50,8 +50,12 @@ module Searchkick
       self
     end
 
-    def offset(value)
-      spawn.offset!(value)
+    def offset(*args)
+      if args.empty?
+        execute.offset
+      else
+        spawn.offset!(*args)
+      end
     end
 
     def offset!(value)
@@ -94,8 +98,12 @@ module Searchkick
       self
     end
 
-    def per_page(value)
-      spawn.per_page!(value)
+    def per_page(*args)
+      if args.empty?
+        execute.per_page
+      else
+        spawn.per_page!(*args)
+      end
     end
 
     def per_page!(value)
@@ -103,8 +111,12 @@ module Searchkick
       self
     end
 
-    def padding(value)
-      spawn.padding!(value)
+    def padding(*args)
+      if args.empty?
+        execute.padding
+      else
+        spawn.padding!(*args)
+      end
     end
 
     def padding!(value)

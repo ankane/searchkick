@@ -49,8 +49,8 @@ class PaginationTest < Minitest::Test
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page
-    # assert_equal 1, products.padding
-    # assert_equal 2, products.per_page
+    assert_equal 1, products.padding
+    assert_equal 2, products.per_page
     assert_equal 2, products.size
     assert_equal 2, products.length
     assert_equal 3, products.total_pages
@@ -58,7 +58,7 @@ class PaginationTest < Minitest::Test
     assert_equal 6, products.total_entries
     assert_equal 2, products.limit_value
     assert_equal 3, products.offset_value
-    # assert_equal 3, products.offset
+    assert_equal 3, products.offset
     assert_equal 3, products.next_page
     assert_equal 1, products.previous_page
     assert_equal 1, products.prev_page
