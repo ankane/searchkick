@@ -10,7 +10,7 @@ module Searchkick
       :current_page, :per_page, :limit_value, :total_pages, :num_pages,
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response, :to_a, :first, :highlights, :group_by, :misspellings?, :with_highlights,
-      :one?, :many?
+      :none?, :one?, :many?
 
     def_delegators :query, :params
 
