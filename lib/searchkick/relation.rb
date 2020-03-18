@@ -127,7 +127,7 @@ module Searchkick
         field = fields.first
         result.map { |v| v[field] }
       else
-        fields = result.first.keys if fields.empty? && result.any?
+        fields = result.first.keys.reject { |k| k.start_with?("_") } if fields.empty? && result.any?
         result.map { |v| fields.map { |f| v[f] } }
       end
     end
