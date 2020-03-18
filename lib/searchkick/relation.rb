@@ -110,7 +110,7 @@ module Searchkick
     end
 
     def unscope!(*args)
-      @options = options.except(*args)
+      @options.except!(*args)
       self
     end
 
