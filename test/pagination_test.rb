@@ -45,7 +45,7 @@ class PaginationTest < Minitest::Test
 
   def test_pagination_relation
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
-    products = Product.search("product", relation: true).order(name: :asc).page(2).per_page(2).padding(1)
+    products = Product.search("product", relation: true).order(name: :asc).page(2).per(2).padding(1)
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page

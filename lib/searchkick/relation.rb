@@ -105,6 +105,7 @@ module Searchkick
         spawn.per_page!(*args)
       end
     end
+    alias_method :per, :per_page
 
     def per_page!(value)
       options[:per_page] = value
