@@ -39,4 +39,12 @@ class QueryTest < Minitest::Test
     end
     refute_includes out, "Error"
   end
+
+  def test_debug_relation
+    store_names ["Milk"]
+    out, _ = capture_io do
+      assert_search_relation ["Milk"], Product.search("milk", relation: true).debug(true)
+    end
+    refute_includes out, "Error"
+  end
 end

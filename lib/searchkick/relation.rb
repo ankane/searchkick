@@ -294,6 +294,24 @@ module Searchkick
       self
     end
 
+    def debug(value)
+      spawn.debug!(value)
+    end
+
+    def debug!(value)
+      options[:debug] = value
+      self
+    end
+
+    def explain(value)
+      spawn.explain!(value)
+    end
+
+    def explain!(value)
+      options[:explain] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
