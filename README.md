@@ -153,7 +153,7 @@ results.each { |result| ... }
 By default, ids are fetched from Elasticsearch and records are fetched from your database. To fetch everything from Elasticsearch, use:
 
 ```ruby
-Product.search("apples", load: false)
+Product.search("apples").load(false)
 ```
 
 Get total results
@@ -187,22 +187,22 @@ fields("title^10", "description")
 Boost by the value of a field (field must be numeric)
 
 ```ruby
-boost_by: [:orders_count] # give popular documents a little boost
-boost_by: {orders_count: {factor: 10}} # default factor is 1
+boost_by(:orders_count) # give popular documents a little boost
+boost_by(orders_count: {factor: 10}) # default factor is 1
 ```
 
 Boost matching documents
 
 ```ruby
-boost_where: {user_id: 1}
-boost_where: {user_id: {value: 1, factor: 100}} # default factor is 1000
-boost_where: {user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}]}
+boost_where(user_id: 1)
+boost_where(user_id: {value: 1, factor: 100}) # default factor is 1000
+boost_where(user_id: [{value: 1, factor: 100}, {value: 2, factor: 200}])
 ```
 
 Boost by recency
 
 ```ruby
-boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}
+boost_by_recency(created_at: {scale: "7d", decay: 0.5})
 ```
 
 You can also boost by:
@@ -244,13 +244,13 @@ View with will_paginate
 By default, results must match all words in the query.
 
 ```ruby
-Product.search "fresh honey" # fresh AND honey
+Product.search("fresh honey") # fresh AND honey
 ```
 
 To change this, use:
 
 ```ruby
-Product.search "fresh honey", operator: "or" # fresh OR honey
+Product.search("fresh honey").operator(:or) # fresh OR honey
 ```
 
 By default, results must match the entire word - `back` will not match `backpack`. You can change this behavior with:
@@ -264,7 +264,7 @@ end
 And to search (after you reindex):
 
 ```ruby
-Product.search "back", fields: [:name], match: :word_start
+Product.search("back").fields(:name).match(:word_start)
 ```
 
 Available options are:
@@ -286,7 +286,7 @@ The default is `:word`. The most matches will happen with `:word_middle`.
 To match a field exactly (case-sensitive), use:
 
 ```ruby
-User.search query, fields: [{email: :exact}, :name]
+User.search(query).fields(:name, email: :exact)
 ```
 
 ### Phrase Matches
@@ -294,7 +294,7 @@ User.search query, fields: [{email: :exact}, :name]
 To only match the exact order, use:
 
 ```ruby
-User.search "fresh honey", match: :phrase
+User.search("fresh honey").match(:phrase)
 ```
 
 ### Language
@@ -364,7 +364,7 @@ end
 Search with:
 
 ```ruby
-Product.search query, fields: [:name_tagged]
+Product.search(query).fields(:name_tagged)
 ```
 
 ### Misspellings
@@ -374,13 +374,13 @@ By default, Searchkick handles misspelled queries by returning results with an [
 You can change this with:
 
 ```ruby
-Product.search "zucini", misspellings: {edit_distance: 2} # zucchini
+Product.search("zucini").misspellings(edit_distance: 2) # zucchini
 ```
 
 To prevent poor precision and improve performance for correctly spelled queries (which should be a majority for most applications), Searchkick can first perform a search without misspellings, and if there are too few results, perform another with them.
 
 ```ruby
-Product.search "zuchini", misspellings: {below: 5}
+Product.search("zuchini").misspellings(below: 5)
 ```
 
 If there are fewer than 5 results, a 2nd search is performed with misspellings enabled. The result of this query is returned.
@@ -388,13 +388,13 @@ If there are fewer than 5 results, a 2nd search is performed with misspellings e
 Turn off misspellings with:
 
 ```ruby
-Product.search "zuchini", misspellings: false # no zucchini
+Product.search("zuchini").misspellings(false) # no zucchini
 ```
 
 Specify which fields can include misspellings with:
 
 ```ruby
-Product.search "zucini", fields: [:name, :color], misspellings: {fields: [:name]}
+Product.search("zucini").fields(:name, :color).misspellings(fields: [:name])
 ```
 
 > When doing this, you must also specify fields to search
@@ -404,7 +404,7 @@ Product.search "zucini", fields: [:name, :color], misspellings: {fields: [:name]
 If a user searches `butter`, they may also get results for `peanut butter`. To prevent this, use:
 
 ```ruby
-Product.search "butter", exclude: ["peanut butter"]
+Product.search("butter").exclude("peanut butter")
 ```
 
 You can map queries and terms to exclude with:
@@ -415,13 +415,13 @@ exclude_queries = {
   "cream" => ["ice cream", "whipped cream"]
 }
 
-Product.search query, exclude: exclude_queries[query]
+Product.search(query).exclude(*exclude_queries[query])
 ```
 
 You can demote results by boosting by a factor less than one:
 
 ```ruby
-Product.search("butter", boost_where: {category: {value: "pantry", factor: 0.5}})
+Product.search("butter").boost_where(category: {value: "pantry", factor: 0.5})
 ```
 
 ### Emoji
@@ -437,7 +437,7 @@ gem 'gemoji-parser'
 And use:
 
 ```ruby
-Product.search "🍨🍰", emoji: true
+Product.search("🍨🍰").emoji(true)
 ```
 
 ## Indexing
@@ -633,7 +633,7 @@ end
 Reindex and search with:
 
 ```ruby
-Product.search "milk", boost_where: {orderer_ids: current_user.id}
+Product.search("milk").boost_where(orderer_ids: current_user.id)
 ```
 
 ### Instant Search / Autocomplete
@@ -657,7 +657,7 @@ end
 Reindex and search with:
 
 ```ruby
-Movie.search "jurassic pa", fields: [:title], match: :word_start
+Movie.search("jurassic pa").fields(:title).match(:word_start)
 ```
 
 Typically, you want to use a JavaScript library like [typeahead.js](https://twitter.github.io/typeahead.js/) or [jQuery UI](https://jqueryui.com/autocomplete/).
@@ -717,7 +717,7 @@ end
 Reindex and search with:
 
 ```ruby
-products = Product.search "peantu butta", suggest: true
+products = Product.search("peantu butta").suggest(true)
 products.suggestions # ["peanut butter"]
 ```
 
@@ -728,40 +728,40 @@ products.suggestions # ["peanut butter"]
 ![Aggregations](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/facets.png)
 
 ```ruby
-products = Product.search "chuck taylor", aggs: [:product_type, :gender, :brand]
+products = Product.search("chuck taylor").aggs(:product_type, :gender, :brand)
 products.aggs
 ```
 
 By default, `where` conditions apply to aggregations.
 
 ```ruby
-Product.search "wingtips", where: {color: "brandy"}, aggs: [:size]
+Product.search("wingtips").where(color: "brandy").aggs(:size)
 # aggregations for brandy wingtips are returned
 ```
 
 Change this with:
 
 ```ruby
-Product.search "wingtips", where: {color: "brandy"}, aggs: [:size], smart_aggs: false
+Product.search("wingtips").where(color: "brandy").aggs(:size).smart_aggs(false)
 # aggregations for all wingtips are returned
 ```
 
 Set `where` conditions for each aggregation separately with:
 
 ```ruby
-Product.search "wingtips", aggs: {size: {where: {color: "brandy"}}}
+Product.search("wingtips").aggs(size: {where: {color: "brandy"}})
 ```
 
 Limit
 
 ```ruby
-Product.search "apples", aggs: {store_id: {limit: 10}}
+Product.search("apples").aggs(store_id: {limit: 10})
 ```
 
 Order
 
 ```ruby
-Product.search "wingtips", aggs: {color: {order: {"_key" => "asc"}}} # alphabetically
+Product.search("wingtips").aggs(color: {order: {"_key" => "asc"}}) # alphabetically
 ```
 
 [All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
@@ -770,31 +770,31 @@ Ranges
 
 ```ruby
 price_ranges = [{to: 20}, {from: 20, to: 50}, {from: 50}]
-Product.search "*", aggs: {price: {ranges: price_ranges}}
+Product.search("*").aggs(price: {ranges: price_ranges})
 ```
 
 Minimum document count
 
 ```ruby
-Product.search "apples", aggs: {store_id: {min_doc_count: 2}}
+Product.search("apples").aggs(store_id: {min_doc_count: 2})
 ```
 
 Script support
 
 ```ruby
-Product.search "*", aggs: {color: {script: {source: "'Color: ' + _value"}}}
+Product.search("*").aggs(color: {script: {source: "'Color: ' + _value"}})
 ```
 
 Date histogram
 
 ```ruby
-Product.search "pear", aggs: {products_per_year: {date_histogram: {field: :created_at, interval: :year}}}
+Product.search("pear").aggs(products_per_year: {date_histogram: {field: :created_at, interval: :year}})
 ```
 
 For other aggregation types, including sub-aggregations, use `body_options`:
 
 ```ruby
-Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
+Product.search("orange").body_options(aggs: {price: {histogram: {field: :price, interval: 10}})
 ```
 
 ### Highlight
@@ -810,7 +810,7 @@ end
 Highlight the search query in the results.
 
 ```ruby
-bands = Band.search "cinema", highlight: true
+bands = Band.search("cinema").highlight(true)
 ```
 
 View the highlighted fields with:
@@ -824,19 +824,19 @@ end
 To change the tag, use:
 
 ```ruby
-Band.search "cinema", highlight: {tag: "<strong>"}
+Band.search("cinema").highlight(tag: "<strong>")
 ```
 
 To highlight and search different fields, use:
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: {fields: [:description]}
+Band.search("cinema").fields(:name).highlight(fields: [:description])
 ```
 
 By default, the entire field is highlighted. To get small snippets instead, use:
 
 ```ruby
-bands = Band.search "cinema", highlight: {fragment_size: 20}
+bands = Band.search("cinema").highlight(fragment_size: 20)
 bands.with_highlights(multiple: true).each do |band, highlights|
   highlights[:name].join(" and ")
 end
@@ -845,7 +845,7 @@ end
 Additional options can be specified for each field:
 
 ```ruby
-Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
+Band.search("cinema").fields(:name).highlight(fields: {name: {fragment_size: 200}})
 ```
 
 You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
@@ -856,7 +856,7 @@ Find similar items.
 
 ```ruby
 product = Product.first
-product.similar(fields: [:name], where: {size: "12 oz"})
+product.similar.fields(:name).where(size: "12 oz")
 ```
 
 ### Geospatial Searches
@@ -874,7 +874,7 @@ end
 Reindex and search with:
 
 ```ruby
-Restaurant.search "pizza", where: {location: {near: {lat: 37, lon: -114}, within: "100mi"}} # or 160km
+Restaurant.search("pizza").where(location: {near: {lat: 37, lon: -114}, within: "100mi"}) # or 160km
 ```
 
 Bounded by a box
@@ -971,9 +971,9 @@ Dog.reindex # equivalent, all animals reindexed
 And to search, use:
 
 ```ruby
-Animal.search "*"                   # all animals
-Dog.search "*"                      # just dogs
-Animal.search "*", type: [Dog, Cat] # just cats and dogs
+Animal.search("*")                   # all animals
+Dog.search("*")                      # just dogs
+Animal.search("*").type([Dog, Cat])  # just cats and dogs
 ```
 
 **Notes:**
@@ -981,7 +981,7 @@ Animal.search "*", type: [Dog, Cat] # just cats and dogs
 1. The `suggest` option retrieves suggestions from the parent at the moment.
 
     ```ruby
-    Dog.search "airbudd", suggest: true # suggestions for all animals
+    Dog.search("airbudd").suggest(true) # suggestions for all animals
     ```
 2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take precedence.
 
@@ -990,7 +990,7 @@ Animal.search "*", type: [Dog, Cat] # just cats and dogs
 To help with debugging queries, you can use:
 
 ```ruby
-Product.search("soap", debug: true)
+Product.search("soap").debug(true)
 ```
 
 This prints useful info to `stdout`.
@@ -998,7 +998,7 @@ This prints useful info to `stdout`.
 See how Elasticsearch scores your queries with:
 
 ```ruby
-Product.search("soap", explain: true).response
+Product.search("soap").explain(true).response
 ```
 
 See how Elasticsearch tokenizes your queries with:
@@ -1304,7 +1304,7 @@ end
 Reindex and search with:
 
 ```ruby
-Business.search "ice cream", routing: params[:city_id]
+Business.search("ice cream").routing(params[:city_id])
 ```
 
 ### Partial Reindexing
@@ -1427,7 +1427,7 @@ end
 And use the `body` option to search:
 
 ```ruby
-products = Product.search body: {query: {match: {name: "milk"}}}
+products = Product.search.body(query: {match: {name: "milk"}})
 ```
 
 View the response with:
@@ -1439,14 +1439,14 @@ products.response
 To modify the query generated by Searchkick, use:
 
 ```ruby
-products = Product.search "milk", body_options: {min_score: 1}
+products = Product.search("milk").body_options(min_score: 1)
 ```
 
 or
 
 ```ruby
 products =
-  Product.search "apples" do |body|
+  Product.search("apples") do |body|
     body[:min_score] = 1
   end
 ```
@@ -1464,8 +1464,8 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-products = Product.search("snacks", execute: false)
-coupons = Coupon.search("snacks", execute: false)
+products = Product.search("snacks")
+coupons = Coupon.search("snacks")
 Searchkick.multi_search([products, coupons])
 ```
 
@@ -1478,13 +1478,13 @@ Then use `products` and `coupons` as typical results.
 Search across multiple models with:
 
 ```ruby
-Searchkick.search "milk", models: [Product, Category]
+Searchkick.search("milk").models(Product, Category)
 ```
 
 Boost specific models with:
 
 ```ruby
-indices_boost: {Category => 2, Product => 1}
+indices_boost(Category => 2, Product => 1)
 ```
 
 ## Scroll API
@@ -1492,7 +1492,7 @@ indices_boost: {Category => 2, Product => 1}
 Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
 
 ```ruby
-Product.search("*", scroll: "1m").scroll do |batch|
+Product.search("*").scroll("1m") do |batch|
   # process batch ...
 end
 ```
@@ -1500,7 +1500,7 @@ end
 You can also scroll batches manually.
 
 ```ruby
-products = Product.search "*", scroll: "1m"
+products = Product.search("*").scroll("1m")
 while products.any?
   # process batch ...
 
@@ -1523,7 +1523,7 @@ end
 If you just need an accurate total count with Elasticsearch 7, you can instead use:
 
 ```ruby
-Product.search("pears", body_options: {track_total_hits: true})
+Product.search("pears").body_options(track_total_hits: true)
 ```
 
 ## Nested Data
@@ -1531,7 +1531,7 @@ Product.search("pears", body_options: {track_total_hits: true})
 To query nested data, use dot notation.
 
 ```ruby
-User.search "san", fields: ["address.city"], where: {"address.zip_code" => 12345}
+User.search("san").fields("address.city").where("address.zip_code" => 12345)
 ```
 
 ## Reference
@@ -1602,7 +1602,7 @@ Searchkick.index_prefix = "datakick"
 Use a different term for boosting by conversions
 
 ```ruby
-Product.search("banana", conversions_term: "organic banana")
+Product.search("banana").conversions_term("organic banana")
 ```
 
 Multiple conversion fields
@@ -1630,8 +1630,8 @@ and during query time:
 
 ```ruby
 Product.search("banana") # boost by both fields (default)
-Product.search("banana", conversions: "total_conversions") # only boost by total_conversions
-Product.search("banana", conversions: false) # no conversion boosting
+Product.search("banana").conversions("total_conversions") # only boost by total_conversions
+Product.search("banana").conversions(false) # no conversion boosting
 ```
 
 Change timeout
@@ -1661,7 +1661,7 @@ Searchkick.queue_name = :search_reindex
 Eager load associations
 
 ```ruby
-Product.search "milk", includes: [:brand, :stores]
+Product.search("milk").includes(:brand, :stores)
 ```
 
 Eager load different associations by model
@@ -1751,17 +1751,10 @@ class Product < ApplicationRecord
 end
 ```
 
-Lazy searching
-
-```ruby
-products = Product.search("carrots", execute: false)
-products.each { ... } # search not executed until here
-```
-
 Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html), like `search_type` and `query_cache`
 
 ```ruby
-Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
+Product.search("carrots").request_params(search_type: "dfs_query_then_fetch")
 ```
 
 Set options across all models
@@ -1792,13 +1785,13 @@ rake searchkick:reindex:all
 Turn on misspellings after a certain number of characters
 
 ```ruby
-Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
+Product.search("api").misspellings(prefix_length: 2) # api, apt, no ahi
 ```
 
 **Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off
 
 ```ruby
-Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
+Product.search("ah").misspellings(prefix_length: 2) # ah, no aha
 ```
 
 ## Testing
