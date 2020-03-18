@@ -173,6 +173,16 @@ class SqlTest < Minitest::Test
     assert_equal 1, result.store_id
   end
 
+  def test_select_multiple_relation
+    store [{name: "Product A", store_id: 1}]
+    # only last select applies - different from Active Record
+    # since we have to allow for boolean, array, and hash values
+    result = Product.search("product").load(false).select(:name).select(:store_id).first
+    assert_equal %w(id store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_nil result.name
+    assert_equal 1, result.store_id
+  end
+
   def test_select_array_relation
     store [{name: "Product A", user_ids: [1, 2]}]
     result = Product.search("product").load(false).select(:user_ids).first
