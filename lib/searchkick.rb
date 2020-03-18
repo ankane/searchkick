@@ -88,7 +88,7 @@ module Searchkick
     @server_below7
   end
 
-  def self.search(term = "*", model: nil, relation: nil, **options, &block)
+  def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
 
@@ -114,7 +114,7 @@ module Searchkick
     end
 
     options = options.merge(block: block) if block
-    if relation || (relation.nil? && Searchkick.relation)
+    if Searchkick.relation
       Searchkick::Relation.new(klass, term, **options)
     else
       query = Searchkick::Query.new(klass, term, **options)
