@@ -52,6 +52,14 @@ class RelationTest < Minitest::Test
     assert Product.search.pluck
   end
 
+  def test_take
+    store_names ["Blue", "Red"]
+    assert_kind_of Product, Product.take
+    assert_kind_of Product, Product.search.take if defined?(ActiveRecord)
+    assert_equal 1, Product.take(1).size
+    assert_equal 1, Product.search.take(1).size if defined?(ActiveRecord)
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"

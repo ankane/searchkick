@@ -114,6 +114,10 @@ module Searchkick
       self
     end
 
+    def take(limit = nil)
+      limit ? first(limit) : first
+    end
+
     # TODO make more efficient if loaded
     def pluck(*fields)
       result = load(false)
