@@ -3,12 +3,16 @@ require_relative "test_helper"
 class OrderTest < Minitest::Test
   def test_order_hash
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_order "product", ["Product D", "Product C", "Product B", "Product A"], order: {name: :desc}
+    expected = ["Product D", "Product C", "Product B", "Product A"]
+    assert_order "product", expected, order: {name: :desc}
+    assert_equal expected, Product.search("product", relation: true).order(name: :desc).map(&:name)
   end
 
   def test_order_string
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
+    expected = ["Product A", "Product B", "Product C", "Product D"]
+    assert_order "product", expected, order: "name"
+    assert_equal expected, Product.search("product", relation: true).order("name").map(&:name)
   end
 
   def test_order_id
@@ -17,7 +21,10 @@ class OrderTest < Minitest::Test
     store_names ["Product A", "Product B"]
     product_a = Product.where(name: "Product A").first
     product_b = Product.where(name: "Product B").first
-    assert_order "product", [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name), order: {id: :asc}
+    expected = [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name)
+    assert_order "product", expected, order: {id: :asc}
+    # TODO fix in query?
+    # assert_equal expected, Product.search("product", relation: true).order(id: :asc).map(&:name)
   end
 
   def test_order_multiple
@@ -26,7 +33,9 @@ class OrderTest < Minitest::Test
       {name: "Product B", color: "red", store_id: 3},
       {name: "Product C", color: "red", store_id: 2}
     ]
-    assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
+    expected = ["Product A", "Product B", "Product C"]
+    assert_order "product", expected, order: {color: :asc, store_id: :desc}
+    assert_equal expected, Product.search("product", relation: true).order(color: :asc).order(store_id: :desc).map(&:name)
   end
 
   def test_order_unmapped_type
