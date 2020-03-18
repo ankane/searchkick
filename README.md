@@ -224,7 +224,7 @@ Plays nicely with kaminari and will_paginate.
 
 ```ruby
 # controller
-@products = Product.search("milk").page(params[:page]).per_page(20)
+@products = Product.search("milk").page(params[:page]).per(20)
 ```
 
 View with kaminari
