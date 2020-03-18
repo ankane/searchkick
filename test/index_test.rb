@@ -65,6 +65,10 @@ class IndexTest < Minitest::Test
     assert_raises(ArgumentError) do
       Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1}).to_a
     end
+
+    assert_raises(ArgumentError) do
+      Store.search.body(query: {match: {name: "dollar"}}).where(id: 1).to_a
+    end
   end
 
   def test_block
