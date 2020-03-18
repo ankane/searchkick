@@ -202,6 +202,16 @@ module Searchkick
       self
     end
 
+    def boost_by_distance(value)
+      spawn.boost_by_distance!(value)
+    end
+
+    # TODO merge options
+    def boost_by_distance!(value)
+      options[:boost_by_distance] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
