@@ -301,4 +301,17 @@ class MatchTest < Minitest::Test
     store_names ["Ice Cream Cake"]
     assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true
   end
+
+  # TODO find better place
+
+  def test_search_relation
+    skip unless defined?(ActiveRecord)
+
+    assert_nil Product.current_scope
+    _, stderr = capture_io { Product.search("*") }
+    assert_equal "", stderr
+    assert Product.where(name: nil).current_scope
+    _, stderr = capture_io { Product.where(name: nil).search("*") }
+    assert_match "WARNING", stderr
+  end
 end

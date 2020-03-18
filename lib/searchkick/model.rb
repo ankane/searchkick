@@ -41,6 +41,8 @@ module Searchkick
 
         class << self
           def searchkick_search(term = "*", **options, &block)
+            # TODO same for Mongoid
+            Searchkick.warn("calling search on a relation is deprecated") if respond_to?(:current_scope) && !current_scope.nil?
             Searchkick.search(term, model: self, **options, &block)
           end
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
