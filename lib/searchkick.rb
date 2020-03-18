@@ -14,6 +14,7 @@ require "searchkick/query"
 require "searchkick/reindex_queue"
 require "searchkick/record_data"
 require "searchkick/record_indexer"
+require "searchkick/relation"
 require "searchkick/results"
 require "searchkick/version"
 
@@ -86,7 +87,7 @@ module Searchkick
     @server_below7
   end
 
-  def self.search(term = "*", model: nil, **options, &block)
+  def self.search(term = "*", model: nil, relation: false, **options, &block)
     options = options.dup
     klass = model
 
@@ -112,11 +113,15 @@ module Searchkick
     end
 
     options = options.merge(block: block) if block
-    query = Searchkick::Query.new(klass, term, **options)
-    if options[:execute] == false
-      query
+    if relation
+      Searchkick::Relation.new(klass, term, **options)
     else
-      query.execute
+      query = Searchkick::Query.new(klass, term, **options)
+      if options[:execute] == false
+        query
+      else
+        query.execute
+      end
     end
   end
 
