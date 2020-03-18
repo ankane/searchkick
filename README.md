@@ -1977,13 +1977,11 @@ Everyone is encouraged to help improve this project. Here are a few ways you can
 - Write, clarify, or fix documentation
 - Suggest or add new features
 
-If you’re looking for ideas, [try here](https://github.com/ankane/searchkick/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
-
-To get started with development and testing:
+To get started with development:
 
 ```sh
 git clone https://github.com/ankane/searchkick.git
 cd searchkick
 bundle install
-rake test
+bundle exec rake test
 ```
