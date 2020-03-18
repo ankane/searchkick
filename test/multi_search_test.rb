@@ -11,6 +11,16 @@ class MultiSearchTest < Minitest::Test
     assert_equal ["Store A"], stores.map(&:name)
   end
 
+  def test_basic_relation
+    store_names ["Product A"]
+    store_names ["Store A"], Store
+    products = Product.search("*", relation: true)
+    stores = Store.search("*", relation: true)
+    Searchkick.multi_search([products, stores])
+    assert_equal ["Product A"], products.map(&:name)
+    assert_equal ["Store A"], stores.map(&:name)
+  end
+
   def test_error
     store_names ["Product A"]
     products = Product.search("*", execute: false)

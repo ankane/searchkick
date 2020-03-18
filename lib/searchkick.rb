@@ -126,6 +126,7 @@ module Searchkick
   end
 
   def self.multi_search(queries)
+    queries = queries.map { |v| v.is_a?(Searchkick::Relation) ? v.query : v }
     Searchkick::MultiSearch.new(queries).perform
   end
 
