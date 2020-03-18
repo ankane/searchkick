@@ -571,7 +571,7 @@ The best starting point to improve your search **by far** is to track searches a
 [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
 
 ```ruby
-Product.search "apple", track: {user_id: current_user.id}
+Product.search("apple").track(user_id: current_user.id)
 ```
 
 [See the docs](https://github.com/ankane/searchjoy) for how to install and use.
