@@ -38,7 +38,6 @@ class RelationTest < Minitest::Test
     store_names ["Blue", "Red"]
     assert_equal [["Blue", nil], ["Red", nil]], Product.order(:name).pluck(:name, :store_id) if defined?(ActiveRecord)
     assert_equal [["Blue", nil], ["Red", nil]], Product.search.order(:name).pluck(:name, :store_id)
-
   end
 
   def test_parameters
