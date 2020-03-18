@@ -363,6 +363,15 @@ module Searchkick
       self
     end
 
+    def type(*args)
+      spawn.type!(*args)
+    end
+
+    def type!(*args)
+      options[:type] = Array(options[:type]) + args.flatten
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
