@@ -8,7 +8,7 @@ module Searchkick
       :records, :results, :suggestions, :each_with_hit, :with_details, :aggregations, :aggs,
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
-      :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
+      :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response, :to_a, :first, :scroll
 
     def initialize(klass, term = "*", **options)
@@ -45,6 +45,24 @@ module Searchkick
 
     def limit!(value)
       options[:limit] = value
+      self
+    end
+
+    def offset(value)
+      spawn.offset!(value)
+    end
+
+    def offset!(value)
+      options[:offset] = value
+      self
+    end
+
+    def order(*args)
+      spawn.order!(*args)
+    end
+
+    def order!(*args)
+      options[:order] = Array(options[:order]) + args
       self
     end
 

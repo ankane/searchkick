@@ -3,7 +3,7 @@ require_relative "test_helper"
 class RelationTest < Minitest::Test
   def test_works
     store_names ["Product A", "Product B"]
-    relation = Product.search("product", relation: true).where(name: "Product A").limit(1)
+    relation = Product.search("product", relation: true).where(name: "Product A").limit(1).offset(0).order(name: :desc)
     assert_equal ["Product A"], relation.map(&:name)
   end
 
