@@ -66,6 +66,22 @@ module Searchkick
       self
     end
 
+    def select(*fields, &block)
+      if block_given?
+        # TODO better error message
+        raise ArgumentError, "too many arguments" if fields.any?
+        records.select(&block)
+      else
+        spawn.select!(*fields)
+      end
+    end
+
+    # TODO decide how to handle block form
+    def select!(*fields)
+      options[:select] = Array(options[:select]) + fields
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

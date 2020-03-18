@@ -88,7 +88,7 @@ Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.
 Query like SQL
 
 ```ruby
-Product.search "apples", where: {in_stock: true}, limit: 10, offset: 50
+Product.search("apples").where(in_stock: true).limit(10).offset(50)
 ```
 
 Search specific fields
@@ -100,7 +100,7 @@ fields: [:name, :brand]
 Where
 
 ```ruby
-where: {
+where(
   expires_at: {gt: Time.now},   # lt, gte, lte also available
   orders_count: 1..10,          # equivalent to {gte: 1, lte: 10}
   aisle_id: [25, 30],           # in
@@ -114,13 +114,13 @@ where: {
   _or: [{in_stock: true}, {backordered: true}],
   _and: [{in_stock: true}, {backordered: true}],
   _not: {store_id: 1}           # negate a condition
-}
+)
 ```
 
 Order
 
 ```ruby
-order: {_score: :desc} # most relevant first - default
+order(_score: :desc) # most relevant first - default
 ```
 
 [All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html)
@@ -128,13 +128,13 @@ order: {_score: :desc} # most relevant first - default
 Limit / offset
 
 ```ruby
-limit: 20, offset: 40
+limit(20).offset(40)
 ```
 
 Select
 
 ```ruby
-select: [:name]
+select([:name])
 ```
 
 [These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-source-filtering)
