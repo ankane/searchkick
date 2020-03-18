@@ -4,6 +4,7 @@ class MisspellingsTest < Minitest::Test
   def test_misspellings
     store_names ["abc", "abd", "aee"]
     assert_search "abc", ["abc"], misspellings: false
+    assert_search_relation ["abc"], Product.search("abc", relation: true).misspellings(false)
   end
 
   def test_misspellings_distance

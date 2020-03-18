@@ -336,6 +336,15 @@ module Searchkick
       self
     end
 
+    def misspellings(value)
+      spawn.misspellings!(value)
+    end
+
+    def misspellings!(value)
+      options[:misspellings] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
