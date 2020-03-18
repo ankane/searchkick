@@ -105,6 +105,15 @@ module Searchkick
       self
     end
 
+    def unscope(*args)
+      spawn.unscope!(*args)
+    end
+
+    def unscope!(*args)
+      @options = options.except(*args)
+      self
+    end
+
     # TODO make more efficient if loaded
     def pluck(*fields)
       result = select(*fields).load(false)

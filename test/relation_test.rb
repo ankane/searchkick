@@ -28,6 +28,11 @@ class RelationTest < Minitest::Test
     assert_search_relation ["Red"], Product.search("red").where(store_id: 1).unscoped
   end
 
+  def test_unscope
+    store_names ["Red", "Blue"]
+    assert_search_relation ["Red"], Product.search("red").where(store_id: 1).unscope(:where)
+  end
+
   def test_pluck
     store_names ["Blue", "Red"]
     assert_equal ["Blue", "Red"], Product.order(:name).pluck(:name) if defined?(ActiveRecord)
