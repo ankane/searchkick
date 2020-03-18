@@ -9,13 +9,9 @@ class QueryTest < Minitest::Test
     assert_equal ["Apple", "Milk"], query.execute.map(&:name).sort
   end
 
-  def test_with_uneffective_min_score
-    store_names ["Milk", "Milk2"]
-    assert_search "milk", ["Milk", "Milk2"], body_options: {min_score: 0.0001}
-  end
-
   def test_body_options
     store_names ["Milk", "Milk2"]
+    assert_search "milk", ["Milk", "Milk2"], body_options: {min_score: 0.0001}
     assert_search_relation ["Milk", "Milk2"], Product.search("milk", relation: true).body_options(min_score: 0.0001)
   end
 
