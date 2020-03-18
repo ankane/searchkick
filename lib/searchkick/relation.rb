@@ -212,6 +212,16 @@ module Searchkick
       self
     end
 
+    def indices_boost(value)
+      spawn.indices_boost!(value)
+    end
+
+    # TODO merge options
+    def indices_boost!(value)
+      options[:indices_boost] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

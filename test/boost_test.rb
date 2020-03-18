@@ -237,5 +237,8 @@ class BoostTest < Minitest::Test
     store_names ["Rexx"], Product
 
     assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
+
+    skip "Not working yet"
+    assert_order_relation ["Rexx", "Rex"], Searchkick.search("Rex", relation: true).models(Animal, Product).indices_boost(Animal => 1, Product => 200).fields(:name)
   end
 end
