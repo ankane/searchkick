@@ -21,6 +21,11 @@ module Searchkick
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
+      if options[:execute] == false
+        Searchkick.warn("The execute option is deprecated")
+        options.delete(:execute)
+      end
+
       @klass = klass
       @term = term
       @options = options
@@ -275,10 +280,10 @@ module Searchkick
 
     def scroll!(value = nil, &block)
       options[:scroll] = value if value
-      if block
-        execute.scroll(&block)
-      elsif !value
+      if !value && !block
         execute.scroll
+      elsif block
+        execute.scroll(&block)
       else
         self
       end
@@ -401,7 +406,13 @@ module Searchkick
 
     # private
     def query
-      Query.new(klass, term, options)
+      @query ||= Query.new(klass, term, options)
+    end
+
+    # private
+    # TODO reset when ! methods called
+    def execute
+      @execute ||= query.execute
     end
 
     private
@@ -425,11 +436,6 @@ module Searchkick
       else
         attributes
       end
-    end
-
-    # TODO reset when ! methods called
-    def execute
-      @execute ||= query.execute
     end
 
     def spawn

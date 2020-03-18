@@ -62,7 +62,7 @@ class IndexTest < Minitest::Test
 
   def test_body_incompatible_options
     assert_raises(ArgumentError) do
-      Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1})
+      Store.search(body: {query: {match: {name: "dollar"}}}, where: {id: 1}).to_a
     end
   end
 

@@ -85,7 +85,7 @@ class SuggestTest < Minitest::Test
 
   def test_multiple_models_no_fields
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
-    assert_raises(ArgumentError) { Searchkick.search("How Big is a Tigre Shar", suggest: true) }
+    assert_raises(ArgumentError) { Searchkick.search("How Big is a Tigre Shar", suggest: true).suggestions }
   end
 
   def test_star
