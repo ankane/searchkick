@@ -791,7 +791,7 @@ Product.search("pear").aggs(products_per_year: {date_histogram: {field: :created
 For other aggregation types, including sub-aggregations, use `body_options`:
 
 ```ruby
-Product.search("orange").body_options(aggs: {price: {histogram: {field: :price, interval: 10}})
+Product.search("orange").body_options(aggs: {price: {histogram: {field: :price, interval: 10}}})
 ```
 
 ### Highlight
