@@ -13,6 +13,7 @@ class AggsTest < Minitest::Test
 
   def test_basic
     assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: [:store_id])
+    assert_equal ({1 => 1, 2 => 2}), buckets_as_hash(Product.search("Product", relation: true).aggs(:store_id).aggs["store_id"])
   end
 
   def test_where

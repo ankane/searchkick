@@ -5,7 +5,7 @@ module Searchkick
     attr_reader :klass, :term, :options
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
-      :records, :results, :suggestions, :each_with_hit, :with_details, :aggregations, :aggs,
+      :records, :results, :suggestions, :each_with_hit, :with_details, :aggregations,
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :total_pages, :num_pages,
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
@@ -219,6 +219,20 @@ module Searchkick
     # TODO merge options
     def indices_boost!(value)
       options[:indices_boost] = value
+      self
+    end
+
+    def aggs(*args)
+      if args.empty?
+        execute.aggs
+      else
+        aggs!(*args)
+      end
+    end
+
+    # TODO merge options
+    def aggs!(*args)
+      options[:aggs] = args
       self
     end
 
