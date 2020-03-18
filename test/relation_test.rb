@@ -22,6 +22,12 @@ class RelationTest < Minitest::Test
     assert_search_relation [], Product.search("*").none
   end
 
+  def test_unscoped
+    store_names ["Red", "Blue"]
+    # keeps term
+    assert_search_relation ["Red"], Product.search("red").where(store_id: 1).unscoped
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"

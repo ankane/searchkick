@@ -96,6 +96,15 @@ module Searchkick
       self
     end
 
+    def unscoped
+      spawn.unscoped!
+    end
+
+    def unscoped!
+      @options = {}
+      self
+    end
+
     def select(*fields, &block)
       if block_given?
         # TODO better error message
