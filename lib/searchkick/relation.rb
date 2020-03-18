@@ -9,7 +9,7 @@ module Searchkick
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :total_pages, :num_pages,
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
-      :out_of_range?, :hits, :response, :to_a, :first, :scroll, :highlights
+      :out_of_range?, :hits, :response, :to_a, :first, :highlights
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
@@ -252,6 +252,19 @@ module Searchkick
     def highlight!(value)
       options[:highlight] = value
       self
+    end
+
+    def scroll(value, &block)
+      spawn.scroll!(value, &block)
+    end
+
+    def scroll!(value, &block)
+      options[:scroll] = value
+      if block
+        execute.scroll(&block)
+      else
+        self
+      end
     end
 
     # same as Active Record
