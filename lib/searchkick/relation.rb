@@ -300,7 +300,7 @@ module Searchkick
 
     def body(*args)
       if args.empty?
-        params.body
+        query.body
       else
         spawn.body!(*args)
       end
