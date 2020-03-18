@@ -10,11 +10,13 @@ class AutocompleteTest < Minitest::Test
   def test_autocomplete_two_words
     store_names ["Organic Hummus"]
     assert_search "hum", [], match: :text_start
+    assert_search_relation [], Product.search("hum", relation: true).match(:text_start)
   end
 
   def test_autocomplete_fields
     store_names ["Hummus"]
     assert_search "hum", ["Hummus"], match: :text_start, fields: [:name]
+    assert_search_relation ["Hummus"], Product.search("hum", relation: true).match(:text_start).fields(:name)
   end
 
   def test_text_start
