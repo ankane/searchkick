@@ -254,12 +254,12 @@ module Searchkick
       self
     end
 
-    def scroll(value, &block)
-      spawn.scroll!(value, &block)
+    def scroll(value = nil, &block)
+      spawn.scroll!(value = nil, &block)
     end
 
-    def scroll!(value, &block)
-      options[:scroll] = value
+    def scroll!(value = nil, &block)
+      options[:scroll] = value if value
       if block
         execute.scroll(&block)
       else
@@ -267,11 +267,25 @@ module Searchkick
       end
     end
 
+    def routing(value)
+      spawn.routing!(value)
+    end
+
+    def routing!(value)
+      options[:routing] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
       entries[10] = "..." if entries.size == 11
       "#<#{self.class.name} [#{entries.join(', ')}]>"
+    end
+
+    # private
+    def query
+      Query.new(klass, term, options)
     end
 
     private
@@ -299,7 +313,7 @@ module Searchkick
 
     # TODO reset when ! methods called
     def execute
-      @execute ||= Query.new(klass, term, options).execute
+      @execute ||= query.execute
     end
 
     def spawn
