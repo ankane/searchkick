@@ -47,7 +47,7 @@ module Searchkick
   self.client_options = {}
   self.queue_name = :searchkick
   self.model_options = {}
-  self.relation = false
+  self.relation = true
 
   def self.client
     @client ||= begin
