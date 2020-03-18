@@ -69,6 +69,28 @@ class PaginationTest < Minitest::Test
     assert products.any?
   end
 
+  def test_find_in_batches
+    names = ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
+    store_names names
+    batches = []
+    Product.search("product").order(name: :asc).find_in_batches(batch_size: 2) do |batch|
+      batches << batch.map(&:name)
+    end
+    expected = names.each_slice(2).to_a
+    assert_equal expected, batches
+  end
+
+  def test_find_each
+    names = ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
+    store_names names
+    batches = []
+    Product.search("product").order(name: :asc).find_each do |record|
+      batches << [record].map(&:name)
+    end
+    expected = names.each_slice(1).to_a
+    assert_equal expected, batches
+  end
+
   def test_pagination_body
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", body: {query: {match_all: {}}, sort: [{name: "asc"}]}, page: 2, per_page: 2, padding: 1)

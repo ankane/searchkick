@@ -406,6 +406,26 @@ module Searchkick
       self
     end
 
+    # TODO decide if makes sense to keep
+    def find_in_batches(batch_size: 1000)
+      page = 1 # see if page set?
+      loop do
+        result = page(page).per(batch_size).execute
+        yield result.results
+        page = result.next_page
+        break if result.last_page?
+      end
+    end
+
+    # TODO decide if makes sense to keep
+    def find_each
+      find_in_batches do |batch|
+        batch.each do |record|
+          yield record
+        end
+      end
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
