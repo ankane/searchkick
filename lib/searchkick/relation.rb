@@ -232,7 +232,7 @@ module Searchkick
 
     # TODO merge options
     def aggs!(*args)
-      options[:aggs] = args
+      options[:aggs] = args.size == 1 ? args.first : args
       self
     end
 

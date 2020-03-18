@@ -18,6 +18,7 @@ class AggsTest < Minitest::Test
 
   def test_where
     assert_equal ({1 => 1}), store_agg(aggs: {store_id: {where: {in_stock: true}}})
+    assert_equal ({1 => 1}), buckets_as_hash(Product.search("Product", relation: true).aggs(store_id: {where: {in_stock: true}}).aggs["store_id"])
   end
 
   def test_order
