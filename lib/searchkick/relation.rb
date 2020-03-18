@@ -232,7 +232,7 @@ module Searchkick
 
     # TODO merge options
     def aggs!(*args)
-      options[:aggs] = args.size == 1 ? args.first : args
+      options[:aggs] = hash_args(options[:aggs], args)
       self
     end
 
@@ -244,6 +244,18 @@ module Searchkick
     end
 
     private
+
+    def hash_args(old, new)
+      old ||= {}
+      new.each do |v|
+        if v.is_a?(Hash)
+          old.merge!(v)
+        else
+          old[v] = {}
+        end
+      end
+      old
+    end
 
     def sanitize_opts(attributes)
       if attributes.respond_to?(:permitted?)

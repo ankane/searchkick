@@ -21,6 +21,11 @@ class AggsTest < Minitest::Test
     assert_equal ({1 => 1}), buckets_as_hash(Product.search("Product", relation: true).aggs(store_id: {where: {in_stock: true}}).aggs["store_id"])
   end
 
+  def test_relation
+    relation = Product.search("Product", relation: true).aggs(:store_id).aggs(color: {where: {in_stock: true}})
+    assert_equal ["color", "store_id"], relation.aggs.keys.sort
+  end
+
   def test_order
     agg = Product.search("Product", aggs: {color: {order: {_key: "desc"}}}).aggs["color"]
     assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
