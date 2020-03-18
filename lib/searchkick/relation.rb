@@ -277,6 +277,8 @@ module Searchkick
       options[:scroll] = value if value
       if block
         execute.scroll(&block)
+      elsif !value
+        execute.scroll
       else
         self
       end
