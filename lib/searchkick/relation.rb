@@ -327,6 +327,15 @@ module Searchkick
       self
     end
 
+    def exclude(*args)
+      spawn.exclude!(*args)
+    end
+
+    def exclude!(*args)
+      options[:exclude] = Array(options[:exclude]) + args
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
