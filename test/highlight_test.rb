@@ -4,7 +4,7 @@ class HighlightTest < Minitest::Test
   def test_basic
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", highlight: true).highlights.first[:name]
-    assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", relation: true).highlight(true).highlights.first[:name]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema").highlight(true).highlights.first[:name]
   end
 
   def test_with_highlights
@@ -50,7 +50,7 @@ class HighlightTest < Minitest::Test
   def test_multiple_words
     store_names ["Hello World Hello"]
     assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", highlight: true).highlights.first[:name]
-    assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello", relation: true).highlight(true).highlights.first[:name]
+    assert_equal "<em>Hello</em> World <em>Hello</em>", Product.search("hello").highlight(true).highlights.first[:name]
   end
 
   def test_encoder
@@ -61,7 +61,7 @@ class HighlightTest < Minitest::Test
   def test_word_middle
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine", match: :word_middle, highlight: true).highlights.first[:name]
-    assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine", relation: true).match(:word_middle).highlight(true).highlights.first[:name]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("ine").match(:word_middle).highlight(true).highlights.first[:name]
   end
 
   def test_body

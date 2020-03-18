@@ -13,16 +13,16 @@ class AggsTest < Minitest::Test
 
   def test_basic
     assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: [:store_id])
-    assert_equal ({1 => 1, 2 => 2}), buckets_as_hash(Product.search("Product", relation: true).aggs(:store_id).aggs["store_id"])
+    assert_equal ({1 => 1, 2 => 2}), buckets_as_hash(Product.search("Product").aggs(:store_id).aggs["store_id"])
   end
 
   def test_where
     assert_equal ({1 => 1}), store_agg(aggs: {store_id: {where: {in_stock: true}}})
-    assert_equal ({1 => 1}), buckets_as_hash(Product.search("Product", relation: true).aggs(store_id: {where: {in_stock: true}}).aggs["store_id"])
+    assert_equal ({1 => 1}), buckets_as_hash(Product.search("Product").aggs(store_id: {where: {in_stock: true}}).aggs["store_id"])
   end
 
   def test_relation
-    relation = Product.search("Product", relation: true).aggs(:store_id).aggs(color: {where: {in_stock: true}})
+    relation = Product.search("Product").aggs(:store_id).aggs(color: {where: {in_stock: true}})
     assert_equal ["color", "store_id"], relation.aggs.keys.sort
   end
 
@@ -30,7 +30,7 @@ class AggsTest < Minitest::Test
     agg = Product.search("Product", aggs: {color: {order: {_key: "desc"}}}).aggs["color"]
     assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
 
-    agg = Product.search("Product", relation: true).aggs(color: {order: {_key: "desc"}}).aggs["color"]
+    agg = Product.search("Product").aggs(color: {order: {_key: "desc"}}).aggs["color"]
     assert_equal %w(red green blue), agg["buckets"].map { |b| b["key"] }
   end
 
@@ -110,7 +110,7 @@ class AggsTest < Minitest::Test
   def test_smart_aggs_false
     assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
-    assert_equal ({2 => 2}), buckets_as_hash(Product.search("Product", relation: true).where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false).aggs["store_id"])
+    assert_equal ({2 => 2}), buckets_as_hash(Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false).aggs["store_id"])
   end
 
   def test_aggs_group_by_date

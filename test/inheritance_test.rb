@@ -32,7 +32,7 @@ class InheritanceTest < Minitest::Test
     store_names ["Green Bear"], Dog
     store_names ["Blue Bear"], Cat
     assert_equal ["Blue Bear"], Animal.search("bear", type: [Cat]).map(&:name)
-    assert_equal ["Blue Bear"], Animal.search("bear", relation: true).type(Cat).map(&:name)
+    assert_equal ["Blue Bear"], Animal.search("bear").type(Cat).map(&:name)
   end
 
   def test_force_multiple_types

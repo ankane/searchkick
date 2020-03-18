@@ -5,14 +5,14 @@ class OrderTest < Minitest::Test
     store_names ["Product A", "Product B", "Product C", "Product D"]
     expected = ["Product D", "Product C", "Product B", "Product A"]
     assert_order "product", expected, order: {name: :desc}
-    assert_equal expected, Product.search("product", relation: true).order(name: :desc).map(&:name)
+    assert_equal expected, Product.search("product").order(name: :desc).map(&:name)
   end
 
   def test_order_string
     store_names ["Product A", "Product B", "Product C", "Product D"]
     expected = ["Product A", "Product B", "Product C", "Product D"]
     assert_order "product", expected, order: "name"
-    assert_equal expected, Product.search("product", relation: true).order("name").map(&:name)
+    assert_equal expected, Product.search("product").order("name").map(&:name)
   end
 
   def test_order_id
@@ -24,7 +24,7 @@ class OrderTest < Minitest::Test
     expected = [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name)
     assert_order "product", expected, order: {id: :asc}
     # TODO fix in query?
-    # assert_equal expected, Product.search("product", relation: true).order(id: :asc).map(&:name)
+    # assert_equal expected, Product.search("product").order(id: :asc).map(&:name)
   end
 
   def test_order_multiple
@@ -35,12 +35,12 @@ class OrderTest < Minitest::Test
     ]
     expected = ["Product A", "Product B", "Product C"]
     assert_order "product", expected, order: {color: :asc, store_id: :desc}
-    assert_equal expected, Product.search("product", relation: true).order(:color).order(store_id: :desc).map(&:name)
+    assert_equal expected, Product.search("product").order(:color).order(store_id: :desc).map(&:name)
   end
 
   def test_order_unmapped_type
     assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
-    assert_search_relation [], Product.search("product", relation: true).order(not_mapped: {unmapped_type: "long"})
+    assert_search_relation [], Product.search("product").order(not_mapped: {unmapped_type: "long"})
   end
 
   def test_order_array

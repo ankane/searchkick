@@ -4,13 +4,13 @@ class MisspellingsTest < Minitest::Test
   def test_misspellings
     store_names ["abc", "abd", "aee"]
     assert_search "abc", ["abc"], misspellings: false
-    assert_search_relation ["abc"], Product.search("abc", relation: true).misspellings(false)
+    assert_search_relation ["abc"], Product.search("abc").misspellings(false)
   end
 
   def test_misspellings_distance
     store_names ["abbb", "aabb"]
     assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
-    assert_search_relation ["aabb"], Product.search("aaaa", relation: true).misspellings(distance: 2)
+    assert_search_relation ["aabb"], Product.search("aaaa").misspellings(distance: 2)
   end
 
   def test_misspellings_prefix_length

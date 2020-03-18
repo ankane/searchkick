@@ -11,7 +11,7 @@ class BoostTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
     assert_equal_scores "tomato", conversions: false
-    assert_equal 3, Product.search("tomato", relation: true).conversions(false).size
+    assert_equal 3, Product.search("tomato").conversions(false).size
   end
 
   def test_multiple_conversions
@@ -39,7 +39,7 @@ class BoostTest < Minitest::Test
 
     assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C", "Speaker D"], {conversions: "conversions_a"}, Speaker
     assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
-    assert_order_relation ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], Speaker.search("speaker", relation: true).conversions(:conversions_a).conversions_term("speaker_1")
+    assert_order_relation ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], Speaker.search("speaker").conversions(:conversions_a).conversions_term("speaker_1")
   end
 
   def test_conversions_case
@@ -117,7 +117,7 @@ class BoostTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: [:orders_count]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
-    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato", relation: true).boost_by(orders_count: {factor: 10})
+    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato").boost_by(orders_count: {factor: 10})
   end
 
   def test_boost_by_missing
@@ -152,7 +152,7 @@ class BoostTest < Minitest::Test
     assert_first "tomato", "Tomato B", boost_where: {user_ids: {value: [1, 4], factor: 10}}
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_where: {user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}]}
 
-    assert_first_relation "Tomato B", Product.search("tomato", relation: true).boost_where(user_ids: 2)
+    assert_first_relation "Tomato B", Product.search("tomato").boost_where(user_ids: 2)
   end
 
   def test_boost_where_negative_boost
@@ -171,7 +171,7 @@ class BoostTest < Minitest::Test
       {name: "Article 3", created_at: Time.now}
     ]
     assert_order "article", ["Article 3", "Article 2", "Article 1"], boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}
-    assert_order_relation ["Article 3", "Article 2", "Article 1"], Product.search("article", relation: true).boost_by_recency(created_at: {scale: "7d", decay: 0.5})
+    assert_order_relation ["Article 3", "Article 2", "Article 1"], Product.search("article").boost_by_recency(created_at: {scale: "7d", decay: 0.5})
   end
 
   def test_boost_by_recency_origin
@@ -190,7 +190,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {field: :location, origin: [37, -122], scale: "1000mi"}
-    assert_order_relation ["San Francisco", "San Antonio", "San Marino"], Product.search("san", relation: true).boost_by_distance(field: :location, origin: [37, -122], scale: "1000mi")
+    assert_order_relation ["San Francisco", "San Antonio", "San Marino"], Product.search("san").boost_by_distance(field: :location, origin: [37, -122], scale: "1000mi")
   end
 
   def test_boost_by_distance_hash
@@ -209,7 +209,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by_distance: {location: {origin: [37, -122], scale: "1000mi"}}
-    assert_order_relation ["San Francisco", "San Antonio", "San Marino"], Product.search("san", relation: true).boost_by_distance(location: {origin: [37, -122], scale: "1000mi"})
+    assert_order_relation ["San Francisco", "San Antonio", "San Marino"], Product.search("san").boost_by_distance(location: {origin: [37, -122], scale: "1000mi"})
   end
 
   def test_boost_by_distance_v2_hash
@@ -240,6 +240,6 @@ class BoostTest < Minitest::Test
 
     assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
 
-    assert_order_relation ["Rexx", "Rex"], Searchkick.search("Rex", relation: true).models(Animal, Product).indices_boost(Animal => 1, Product => 200).fields(:name)
+    assert_order_relation ["Rexx", "Rex"], Searchkick.search("Rex").models(Animal, Product).indices_boost(Animal => 1, Product => 200).fields(:name)
   end
 end

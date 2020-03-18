@@ -5,14 +5,14 @@ class SqlTest < Minitest::Test
     store_names ["Honey"]
     assert_search "fresh honey", []
     assert_search "fresh honey", ["Honey"], operator: "or"
-    assert_search_relation ["Honey"], Product.search("fresh honey", relation: true).operator(:or)
+    assert_search_relation ["Honey"], Product.search("fresh honey").operator(:or)
   end
 
   def test_operator_scoring
     store_names ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
     expected = ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
     assert_order "big red circle", expected, operator: "or"
-    assert_search_relation expected, Product.search("big red circle", relation: true).operator(:or)
+    assert_search_relation expected, Product.search("big red circle").operator(:or)
   end
 
   def test_fields_operator
@@ -25,7 +25,7 @@ class SqlTest < Minitest::Test
     ]
     expected = ["red", "blue", "cyan", "magenta"]
     assert_search "red blue", expected, operator: "or", fields: ["color"]
-    assert_search_relation expected, Product.search("red blue", relation: true).operator(:or).fields(:color)
+    assert_search_relation expected, Product.search("red blue").operator(:or).fields(:color)
   end
 
   def test_fields
@@ -34,7 +34,7 @@ class SqlTest < Minitest::Test
       {name: "blue", color: "red fish"}
     ]
     assert_search "blue", ["red"], fields: ["color"]
-    assert_equal ["red"], Product.search("blue", relation: true).fields(:color).map(&:name)
+    assert_equal ["red"], Product.search("blue").fields(:color).map(&:name)
   end
 
   def test_non_existent_field
@@ -56,7 +56,7 @@ class SqlTest < Minitest::Test
       {name: "Product", latitude: 80.0}
     ]
     assert_search "product", ["Product"], where: {latitude: {gt: 79}}
-    assert_search_relation ["Product"], Product.search("product", relation: true).where(latitude: {gt: 79})
+    assert_search_relation ["Product"], Product.search("product").where(latitude: {gt: 79})
   end
 
   # body_options
@@ -76,26 +76,26 @@ class SqlTest < Minitest::Test
   def test_load_false
     store_names ["Product A"]
     assert_kind_of Hash, Product.search("product", load: false).first
-    assert_kind_of Hash, Product.search("product", relation: true).load(false).first
+    assert_kind_of Hash, Product.search("product").load(false).first
   end
 
   def test_load_false_methods
     store_names ["Product A"]
     assert_equal "Product A", Product.search("product", load: false).first.name
-    assert_equal "Product A", Product.search("product", relation: true).load(false).first.name
+    assert_equal "Product A", Product.search("product").load(false).first.name
   end
 
   def test_load_false_with_includes
     store_names ["Product A"]
     assert_kind_of Hash, Product.search("product", load: false, includes: [:store]).first
-    assert_kind_of Hash, Product.search("product", relation: true).load(false).includes(:store).first
+    assert_kind_of Hash, Product.search("product").load(false).includes(:store).first
   end
 
   def test_load_false_nested_object
     aisle = {"id" => 1, "name" => "Frozen"}
     store [{name: "Product A", aisle: aisle}]
     assert_equal aisle, Product.search("product", load: false).first.aisle.to_hash
-    assert_equal aisle, Product.search("product", relation: true).load(false).first.aisle.to_hash
+    assert_equal aisle, Product.search("product").load(false).first.aisle.to_hash
   end
 
   # select
@@ -166,7 +166,7 @@ class SqlTest < Minitest::Test
 
   def test_select_relation
     store [{name: "Product A", store_id: 1}]
-    result = Product.search("product", relation: true).load(false).select(:name, :store_id).first
+    result = Product.search("product").load(false).select(:name, :store_id).first
     assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_equal 1, result.store_id
@@ -174,13 +174,13 @@ class SqlTest < Minitest::Test
 
   def test_select_array_relation
     store [{name: "Product A", user_ids: [1, 2]}]
-    result = Product.search("product", relation: true).load(false).select(:user_ids).first
+    result = Product.search("product").load(false).select(:user_ids).first
     assert_equal [1, 2], result.user_ids
   end
 
   def test_select_single_field_relation
     store [{name: "Product A", store_id: 1}]
-    result = Product.search("product", relation: true).load(false).select(:name).first
+    result = Product.search("product").load(false).select(:name).first
     assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_nil result.store_id
@@ -188,20 +188,20 @@ class SqlTest < Minitest::Test
 
   def test_select_all_relation
     store [{name: "Product A", user_ids: [1, 2]}]
-    hit = Product.search("product", relation: true).select(true).hits.first
+    hit = Product.search("product").select(true).hits.first
     assert_equal hit["_source"]["name"], "Product A"
     assert_equal hit["_source"]["user_ids"], [1, 2]
   end
 
   def test_select_none_relation
     store [{name: "Product A", user_ids: [1, 2]}]
-    hit = Product.search("product", relation: true).select(false).hits.first
+    hit = Product.search("product").select(false).hits.first
     assert_nil hit["_source"]
   end
 
   def test_select_includes_relation
     store [{name: "Product A", user_ids: [1, 2]}]
-    result = Product.search("product", relation: true).load(false).select(includes: [:name]).first
+    result = Product.search("product").load(false).select(includes: [:name]).first
     assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_nil result.store_id
@@ -209,7 +209,7 @@ class SqlTest < Minitest::Test
 
   def test_select_excludes_relation
     store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
-    result = Product.search("product", relation: true).load(false).select(excludes: [:name]).first
+    result = Product.search("product").load(false).select(excludes: [:name]).first
     assert_nil result.name
     assert_equal [1, 2], result.user_ids
     assert_equal 1, result.store_id
@@ -218,7 +218,7 @@ class SqlTest < Minitest::Test
   def test_select_include_and_excludes_relation
     # let's take this to the next level
     store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
-    result = Product.search("product", relation: true).load(false).select(includes: [:store_id], excludes: [:name]).first
+    result = Product.search("product").load(false).select(includes: [:store_id], excludes: [:name]).first
     assert_equal 1, result.store_id
     assert_nil result.name
     assert_nil result.user_ids
@@ -229,7 +229,7 @@ class SqlTest < Minitest::Test
   def test_nested_search
     store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}], Speaker
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
-    assert_equal ["Product A"], Speaker.search("frozen", relation: true).fields("aisle.name").map(&:name)
+    assert_equal ["Product A"], Speaker.search("frozen").fields("aisle.name").map(&:name)
   end
 
   # other tests
@@ -239,7 +239,7 @@ class SqlTest < Minitest::Test
 
     store_names ["Product A"]
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
-    assert Product.search("product", relation: true).includes(:store).first.association(:store).loaded?
+    assert Product.search("product").includes(:store).first.association(:store).loaded?
   end
 
   def test_model_includes
@@ -256,7 +256,7 @@ class SqlTest < Minitest::Test
       assert records.first.association(associations[klass].first).loaded?
     end
 
-    result = Searchkick.search("*", relation: true).models(Product, Store).model_includes(associations)
+    result = Searchkick.search("*").models(Product, Store).model_includes(associations)
     assert_equal 2, result.length
     result.group_by(&:class).each_pair do |klass, records|
       assert records.first.association(associations[klass].first).loaded?
@@ -268,6 +268,6 @@ class SqlTest < Minitest::Test
 
     store_names ["Product A", "Product B"]
     assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
-    assert_equal ["Product A"], Product.search("product", relation: true).load(->(r) { r.where(name: "Product A") }).map(&:name)
+    assert_equal ["Product A"], Product.search("product").load(->(r) { r.where(name: "Product A") }).map(&:name)
   end
 end

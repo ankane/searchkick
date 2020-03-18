@@ -75,7 +75,7 @@ class ScrollTest < Minitest::Test
   def test_scroll_block_relation
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     batches_count = 0
-    Product.search("*", relation: true).per_page(2).scroll("1m") do |batch|
+    Product.search("*").per_page(2).scroll("1m") do |batch|
       assert_equal 2, batch.size
       batches_count += 1
     end

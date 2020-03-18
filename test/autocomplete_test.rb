@@ -4,19 +4,19 @@ class AutocompleteTest < Minitest::Test
   def test_autocomplete
     store_names ["Hummus"]
     assert_search "hum", ["Hummus"], match: :text_start
-    assert_search_relation ["Hummus"], Product.search("hum", relation: true).match(:text_start)
+    assert_search_relation ["Hummus"], Product.search("hum").match(:text_start)
   end
 
   def test_autocomplete_two_words
     store_names ["Organic Hummus"]
     assert_search "hum", [], match: :text_start
-    assert_search_relation [], Product.search("hum", relation: true).match(:text_start)
+    assert_search_relation [], Product.search("hum").match(:text_start)
   end
 
   def test_autocomplete_fields
     store_names ["Hummus"]
     assert_search "hum", ["Hummus"], match: :text_start, fields: [:name]
-    assert_search_relation ["Hummus"], Product.search("hum", relation: true).match(:text_start).fields(:name)
+    assert_search_relation ["Hummus"], Product.search("hum").match(:text_start).fields(:name)
   end
 
   def test_text_start
@@ -74,7 +74,7 @@ class AutocompleteTest < Minitest::Test
   def test_exact
     store_names ["hi@example.org"]
     assert_search "hi@example.org", ["hi@example.org"], fields: [{name: :exact}]
-    assert_search_relation ["hi@example.org"], Product.search("hi@example.org", relation: true).fields(name: :exact)
+    assert_search_relation ["hi@example.org"], Product.search("hi@example.org").fields(name: :exact)
   end
 
   def test_exact_case

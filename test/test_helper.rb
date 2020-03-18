@@ -14,8 +14,6 @@ Searchkick.client.transport.logger = $logger
 Searchkick.search_timeout = 5
 Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 
-# Searchkick.relation = ENV["RELATION"]
-
 # add to elasticsearch-7.0.0/config/
 Searchkick.wordnet_path = "wn_s.pl" if ENV["WORDNET"]
 

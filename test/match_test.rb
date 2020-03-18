@@ -175,8 +175,8 @@ class MatchTest < Minitest::Test
   def test_exclude_butter
     store_names ["Butter Tub", "Peanut Butter Tub"]
     assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
-    assert_search_relation ["Butter Tub"], Product.search("butter", relation: true).exclude("peanut butter")
-    assert_search_relation ["Butter Tub"], Product.search("butter", relation: true).exclude(["peanut butter"])
+    assert_search_relation ["Butter Tub"], Product.search("butter").exclude("peanut butter")
+    assert_search_relation ["Butter Tub"], Product.search("butter").exclude(["peanut butter"])
   end
 
   def test_exclude_butter_word_start
