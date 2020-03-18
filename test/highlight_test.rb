@@ -4,6 +4,7 @@ class HighlightTest < Minitest::Test
   def test_basic
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", highlight: true).highlights.first[:name]
+    assert_equal "Two Door <em>Cinema</em> Club", Product.search("cinema", relation: true).highlight(true).highlights.first[:name]
   end
 
   def test_with_highlights
