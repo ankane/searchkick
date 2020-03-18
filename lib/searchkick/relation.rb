@@ -270,7 +270,7 @@ module Searchkick
     end
 
     def scroll(value = nil, &block)
-      spawn.scroll!(value = nil, &block)
+      spawn.scroll!(value, &block)
     end
 
     def scroll!(value = nil, &block)
