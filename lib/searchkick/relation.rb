@@ -34,7 +34,7 @@ module Searchkick
       opts = sanitize_opts(opts)
 
       if options[:where]
-        options[:where] = [{_and: [options[:where], opts]}]
+        options[:where] = {_and: [options[:where], opts]}
       else
         options[:where] = opts
       end

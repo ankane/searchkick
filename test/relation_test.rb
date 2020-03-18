@@ -12,6 +12,11 @@ class RelationTest < Minitest::Test
     assert_equal ["Product A"], Product.search(relation: true).map(&:name)
   end
 
+  def test_where
+    store_names ["Product A", "Product B"]
+    assert_search_relation [], Product.search("*", relation: true).where(name: "Product A").where(name: "Product B")
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"
