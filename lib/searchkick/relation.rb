@@ -29,6 +29,8 @@ module Searchkick
     end
 
     def where!(opts)
+      opts = sanitize_opts(opts)
+
       if options[:where]
         options[:where] = [{_and: [options[:where], opts]}]
       else
@@ -54,6 +56,15 @@ module Searchkick
     end
 
     private
+
+    def sanitize_opts(attributes)
+      if attributes.respond_to?(:permitted?)
+        raise ActiveModel::ForbiddenAttributesError if !attributes.permitted?
+        attributes.to_h
+      else
+        attributes
+      end
+    end
 
     def execute
       Query.new(klass, term, options).execute
