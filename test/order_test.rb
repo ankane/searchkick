@@ -40,6 +40,7 @@ class OrderTest < Minitest::Test
 
   def test_order_unmapped_type
     assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
+    assert_search_relation [], Product.search("product", relation: true).order(not_mapped: {unmapped_type: "long"})
   end
 
   def test_order_array
