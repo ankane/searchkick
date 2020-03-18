@@ -134,7 +134,7 @@ limit(20).offset(40)
 Select
 
 ```ruby
-select([:name])
+select(:name)
 ```
 
 [These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-source-filtering)
