@@ -1975,5 +1975,5 @@ To get started with development and testing:
 git clone https://github.com/ankane/searchkick.git
 cd searchkick
 bundle install
-rake test
+bundle exec rake test
 ```
