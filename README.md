@@ -437,7 +437,7 @@ gem 'gemoji-parser'
 And use:
 
 ```ruby
-Product.search("🍨🍰").emoji(true)
+Product.search("🍨🍰").emoji
 ```
 
 ## Indexing
@@ -714,7 +714,7 @@ end
 Reindex and search with:
 
 ```ruby
-products = Product.search("peantu butta").suggest(true)
+products = Product.search("peantu butta").suggest
 products.suggestions # ["peanut butter"]
 ```
 
@@ -807,7 +807,7 @@ end
 Highlight the search query in the results.
 
 ```ruby
-bands = Band.search("cinema").highlight(true)
+bands = Band.search("cinema").highlight
 ```
 
 View the highlighted fields with:
@@ -978,7 +978,7 @@ Animal.search("*").type(Dog, Cat)  # just cats and dogs
 1. The `suggest` option retrieves suggestions from the parent at the moment.
 
     ```ruby
-    Dog.search("airbudd").suggest(true) # suggestions for all animals
+    Dog.search("airbudd").suggest # suggestions for all animals
     ```
 2. This relies on a `type` field that is automatically added to the indexed document. Be wary of defining your own `type` field in `search_data`, as it will take precedence.
 
@@ -987,7 +987,7 @@ Animal.search("*").type(Dog, Cat)  # just cats and dogs
 To help with debugging queries, you can use:
 
 ```ruby
-Product.search("soap").debug(true)
+Product.search("soap").debug
 ```
 
 This prints useful info to `stdout`.
@@ -995,7 +995,7 @@ This prints useful info to `stdout`.
 See how Elasticsearch scores your queries with:
 
 ```ruby
-Product.search("soap").explain(true).response
+Product.search("soap").explain.response
 ```
 
 See how Elasticsearch tokenizes your queries with:

@@ -296,12 +296,14 @@ class MatchTest < Minitest::Test
     skip unless defined?(EmojiParser)
     store_names ["Banana"]
     assert_search "🍌", ["Banana"], emoji: true
+    assert_search_relation ["Banana"], Product.search("🍌").emoji
   end
 
   def test_emoji_multiple
     skip unless defined?(EmojiParser)
     store_names ["Ice Cream Cake"]
     assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true
+    assert_search_relation ["Ice Cream Cake"], Product.search("🍨🍰").emoji
   end
 
   # TODO find better place

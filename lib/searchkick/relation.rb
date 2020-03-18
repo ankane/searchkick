@@ -265,11 +265,11 @@ module Searchkick
       self
     end
 
-    def highlight(value)
+    def highlight(value = true)
       spawn.highlight!(value)
     end
 
-    def highlight!(value)
+    def highlight!(value = true)
       options[:highlight] = value
       self
     end
@@ -316,20 +316,20 @@ module Searchkick
       self
     end
 
-    def debug(value)
+    def debug(value = true)
       spawn.debug!(value)
     end
 
-    def debug!(value)
+    def debug!(value = true)
       options[:debug] = value
       self
     end
 
-    def explain(value)
+    def explain(value = true)
       spawn.explain!(value)
     end
 
-    def explain!(value)
+    def explain!(value = true)
       options[:explain] = value
       self
     end
@@ -352,12 +352,21 @@ module Searchkick
       self
     end
 
-    def suggest(value)
+    def suggest(value = true)
       spawn.suggest!(value)
     end
 
-    def suggest!(value)
+    def suggest!(value = true)
       options[:suggest] = value
+      self
+    end
+
+    def emoji(value = true)
+      spawn.emoji!(value)
+    end
+
+    def emoji!(value = true)
+      options[:emoji] = value
       self
     end
 
