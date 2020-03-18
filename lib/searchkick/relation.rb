@@ -116,11 +116,18 @@ module Searchkick
 
     # TODO make more efficient if loaded
     def pluck(*fields)
-      result = select(*fields).load(false)
+      result = load(false)
+      if fields.empty?
+        result.select!(true)
+      else
+        result.select!(*fields)
+      end
+
       if fields.size == 1
         field = fields.first
         result.map { |v| v[field] }
       else
+        fields = result.first.keys if fields.empty? && result.any?
         result.map { |v| fields.map { |f| v[f] } }
       end
     end

@@ -45,6 +45,13 @@ class RelationTest < Minitest::Test
     assert_equal [["Blue", nil], ["Red", nil]], Product.search.order(:name).pluck(:name, :store_id)
   end
 
+  def test_pluck_empty
+    Product.search_index.refresh
+    assert_equal [], Product.search.pluck
+    store_names ["Blue", "Red"]
+    assert Product.search.pluck
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"
