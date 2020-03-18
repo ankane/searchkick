@@ -88,7 +88,7 @@ module Searchkick
     @server_below7
   end
 
-  def self.search(term = "*", model: nil, relation: false, **options, &block)
+  def self.search(term = "*", model: nil, relation: nil, **options, &block)
     options = options.dup
     klass = model
 

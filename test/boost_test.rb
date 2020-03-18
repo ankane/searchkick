@@ -39,6 +39,7 @@ class BoostTest < Minitest::Test
 
     assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C", "Speaker D"], {conversions: "conversions_a"}, Speaker
     assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
+    assert_order_relation ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], Speaker.search("speaker", relation: true).conversions(:conversions_a).conversions_term("speaker_1")
   end
 
   def test_conversions_case
