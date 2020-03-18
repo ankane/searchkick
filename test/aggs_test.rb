@@ -110,6 +110,7 @@ class AggsTest < Minitest::Test
   def test_smart_aggs_false
     assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
     assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
+    assert_equal ({2 => 2}), buckets_as_hash(Product.search("Product", relation: true).where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false).aggs["store_id"])
   end
 
   def test_aggs_group_by_date

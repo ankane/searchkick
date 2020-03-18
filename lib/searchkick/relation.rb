@@ -354,6 +354,15 @@ module Searchkick
       self
     end
 
+    def smart_aggs(value)
+      spawn.smart_aggs!(value)
+    end
+
+    def smart_aggs!(value)
+      options[:smart_aggs] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
