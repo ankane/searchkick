@@ -169,6 +169,7 @@ class BoostTest < Minitest::Test
       {name: "Article 3", created_at: Time.now}
     ]
     assert_order "article", ["Article 3", "Article 2", "Article 1"], boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}
+    assert_order_relation ["Article 3", "Article 2", "Article 1"], Product.search("article", relation: true).boost_by_recency(created_at: {scale: "7d", decay: 0.5})
   end
 
   def test_boost_by_recency_origin

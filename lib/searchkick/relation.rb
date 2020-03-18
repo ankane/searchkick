@@ -192,6 +192,16 @@ module Searchkick
       self
     end
 
+    def boost_by_recency(value)
+      spawn.boost_by_recency!(value)
+    end
+
+    # TODO merge options
+    def boost_by_recency!(value)
+      options[:boost_by_recency] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
