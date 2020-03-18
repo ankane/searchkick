@@ -877,7 +877,7 @@ Restaurant.search("pizza").where(location: {near: {lat: 37, lon: -114}, within: 
 Bounded by a box
 
 ```ruby
-Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}}}
+Restaurant.search("sushi").where(location: {top_left: {lat: 38, lon: -123}, bottom_right: {lat: 37, lon: -122}})
 ```
 
 **Note:** `top_right` and `bottom_left` also work
@@ -885,7 +885,7 @@ Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bo
 Bounded by a polygon
 
 ```ruby
-Restaurant.search "dessert", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
+Restaurant.search("dessert").where(location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}})
 ```
 
 ### Boost By Distance
@@ -893,13 +893,13 @@ Restaurant.search "dessert", where: {location: {geo_polygon: {points: [{lat: 38,
 Boost results by distance - closer results are boosted more
 
 ```ruby
-Restaurant.search "noodles", boost_by_distance: {location: {origin: {lat: 37, lon: -122}}}
+Restaurant.search("noodles").boost_by_distance(location: {origin: {lat: 37, lon: -122}})
 ```
 
 Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
 
 ```ruby
-Restaurant.search "wings", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, function: "linear", scale: "30mi", decay: 0.5}}
+Restaurant.search("wings").boost_by_distance(location: {origin: {lat: 37, lon: -122}, function: "linear", scale: "30mi", decay: 0.5})
 ```
 
 ### Geo Shapes
@@ -926,19 +926,19 @@ See the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsea
 Find shapes intersecting with the query shape
 
 ```ruby
-Restaurant.search "soup", where: {bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}}}
+Restaurant.search("soup").where(bounds: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, ...]]}})
 ```
 
 Falling entirely within the query shape
 
 ```ruby
-Restaurant.search "salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}}
+Restaurant.search("salad").where(bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}})
 ```
 
 Not touching the query shape
 
 ```ruby
-Restaurant.search "burger", where: {bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}}}
+Restaurant.search("burger").where(bounds: {geo_shape: {type: "envelope", relation: "disjoint", coordinates: [{lat: 38, lon: -123}, {lat: 37, lon: -122}]}})
 ```
 
 ## Inheritance
