@@ -345,6 +345,15 @@ module Searchkick
       self
     end
 
+    def suggest(value)
+      spawn.suggest!(value)
+    end
+
+    def suggest!(value)
+      options[:suggest] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

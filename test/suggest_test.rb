@@ -9,6 +9,7 @@ class SuggestTest < Minitest::Test
   def test_basic
     store_names ["Great White Shark", "Hammerhead Shark", "Tiger Shark"]
     assert_suggest "How Big is a Tigre Shar", "how big is a tiger shark", fields: [:name]
+    assert Product.search("How Big is a Tigre Shar", relation: true).suggest(true).fields(:name).suggestions.include?("how big is a tiger shark")
   end
 
   def test_perfect
