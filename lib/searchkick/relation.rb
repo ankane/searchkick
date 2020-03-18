@@ -222,11 +222,17 @@ module Searchkick
     end
 
     def models(*args)
+      raise ArgumentError, "Use Searchkick.search to search multiple models" if klass
       spawn.models!(*args)
     end
 
     def models!(*args)
-      options[:models] = Array(options[:models]) + args
+      # make Searchkick.search.models(Product) and Product.search equivalent
+      if !klass && args.size == 1 && !options[:models]
+        @klass = args.first
+      else
+        options[:models] = Array(options[:models]) + args
+      end
       self
     end
 
