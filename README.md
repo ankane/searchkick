@@ -970,7 +970,7 @@ And to search, use:
 ```ruby
 Animal.search("*")                   # all animals
 Dog.search("*")                      # just dogs
-Animal.search("*").type([Dog, Cat])  # just cats and dogs
+Animal.search("*").type(Dog, Cat)  # just cats and dogs
 ```
 
 **Notes:**
@@ -1609,7 +1609,7 @@ class Product < ApplicationRecord
   has_many :searches, class_name: "Searchjoy::Search"
 
   # searchkick also supports multiple "conversions" fields
-  searchkick conversions: ["unique_user_conversions", "total_conversions"]
+  searchkick conversions: [:unique_user_conversions, :total_conversions]
 
   def search_data
     {
@@ -1627,7 +1627,7 @@ and during query time:
 
 ```ruby
 Product.search("banana") # boost by both fields (default)
-Product.search("banana").conversions("total_conversions") # only boost by total_conversions
+Product.search("banana").conversions(:total_conversions) # only boost by total_conversions
 Product.search("banana").conversions(false) # no conversion boosting
 ```
 
@@ -1664,13 +1664,13 @@ Product.search("milk").includes(:brand, :stores)
 Eager load different associations by model
 
 ```ruby
-Searchkick.search("*",  models: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
+Searchkick.search("*").models(Product, Store).model_includes(Product => [:store], Store => [:product])
 ```
 
 Run additional scopes on results
 
 ```ruby
-Product.search "milk", scope_results: ->(r) { r.with_attached_images }
+Product.search "milk").load(->(r) { r.with_attached_images })
 ```
 
 Specify default fields to search
