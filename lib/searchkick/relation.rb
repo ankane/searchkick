@@ -77,8 +77,9 @@ module Searchkick
     end
 
     # TODO decide how to handle block form
+    # TODO see how Active Record merges multiple calls
     def select!(*fields)
-      options[:select] = Array(options[:select]) + fields
+      options[:select] = fields.size == 1 ? fields.first : fields
       self
     end
 

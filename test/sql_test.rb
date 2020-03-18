@@ -97,9 +97,7 @@ class SqlTest < Minitest::Test
   def test_select
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
-    expected = %w(id name store_id)
-    assert_equal expected, result.keys.reject { |k| k.start_with?("_") }.sort
-    assert_equal expected, Product.search("product", relation: true, load: false).select(:name, :store_id).first.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_equal 1, result.store_id
   end
@@ -153,6 +151,68 @@ class SqlTest < Minitest::Test
     # let's take this to the next level
     store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
     result = Product.search("product", load: false, select: {includes: [:store_id], excludes: [:name]}).first
+    assert_equal 1, result.store_id
+    assert_nil result.name
+    assert_nil result.user_ids
+  end
+
+  # select relation
+
+  def test_select_relation
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", relation: true).load(false).select(:name, :store_id).first
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_equal 1, result.store_id
+  end
+
+  def test_select_array_relation
+    store [{name: "Product A", user_ids: [1, 2]}]
+    result = Product.search("product", relation: true).load(false).select(:user_ids).first
+    assert_equal [1, 2], result.user_ids
+  end
+
+  def test_select_single_field_relation
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", relation: true).load(false).select(:name).first
+    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_nil result.store_id
+  end
+
+  def test_select_all_relation
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", relation: true).select(true).hits.first
+    assert_equal hit["_source"]["name"], "Product A"
+    assert_equal hit["_source"]["user_ids"], [1, 2]
+  end
+
+  def test_select_none_relation
+    store [{name: "Product A", user_ids: [1, 2]}]
+    hit = Product.search("product", relation: true).select(false).hits.first
+    assert_nil hit["_source"]
+  end
+
+  def test_select_includes_relation
+    store [{name: "Product A", user_ids: [1, 2]}]
+    result = Product.search("product", relation: true).load(false).select(includes: [:name]).first
+    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_nil result.store_id
+  end
+
+  def test_select_excludes_relation
+    store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
+    result = Product.search("product", relation: true).load(false).select(excludes: [:name]).first
+    assert_nil result.name
+    assert_equal [1, 2], result.user_ids
+    assert_equal 1, result.store_id
+  end
+
+  def test_select_include_and_excludes_relation
+    # let's take this to the next level
+    store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
+    result = Product.search("product", relation: true).load(false).select(includes: [:store_id], excludes: [:name]).first
     assert_equal 1, result.store_id
     assert_nil result.name
     assert_nil result.user_ids
