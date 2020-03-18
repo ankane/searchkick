@@ -58,6 +58,7 @@ class IndexTest < Minitest::Test
   def test_body
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}, load: false).map(&:name)
+    assert_equal ["Dollar Tree"], Store.search.body(query: {match: {name: "dollar"}}).load(false).map(&:name)
   end
 
   def test_body_incompatible_options

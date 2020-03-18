@@ -11,7 +11,7 @@ module Searchkick
       :offset_value, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response, :to_a, :first, :highlights, :group_by, :misspellings?, :with_highlights
 
-    def_delegators :query, :body, :params
+    def_delegators :query, :params
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
@@ -295,6 +295,19 @@ module Searchkick
 
     def routing!(value)
       options[:routing] = value
+      self
+    end
+
+    def body(*args)
+      if args.empty?
+        params.body
+      else
+        spawn.body!(*args)
+      end
+    end
+
+    def body!(value)
+      options[:body] = value
       self
     end
 

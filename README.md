@@ -1442,10 +1442,8 @@ products = Product.search("milk").body_options(min_score: 1)
 or
 
 ```ruby
-products =
-  Product.search("apples") do |body|
-    body[:min_score] = 1
-  end
+products = Product.search("apples")
+products.body[:min_score] = 1
 ```
 
 ### Elasticsearch Gem
