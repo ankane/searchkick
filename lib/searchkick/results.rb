@@ -197,6 +197,14 @@ module Searchkick
       current_page > total_pages
     end
 
+    def one?
+      size == 1
+    end
+
+    def many?
+      size > 1
+    end
+
     def hits
       if error
         raise Searchkick::Error, "Query error - use the error method to view it"
