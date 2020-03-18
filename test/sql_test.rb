@@ -163,6 +163,7 @@ class SqlTest < Minitest::Test
   def test_nested_search
     store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}], Speaker
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
+    assert_equal ["Product A"], Speaker.search("frozen", relation: true).fields("aisle.name").map(&:name)
   end
 
   # other tests
