@@ -123,7 +123,12 @@ module Searchkick
     end
 
     def load!(value)
-      options[:load] = value
+      if value.respond_to?(:call)
+        options[:load] = true
+        options[:scope_results] = value
+      else
+        options[:load] = value
+      end
       self
     end
 

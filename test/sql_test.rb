@@ -203,5 +203,6 @@ class SqlTest < Minitest::Test
 
     store_names ["Product A", "Product B"]
     assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
+    assert_equal ["Product A"], Product.search("product", relation: true).load(->(r) { r.where(name: "Product A") }).map(&:name)
   end
 end
