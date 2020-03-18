@@ -94,7 +94,7 @@ Product.search("apples").where(in_stock: true).limit(10).offset(50)
 Search specific fields
 
 ```ruby
-fields: [:name, :brand]
+fields(:name, :brand)
 ```
 
 Where
@@ -181,7 +181,7 @@ results.response
 Boost important fields
 
 ```ruby
-fields: ["title^10", "description"]
+fields("title^10", "description")
 ```
 
 Boost by the value of a field (field must be numeric)

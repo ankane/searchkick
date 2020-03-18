@@ -29,6 +29,7 @@ class SqlTest < Minitest::Test
       {name: "blue", color: "red fish"}
     ]
     assert_search "blue", ["red"], fields: ["color"]
+    assert_equal ["red"], Product.search("blue", relation: true).fields(:color).map(&:name)
   end
 
   def test_non_existent_field

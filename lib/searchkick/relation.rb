@@ -109,6 +109,15 @@ module Searchkick
       self
     end
 
+    def fields(*fields)
+      spawn.fields!(*fields)
+    end
+
+    def fields!(*fields)
+      options[:fields] = Array(options[:fields]) + fields
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
