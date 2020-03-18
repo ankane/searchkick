@@ -147,6 +147,7 @@ Searches return a `Searchkick::Results` object. This responds like an array to m
 results = Product.search("milk")
 results.size
 results.any?
+results.first(5)
 results.each { |result| ... }
 ```
 
