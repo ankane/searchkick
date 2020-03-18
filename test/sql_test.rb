@@ -56,6 +56,7 @@ class SqlTest < Minitest::Test
       {name: "Product", latitude: 80.0}
     ]
     assert_search "product", ["Product"], where: {latitude: {gt: 79}}
+    assert_search_relation ["Product"], Product.search("product", relation: true).where(latitude: {gt: 79})
   end
 
   # body_options
