@@ -118,6 +118,24 @@ module Searchkick
       self
     end
 
+    def load(value)
+      spawn.load!(value)
+    end
+
+    def load!(value)
+      options[:load] = value
+      self
+    end
+
+    def includes(*args)
+      spawn.includes!(*args)
+    end
+
+    def includes!(*args)
+      options[:includes] = Array(options[:includes]) + args
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

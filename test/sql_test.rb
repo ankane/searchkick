@@ -70,22 +70,26 @@ class SqlTest < Minitest::Test
   def test_load_false
     store_names ["Product A"]
     assert_kind_of Hash, Product.search("product", load: false).first
+    assert_kind_of Hash, Product.search("product", relation: true).load(false).first
   end
 
   def test_load_false_methods
     store_names ["Product A"]
     assert_equal "Product A", Product.search("product", load: false).first.name
+    assert_equal "Product A", Product.search("product", relation: true).load(false).first.name
   end
 
   def test_load_false_with_includes
     store_names ["Product A"]
     assert_kind_of Hash, Product.search("product", load: false, includes: [:store]).first
+    assert_kind_of Hash, Product.search("product", relation: true).load(false).includes(:store).first
   end
 
   def test_load_false_nested_object
     aisle = {"id" => 1, "name" => "Frozen"}
     store [{name: "Product A", aisle: aisle}]
     assert_equal aisle, Product.search("product", load: false).first.aisle.to_hash
+    assert_equal aisle, Product.search("product", relation: true).load(false).first.aisle.to_hash
   end
 
   # select
