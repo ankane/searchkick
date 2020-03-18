@@ -114,7 +114,7 @@ module Searchkick
     end
 
     options = options.merge(block: block) if block
-    if relation || (relation.nil? && Searchick.relation)
+    if relation || (relation.nil? && Searchkick.relation)
       Searchkick::Relation.new(klass, term, **options)
     else
       query = Searchkick::Query.new(klass, term, **options)
