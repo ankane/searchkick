@@ -669,13 +669,10 @@ First, add a route and controller action.
 ```ruby
 class MoviesController < ApplicationController
   def autocomplete
-    render json: Movie.search(params[:query], {
-      fields: ["title^5", "director"],
-      match: :word_start,
-      limit: 10,
-      load: false,
-      misspellings: {below: 5}
-    }).map(&:title)
+    movies = Movie.search(params[:query]).fields("title^5", "director").
+      match(:word_start).limit(10).load(false).misspellings(below: 5)
+
+    render json: movies.map(&:title)
   end
 end
 ```
