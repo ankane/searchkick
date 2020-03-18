@@ -6,6 +6,11 @@ class SimilarTest < Minitest::Test
     assert_search "Annie's Naturals Shiitake & Sesame Vinaigrette", ["Annie's Naturals Organic Shiitake & Sesame Dressing"], similar: true, fields: [:name]
   end
 
+  def test_relation
+    store_names ["1% Organic Milk", "2% Organic Milk", "Popcorn"]
+    assert_equal ["2% Organic Milk"], Product.where(name: "1% Organic Milk").first.similar(relation: true).fields(:name).map(&:name)
+  end
+
   def test_fields
     store_names ["1% Organic Milk", "2% Organic Milk", "Popcorn"]
     assert_equal ["2% Organic Milk"], Product.where(name: "1% Organic Milk").first.similar(fields: ["name"]).map(&:name)
