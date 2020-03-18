@@ -9,7 +9,7 @@ class RelationTest < Minitest::Test
 
   def test_no_term
     store_names ["Product A"]
-    assert_equal ["Product A"], Product.search(relation: true).map(&:name)
+    assert_equal ["Product A"], Product.search.map(&:name)
   end
 
   def test_where
@@ -26,7 +26,7 @@ class RelationTest < Minitest::Test
       Product.where(params)
     end
     assert_raises(ActiveModel::ForbiddenAttributesError) do
-      Product.search(relation: true).where(params)
+      Product.search.where(params)
     end
   end
 end
