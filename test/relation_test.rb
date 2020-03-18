@@ -28,6 +28,19 @@ class RelationTest < Minitest::Test
     assert_search_relation ["Red"], Product.search("red").where(store_id: 1).unscoped
   end
 
+  def test_pluck
+    store_names ["Blue", "Red"]
+    assert_equal ["Blue", "Red"], Product.order(:name).pluck(:name) if defined?(ActiveRecord)
+    assert_equal ["Blue", "Red"], Product.search.order(:name).pluck(:name)
+  end
+
+  def test_pluck_many
+    store_names ["Blue", "Red"]
+    assert_equal [["Blue", nil], ["Red", nil]], Product.order(:name).pluck(:name, :store_id) if defined?(ActiveRecord)
+    assert_equal [["Blue", nil], ["Red", nil]], Product.search.order(:name).pluck(:name, :store_id)
+
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"

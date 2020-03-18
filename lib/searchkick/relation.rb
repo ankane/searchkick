@@ -105,6 +105,17 @@ module Searchkick
       self
     end
 
+    # TODO support multiple
+    def pluck(*fields)
+      result = select(*fields).load(false)
+      if fields.size == 1
+        field = fields.first
+        result.map { |v| v[field] }
+      else
+        result.map { |v| fields.map { |f| v[f] } }
+      end
+    end
+
     def select(*fields, &block)
       if block_given?
         # TODO better error message
