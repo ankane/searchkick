@@ -1670,7 +1670,7 @@ Searchkick.search("*").models(Product, Store).model_includes(Product => [:store]
 Run additional scopes on results
 
 ```ruby
-Product.search "milk").load(->(r) { r.with_attached_images })
+Product.search("milk").load(->(r) { r.with_attached_images })
 ```
 
 Specify default fields to search
