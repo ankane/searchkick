@@ -105,7 +105,7 @@ module Searchkick
       self
     end
 
-    # TODO support multiple
+    # TODO make more efficient if loaded
     def pluck(*fields)
       result = select(*fields).load(false)
       if fields.size == 1
