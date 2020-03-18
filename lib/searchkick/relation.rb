@@ -136,6 +136,27 @@ module Searchkick
       self
     end
 
+    def models(*args)
+      spawn.models!(*args)
+    end
+
+    def models!(*args)
+      options[:models] = Array(options[:models]) + args
+      self
+    end
+
+    def model_includes(value)
+      spawn.model_includes!(value)
+    end
+
+    def model_includes!(value)
+      options[:model_includes] ||= {}
+      value.each do |k, v|
+        options[:model_includes][k] = Array(options[:model_includes][k]) + v
+      end
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
