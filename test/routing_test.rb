@@ -5,7 +5,7 @@ class RoutingTest < Minitest::Test
     query = Store.search("Dollar Tree", routing: "Dollar Tree", execute: false)
     assert_equal query.params[:routing], "Dollar Tree"
 
-    query = Store.search("Dollar Tree", relation: true).routing("Dollar Tree").query
+    query = Store.search("Dollar Tree", relation: true).routing("Dollar Tree")
     assert_equal query.params[:routing], "Dollar Tree"
   end
 
