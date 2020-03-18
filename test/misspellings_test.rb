@@ -10,6 +10,7 @@ class MisspellingsTest < Minitest::Test
   def test_misspellings_distance
     store_names ["abbb", "aabb"]
     assert_search "aaaa", ["aabb"], misspellings: {distance: 2}
+    assert_search_relation ["aabb"], Product.search("aaaa", relation: true).misspellings(distance: 2)
   end
 
   def test_misspellings_prefix_length
