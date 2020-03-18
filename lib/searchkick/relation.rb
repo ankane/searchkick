@@ -372,6 +372,15 @@ module Searchkick
       self
     end
 
+    def conversions(value)
+      spawn.conversions!(value)
+    end
+
+    def conversions!(value)
+      options[:conversions] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)

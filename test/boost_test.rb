@@ -11,6 +11,7 @@ class BoostTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
     assert_equal_scores "tomato", conversions: false
+    assert_equal 3, Product.search("tomato", relation: true).conversions(false).size
   end
 
   def test_multiple_conversions
