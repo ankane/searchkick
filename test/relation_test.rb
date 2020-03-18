@@ -52,6 +52,14 @@ class RelationTest < Minitest::Test
     assert Product.search.pluck
   end
 
+  def test_first
+    store_names ["Blue", "Red"]
+    assert_kind_of Product, Product.first
+    assert_kind_of Product, Product.search.first if defined?(ActiveRecord)
+    assert_equal 1, Product.first(1).size
+    assert_equal 1, Product.search.first(1).size if defined?(ActiveRecord)
+  end
+
   def test_take
     store_names ["Blue", "Red"]
     assert_kind_of Product, Product.take
