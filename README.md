@@ -415,7 +415,7 @@ exclude_queries = {
   "cream" => ["ice cream", "whipped cream"]
 }
 
-Product.search(query).exclude(*exclude_queries[query])
+Product.search(query).exclude(exclude_queries[query])
 ```
 
 You can demote results by boosting by a factor less than one:

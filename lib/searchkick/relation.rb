@@ -332,7 +332,7 @@ module Searchkick
     end
 
     def exclude!(*args)
-      options[:exclude] = Array(options[:exclude]) + args
+      options[:exclude] = Array(options[:exclude]) + args.flatten
       self
     end
 
