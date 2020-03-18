@@ -78,6 +78,15 @@ module Searchkick
       self
     end
 
+    def reorder(*args)
+      spawn.reorder!(*args)
+    end
+
+    def reorder!(*args)
+      options[:order] = args
+      self
+    end
+
     def select(*fields, &block)
       if block_given?
         # TODO better error message

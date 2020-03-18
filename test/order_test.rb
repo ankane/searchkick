@@ -38,6 +38,16 @@ class OrderTest < Minitest::Test
     assert_equal expected, Product.search("product").order(:color).order(store_id: :desc).map(&:name)
   end
 
+  def test_reorder
+    store [
+      {name: "Product A", color: "blue", store_id: 1},
+      {name: "Product B", color: "red", store_id: 3},
+      {name: "Product C", color: "red", store_id: 2}
+    ]
+    expected = ["Product C", "Product B", "Product A"]
+    assert_equal expected, Product.search("product").order(:store_id).reorder(name: :desc).map(&:name)
+  end
+
   def test_order_unmapped_type
     assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
     assert_search_relation [], Product.search("product").order(not_mapped: {unmapped_type: "long"})
