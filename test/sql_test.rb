@@ -5,11 +5,14 @@ class SqlTest < Minitest::Test
     store_names ["Honey"]
     assert_search "fresh honey", []
     assert_search "fresh honey", ["Honey"], operator: "or"
+    assert_search_relation ["Honey"], Product.search("fresh honey", relation: true).operator(:or)
   end
 
   def test_operator_scoring
     store_names ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
-    assert_order "big red circle", ["Big Red Circle", "Big Green Circle", "Small Orange Circle"], operator: "or"
+    expected = ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
+    assert_order "big red circle", expected, operator: "or"
+    assert_search_relation expected, Product.search("big red circle", relation: true).operator(:or)
   end
 
   def test_fields_operator
@@ -20,7 +23,9 @@ class SqlTest < Minitest::Test
       {name: "magenta", color: "red blue"},
       {name: "green", color: "green"}
     ]
-    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"]
+    expected = ["red", "blue", "cyan", "magenta"]
+    assert_search "red blue", expected, operator: "or", fields: ["color"]
+    assert_search_relation expected, Product.search("red blue", relation: true).operator(:or).fields(:color)
   end
 
   def test_fields

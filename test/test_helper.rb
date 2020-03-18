@@ -87,6 +87,10 @@ class Minitest::Test
     assert_equal expected.sort, klass.search(term, **options).map(&:name).sort
   end
 
+  def assert_search_relation(expected, relation)
+    assert_equal expected.sort, relation.map(&:name).sort
+  end
+
   def assert_order(term, expected, options = {}, klass = Product)
     assert_equal expected, klass.search(term, **options).map(&:name)
   end

@@ -163,6 +163,15 @@ module Searchkick
       self
     end
 
+    def operator(value)
+      spawn.operator!(value)
+    end
+
+    def operator!(value)
+      options[:operator] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
