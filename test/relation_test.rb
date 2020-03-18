@@ -17,6 +17,11 @@ class RelationTest < Minitest::Test
     assert_search_relation [], Product.search("*").where(name: "Product A").where(name: "Product B")
   end
 
+  def test_none
+    store_names ["Product A", "Product B"]
+    assert_search_relation [], Product.search("*").none
+  end
+
   def test_parameters
     skip unless defined?(ActiveRecord)
     require "action_controller"

@@ -87,6 +87,15 @@ module Searchkick
       self
     end
 
+    def none
+      spawn.none!
+    end
+
+    def none!
+      options[:limit] = 0 # TODO use where?
+      self
+    end
+
     def select(*fields, &block)
       if block_given?
         # TODO better error message
