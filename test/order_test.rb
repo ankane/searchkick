@@ -35,7 +35,7 @@ class OrderTest < Minitest::Test
     ]
     expected = ["Product A", "Product B", "Product C"]
     assert_order "product", expected, order: {color: :asc, store_id: :desc}
-    assert_equal expected, Product.search("product", relation: true).order(color: :asc).order(store_id: :desc).map(&:name)
+    assert_equal expected, Product.search("product", relation: true).order(:color).order(store_id: :desc).map(&:name)
   end
 
   def test_order_unmapped_type
