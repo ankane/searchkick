@@ -14,6 +14,11 @@ class QueryTest < Minitest::Test
     assert_search "milk", ["Milk", "Milk2"], body_options: {min_score: 0.0001}
   end
 
+  def test_body_options
+    store_names ["Milk", "Milk2"]
+    assert_search_relation ["Milk", "Milk2"], Product.search("milk", relation: true).body_options(min_score: 0.0001)
+  end
+
   def test_default_timeout
     assert_equal "6s", Product.search("*", execute: false).body[:timeout]
   end
@@ -24,6 +29,7 @@ class QueryTest < Minitest::Test
 
   def test_request_params
     assert_equal "dfs_query_then_fetch", Product.search("*", request_params: {search_type: "dfs_query_then_fetch"}, execute: false).params[:search_type]
+    assert_equal "dfs_query_then_fetch", Product.search("*", relation: true).request_params(search_type: "dfs_query_then_fetch").query.params[:search_type]
   end
 
   def test_debug

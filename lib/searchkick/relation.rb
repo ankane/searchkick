@@ -276,6 +276,24 @@ module Searchkick
       self
     end
 
+    def body_options(value)
+      spawn.body_options!(value)
+    end
+
+    def body_options!(value)
+      options[:body_options] = value
+      self
+    end
+
+    def request_params(value)
+      spawn.request_params!(value)
+    end
+
+    def request_params!(value)
+      options[:request_params] = value
+      self
+    end
+
     # same as Active Record
     def inspect
       entries = results.first(11).map!(&:inspect)
