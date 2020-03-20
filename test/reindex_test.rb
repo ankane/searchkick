@@ -6,6 +6,7 @@ class ReindexTest < Minitest::Test
       store_names ["Product A", "Product B"]
     end
     assert_search "product", []
+
     product = Product.find_by(name: "Product A")
     product.reindex(refresh: true)
     assert_search "product", ["Product A"]
@@ -16,6 +17,7 @@ class ReindexTest < Minitest::Test
       store_names ["Product A", "Product B"]
     end
     assert_search "product", []
+
     product = Product.find_by(name: "Product A")
     product.reindex(mode: :async)
     Product.search_index.refresh
@@ -28,30 +30,19 @@ class ReindexTest < Minitest::Test
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
-    Searchkick.callbacks(:queue) do
+    Searchkick.callbacks(false) do
       store_names ["Product A", "Product B"]
     end
-    Product.searchkick_index.refresh
-    assert_search "product", [], load: false, conversions: false
-    assert_equal 2, reindex_queue.length
+    assert_search "product", []
 
-    Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
-    Product.searchkick_index.refresh
-    assert_search "product", ["Product A", "Product B"], load: false
-    assert_equal 0, reindex_queue.length
+    product = Product.find_by(name: "Product A")
+    product.reindex(mode: :queue)
+    Product.search_index.refresh
+    assert_search "product", []
 
-    Searchkick.callbacks(:queue) do
-      Product.where(name: "Product B").destroy_all
-      Product.create!(name: "Product C")
-    end
-    Product.searchkick_index.refresh
-    assert_search "product", ["Product A", "Product B"], load: false
-    assert_equal 2, reindex_queue.length
-
-    Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
-    Product.searchkick_index.refresh
-    assert_search "product", ["Product A", "Product C"], load: false
-    assert_equal 0, reindex_queue.length
+    Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
+    Product.search_index.refresh
+    assert_search "product", ["Product A"]
   end
 
   def test_relation_inline
@@ -170,5 +161,37 @@ class ReindexTest < Minitest::Test
     end
     Product.search_index.refresh
     assert_search "product", ["Product A", "Product B"]
+  end
+
+  def test_callbacks_queue
+    skip unless defined?(ActiveJob) && defined?(Redis)
+
+    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue.clear
+
+    Searchkick.callbacks(:queue) do
+      store_names ["Product A", "Product B"]
+    end
+    Product.searchkick_index.refresh
+    assert_search "product", [], load: false, conversions: false
+    assert_equal 2, reindex_queue.length
+
+    Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
+    Product.searchkick_index.refresh
+    assert_search "product", ["Product A", "Product B"], load: false
+    assert_equal 0, reindex_queue.length
+
+    Searchkick.callbacks(:queue) do
+      Product.where(name: "Product B").destroy_all
+      Product.create!(name: "Product C")
+    end
+    Product.searchkick_index.refresh
+    assert_search "product", ["Product A", "Product B"], load: false
+    assert_equal 2, reindex_queue.length
+
+    Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
+    Product.searchkick_index.refresh
+    assert_search "product", ["Product A", "Product C"], load: false
+    assert_equal 0, reindex_queue.length
   end
 end
