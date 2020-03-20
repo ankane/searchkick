@@ -1,8 +1,10 @@
+# dependencies
 require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "elasticsearch"
 require "hashie"
 
+# modules
 require "searchkick/bulk_indexer"
 require "searchkick/index"
 require "searchkick/indexer"
@@ -17,6 +19,7 @@ require "searchkick/record_indexer"
 require "searchkick/results"
 require "searchkick/version"
 
+# integrations
 require "searchkick/railtie" if defined?(Rails)
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
@@ -27,6 +30,7 @@ module Searchkick
   autoload :ProcessQueueJob, "searchkick/process_queue_job"
   autoload :ReindexV2Job,    "searchkick/reindex_v2_job"
 
+  # errors
   class Error < StandardError; end
   class MissingIndexError < Error; end
   class UnsupportedVersionError < Error; end
