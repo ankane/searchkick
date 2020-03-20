@@ -1,0 +1,3 @@
+class Band
+  searchkick
+end

@@ -305,13 +305,22 @@ class MatchTest < Minitest::Test
   # TODO find better place
 
   def test_search_relation
-    skip unless defined?(ActiveRecord)
+    skip if defined?(Mongoid) # for now
 
-    assert_nil Product.current_scope
     _, stderr = capture_io { Product.search("*") }
     assert_equal "", stderr
-    assert Product.where(name: nil).current_scope
-    _, stderr = capture_io { Product.where(name: nil).search("*") }
+    _, stderr = capture_io { Product.all.search("*") }
+    assert_match "WARNING", stderr
+  end
+
+  def test_search_relation_default_scope
+    skip if defined?(Mongoid) # for now
+
+    Band.reindex
+
+    _, stderr = capture_io { Band.search("*") }
+    assert_equal "", stderr
+    _, stderr = capture_io { Band.all.search("*") }
     assert_match "WARNING", stderr
   end
 end

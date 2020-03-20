@@ -66,3 +66,11 @@ class Song
 
   field :name
 end
+
+class Band
+  include Mongoid::Document
+
+  field :name
+
+  default_scope -> { where(name: "Test") }
+end
