@@ -71,15 +71,23 @@ class Minitest::Test
 
   protected
 
-  def store(documents, klass = Product)
-    documents.shuffle.each do |document|
-      klass.create!(document)
+  def store(documents, klass = Product, reindex: true)
+    if reindex
+      documents.shuffle.each do |document|
+        klass.create!(document)
+      end
+      klass.searchkick_index.refresh
+    else
+      Searchkick.callbacks(false) do
+        documents.shuffle.each do |document|
+          klass.create!(document)
+        end
+      end
     end
-    klass.searchkick_index.refresh
   end
 
-  def store_names(names, klass = Product)
-    store names.map { |name| {name: name} }, klass
+  def store_names(names, klass = Product, reindex: true)
+    store names.map { |name| {name: name} }, klass, reindex: reindex
   end
 
   # no order

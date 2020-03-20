@@ -2,23 +2,17 @@ require_relative "test_helper"
 
 class ReindexTest < Minitest::Test
   def test_record_inline
-    Searchkick.callbacks(false) do
-      store_names ["Product A", "Product B"]
-    end
-    assert_search "product", []
+    store_names ["Product A", "Product B"], reindex: false
 
-    product = Product.find_by(name: "Product A")
+    product = Product.find_by!(name: "Product A")
     product.reindex(refresh: true)
     assert_search "product", ["Product A"]
   end
 
   def test_record_async
-    Searchkick.callbacks(false) do
-      store_names ["Product A", "Product B"]
-    end
-    assert_search "product", []
+    store_names ["Product A", "Product B"], reindex: false
 
-    product = Product.find_by(name: "Product A")
+    product = Product.find_by!(name: "Product A")
     product.reindex(mode: :async)
     Product.search_index.refresh
     assert_search "product", ["Product A"]
@@ -30,12 +24,9 @@ class ReindexTest < Minitest::Test
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
-    Searchkick.callbacks(false) do
-      store_names ["Product A", "Product B"]
-    end
-    assert_search "product", []
+    store_names ["Product A", "Product B"], reindex: false
 
-    product = Product.find_by(name: "Product A")
+    product = Product.find_by!(name: "Product A")
     product.reindex(mode: :queue)
     Product.search_index.refresh
     assert_search "product", []
@@ -49,9 +40,7 @@ class ReindexTest < Minitest::Test
     skip if nobrainer? || cequel?
 
     store_names ["Product A"]
-    Searchkick.callbacks(false) do
-      store_names ["Product B", "Product C"]
-    end
+    store_names ["Product B", "Product C"], reindex: false
     Product.where(name: "Product B").reindex(refresh: true)
     assert_search "product", ["Product A", "Product B"]
   end
@@ -77,9 +66,7 @@ class ReindexTest < Minitest::Test
   def test_full_async
     skip unless defined?(ActiveJob)
 
-    Searchkick.callbacks(false) do
-      store_names ["Product A"]
-    end
+    store_names ["Product A"], reindex: false
     reindex = Product.reindex(async: true)
     assert_search "product", [], conversions: false
 
@@ -98,9 +85,7 @@ class ReindexTest < Minitest::Test
   def test_full_async_wait
     skip unless defined?(ActiveJob) && defined?(Redis)
 
-    Searchkick.callbacks(false) do
-      store_names ["Product A"]
-    end
+    store_names ["Product A"], reindex: false
 
     capture_io do
       Product.reindex(async: {wait: true})
