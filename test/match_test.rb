@@ -305,8 +305,6 @@ class MatchTest < Minitest::Test
   # TODO find better place
 
   def test_search_relation
-    skip if defined?(Mongoid) # for now
-
     _, stderr = capture_io { Product.search("*") }
     assert_equal "", stderr
     _, stderr = capture_io { Product.all.search("*") }
@@ -314,8 +312,6 @@ class MatchTest < Minitest::Test
   end
 
   def test_search_relation_default_scope
-    skip if defined?(Mongoid) # for now
-
     Band.reindex
 
     _, stderr = capture_io { Band.search("*") }
