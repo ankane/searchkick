@@ -27,9 +27,6 @@ module Searchkick
         default_analyzer = :searchkick_index
         keyword_mapping = {type: "keyword"}
 
-        index_true_value = true
-        index_false_value = false
-
         keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
 
         settings = {
@@ -356,13 +353,13 @@ module Searchkick
 
         mapping_options[:searchable].delete("_all")
 
-        analyzed_field_options = {type: default_type, index: index_true_value, analyzer: default_analyzer}
+        analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
 
         mapping_options.values.flatten.uniq.each do |field|
           fields = {}
 
           if options.key?(:filterable) && !mapping_options[:filterable].include?(field)
-            fields[field] = {type: default_type, index: index_false_value}
+            fields[field] = {type: default_type, index: false}
           else
             fields[field] = keyword_mapping
           end
@@ -378,7 +375,7 @@ module Searchkick
 
             mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
               if options[:match] == type || f.include?(field)
-                fields[type] = {type: default_type, index: index_true_value, analyzer: "searchkick_#{type}_index"}
+                fields[type] = {type: default_type, index: true, analyzer: "searchkick_#{type}_index"}
               end
             end
           end
@@ -418,12 +415,12 @@ module Searchkick
         }
 
         if options.key?(:filterable)
-          dynamic_fields["{name}"] = {type: default_type, index: index_false_value}
+          dynamic_fields["{name}"] = {type: default_type, index: false}
         end
 
         unless options[:searchable]
           if options[:match] && options[:match] != :word
-            dynamic_fields[options[:match]] = {type: default_type, index: index_true_value, analyzer: "searchkick_#{options[:match]}_index"}
+            dynamic_fields[options[:match]] = {type: default_type, index: true, analyzer: "searchkick_#{options[:match]}_index"}
           end
 
           if word
