@@ -253,6 +253,18 @@ module Searchkick
       }
     end
   end
+
+  # private
+  # methods are forwarded to base class
+  # this check to see if scope exists on that class
+  # it's a bit tricky, but this seems to work
+  def self.relation?(klass)
+    if klass.respond_to?(:current_scope)
+      !klass.current_scope.nil?
+    elsif defined?(Mongoid::Threaded)
+      !Mongoid::Threaded.current_scope(klass).nil?
+    end
+  end
 end
 
 # TODO find better ActiveModel hook

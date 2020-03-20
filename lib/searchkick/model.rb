@@ -42,8 +42,7 @@ module Searchkick
         class << self
           def searchkick_search(term = "*", **options, &block)
             # TODO throw error in next major version
-            relation = respond_to?(:current_scope) ? !current_scope.nil? : !Mongoid::Threaded.current_scope(self).nil?
-            Searchkick.warn("calling search on a relation is deprecated") if relation
+            Searchkick.warn("calling search on a relation is deprecated") if Searchkick.relation?(self)
 
             Searchkick.search(term, model: self, **options, &block)
           end
@@ -58,7 +57,7 @@ module Searchkick
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
           def searchkick_reindex(method_name = nil, **options)
-            # TODO properly check relation like in searchkick_search method
+            # TODO use Searchkick.relation?
             relation = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
               (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
 
