@@ -790,8 +790,9 @@ module Searchkick
 
       aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
       aggs.each do |field, agg_options|
+        agg_options = {} unless agg_options.is_a?(Hash)
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
-        shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where)
+        shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where, :missing)
 
         if agg_options[:ranges]
           payload[:aggs][field] = {
@@ -817,6 +818,19 @@ module Searchkick
               field: agg_options[metric][:field] || field
             }
           }.merge(shared_agg_options)
+        elsif agg_options.key?(:missing)
+          key = "missing_#{field}"
+          payload[:aggs][key] = {
+            missing: {
+              field: field
+            }
+          }.merge(shared_agg_options)
+          payload[:aggs][field] = {
+            terms: {
+              field: agg_options[:field] || field,
+              size: size
+            }.merge(shared_agg_options)
+          }
         else
           payload[:aggs][field] = {
             terms: {

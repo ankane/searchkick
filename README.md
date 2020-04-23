@@ -764,6 +764,12 @@ Order
 Product.search "wingtips", aggs: {color: {order: {"_key" => "asc"}}} # alphabetically
 ```
 
+By default, documents with `null` value are skipped, to include use [missing](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-missing-aggregation.html) option
+
+```ruby
+Product.search "wingtips", aggs: {store_id: true, color: {missing: true}}
+```
+
 [All of these options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-order)
 
 Ranges

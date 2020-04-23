@@ -57,6 +57,7 @@ ActiveRecord::Migration.create_table :products do |t|
   t.integer :orders_count
   t.decimal :found_rate
   t.integer :price
+  t.integer :category_id
   t.string :color
   t.decimal :latitude, precision: 10, scale: 7
   t.decimal :longitude, precision: 10, scale: 7
