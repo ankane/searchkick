@@ -11,6 +11,7 @@ class Product
 
   field :name
   field :store_id, type: Integer
+  field :category_id, type: Integer
   field :in_stock, type: Boolean
   field :backordered, type: Boolean
   field :orders_count, type: Integer
