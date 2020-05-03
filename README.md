@@ -1859,7 +1859,7 @@ RSpec.configure do |config|
   end
 
   config.around(:each, search: true) do |example|
-    Searchkick.callbacks(true) do
+    Searchkick.callbacks(nil) do
       example.run
     end
   end
