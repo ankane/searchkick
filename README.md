@@ -1814,12 +1814,10 @@ For performance, only enable Searchkick callbacks for the tests that need it.
 
 ### Parallel Tests
 
-Rails 6 enables parallel tests by default.
+Rails 6 enables parallel tests by default. Add to your `test/test_helper.rb`:
 
 ```ruby
 class ActiveSupport::TestCase
-  parallelize(workers: :number_of_processors)
-
   parallelize_setup do |worker|
     Searchkick.index_suffix = worker
 
