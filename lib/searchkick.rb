@@ -146,7 +146,7 @@ module Searchkick
     end
   end
 
-  def self.callbacks(value)
+  def self.callbacks(value = nil)
     if block_given?
       previous_value = callbacks_value
       begin
