@@ -1812,6 +1812,46 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 
 For performance, only enable Searchkick callbacks for the tests that need it.
 
+### Parallel Tests
+
+Rails 6 enables parallel tests by default.
+
+```ruby
+class ActiveSupport::TestCase
+  parallelize(workers: :number_of_processors)
+
+  parallelize_setup do |worker|
+    Searchkick.index_suffix = worker
+
+    # reindex models
+    Product.reindex
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+class ProductTest < ActiveSupport::TestCase
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
+
 ### Minitest
 
 Add to your `test/test_helper.rb`:
@@ -1899,14 +1939,6 @@ end
 
 # use it
 FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
-```
-
-### Parallel Tests
-
-Set:
-
-```ruby
-Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"]
 ```
 
 ## Multi-Tenancy
