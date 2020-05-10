@@ -9,7 +9,10 @@ module Searchkick
 
     queue_as { Searchkick.queue_name }
 
-    def perform(klass, id, method_name = nil, routing: nil)
+    def perform(args)
+      args = args.first if args.is_a?(Array)
+      klass, id, method_name, routing = args.with_indifferent_access.values_at(:klass, :id, :method_name, :routing)
+
       model = klass.constantize
       record =
         begin

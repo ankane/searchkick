@@ -10,7 +10,7 @@ class ReindexV2JobTest < Minitest::Test
     product = Searchkick.callbacks(false) { Product.create!(name: "Boom") }
     Product.search_index.refresh
     assert_search "*", []
-    Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s)
+    Searchkick::ReindexV2Job.perform_later(klass: "Product", id: product.id.to_s)
     Product.search_index.refresh
     assert_search "*", ["Boom"]
   end
@@ -20,8 +20,32 @@ class ReindexV2JobTest < Minitest::Test
     Product.reindex
     assert_search "*", ["Boom"]
     Searchkick.callbacks(false) { product.destroy }
-    Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s)
+    Searchkick::ReindexV2Job.perform_later(klass: "Product", id: product.id.to_s)
     Product.search_index.refresh
     assert_search "*", []
+  end
+
+  def test_arguments
+    product = Searchkick.callbacks(false) { Product.create!(name: "Boom") }
+    assert_raises ArgumentError do
+      Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s)
+    end
+    assert_raises ArgumentError do
+      Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s, nil, { routing: nil })
+    end
+
+    Product.search_index.refresh
+    assert_search "*", []
+    Searchkick::ReindexV2Job.perform_later([{ "klass" => "Product", "id" => product.id.to_s, "method_name" => nil, "routing" => nil}])
+    Product.search_index.refresh
+    assert_search "*", ["Boom"]
+
+    Searchkick::ReindexV2Job.perform_later(klass: "Product", id: product.id.to_s, method_name: nil, routing: nil)
+    Product.search_index.refresh
+    assert_search "*", ["Boom"]
+
+    Searchkick::ReindexV2Job.new.perform(klass: "Product", id: product.id.to_s)
+    Product.search_index.refresh
+    assert_search "*", ["Boom"]
   end
 end
