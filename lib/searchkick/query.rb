@@ -574,7 +574,8 @@ module Searchkick
 
     def build_query(query, filters, should, must_not, custom_filters, multiply_filters)
       if filters.any? || must_not.any? || should.any?
-        bool = {must: query}
+        bool = {}
+        bool[:must] = query if query
         bool[:filter] = filters if filters.any?      # where
         bool[:must_not] = must_not if must_not.any?  # exclude
         bool[:should] = should if should.any?        # conversions

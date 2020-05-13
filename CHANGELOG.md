@@ -1,3 +1,7 @@
+## 4.3.1 (unreleased)
+
+- Fixed error with `exclude` in certain cases for Elasticsearch 7.7
+
 ## 4.3.0 (2020-02-19)
 
 - Fixed `like` queries with `"` character
