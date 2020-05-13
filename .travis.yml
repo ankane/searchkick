@@ -26,7 +26,7 @@ jobs:
       env: ELASTICSEARCH_VERSION=7.0.0
     - rvm: 2.5
       gemfile: test/gemfiles/activerecord51.gemfile
-      env: ELASTICSEARCH_VERSION=6.8.8
+      env: ELASTICSEARCH_VERSION=6.8.9
     - rvm: 2.4
       gemfile: test/gemfiles/activerecord50.gemfile
       env: ELASTICSEARCH_VERSION=6.0.0
