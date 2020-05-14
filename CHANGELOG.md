@@ -1,4 +1,4 @@
-## 4.3.1 (unreleased)
+## 4.3.1 (2020-05-13)
 
 - Fixed error with `exclude` in certain cases for Elasticsearch 7.7
 
