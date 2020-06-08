@@ -55,6 +55,20 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A", "Product B"]
   end
 
+  def test_relation_should_index
+    skip if nobrainer? || cequel?
+
+    skip "TODO make pass in Searchkick 5"
+
+    store_names ["Product A", "Product B"]
+    Searchkick.callbacks(false) do
+      Product.find_by(name: "Product B").update!(name: "DO NOT INDEX")
+    end
+    Product.where(name: "DO NOT INDEX").reindex
+    Product.search_index.refresh
+    assert_search "product", ["Product A"]
+  end
+
   def test_relation_async
     skip "Not available yet"
   end
