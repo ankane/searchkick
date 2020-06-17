@@ -96,6 +96,17 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_full_async_should_index
+    skip unless defined?(ActiveJob)
+
+    store_names ["Product A", "Product B", "DO NOT INDEX"], reindex: false
+    reindex = Product.reindex(async: true)
+
+    index = Searchkick::Index.new(reindex[:index_name])
+    index.refresh
+    assert_equal 2, index.total_docs
+  end
+
   def test_full_async_wait
     skip unless defined?(ActiveJob) && defined?(Redis)
 
