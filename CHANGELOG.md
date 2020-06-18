@@ -59,6 +59,7 @@ Breaking changes
 
 - Removed support for Elasticsearch 5
 - Removed support for multi-word synonyms (they no longer work with shingles)
+- Removed support for ActiveRecord < 5
 
 ## 3.1.3 (2019-04-11)
 
