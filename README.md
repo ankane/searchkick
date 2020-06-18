@@ -36,11 +36,11 @@ Plus:
 - [Intelligent Search](#intelligent-search)
 - [Instant Search / Autocomplete](#instant-search--autocomplete)
 - [Aggregations](#aggregations)
+- [Testing](#testing)
 - [Deployment](#deployment)
 - [Performance](#performance)
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
-- [Testing](#testing)
 
 ## Getting Started
 
@@ -1044,6 +1044,137 @@ Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 
 See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/31780ddac7a89eab1e0552a32b403f2040a37931/lib/searchkick/index_options.rb#L32).
 
+## Testing
+
+For performance, only enable Searchkick callbacks for the tests that need it.
+
+### Parallel Tests
+
+Rails 6 enables parallel tests by default. Add to your `test/test_helper.rb`:
+
+```ruby
+class ActiveSupport::TestCase
+  parallelize_setup do |worker|
+    Searchkick.index_suffix = worker
+
+    # reindex models
+    Product.reindex
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+end
+```
+
+And use:
+
+```ruby
+class ProductTest < ActiveSupport::TestCase
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
+
+### Minitest
+
+Add to your `test/test_helper.rb`:
+
+```ruby
+# reindex models
+Product.reindex
+
+# and disable callbacks
+Searchkick.disable_callbacks
+```
+
+And use:
+
+```ruby
+class ProductTest < Minitest::Test
+  def setup
+    Searchkick.enable_callbacks
+  end
+
+  def teardown
+    Searchkick.disable_callbacks
+  end
+
+  def test_search
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
+
+### RSpec
+
+Add to your `spec/spec_helper.rb`:
+
+```ruby
+RSpec.configure do |config|
+  config.before(:suite) do
+    # reindex models
+    Product.reindex
+
+    # and disable callbacks
+    Searchkick.disable_callbacks
+  end
+
+  config.around(:each, search: true) do |example|
+    Searchkick.callbacks(nil) do
+      example.run
+    end
+  end
+end
+```
+
+And use:
+
+```ruby
+describe Product, search: true do
+  it "searches" do
+    Product.create!(name: "Apple")
+    Product.search_index.refresh
+    assert_equal ["Apple"], Product.search("apple").map(&:name)
+  end
+end
+```
+
+### Factory Bot
+
+Use a trait and an after `create` hook for each indexed model:
+
+```ruby
+FactoryBot.define do
+  factory :product do
+    # ...
+
+    # Note: This should be the last trait in the list so `reindex` is called
+    # after all the other callbacks complete.
+    trait :reindex do
+      after(:create) do |product, _evaluator|
+        product.reindex(refresh: true)
+      end
+    end
+  end
+end
+
+# use it
+FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
@@ -1512,6 +1643,10 @@ Boost specific models with:
 indices_boost: {Category => 2, Product => 1}
 ```
 
+## Multi-Tenancy
+
+Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
+
 ## Scroll API
 
 Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
@@ -1825,141 +1960,6 @@ Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 ```ruby
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
-
-## Testing
-
-For performance, only enable Searchkick callbacks for the tests that need it.
-
-### Parallel Tests
-
-Rails 6 enables parallel tests by default. Add to your `test/test_helper.rb`:
-
-```ruby
-class ActiveSupport::TestCase
-  parallelize_setup do |worker|
-    Searchkick.index_suffix = worker
-
-    # reindex models
-    Product.reindex
-
-    # and disable callbacks
-    Searchkick.disable_callbacks
-  end
-end
-```
-
-And use:
-
-```ruby
-class ProductTest < ActiveSupport::TestCase
-  def setup
-    Searchkick.enable_callbacks
-  end
-
-  def teardown
-    Searchkick.disable_callbacks
-  end
-
-  def test_search
-    Product.create!(name: "Apple")
-    Product.search_index.refresh
-    assert_equal ["Apple"], Product.search("apple").map(&:name)
-  end
-end
-```
-
-### Minitest
-
-Add to your `test/test_helper.rb`:
-
-```ruby
-# reindex models
-Product.reindex
-
-# and disable callbacks
-Searchkick.disable_callbacks
-```
-
-And use:
-
-```ruby
-class ProductTest < Minitest::Test
-  def setup
-    Searchkick.enable_callbacks
-  end
-
-  def teardown
-    Searchkick.disable_callbacks
-  end
-
-  def test_search
-    Product.create!(name: "Apple")
-    Product.search_index.refresh
-    assert_equal ["Apple"], Product.search("apple").map(&:name)
-  end
-end
-```
-
-### RSpec
-
-Add to your `spec/spec_helper.rb`:
-
-```ruby
-RSpec.configure do |config|
-  config.before(:suite) do
-    # reindex models
-    Product.reindex
-
-    # and disable callbacks
-    Searchkick.disable_callbacks
-  end
-
-  config.around(:each, search: true) do |example|
-    Searchkick.callbacks(nil) do
-      example.run
-    end
-  end
-end
-```
-
-And use:
-
-```ruby
-describe Product, search: true do
-  it "searches" do
-    Product.create!(name: "Apple")
-    Product.search_index.refresh
-    assert_equal ["Apple"], Product.search("apple").map(&:name)
-  end
-end
-```
-
-### Factory Bot
-
-Use a trait and an after `create` hook for each indexed model:
-
-```ruby
-FactoryBot.define do
-  factory :product do
-    # ...
-
-    # Note: This should be the last trait in the list so `reindex` is called
-    # after all the other callbacks complete.
-    trait :reindex do
-      after(:create) do |product, _evaluator|
-        product.reindex(refresh: true)
-      end
-    end
-  end
-end
-
-# use it
-FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
-```
-
-## Multi-Tenancy
-
-Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
 ## Upgrading
 
