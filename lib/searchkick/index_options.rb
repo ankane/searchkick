@@ -319,7 +319,8 @@ module Searchkick
           .map { |type| [type, (options[type] || []).map(&:to_s)] }
       ]
 
-      word = options[:word] != false && (!options[:match] || options[:match] == :word)
+      # TODO use options.key?(:word)
+      word = options[:word] != false && (!options[:match] || options[:match] == :word) && (!options[:search_as_you_type] || options[:word])
 
       mapping_options[:searchable].delete("_all")
 
@@ -341,6 +342,10 @@ module Searchkick
             if mapping_options[:highlight].include?(field)
               fields[:analyzed][:term_vector] = "with_positions_offsets"
             end
+          end
+
+          if options[:search_as_you_type]
+            fields[:search_as_you_type] = {type: "search_as_you_type"}
           end
 
           mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
@@ -395,6 +400,10 @@ module Searchkick
 
         if word
           dynamic_fields[:analyzed] = analyzed_field_options
+        end
+
+        if options[:search_as_you_type]
+          dynamic_fields[:search_as_you_type] = {type: "search_as_you_type"}
         end
       end
 

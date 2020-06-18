@@ -338,6 +338,8 @@ module Searchkick
                   end
 
                 :match_phrase
+              elsif field.end_with?(".search_as_you_type")
+                :bool_prefix
               else
                 :match
               end
@@ -363,6 +365,10 @@ module Searchkick
               queries_to_add << {match: {f => shared_options.merge(analyzer: "keyword")}}
               exclude_field = f
               exclude_analyzer = "keyword"
+            elsif field.end_with?(".search_as_you_type")
+              queries_to_add << {
+                multi_match: shared_options.merge(type: "bool_prefix", fields: [field, "#{field}._2gram", "#{field}._3gram"])
+              }
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
@@ -550,7 +556,7 @@ module Searchkick
       boost_fields = {}
       fields = options[:fields] || searchkick_options[:default_fields] || searchkick_options[:searchable]
       all = searchkick_options.key?(:_all) ? searchkick_options[:_all] : false
-      default_match = options[:match] || searchkick_options[:match] || :word
+      default_match = options[:match] || searchkick_options[:match] || (searchkick_options[:search_as_you_type] && :search_as_you_type) || :word
       fields =
         if fields
           fields.map do |value|
