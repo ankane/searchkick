@@ -23,138 +23,10 @@ module Searchkick
         mappings = custom_mapping
       else
         settings = generate_settings
-
-        mapping = {}
-
-        keyword_mapping = {type: "keyword"}
-        keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
-
-        # conversions
-        Array(options[:conversions]).each do |conversions_field|
-          mapping[conversions_field] = {
-            type: "nested",
-            properties: {
-              query: {type: default_type, analyzer: "searchkick_keyword"},
-              count: {type: "integer"}
-            }
-          }
-        end
-
-        mapping_options = Hash[
-          [:suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
-            .map { |type| [type, (options[type] || []).map(&:to_s)] }
-        ]
-
-        word = options[:word] != false && (!options[:match] || options[:match] == :word)
-
-        mapping_options[:searchable].delete("_all")
-
-        analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
-
-        mapping_options.values.flatten.uniq.each do |field|
-          fields = {}
-
-          if options.key?(:filterable) && !mapping_options[:filterable].include?(field)
-            fields[field] = {type: default_type, index: false}
-          else
-            fields[field] = keyword_mapping
-          end
-
-          if !options[:searchable] || mapping_options[:searchable].include?(field)
-            if word
-              fields[:analyzed] = analyzed_field_options
-
-              if mapping_options[:highlight].include?(field)
-                fields[:analyzed][:term_vector] = "with_positions_offsets"
-              end
-            end
-
-            mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
-              if options[:match] == type || f.include?(field)
-                fields[type] = {type: default_type, index: true, analyzer: "searchkick_#{type}_index"}
-              end
-            end
-          end
-
-          mapping[field] = fields[field].merge(fields: fields.except(field))
-        end
-
-        (options[:locations] || []).map(&:to_s).each do |field|
-          mapping[field] = {
-            type: "geo_point"
-          }
-        end
-
-        options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
-        (options[:geo_shape] || {}).each do |field, shape_options|
-          mapping[field] = shape_options.merge(type: "geo_shape")
-        end
-
-        if options[:inheritance]
-          mapping[:type] = keyword_mapping
-        end
-
-        routing = {}
-        if options[:routing]
-          routing = {required: true}
-          unless options[:routing] == true
-            routing[:path] = options[:routing].to_s
-          end
-        end
-
-        dynamic_fields = {
-          # analyzed field must be the default field for include_in_all
-          # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-          # however, we can include the not_analyzed field in _all
-          # and the _all index analyzer will take care of it
-          "{name}" => keyword_mapping
-        }
-
-        if options.key?(:filterable)
-          dynamic_fields["{name}"] = {type: default_type, index: false}
-        end
-
-        unless options[:searchable]
-          if options[:match] && options[:match] != :word
-            dynamic_fields[options[:match]] = {type: default_type, index: true, analyzer: "searchkick_#{options[:match]}_index"}
-          end
-
-          if word
-            dynamic_fields[:analyzed] = analyzed_field_options
-          end
-        end
-
-        # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
-        multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
-
-        mappings = {
-          properties: mapping,
-          _routing: routing,
-          # https://gist.github.com/kimchy/2898285
-          dynamic_templates: [
-            {
-              string_template: {
-                match: "*",
-                match_mapping_type: "string",
-                mapping: multi_field
-              }
-            }
-          ]
-        }
-
-        if below70
-          mappings = {index_type => mappings}
-        end
-
-        mappings = mappings.symbolize_keys.deep_merge(custom_mapping.symbolize_keys)
+        mappings = generate_mappings.symbolize_keys.deep_merge(custom_mapping.symbolize_keys)
       end
 
-      if options[:deep_paging]
-        if !settings.dig(:index, :max_result_window) && !settings[:"index.max_result_window"]
-          settings[:index] ||= {}
-          settings[:index][:max_result_window] = 1_000_000_000
-        end
-      end
+      set_deep_paging(settings) if options[:deep_paging]
 
       {
         settings: settings,
@@ -433,6 +305,132 @@ module Searchkick
       settings
     end
 
+    def generate_mappings
+      mapping = {}
+
+      keyword_mapping = {type: "keyword"}
+      keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
+
+      # conversions
+      Array(options[:conversions]).each do |conversions_field|
+        mapping[conversions_field] = {
+          type: "nested",
+          properties: {
+            query: {type: default_type, analyzer: "searchkick_keyword"},
+            count: {type: "integer"}
+          }
+        }
+      end
+
+      mapping_options = Hash[
+        [:suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
+          .map { |type| [type, (options[type] || []).map(&:to_s)] }
+      ]
+
+      word = options[:word] != false && (!options[:match] || options[:match] == :word)
+
+      mapping_options[:searchable].delete("_all")
+
+      analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
+
+      mapping_options.values.flatten.uniq.each do |field|
+        fields = {}
+
+        if options.key?(:filterable) && !mapping_options[:filterable].include?(field)
+          fields[field] = {type: default_type, index: false}
+        else
+          fields[field] = keyword_mapping
+        end
+
+        if !options[:searchable] || mapping_options[:searchable].include?(field)
+          if word
+            fields[:analyzed] = analyzed_field_options
+
+            if mapping_options[:highlight].include?(field)
+              fields[:analyzed][:term_vector] = "with_positions_offsets"
+            end
+          end
+
+          mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
+            if options[:match] == type || f.include?(field)
+              fields[type] = {type: default_type, index: true, analyzer: "searchkick_#{type}_index"}
+            end
+          end
+        end
+
+        mapping[field] = fields[field].merge(fields: fields.except(field))
+      end
+
+      (options[:locations] || []).map(&:to_s).each do |field|
+        mapping[field] = {
+          type: "geo_point"
+        }
+      end
+
+      options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
+      (options[:geo_shape] || {}).each do |field, shape_options|
+        mapping[field] = shape_options.merge(type: "geo_shape")
+      end
+
+      if options[:inheritance]
+        mapping[:type] = keyword_mapping
+      end
+
+      routing = {}
+      if options[:routing]
+        routing = {required: true}
+        unless options[:routing] == true
+          routing[:path] = options[:routing].to_s
+        end
+      end
+
+      dynamic_fields = {
+        # analyzed field must be the default field for include_in_all
+        # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+        # however, we can include the not_analyzed field in _all
+        # and the _all index analyzer will take care of it
+        "{name}" => keyword_mapping
+      }
+
+      if options.key?(:filterable)
+        dynamic_fields["{name}"] = {type: default_type, index: false}
+      end
+
+      unless options[:searchable]
+        if options[:match] && options[:match] != :word
+          dynamic_fields[options[:match]] = {type: default_type, index: true, analyzer: "searchkick_#{options[:match]}_index"}
+        end
+
+        if word
+          dynamic_fields[:analyzed] = analyzed_field_options
+        end
+      end
+
+      # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+      multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
+
+      mappings = {
+        properties: mapping,
+        _routing: routing,
+        # https://gist.github.com/kimchy/2898285
+        dynamic_templates: [
+          {
+            string_template: {
+              match: "*",
+              match_mapping_type: "string",
+              mapping: multi_field
+            }
+          }
+        ]
+      }
+
+      if below70
+        mappings = {index_type => mappings}
+      end
+
+      mappings
+    end
+
     def add_synonyms(settings)
       synonyms = options[:synonyms] || []
       synonyms = synonyms.call if synonyms.respond_to?(:call)
@@ -496,6 +494,13 @@ module Searchkick
 
       %w(word_start word_middle word_end).each do |type|
         settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
+      end
+    end
+
+    def set_deep_paging(settings)
+      if !settings.dig(:index, :max_result_window) && !settings[:"index.max_result_window"]
+        settings[:index] ||= {}
+        settings[:index][:max_result_window] = 1_000_000_000
       end
     end
 
