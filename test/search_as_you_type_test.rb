@@ -25,7 +25,7 @@ class SearchAsYouTypeTest < Minitest::Test
     assert_search "da", ["Dark Grey"], exclude: "blue"
   end
 
-  def test_shingles
+  def test_ranking
     expected = ["one two three", "one two other three", "one other two other three"]
     store_names expected
     assert_order "one two three", expected
