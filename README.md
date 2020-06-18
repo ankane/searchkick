@@ -590,11 +590,7 @@ end
 
 ## Intelligent Search
 
-### Analytics
-
-The best starting point to improve your search **by far** is to track searches and conversions.
-
-[Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
+The best starting point to improve your search **by far** is to track searches and conversions. [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
 
 ```ruby
 Product.search "apple", track: {user_id: current_user.id}
@@ -607,15 +603,9 @@ Focus on:
 - top searches with low conversions
 - top searches with no results
 
-### Conversions
+Searchkick can then use the conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
-Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
-
-The first step is to define your conversion metric and start tracking conversions. The database works well for low volume, but feel free to use Redis or another datastore.
-
-Searchkick automatically treats `apple` and `APPLE` the same.
-
-Next, add conversions to the index.
+Add conversion data with:
 
 ```ruby
 class Product < ApplicationRecord
@@ -638,6 +628,8 @@ Reindex and set up a cron job to add new conversions daily.
 ```ruby
 rake searchkick:reindex CLASS=Product
 ```
+
+This can make a huge difference on the quality of your search.
 
 **Note:** For a more performant (but more advanced) approach, check out [performant conversions](#performant-conversions).
 
