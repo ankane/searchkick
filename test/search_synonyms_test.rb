@@ -70,6 +70,29 @@ class SearchSynonymsTest < Minitest::Test
     end
   end
 
+  def test_reload_synonyms_better
+    skip unless ENV["ES_PATH"] && !Searchkick.server_below?("7.3.0")
+
+    write_synonyms("test,hello")
+
+    with_options(Speaker, search_synonyms: "synonyms.txt") do
+      store_names ["Hello", "Goodbye"]
+      assert_search "test", ["Hello"]
+
+      write_synonyms("test,goodbye")
+      assert_search "test", ["Hello"]
+
+      Speaker.search_index.reload_synonyms
+      assert_search "test", ["Goodbye"]
+    end
+  ensure
+    Speaker.reindex
+  end
+
+  def write_synonyms(contents)
+    File.write("#{ENV.fetch("ES_PATH")}/config/synonyms.txt", contents)
+  end
+
   def default_model
     Speaker
   end
