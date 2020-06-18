@@ -59,7 +59,7 @@ Breaking changes
 
 - Removed support for Elasticsearch 5
 - Removed support for multi-word synonyms (they no longer work with shingles)
-- Removed support for ActiveRecord < 5
+- Removed support for Active Record < 5
 
 ## 3.1.3 (2019-04-11)
 
@@ -126,7 +126,7 @@ Breaking changes
 Breaking changes
 
 - Removed support for Elasticsearch 2
-- Removed support for ActiveRecord < 4.2 and Mongoid < 5
+- Removed support for Active Record < 4.2 and Mongoid < 5
 - Types are no longer used
 - The `_all` field is disabled by default in Elasticsearch 5
 - Conversions are not stemmed by default
@@ -431,7 +431,7 @@ Breaking changes
 
 ## 0.8.3 (2014-09-20)
 
-- Added support for ActiveJob
+- Added support for Active Job
 - Added `timeout` setting
 - Fixed import with no records
 
@@ -538,7 +538,7 @@ Breaking changes
 
 ## 0.5.2 (2014-02-12)
 
-- Use after_commit hook for ActiveRecord to prevent data inconsistencies
+- Use after_commit hook for Active Record to prevent data inconsistencies
 
 ## 0.5.1 (2014-02-12)
 
