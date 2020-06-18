@@ -64,6 +64,7 @@ class MatchTest < Minitest::Test
   def test_stemming
     store_names ["Whole Milk", "Fat Free Milk", "Milk"]
     assert_search "milks", ["Milk", "Whole Milk", "Fat Free Milk"]
+    assert_search "milks", ["Milk", "Whole Milk", "Fat Free Milk"], misspellings: false
   end
 
   def test_stemming_tokens
