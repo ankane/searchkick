@@ -359,7 +359,7 @@ search_synonyms: "synonyms.txt"
 Add [elasticsearch-xpack](https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-xpack) to your Gemfile:
 
 ```ruby
-gem 'elasticsearch-xpack', '>= 7.8.0.pre'
+gem 'elasticsearch-xpack', '>= 7.8.0'
 ```
 
 And use:
