@@ -108,7 +108,12 @@ module Searchkick
               type: "custom",
               tokenizer: "standard",
               filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
-            }
+            },
+            searchkick_search_as_you_type: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding"]
+            },
           },
           filter: {
             searchkick_index_shingle: {
@@ -325,6 +330,7 @@ module Searchkick
       mapping_options[:searchable].delete("_all")
 
       analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
+      search_as_you_type_options = {type: "search_as_you_type", analyzer: "searchkick_search_as_you_type"}
 
       mapping_options.values.flatten.uniq.each do |field|
         fields = {}
@@ -345,7 +351,7 @@ module Searchkick
           end
 
           if options[:search_as_you_type]
-            fields[:search_as_you_type] = {type: "search_as_you_type"}
+            fields[:search_as_you_type] = search_as_you_type_options
           end
 
           mapping_options.except(:highlight, :searchable, :filterable, :word).each do |type, f|
@@ -403,7 +409,7 @@ module Searchkick
         end
 
         if options[:search_as_you_type]
-          dynamic_fields[:search_as_you_type] = {type: "search_as_you_type"}
+          dynamic_fields[:search_as_you_type] = search_as_you_type_options
         end
       end
 
