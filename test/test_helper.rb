@@ -141,4 +141,8 @@ class Minitest::Test
   def default_model
     Product
   end
+
+  def ci?
+    ENV["CI"]
+  end
 end

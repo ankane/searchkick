@@ -2,12 +2,14 @@ require_relative "test_helper"
 
 class LanguageTest < Minitest::Test
   def setup
-    skip unless ENV["TEST_LANGUAGE"]
+    skip "Requires plugin" unless ci? || ENV["TEST_LANGUAGE"]
 
     Song.destroy_all
   end
 
   def test_chinese
+    skip if ci?
+
     # requires https://github.com/medcl/elasticsearch-analysis-ik
     with_options(Song, language: "chinese") do
       store_names ["中华人民共和国国歌"], Song
@@ -38,6 +40,8 @@ class LanguageTest < Minitest::Test
   end
 
   def test_korean
+    skip if ci?
+
     # requires https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext
     with_options(Song, language: "korean") do
       store_names ["한국어를 처리하는 예시입니닼ㅋㅋ"], Song
@@ -48,6 +52,8 @@ class LanguageTest < Minitest::Test
   end
 
   def test_korean2
+    skip if Searchkick.server_below?("6.4.0")
+
     # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-nori.html
     with_options(Song, language: "korean2") do
       store_names ["한국어를 처리하는 예시입니닼ㅋㅋ"], Song
@@ -74,6 +80,8 @@ class LanguageTest < Minitest::Test
   end
 
   def test_vietnamese
+    skip if ci?
+
     # requires https://github.com/duydo/elasticsearch-analysis-vietnamese
     with_options(Song, language: "vietnamese") do
       store_names ["công nghệ thông tin Việt Nam"], Song
