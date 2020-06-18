@@ -1,3 +1,7 @@
+## 4.3.2 (unreleased)
+
+- Fixed another deprecation warning in Ruby 2.7
+
 ## 4.3.1 (2020-05-13)
 
 - Fixed error with `exclude` in certain cases for Elasticsearch 7.7
