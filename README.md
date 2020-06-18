@@ -333,7 +333,7 @@ Call `Product.reindex` after changing synonyms. Synonyms are applied at search t
 For directional synonyms, use:
 
 ```ruby
-synonyms: ["lightbulb => halogenlamp"]
+search_synonyms: ["lightbulb => halogenlamp"]
 ```
 
 ### Dynamic Synonyms
