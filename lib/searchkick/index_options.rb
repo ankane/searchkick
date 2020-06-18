@@ -154,107 +154,7 @@ module Searchkick
       }
 
       stem = options[:stem]
-
-      case language
-      when "chinese"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "ik_smart"
-          },
-          searchkick_search: {
-            type: "ik_smart"
-          },
-          searchkick_search2: {
-            type: "ik_max_word"
-          }
-        )
-
-        stem = false
-      when "chinese2", "smartcn"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "smartcn"
-          },
-          searchkick_search: {
-            type: "smartcn"
-          },
-          searchkick_search2: {
-            type: "smartcn"
-          }
-        )
-
-        stem = false
-      when "japanese"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "kuromoji"
-          },
-          searchkick_search: {
-            type: "kuromoji"
-          },
-          searchkick_search2: {
-            type: "kuromoji"
-          }
-        )
-
-        stem = false
-      when "korean"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "openkoreantext-analyzer"
-          },
-          searchkick_search: {
-            type: "openkoreantext-analyzer"
-          },
-          searchkick_search2: {
-            type: "openkoreantext-analyzer"
-          }
-        )
-
-        stem = false
-      when "korean2"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "nori"
-          },
-          searchkick_search: {
-            type: "nori"
-          },
-          searchkick_search2: {
-            type: "nori"
-          }
-        )
-
-        stem = false
-      when "vietnamese"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "vi_analyzer"
-          },
-          searchkick_search: {
-            type: "vi_analyzer"
-          },
-          searchkick_search2: {
-            type: "vi_analyzer"
-          }
-        )
-
-        stem = false
-      when "polish", "ukrainian"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: language
-          },
-          searchkick_search: {
-            type: language
-          },
-          searchkick_search2: {
-            type: language
-          }
-        )
-
-        stem = false
-      end
+      stem = false if update_language(settings)
 
       if Searchkick.env == "test"
         settings[:number_of_shards] = 1
@@ -298,6 +198,97 @@ module Searchkick
       end
 
       settings
+    end
+
+    def update_language(settings)
+      case language
+      when "chinese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "ik_smart"
+          },
+          searchkick_search: {
+            type: "ik_smart"
+          },
+          searchkick_search2: {
+            type: "ik_max_word"
+          }
+        )
+      when "chinese2", "smartcn"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "smartcn"
+          },
+          searchkick_search: {
+            type: "smartcn"
+          },
+          searchkick_search2: {
+            type: "smartcn"
+          }
+        )
+      when "japanese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "kuromoji"
+          },
+          searchkick_search: {
+            type: "kuromoji"
+          },
+          searchkick_search2: {
+            type: "kuromoji"
+          }
+        )
+      when "korean"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "openkoreantext-analyzer"
+          },
+          searchkick_search: {
+            type: "openkoreantext-analyzer"
+          },
+          searchkick_search2: {
+            type: "openkoreantext-analyzer"
+          }
+        )
+      when "korean2"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "nori"
+          },
+          searchkick_search: {
+            type: "nori"
+          },
+          searchkick_search2: {
+            type: "nori"
+          }
+        )
+      when "vietnamese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "vi_analyzer"
+          },
+          searchkick_search: {
+            type: "vi_analyzer"
+          },
+          searchkick_search2: {
+            type: "vi_analyzer"
+          }
+        )
+      when "polish", "ukrainian"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: language
+          },
+          searchkick_search: {
+            type: language
+          },
+          searchkick_search2: {
+            type: language
+          }
+        )
+      else
+        false # not updated
+      end
     end
 
     def generate_mappings
