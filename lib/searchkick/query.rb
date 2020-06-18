@@ -344,7 +344,7 @@ module Searchkick
                 :match
               end
 
-            shared_options[:operator] = operator if match_type == :match
+            shared_options[:operator] = operator if match_type == :match || match_type == :bool_prefix
 
             exclude_analyzer = nil
             exclude_field = field
