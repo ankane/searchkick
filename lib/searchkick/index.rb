@@ -2,14 +2,16 @@ require "searchkick/index_options"
 
 module Searchkick
   class Index
-    include IndexOptions
-
     attr_reader :name, :options
 
     def initialize(name, options = {})
       @name = name
       @options = options
       @klass_document_type = {} # cache
+    end
+
+    def index_options
+      IndexOptions.new(self).index_options
     end
 
     def create(body = {})

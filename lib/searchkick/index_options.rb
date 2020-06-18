@@ -1,14 +1,12 @@
 module Searchkick
-  module IndexOptions
+  class IndexOptions
+    attr_reader :options
+
+    def initialize(index)
+      @options = index.options
+    end
+
     def index_options
-      options = @options
-      language = options[:language]
-      language = language.call if language.respond_to?(:call)
-
-      below62 = Searchkick.server_below?("6.2.0")
-      below70 = Searchkick.server_below?("7.0.0")
-      below73 = Searchkick.server_below?("7.3.0")
-
       if below70
         index_type = options[:_type]
         index_type = index_type.call if index_type.respond_to?(:call)
@@ -24,10 +22,10 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = custom_mapping
       else
-        default_type = "text"
-        default_analyzer = :searchkick_index
-        keyword_mapping = {type: "keyword"}
+        language = options[:language]
+        language = language.call if language.respond_to?(:call)
 
+        keyword_mapping = {type: "keyword"}
         keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
 
         settings = {
@@ -284,68 +282,9 @@ module Searchkick
 
         settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
-        # synonyms
-        synonyms = options[:synonyms] || []
-        synonyms = synonyms.call if synonyms.respond_to?(:call)
-        if synonyms.any?
-          settings[:analysis][:filter][:searchkick_synonym] = {
-            type: "synonym",
-            # only remove a single space from synonyms so three-word synonyms will fail noisily instead of silently
-            synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.map { |s2| s2.sub(/\s+/, "") }.join(",") : s }.map(&:downcase)
-          }
-          # choosing a place for the synonym filter when stemming is not easy
-          # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
-          # TODO use a snowball stemmer on synonyms when creating the token filter
-
-          # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
-          # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
-          # - Only apply the synonym expansion at index time
-          # - Don't have the synonym filter applied search
-          # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(2, "searchkick_synonym")
-
-          %w(word_start word_middle word_end).each do |type|
-            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
-          end
-        end
-
-        search_synonyms = options[:search_synonyms] || []
-        search_synonyms = search_synonyms.call if search_synonyms.respond_to?(:call)
-        if search_synonyms.is_a?(String) || search_synonyms.any?
-          if search_synonyms.is_a?(String)
-            synonym_graph = {
-              type: "synonym_graph",
-              synonyms_path: search_synonyms
-            }
-            synonym_graph[:updateable] = true unless below73
-          else
-            synonym_graph = {
-              type: "synonym_graph",
-              # TODO confirm this is correct
-              synonyms: search_synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }.map(&:downcase)
-            }
-          end
-          settings[:analysis][:filter][:searchkick_synonym_graph] = synonym_graph
-
-          [:searchkick_search2, :searchkick_word_search].each do |analyzer|
-            settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")
-          end
-        end
-
-        if options[:wordnet]
-          settings[:analysis][:filter][:searchkick_wordnet] = {
-            type: "synonym",
-            format: "wordnet",
-            synonyms_path: Searchkick.wordnet_path
-          }
-
-          settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_wordnet")
-          settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_wordnet"
-
-          %w(word_start word_middle word_end).each do |type|
-            settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
-          end
-        end
+        add_synonyms(settings)
+        add_search_synonyms(settings)
+        add_wordnet(settings) if options[:wordnet]
 
         if options[:special_characters] == false
           settings[:analysis][:analyzer].each_value do |analyzer_settings|
@@ -486,6 +425,92 @@ module Searchkick
         settings: settings,
         mappings: mappings
       }
+    end
+
+    def add_synonyms(settings)
+      synonyms = options[:synonyms] || []
+      synonyms = synonyms.call if synonyms.respond_to?(:call)
+      if synonyms.any?
+        settings[:analysis][:filter][:searchkick_synonym] = {
+          type: "synonym",
+          # only remove a single space from synonyms so three-word synonyms will fail noisily instead of silently
+          synonyms: synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.map { |s2| s2.sub(/\s+/, "") }.join(",") : s }.map(&:downcase)
+        }
+        # choosing a place for the synonym filter when stemming is not easy
+        # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
+        # TODO use a snowball stemmer on synonyms when creating the token filter
+
+        # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
+        # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
+        # - Only apply the synonym expansion at index time
+        # - Don't have the synonym filter applied search
+        # - Use directional synonyms where appropriate. You want to make sure that you're not injecting terms that are too general.
+        settings[:analysis][:analyzer][default_analyzer][:filter].insert(2, "searchkick_synonym")
+
+        %w(word_start word_middle word_end).each do |type|
+          settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
+        end
+      end
+    end
+
+    def add_search_synonyms(settings)
+      search_synonyms = options[:search_synonyms] || []
+      search_synonyms = search_synonyms.call if search_synonyms.respond_to?(:call)
+      if search_synonyms.is_a?(String) || search_synonyms.any?
+        if search_synonyms.is_a?(String)
+          synonym_graph = {
+            type: "synonym_graph",
+            synonyms_path: search_synonyms
+          }
+          synonym_graph[:updateable] = true unless below73
+        else
+          synonym_graph = {
+            type: "synonym_graph",
+            # TODO confirm this is correct
+            synonyms: search_synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }.map(&:downcase)
+          }
+        end
+        settings[:analysis][:filter][:searchkick_synonym_graph] = synonym_graph
+
+        [:searchkick_search2, :searchkick_word_search].each do |analyzer|
+          settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")
+        end
+      end
+    end
+
+    def add_wordnet(settings)
+      settings[:analysis][:filter][:searchkick_wordnet] = {
+        type: "synonym",
+        format: "wordnet",
+        synonyms_path: Searchkick.wordnet_path
+      }
+
+      settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_wordnet")
+      settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_wordnet"
+
+      %w(word_start word_middle word_end).each do |type|
+        settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
+      end
+    end
+
+    def default_type
+      "text"
+    end
+
+    def default_analyzer
+      :searchkick_index
+    end
+
+    def below62
+      Searchkick.server_below?("6.2.0")
+    end
+
+    def below70
+      Searchkick.server_below?("7.0.0")
+    end
+
+    def below73
+      Searchkick.server_below?("7.3.0")
     end
   end
 end
