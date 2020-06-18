@@ -153,15 +153,8 @@ module Searchkick
         }
       }
 
-      stem = options[:stem]
-      stem = false if update_language(settings, language)
-
-      if stem == false
-        settings[:analysis][:filter].delete(:searchkick_stemmer)
-        settings[:analysis][:analyzer].each do |_, analyzer|
-          analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
-        end
-      end
+      update_language(settings, language)
+      update_stemming(settings)
 
       if Searchkick.env == "test"
         settings[:number_of_shards] = 1
@@ -287,8 +280,20 @@ module Searchkick
             type: language
           }
         )
-      else
-        false # not updated
+      end
+    end
+
+    def update_stemming(settings)
+      stem = options[:stem]
+
+      # language analyzer used
+      stem = false if settings[:analysis][:analyzer][default_analyzer][:type] != "custom"
+
+      if stem == false
+        settings[:analysis][:filter].delete(:searchkick_stemmer)
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
+        end
       end
     end
 
