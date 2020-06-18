@@ -74,3 +74,9 @@ class Band
 
   default_scope -> { where(name: "Test") }
 end
+
+class Item
+  include Mongoid::Document
+
+  field :name
+end

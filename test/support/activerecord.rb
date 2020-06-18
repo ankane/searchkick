@@ -95,6 +95,10 @@ ActiveRecord::Migration.create_table :bands do |t|
   t.string :name
 end
 
+ActiveRecord::Migration.create_table :items do |t|
+  t.string :name
+end
+
 class Product < ActiveRecord::Base
   belongs_to :store
 end
@@ -126,4 +130,7 @@ end
 
 class Band < ActiveRecord::Base
   default_scope { where(name: "Test") }
+end
+
+class Item < ActiveRecord::Base
 end
