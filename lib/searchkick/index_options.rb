@@ -156,6 +156,13 @@ module Searchkick
       stem = options[:stem]
       stem = false if update_language(settings)
 
+      if stem == false
+        settings[:analysis][:filter].delete(:searchkick_stemmer)
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
+        end
+      end
+
       if Searchkick.env == "test"
         settings[:number_of_shards] = 1
         settings[:number_of_replicas] = 0
@@ -178,13 +185,7 @@ module Searchkick
         end
       end
 
-      if stem == false
-        settings[:analysis][:filter].delete(:searchkick_stemmer)
-        settings[:analysis][:analyzer].each do |_, analyzer|
-          analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
-        end
-      end
-
+      # TODO do this last in Searchkick 5
       settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
       add_synonyms(settings)
