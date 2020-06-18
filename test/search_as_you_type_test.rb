@@ -20,6 +20,11 @@ class SearchAsYouTypeTest < Minitest::Test
     assert_search "dark gr", ["Dark Grey", "Dark Blue"], operator: "or"
   end
 
+  def test_exclude
+    store_names ["Dark Grey", "Dark Blue"]
+    assert_search "da", ["Dark Grey"], exclude: "blue"
+  end
+
   def default_model
     Item
   end
