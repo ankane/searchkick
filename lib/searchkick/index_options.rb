@@ -7,11 +7,6 @@ module Searchkick
     end
 
     def index_options
-      if below70
-        index_type = options[:_type]
-        index_type = index_type.call if index_type.respond_to?(:call)
-      end
-
       custom_mapping = options[:mappings] || {}
       if below70 && custom_mapping.keys.map(&:to_sym).include?(:properties)
         # add type
@@ -501,6 +496,14 @@ module Searchkick
       if !settings.dig(:index, :max_result_window) && !settings[:"index.max_result_window"]
         settings[:index] ||= {}
         settings[:index][:max_result_window] = 1_000_000_000
+      end
+    end
+
+    def index_type
+      @index_type ||= begin
+        index_type = options[:_type]
+        index_type = index_type.call if index_type.respond_to?(:call)
+        index_type
       end
     end
 
