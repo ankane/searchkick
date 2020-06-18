@@ -22,277 +22,12 @@ module Searchkick
         settings = options[:settings] || {}
         mappings = custom_mapping
       else
-        language = options[:language]
-        language = language.call if language.respond_to?(:call)
+        settings = generate_settings
+
+        mapping = {}
 
         keyword_mapping = {type: "keyword"}
         keyword_mapping[:ignore_above] = options[:ignore_above] || 30000
-
-        settings = {
-          analysis: {
-            analyzer: {
-              searchkick_keyword: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase"] + (options[:stem_conversions] ? ["searchkick_stemmer"] : [])
-              },
-              default_analyzer => {
-                type: "custom",
-                # character filters -> tokenizer -> token filters
-                # https://www.elastic.co/guide/en/elasticsearch/guide/current/analysis-intro.html
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                # synonym should come last, after stemming and shingle
-                # shingle must come before searchkick_stemmer
-                filter: ["lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
-              },
-              searchkick_search: {
-                type: "custom",
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
-              },
-              searchkick_search2: {
-                type: "custom",
-                char_filter: ["ampersand"],
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_stemmer"]
-              },
-              # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
-              searchkick_autocomplete_search: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding"]
-              },
-              searchkick_word_search: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding"]
-              },
-              searchkick_suggest_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
-              },
-              searchkick_text_start_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
-              },
-              searchkick_text_middle_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
-              },
-              searchkick_text_end_index: {
-                type: "custom",
-                tokenizer: "keyword",
-                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
-              },
-              searchkick_word_start_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
-              },
-              searchkick_word_middle_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "searchkick_ngram"]
-              },
-              searchkick_word_end_index: {
-                type: "custom",
-                tokenizer: "standard",
-                filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
-              }
-            },
-            filter: {
-              searchkick_index_shingle: {
-                type: "shingle",
-                token_separator: ""
-              },
-              # lucky find https://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
-              searchkick_search_shingle: {
-                type: "shingle",
-                token_separator: "",
-                output_unigrams: false,
-                output_unigrams_if_no_shingles: true
-              },
-              searchkick_suggest_shingle: {
-                type: "shingle",
-                max_shingle_size: 5
-              },
-              searchkick_edge_ngram: {
-                type: "edge_ngram",
-                min_gram: 1,
-                max_gram: 50
-              },
-              searchkick_ngram: {
-                type: "ngram",
-                min_gram: 1,
-                max_gram: 50
-              },
-              searchkick_stemmer: {
-                # use stemmer if language is lowercase, snowball otherwise
-                type: language == language.to_s.downcase ? "stemmer" : "snowball",
-                language: language || "English"
-              }
-            },
-            char_filter: {
-              # https://www.elastic.co/guide/en/elasticsearch/guide/current/custom-analyzers.html
-              # &_to_and
-              ampersand: {
-                type: "mapping",
-                mappings: ["&=> and "]
-              }
-            }
-          }
-        }
-
-        stem = options[:stem]
-
-        case language
-        when "chinese"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "ik_smart"
-            },
-            searchkick_search: {
-              type: "ik_smart"
-            },
-            searchkick_search2: {
-              type: "ik_max_word"
-            }
-          )
-
-          stem = false
-        when "chinese2", "smartcn"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "smartcn"
-            },
-            searchkick_search: {
-              type: "smartcn"
-            },
-            searchkick_search2: {
-              type: "smartcn"
-            }
-          )
-
-          stem = false
-        when "japanese"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "kuromoji"
-            },
-            searchkick_search: {
-              type: "kuromoji"
-            },
-            searchkick_search2: {
-              type: "kuromoji"
-            }
-          )
-
-          stem = false
-        when "korean"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "openkoreantext-analyzer"
-            },
-            searchkick_search: {
-              type: "openkoreantext-analyzer"
-            },
-            searchkick_search2: {
-              type: "openkoreantext-analyzer"
-            }
-          )
-
-          stem = false
-        when "korean2"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "nori"
-            },
-            searchkick_search: {
-              type: "nori"
-            },
-            searchkick_search2: {
-              type: "nori"
-            }
-          )
-
-          stem = false
-        when "vietnamese"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: "vi_analyzer"
-            },
-            searchkick_search: {
-              type: "vi_analyzer"
-            },
-            searchkick_search2: {
-              type: "vi_analyzer"
-            }
-          )
-
-          stem = false
-        when "polish", "ukrainian"
-          settings[:analysis][:analyzer].merge!(
-            default_analyzer => {
-              type: language
-            },
-            searchkick_search: {
-              type: language
-            },
-            searchkick_search2: {
-              type: language
-            }
-          )
-
-          stem = false
-        end
-
-        if Searchkick.env == "test"
-          settings[:number_of_shards] = 1
-          settings[:number_of_replicas] = 0
-        end
-
-        if options[:similarity]
-          settings[:similarity] = {default: {type: options[:similarity]}}
-        end
-
-        unless below62
-          settings[:index] = {
-            max_ngram_diff: 49,
-            max_shingle_diff: 4
-          }
-        end
-
-        if options[:case_sensitive]
-          settings[:analysis][:analyzer].each do |_, analyzer|
-            analyzer[:filter].delete("lowercase")
-          end
-        end
-
-        if stem == false
-          settings[:analysis][:filter].delete(:searchkick_stemmer)
-          settings[:analysis][:analyzer].each do |_, analyzer|
-            analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
-          end
-        end
-
-        settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
-
-        add_synonyms(settings)
-        add_search_synonyms(settings)
-        add_wordnet(settings) if options[:wordnet]
-
-        if options[:special_characters] == false
-          settings[:analysis][:analyzer].each_value do |analyzer_settings|
-            analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
-          end
-        end
-
-        mapping = {}
 
         # conversions
         Array(options[:conversions]).each do |conversions_field|
@@ -425,6 +160,277 @@ module Searchkick
         settings: settings,
         mappings: mappings
       }
+    end
+
+    def generate_settings
+      language = options[:language]
+      language = language.call if language.respond_to?(:call)
+
+      settings = {
+        analysis: {
+          analyzer: {
+            searchkick_keyword: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase"] + (options[:stem_conversions] ? ["searchkick_stemmer"] : [])
+            },
+            default_analyzer => {
+              type: "custom",
+              # character filters -> tokenizer -> token filters
+              # https://www.elastic.co/guide/en/elasticsearch/guide/current/analysis-intro.html
+              char_filter: ["ampersand"],
+              tokenizer: "standard",
+              # synonym should come last, after stemming and shingle
+              # shingle must come before searchkick_stemmer
+              filter: ["lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
+            },
+            searchkick_search: {
+              type: "custom",
+              char_filter: ["ampersand"],
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
+            },
+            searchkick_search2: {
+              type: "custom",
+              char_filter: ["ampersand"],
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "searchkick_stemmer"]
+            },
+            # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
+            searchkick_autocomplete_search: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase", "asciifolding"]
+            },
+            searchkick_word_search: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding"]
+            },
+            searchkick_suggest_index: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "searchkick_suggest_shingle"]
+            },
+            searchkick_text_start_index: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+            },
+            searchkick_text_middle_index: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+            },
+            searchkick_text_end_index: {
+              type: "custom",
+              tokenizer: "keyword",
+              filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
+            },
+            searchkick_word_start_index: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "searchkick_edge_ngram"]
+            },
+            searchkick_word_middle_index: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "searchkick_ngram"]
+            },
+            searchkick_word_end_index: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
+            }
+          },
+          filter: {
+            searchkick_index_shingle: {
+              type: "shingle",
+              token_separator: ""
+            },
+            # lucky find https://web.archiveorange.com/archive/v/AAfXfQ17f57FcRINsof7
+            searchkick_search_shingle: {
+              type: "shingle",
+              token_separator: "",
+              output_unigrams: false,
+              output_unigrams_if_no_shingles: true
+            },
+            searchkick_suggest_shingle: {
+              type: "shingle",
+              max_shingle_size: 5
+            },
+            searchkick_edge_ngram: {
+              type: "edge_ngram",
+              min_gram: 1,
+              max_gram: 50
+            },
+            searchkick_ngram: {
+              type: "ngram",
+              min_gram: 1,
+              max_gram: 50
+            },
+            searchkick_stemmer: {
+              # use stemmer if language is lowercase, snowball otherwise
+              type: language == language.to_s.downcase ? "stemmer" : "snowball",
+              language: language || "English"
+            }
+          },
+          char_filter: {
+            # https://www.elastic.co/guide/en/elasticsearch/guide/current/custom-analyzers.html
+            # &_to_and
+            ampersand: {
+              type: "mapping",
+              mappings: ["&=> and "]
+            }
+          }
+        }
+      }
+
+      stem = options[:stem]
+
+      case language
+      when "chinese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "ik_smart"
+          },
+          searchkick_search: {
+            type: "ik_smart"
+          },
+          searchkick_search2: {
+            type: "ik_max_word"
+          }
+        )
+
+        stem = false
+      when "chinese2", "smartcn"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "smartcn"
+          },
+          searchkick_search: {
+            type: "smartcn"
+          },
+          searchkick_search2: {
+            type: "smartcn"
+          }
+        )
+
+        stem = false
+      when "japanese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "kuromoji"
+          },
+          searchkick_search: {
+            type: "kuromoji"
+          },
+          searchkick_search2: {
+            type: "kuromoji"
+          }
+        )
+
+        stem = false
+      when "korean"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "openkoreantext-analyzer"
+          },
+          searchkick_search: {
+            type: "openkoreantext-analyzer"
+          },
+          searchkick_search2: {
+            type: "openkoreantext-analyzer"
+          }
+        )
+
+        stem = false
+      when "korean2"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "nori"
+          },
+          searchkick_search: {
+            type: "nori"
+          },
+          searchkick_search2: {
+            type: "nori"
+          }
+        )
+
+        stem = false
+      when "vietnamese"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: "vi_analyzer"
+          },
+          searchkick_search: {
+            type: "vi_analyzer"
+          },
+          searchkick_search2: {
+            type: "vi_analyzer"
+          }
+        )
+
+        stem = false
+      when "polish", "ukrainian"
+        settings[:analysis][:analyzer].merge!(
+          default_analyzer => {
+            type: language
+          },
+          searchkick_search: {
+            type: language
+          },
+          searchkick_search2: {
+            type: language
+          }
+        )
+
+        stem = false
+      end
+
+      if Searchkick.env == "test"
+        settings[:number_of_shards] = 1
+        settings[:number_of_replicas] = 0
+      end
+
+      if options[:similarity]
+        settings[:similarity] = {default: {type: options[:similarity]}}
+      end
+
+      unless below62
+        settings[:index] = {
+          max_ngram_diff: 49,
+          max_shingle_diff: 4
+        }
+      end
+
+      if options[:case_sensitive]
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          analyzer[:filter].delete("lowercase")
+        end
+      end
+
+      if stem == false
+        settings[:analysis][:filter].delete(:searchkick_stemmer)
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
+        end
+      end
+
+      settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
+
+      add_synonyms(settings)
+      add_search_synonyms(settings)
+      add_wordnet(settings) if options[:wordnet]
+
+      if options[:special_characters] == false
+        settings[:analysis][:analyzer].each_value do |analyzer_settings|
+          analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
+        end
+      end
+
+      settings
     end
 
     def add_synonyms(settings)
