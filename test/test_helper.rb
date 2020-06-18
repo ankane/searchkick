@@ -8,6 +8,8 @@ require "active_support/notifications"
 
 ENV["RACK_ENV"] = "test"
 
+ENV["ES_PATH"] ||= "#{ENV["HOME"]}/elasticsearch/#{ENV["ELASTICSEARCH_VERSION"]}" if ENV["TRAVIS"]
+
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
 Searchkick.client.transport.logger = $logger
