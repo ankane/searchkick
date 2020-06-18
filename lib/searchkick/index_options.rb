@@ -154,7 +154,7 @@ module Searchkick
       }
 
       stem = options[:stem]
-      stem = false if update_language(settings)
+      stem = false if update_language(settings, language)
 
       if stem == false
         settings[:analysis][:filter].delete(:searchkick_stemmer)
@@ -201,7 +201,7 @@ module Searchkick
       settings
     end
 
-    def update_language(settings)
+    def update_language(settings, language)
       case language
       when "chinese"
         settings[:analysis][:analyzer].merge!(
