@@ -66,6 +66,11 @@ class MatchTest < Minitest::Test
     assert_search "milks", ["Milk", "Whole Milk", "Fat Free Milk"]
   end
 
+  def test_stemming_tokens
+    assert_equal ["milk"], Product.search_index.tokens("milks", analyzer: "searchkick_search")
+    assert_equal ["milk"], Product.search_index.tokens("milks", analyzer: "searchkick_search2")
+  end
+
   # fuzzy
 
   def test_misspelling_sriracha
