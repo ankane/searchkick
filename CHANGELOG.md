@@ -1,4 +1,4 @@
-## 4.4.0 (unreleased)
+## 4.4.0 (2020-06-17)
 
 - Added support for reloadable, multi-word, search time synonyms
 - Fixed another deprecation warning in Ruby 2.7
