@@ -1,5 +1,6 @@
-## 4.3.2 (unreleased)
+## 4.4.0 (unreleased)
 
+- Added support for reloadable, multi-word, search time synonyms
 - Fixed another deprecation warning in Ruby 2.7
 
 ## 4.3.1 (2020-05-13)

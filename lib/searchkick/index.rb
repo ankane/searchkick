@@ -174,6 +174,13 @@ module Searchkick
       Searchkick.search(like_text, model: record.class, **options)
     end
 
+    def reload_synonyms
+      require "elasticsearch/xpack"
+      raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
+      raise Error, "Requires elasticsearch-xpack 7.8+" unless client.xpack.respond_to?(:indices)
+      client.xpack.indices.reload_search_analyzers(index: name)
+    end
+
     # queue
 
     def reindex_queue

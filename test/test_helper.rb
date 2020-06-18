@@ -86,28 +86,28 @@ class Minitest::Test
     end
   end
 
-  def store_names(names, klass = Product, reindex: true)
+  def store_names(names, klass = default_model, reindex: true)
     store names.map { |name| {name: name} }, klass, reindex: reindex
   end
 
   # no order
-  def assert_search(term, expected, options = {}, klass = Product)
+  def assert_search(term, expected, options = {}, klass = default_model)
     assert_equal expected.sort, klass.search(term, **options).map(&:name).sort
   end
 
-  def assert_order(term, expected, options = {}, klass = Product)
+  def assert_order(term, expected, options = {}, klass = default_model)
     assert_equal expected, klass.search(term, **options).map(&:name)
   end
 
-  def assert_equal_scores(term, options = {}, klass = Product)
+  def assert_equal_scores(term, options = {}, klass = default_model)
     assert_equal 1, klass.search(term, **options).hits.map { |a| a["_score"] }.uniq.size
   end
 
-  def assert_first(term, expected, options = {}, klass = Product)
+  def assert_first(term, expected, options = {}, klass = default_model)
     assert_equal expected, klass.search(term, **options).map(&:name).first
   end
 
-  def assert_misspellings(term, expected, misspellings = {}, klass = Product)
+  def assert_misspellings(term, expected, misspellings = {}, klass = default_model)
     options = {
       fields: [:name, :color],
       misspellings: misspellings
@@ -133,5 +133,9 @@ class Minitest::Test
 
   def cequel?
     defined?(Cequel)
+  end
+
+  def default_model
+    Product
   end
 end

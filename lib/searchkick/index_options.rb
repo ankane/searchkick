@@ -7,6 +7,7 @@ module Searchkick
 
       below62 = Searchkick.server_below?("6.2.0")
       below70 = Searchkick.server_below?("7.0.0")
+      below73 = Searchkick.server_below?("7.3.0")
 
       if below70
         index_type = options[:_type]
@@ -285,9 +286,7 @@ module Searchkick
 
         # synonyms
         synonyms = options[:synonyms] || []
-
         synonyms = synonyms.call if synonyms.respond_to?(:call)
-
         if synonyms.any?
           settings[:analysis][:filter][:searchkick_synonym] = {
             type: "synonym",
@@ -307,6 +306,29 @@ module Searchkick
 
           %w(word_start word_middle word_end).each do |type|
             settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_synonym")
+          end
+        end
+
+        search_synonyms = options[:search_synonyms] || []
+        search_synonyms = search_synonyms.call if search_synonyms.respond_to?(:call)
+        if search_synonyms.is_a?(String) || search_synonyms.any?
+          if search_synonyms.is_a?(String)
+            synonym_graph = {
+              type: "synonym_graph",
+              synonyms_path: search_synonyms
+            }
+            synonym_graph[:updateable] = true unless below73
+          else
+            synonym_graph = {
+              type: "synonym_graph",
+              # TODO confirm this is correct
+              synonyms: search_synonyms.select { |s| s.size > 1 }.map { |s| s.is_a?(Array) ? s.join(",") : s }.map(&:downcase)
+            }
+          end
+          settings[:analysis][:filter][:searchkick_synonym_graph] = synonym_graph
+
+          [:searchkick_search2, :searchkick_word_search].each do |analyzer|
+            settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")
           end
         end
 

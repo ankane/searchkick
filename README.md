@@ -324,19 +324,11 @@ A few languages require plugins:
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick synonyms: [["pop", "soda"], ["burger", "hamburger"]]
+  searchkick search_synonyms: [["pop", "soda"], ["burger", "hamburger"]]
 end
 ```
 
-Call `Product.reindex` after changing synonyms.
-
-Synonyms cannot be multiple words at the moment.
-
-To read synonyms from a file, use:
-
-```ruby
-synonyms: -> { CSV.read("/some/path/synonyms.csv") }
-```
+Call `Product.reindex` after changing synonyms. Synonyms are applied at search time before stemming, and can be a single word or multiple words.
 
 For directional synonyms, use:
 
@@ -344,9 +336,40 @@ For directional synonyms, use:
 synonyms: ["lightbulb => halogenlamp"]
 ```
 
-### Tags and Dynamic Synonyms
+### Dynamic Synonyms
 
-The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms or tags without a full reindex. You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
+The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms without a full reindex.
+
+#### Elasticsearch 7.3+
+
+For Elasticsearch 7.3+, we recommend placing synonyms in a file on the Elasticsearch server (in the `config` directory). This allows you to reload synonyms without reindexing.
+
+```txt
+pop, soda
+burger, hamburger
+```
+
+Then use:
+
+```ruby
+search_synonyms: "synonyms.txt"
+```
+
+Add [elasticsearch-xpack](https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-xpack) to your Gemfile:
+
+```ruby
+gem 'elasticsearch-xpack', '>= 7.8.0.pre'
+```
+
+And use:
+
+```ruby
+Product.search_index.reload_synonyms
+```
+
+#### Elasticsearch < 7.3
+
+You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
 
 ```ruby
 class Product < ApplicationRecord
