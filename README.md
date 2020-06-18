@@ -33,6 +33,7 @@ Plus:
 - [Getting Started](#getting-started)
 - [Querying](#querying)
 - [Indexing](#indexing)
+- [Intelligent Search](#intelligent-search)
 - [Instant Search / Autocomplete](#instant-search--autocomplete)
 - [Aggregations](#aggregations)
 - [Deployment](#deployment)
@@ -587,6 +588,8 @@ class Image < ApplicationRecord
 end
 ```
 
+## Intelligent Search
+
 ### Analytics
 
 The best starting point to improve your search **by far** is to track searches and conversions.
@@ -604,7 +607,7 @@ Focus on:
 - top searches with low conversions
 - top searches with no results
 
-### Keep Getting Better
+### Conversions
 
 Searchkick can use conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches.
 
@@ -638,7 +641,7 @@ rake searchkick:reindex CLASS=Product
 
 **Note:** For a more performant (but more advanced) approach, check out [performant conversions](#performant-conversions).
 
-### Personalized Results
+## Personalized Results
 
 Order results differently for each user. For example, show a user’s previously purchased products before other results.
 
@@ -659,7 +662,7 @@ Reindex and search with:
 Product.search "milk", boost_where: {orderer_ids: current_user.id}
 ```
 
-### Instant Search / Autocomplete
+## Instant Search / Autocomplete
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
@@ -727,7 +730,7 @@ Then add the search box and JavaScript code to a view.
 </script>
 ```
 
-### Suggestions
+## Suggestions
 
 ![Suggest](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/recursion.png)
 
@@ -744,7 +747,7 @@ products = Product.search "peantu butta", suggest: true
 products.suggestions # ["peanut butter"]
 ```
 
-### Aggregations
+## Aggregations
 
 [Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
@@ -820,7 +823,7 @@ For other aggregation types, including sub-aggregations, use `body_options`:
 Product.search "orange", body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}
 ```
 
-### Highlight
+## Highlight
 
 Specify which fields to index with highlighting.
 
@@ -873,7 +876,7 @@ Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size
 
 You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
 
-### Similar Items
+## Similar Items
 
 Find similar items.
 
@@ -882,7 +885,7 @@ product = Product.first
 product.similar(fields: [:name], where: {size: "12 oz"})
 ```
 
-### Geospatial Searches
+## Geospatial Searches
 
 ```ruby
 class Restaurant < ApplicationRecord
