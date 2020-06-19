@@ -74,7 +74,7 @@ class Minitest::Test
 
   protected
 
-  def store(documents, klass = Product, reindex: true)
+  def store(documents, klass = default_model, reindex: true)
     if reindex
       documents.shuffle.each do |document|
         klass.create!(document)

@@ -28,7 +28,7 @@ class GeoShapeTest < Minitest::Test
           coordinates: [[[10, 20], [15, 25], [20, 20], [20, 10], [10, 10], [10, 20]]]
         }
       }
-    ], Region
+    ]
   end
 
   def test_circle
@@ -45,7 +45,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_envelope
@@ -58,7 +58,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_polygon
@@ -71,7 +71,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_multipolygon
@@ -87,7 +87,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_disjoint
@@ -101,7 +101,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_within
@@ -115,7 +115,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_search_math
@@ -128,7 +128,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_search_no_match
@@ -141,7 +141,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_contains
@@ -158,7 +158,7 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
   def test_latlon
@@ -171,7 +171,10 @@ class GeoShapeTest < Minitest::Test
           }
         }
       }
-    }, Region
+    }
   end
 
+  def default_model
+    Region
+  end
 end
