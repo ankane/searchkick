@@ -44,6 +44,7 @@ class SearchAsYouTypeTest < Minitest::Test
   end
 
   # not sure there's much we can do here
+  # ideally we could search both term and prefix for final term
   def test_mispellings_last_term
     store_names ["Tabasco"]
     assert_search "tobasco", []
