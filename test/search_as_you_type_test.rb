@@ -43,7 +43,10 @@ class SearchAsYouTypeTest < Minitest::Test
     assert_search "tobasco s", ["Tabasco Sauce"]
   end
 
-  # not sure there's much we can do here
+  # fuzziness is not applied to last term
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-match-query.html#type-bool-prefix
+  #
+  # not sure there's much we can do here right now
   # ideally we could search both term and prefix for final term
   # https://github.com/elastic/elasticsearch/issues/56229
   def test_mispellings_last_term
