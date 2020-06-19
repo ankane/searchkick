@@ -27,7 +27,7 @@ class RoutingTest < Minitest::Test
   def test_routing_async
     skip unless defined?(ActiveJob)
 
-    with_options(Song, routing: true, callbacks: :async) do
+    with_options({routing: true, callbacks: :async}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all
     end
@@ -36,7 +36,7 @@ class RoutingTest < Minitest::Test
   def test_routing_queue
     skip unless defined?(ActiveJob) && defined?(Redis)
 
-    with_options(Song, routing: true, callbacks: :queue) do
+    with_options({routing: true, callbacks: :queue}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all
       Searchkick::ProcessQueueJob.perform_later(class_name: "Song")

@@ -118,7 +118,7 @@ class Minitest::Test
     assert_search(term, expected, options, klass)
   end
 
-  def with_options(klass, options)
+  def with_options(options, klass = default_model)
     previous_options = klass.searchkick_options.dup
     begin
       klass.searchkick_options.merge!(options)

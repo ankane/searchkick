@@ -6,21 +6,21 @@ class IndexOptionsTest < Minitest::Test
   end
 
   def test_case_sensitive
-    with_options(Song, case_sensitive: true) do
+    with_options({case_sensitive: true}) do
       store_names ["Test", "test"]
       assert_search "test", ["test"], {misspellings: false}
     end
   end
 
   def test_no_stemming
-    with_options(Song, stem: false) do
+    with_options({stem: false}) do
       store_names ["milk", "milks"]
       assert_search "milks", ["milks"], {misspellings: false}
     end
   end
 
   def test_special_characters
-    with_options(Song, special_characters: false) do
+    with_options({special_characters: false}) do
       store_names ["jalapeño"]
       assert_search "jalapeno", [], {misspellings: false}
     end

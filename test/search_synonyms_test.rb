@@ -75,7 +75,7 @@ class SearchSynonymsTest < Minitest::Test
 
     write_synonyms("test,hello")
 
-    with_options(Speaker, search_synonyms: "synonyms.txt") do
+    with_options({search_synonyms: "synonyms.txt"}, Speaker) do
       store_names ["Hello", "Goodbye"]
       assert_search "test", ["Hello"]
 
