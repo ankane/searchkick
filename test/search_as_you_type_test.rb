@@ -45,6 +45,7 @@ class SearchAsYouTypeTest < Minitest::Test
 
   # not sure there's much we can do here
   # ideally we could search both term and prefix for final term
+  # https://github.com/elastic/elasticsearch/issues/56229
   def test_mispellings_last_term
     store_names ["Tabasco"]
     assert_search "tobasco", []
