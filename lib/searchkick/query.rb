@@ -367,9 +367,9 @@ module Searchkick
               exclude_analyzer = "keyword"
             elsif field.end_with?(".search_as_you_type")
               queries_to_add << {
-                multi_match: shared_options.merge(type: "bool_prefix", fields: [field, "#{field}._2gram", "#{field}._3gram"])
+                multi_match: shared_options.merge(type: "bool_prefix", analyzer: "searchkick_search_as_you_type_search", fields: [field, "#{field}._2gram", "#{field}._3gram"])
               }
-              exclude_analyzer = "searchkick_search_as_you_type"
+              exclude_analyzer = "searchkick_search_as_you_type_search"
             else
               analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)

@@ -109,11 +109,16 @@ module Searchkick
               tokenizer: "standard",
               filter: ["lowercase", "asciifolding", "reverse", "searchkick_edge_ngram", "reverse"]
             },
-            searchkick_search_as_you_type: {
+            searchkick_search_as_you_type_index: {
               type: "custom",
               tokenizer: "standard",
               filter: ["lowercase", "asciifolding"]
             },
+            searchkick_search_as_you_type_search: {
+              type: "custom",
+              tokenizer: "standard",
+              filter: ["lowercase", "asciifolding"]
+            }
           },
           filter: {
             searchkick_index_shingle: {
@@ -330,7 +335,7 @@ module Searchkick
       mapping_options[:searchable].delete("_all")
 
       analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
-      search_as_you_type_options = {type: "search_as_you_type", analyzer: "searchkick_search_as_you_type"}
+      search_as_you_type_options = {type: "search_as_you_type", analyzer: "searchkick_search_as_you_type_index"}
 
       mapping_options.values.flatten.uniq.each do |field|
         fields = {}
@@ -483,7 +488,7 @@ module Searchkick
         end
         settings[:analysis][:filter][:searchkick_synonym_graph] = synonym_graph
 
-        [:searchkick_search2, :searchkick_word_search].each do |analyzer|
+        [:searchkick_search2, :searchkick_word_search, :searchkick_search_as_you_type_search].each do |analyzer|
           settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")
         end
       end

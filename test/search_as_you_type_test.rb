@@ -31,6 +31,12 @@ class SearchAsYouTypeTest < Minitest::Test
     assert_order "one two three", expected
   end
 
+  # search time synonyms do not match partial words
+  def test_search_synonyms
+    store_names ["Hello", "Goodbye"]
+    assert_search "greeting", ["Hello"]
+  end
+
   def default_model
     Item
   end
