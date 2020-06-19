@@ -37,6 +37,18 @@ class SearchAsYouTypeTest < Minitest::Test
     assert_search "greeting", ["Hello"]
   end
 
+  def test_misspellings
+    store_names ["Tabasco Sauce"]
+    assert_search "tobasco s", [], misspellings: false
+    assert_search "tobasco s", ["Tabasco Sauce"]
+  end
+
+  # not sure there's much we can do here
+  def test_mispellings_last_term
+    store_names ["Tabasco"]
+    assert_search "tobasco", []
+  end
+
   def default_model
     Item
   end

@@ -20,7 +20,8 @@ class Product
     highlight: [:name],
     filterable: [:name, :color, :description],
     similarity: "BM25",
-    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil
+    match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
+    search_as_you_type: ENV["SEARCH_AS_YOU_TYPE"]
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 

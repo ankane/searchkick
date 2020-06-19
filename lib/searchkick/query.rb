@@ -380,6 +380,10 @@ module Searchkick
               qs.concat(qs.map { |q| q.except(:cutoff_frequency).merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) })
             end
 
+            if field_misspellings != false && match_type == :bool_prefix
+              queries_to_add << {multi_match: queries_to_add.last[:multi_match].merge(fuzziness: edit_distance, prefix_length: prefix_length, max_expansions: max_expansions, boost: factor).merge(transpositions) }
+            end
+
             if field.start_with?("*.")
               q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
               if below61?
