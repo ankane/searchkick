@@ -194,4 +194,14 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A", "Product C"], load: false
     assert_equal 0, reindex_queue.length
   end
+
+  def test_transaction
+    skip unless activerecord?
+
+    Product.transaction do
+      store_names ["Product A"]
+      raise ActiveRecord::Rollback
+    end
+    assert_search "*", []
+  end
 end
