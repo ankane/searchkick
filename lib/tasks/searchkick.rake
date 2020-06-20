@@ -1,5 +1,5 @@
 namespace :searchkick do
-  desc "reindex a model"
+  desc "reindex a model (specify CLASS)"
   task reindex: :environment do
     class_name = ENV["CLASS"]
     abort "USAGE: rake searchkick:reindex CLASS=Product" unless class_name
