@@ -311,6 +311,14 @@ class MatchTest < Minitest::Test
     assert_first "blue", "Blue B", fields: [:name, :color]
   end
 
+  # for issue #855
+  def test_apostrophes
+    store_names ["Valentine's Day Special"]
+    assert_search "Valentines", ["Valentine's Day Special"], fields: ["name^5"]
+    assert_search "Valentine's", ["Valentine's Day Special"], fields: ["name^5"]
+    assert_search "Valentine", ["Valentine's Day Special"], fields: ["name^5"]
+  end
+
   # TODO find better place
 
   def test_search_relation
