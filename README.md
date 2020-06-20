@@ -1962,36 +1962,10 @@ Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
 
-## Upgrading
-
-See [how to upgrade to Searchkick 3](docs/Searchkick-3-Upgrade.md)
-
 ## Elasticsearch 6 to 7 Upgrade
 
 1. Install Searchkick 4
 2. Upgrade your Elasticsearch cluster
-
-## Elasticsearch 5 to 6 Upgrade
-
-Elasticsearch 6 removes the ability to reindex with the `_all` field. Before you upgrade, we recommend disabling this field manually and specifying default fields on your models.
-
-```ruby
-class Product < ApplicationRecord
-  searchkick _all: false, default_fields: [:name]
-end
-```
-
-If you need search across multiple fields, we recommend creating a similar field in your search data.
-
-```ruby
-class Product < ApplicationRecord
-  def search_data
-    {
-      all: [name, size, quantity].join(" ")
-    }
-  end
-end
-```
 
 ## Elasticsearch Gotchas
 
