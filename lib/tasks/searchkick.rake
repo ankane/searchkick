@@ -16,6 +16,7 @@ namespace :searchkick do
   namespace :reindex do
     desc "reindex all models"
     task all: :environment do
+      # eager load models to populate Searchkick.models
       if Rails.respond_to?(:autoloaders) && Rails.autoloaders.zeitwerk_enabled?
         # fix for https://github.com/rails/rails/issues/37006
         Zeitwerk::Loader.eager_load_all
