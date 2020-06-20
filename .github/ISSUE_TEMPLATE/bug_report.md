@@ -11,7 +11,6 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-
 Use this code to reproduce:
 
 ```ruby
