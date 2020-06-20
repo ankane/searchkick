@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class ModelTest < Minitest::Test
+class CallbacksTest < Minitest::Test
   def test_disable_callbacks_model
     store_names ["product a"]
 
