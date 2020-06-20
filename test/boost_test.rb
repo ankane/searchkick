@@ -19,16 +19,9 @@ class BoostTest < Minitest::Test
     assert_order "zero", ["Zero Boost"], boost: "orders_count"
   end
 
-  def test_conversions_weight
-    Product.reindex
-    store [
-      {name: "Product Boost", orders_count: 20},
-      {name: "Product Conversions", conversions: {"product" => 10}}
-    ]
-    assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
-  end
+  # fields
 
-  def test_boost_fields
+  def test_fields
     store [
       {name: "Red", color: "White"},
       {name: "White", color: "Red Red Red"}
@@ -36,7 +29,7 @@ class BoostTest < Minitest::Test
     assert_order "red", ["Red", "White"], fields: ["name^10", "color"]
   end
 
-  def test_boost_fields_decimal
+  def test_fields_decimal
     store [
       {name: "Red", color: "White"},
       {name: "White", color: "Red Red Red"}
@@ -44,7 +37,7 @@ class BoostTest < Minitest::Test
     assert_order "red", ["Red", "White"], fields: ["name^10.5", "color"]
   end
 
-  def test_boost_fields_word_start
+  def test_fields_word_start
     store [
       {name: "Red", color: "White"},
       {name: "White", color: "Red Red Red"}
@@ -53,7 +46,7 @@ class BoostTest < Minitest::Test
   end
 
   # for issue #855
-  def test_boost_fields_apostrophes
+  def test_fields_apostrophes
     store_names ["Valentine's Day Special"]
     assert_search "Valentines", ["Valentine's Day Special"], fields: ["name^5"]
     assert_search "Valentine's", ["Valentine's Day Special"], fields: ["name^5"]

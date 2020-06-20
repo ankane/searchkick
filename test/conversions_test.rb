@@ -45,4 +45,13 @@ class ConversionsTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato A", "Tomato B"]
   end
+
+  def test_conversions_weight
+    Product.reindex
+    store [
+      {name: "Product Boost", orders_count: 20},
+      {name: "Product Conversions", conversions: {"product" => 10}}
+    ]
+    assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
+  end
 end
