@@ -56,7 +56,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_tokens
-    assert_equal ["dollar", "dollartre", "tree"], Product.search_index.tokens("Dollar Tree", analyzer: "search_index")
+    assert_equal ["dollar", "dollartre", "tree"], Product.search_index.tokens("Dollar Tree", analyzer: "searchkick_index")
   end
 
   def test_tokens_analyzer
