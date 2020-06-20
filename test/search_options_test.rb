@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class SqlTest < Minitest::Test
+class SearchOptionsTest < Minitest::Test
   def test_operator
     store_names ["Honey"]
     assert_search "fresh honey", []
