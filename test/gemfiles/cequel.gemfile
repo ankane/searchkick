@@ -1,8 +1,9 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-# Specify your gem's dependencies in searchkick.gemspec
 gemspec path: "../../"
 
+gem "rake"
+gem "minitest", ">= 5"
 gem "cequel"
 gem "activejob"
 gem "redis"

@@ -18,8 +18,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activemodel", ">= 5"
   spec.add_dependency "elasticsearch", ">= 6"
   spec.add_dependency "hashie"
-
-  spec.add_development_dependency "bundler"
-  spec.add_development_dependency "minitest"
-  spec.add_development_dependency "rake"
 end
