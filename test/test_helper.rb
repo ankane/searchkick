@@ -2,7 +2,6 @@ require "bundler/setup"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "logger"
 require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
