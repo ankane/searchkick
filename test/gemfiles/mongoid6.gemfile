@@ -7,7 +7,6 @@ gem "minitest", ">= 5"
 gem "mongoid", "~> 6.0.0"
 gem "activejob", require: "active_job"
 gem "redis"
-
-# kaminari
 gem "actionpack"
 gem "kaminari"
+gem "gemoji-parser"

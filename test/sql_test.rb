@@ -161,13 +161,14 @@ class SqlTest < Minitest::Test
   # other tests
 
   def test_includes
-    skip unless defined?(ActiveRecord)
+    skip unless activerecord?
+
     store_names ["Product A"]
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
   end
 
   def test_model_includes
-    skip unless defined?(ActiveRecord)
+    skip unless activerecord?
 
     store_names ["Product A"]
     store_names ["Store A"], Store
@@ -183,7 +184,7 @@ class SqlTest < Minitest::Test
   end
 
   def test_scope_results
-    skip unless defined?(ActiveRecord)
+    skip unless activerecord?
 
     store_names ["Product A", "Product B"]
     assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }

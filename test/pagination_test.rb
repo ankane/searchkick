@@ -83,8 +83,6 @@ class PaginationTest < Minitest::Test
   end
 
   def test_kaminari
-    skip unless defined?(Kaminari)
-
     require "action_view"
 
     I18n.load_path = Dir["test/support/kaminari.yml"]

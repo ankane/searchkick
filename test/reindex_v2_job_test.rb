@@ -1,11 +1,6 @@
 require_relative "test_helper"
 
 class ReindexV2JobTest < Minitest::Test
-  def setup
-    skip unless defined?(ActiveJob)
-    super
-  end
-
   def test_create
     product = Searchkick.callbacks(false) { Product.create!(name: "Boom") }
     Product.search_index.refresh

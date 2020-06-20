@@ -126,7 +126,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_transaction
-    skip unless defined?(ActiveRecord)
+    skip unless activerecord?
+
     Product.transaction do
       store_names ["Product A"]
       raise ActiveRecord::Rollback

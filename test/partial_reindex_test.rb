@@ -57,8 +57,6 @@ class PartialReindexTest < Minitest::Test
   end
 
   def test_instance_method_async
-    skip unless defined?(ActiveJob)
-
     product = Product.create!(name: "Hi")
     product.reindex(:search_data, mode: :async)
   end

@@ -25,8 +25,6 @@ class RoutingTest < Minitest::Test
   end
 
   def test_routing_async
-    skip unless defined?(ActiveJob)
-
     with_options({routing: true, callbacks: :async}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all
@@ -34,8 +32,6 @@ class RoutingTest < Minitest::Test
   end
 
   def test_routing_queue
-    skip unless defined?(ActiveJob) && defined?(Redis)
-
     with_options({routing: true, callbacks: :queue}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all

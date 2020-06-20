@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class InheritanceTest < Minitest::Test
   def setup
-    skip if defined?(Cequel)
+    skip if cequel?
     super
   end
 

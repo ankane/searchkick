@@ -2,7 +2,6 @@ require_relative "test_helper"
 
 class ParametersTest < Minitest::Test
   def setup
-    skip unless defined?(ActiveRecord)
     require "action_controller"
     super
   end

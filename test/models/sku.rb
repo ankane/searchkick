@@ -1,3 +1,3 @@
 class Sku
-  searchkick callbacks: defined?(ActiveJob) ? :async : true
+  searchkick callbacks: :async
 end

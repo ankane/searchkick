@@ -22,20 +22,17 @@ Searchkick.wordnet_path = "wn_s.pl" if ENV["WORDNET"]
 
 puts "Running against Elasticsearch #{Searchkick.server_version}"
 
-if defined?(Redis)
+Searchkick.redis =
   if defined?(ConnectionPool)
-    Searchkick.redis = ConnectionPool.new { Redis.new(logger: $logger) }
+    ConnectionPool.new { Redis.new(logger: $logger) }
   else
-    Searchkick.redis = Redis.new(logger: $logger)
+    Redis.new(logger: $logger)
   end
-end
 
 I18n.config.enforce_available_locales = true
 
-if defined?(ActiveJob)
-  ActiveJob::Base.logger = $logger
-  ActiveJob::Base.queue_adapter = :inline
-end
+ActiveJob::Base.logger = $logger
+ActiveJob::Base.queue_adapter = :inline
 
 ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
@@ -128,6 +125,10 @@ class Minitest::Test
       klass.searchkick_options.clear
       klass.searchkick_options.merge!(previous_options)
     end
+  end
+
+  def activerecord?
+    defined?(ActiveRecord)
   end
 
   def nobrainer?
