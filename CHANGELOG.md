@@ -1,6 +1,7 @@
 ## 4.4.1 (unreleased)
 
 - Improved error message for `reload_synonyms` with non-OSS version of Elasticsearch
+- Improved output for reindex rake task
 
 ## 4.4.0 (2020-06-17)
 

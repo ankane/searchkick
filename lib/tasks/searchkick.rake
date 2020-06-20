@@ -1,16 +1,16 @@
 namespace :searchkick do
-  desc "reindex model"
+  desc "reindex a model"
   task reindex: :environment do
-    if ENV["CLASS"]
-      klass = ENV["CLASS"].safe_constantize
-      if klass
-        klass.reindex
-      else
-        abort "Could not find class: #{ENV['CLASS']}"
-      end
-    else
-      abort "USAGE: rake searchkick:reindex CLASS=Product"
-    end
+    class_name = ENV["CLASS"]
+    abort "USAGE: rake searchkick:reindex CLASS=Product" unless class_name
+
+    model = class_name.safe_constantize
+    abort "Could not find class: #{class_name}" unless model
+    abort "#{class_name} is not a searchkick model" unless Searchkick.models.include?(model)
+
+    puts "Reindexing #{model.name}..."
+    model.reindex
+    puts "Reindex successful"
   end
 
   namespace :reindex do
