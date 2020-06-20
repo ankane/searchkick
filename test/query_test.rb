@@ -33,4 +33,57 @@ class QueryTest < Minitest::Test
     end
     refute_includes out, "Error"
   end
+
+  def test_big_decimal
+    store [
+      {name: "Product", latitude: 80.0}
+    ]
+    assert_search "product", ["Product"], where: {latitude: {gt: 79}}
+  end
+
+  # body_options
+
+  def test_body_options_should_merge_into_body
+    query = Product.search("*", body_options: {min_score: 1.0}, execute: false)
+    assert_equal 1.0, query.body[:min_score]
+  end
+
+  # nested
+
+  def test_nested_search
+    store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}], Speaker
+    assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
+  end
+
+  # other tests
+
+  def test_includes
+    skip unless activerecord?
+
+    store_names ["Product A"]
+    assert Product.search("product", includes: [:store]).first.association(:store).loaded?
+  end
+
+  def test_model_includes
+    skip unless activerecord?
+
+    store_names ["Product A"]
+    store_names ["Store A"], Store
+
+    associations = {Product => [:store], Store => [:products]}
+    result = Searchkick.search("*", models: [Product, Store], model_includes: associations)
+
+    assert_equal 2, result.length
+
+    result.group_by(&:class).each_pair do |klass, records|
+      assert records.first.association(associations[klass].first).loaded?
+    end
+  end
+
+  def test_scope_results
+    skip unless activerecord?
+
+    store_names ["Product A", "Product B"]
+    assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
+  end
 end

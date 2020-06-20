@@ -176,49 +176,6 @@ class MatchTest < Minitest::Test
     assert_search "almondmilks", ["Almond Milk"]
   end
 
-  # butter
-
-  def test_exclude_butter
-    store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"]
-  end
-
-  def test_exclude_butter_word_start
-    store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "butter", ["Butter Tub"], exclude: ["peanut butter"], match: :word_start
-  end
-
-  def test_exclude_butter_exact
-    store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "butter", [], exclude: ["peanut butter"], fields: [{name: :exact}]
-  end
-
-  def test_exclude_same_exact
-    store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "Butter Tub", ["Butter Tub"], exclude: ["Peanut Butter Tub"], fields: [{name: :exact}]
-  end
-
-  def test_exclude_egg_word_start
-    store_names ["eggs", "eggplant"]
-    assert_search "egg", ["eggs"], exclude: ["eggplant"], match: :word_start
-  end
-
-  def test_exclude_string
-    store_names ["Butter Tub", "Peanut Butter Tub"]
-    assert_search "butter", ["Butter Tub"], exclude: "peanut butter"
-  end
-
-  def test_exclude_match_all
-    store_names ["Butter"]
-    assert_search "*", [], exclude: "butter"
-  end
-
-  def test_exclude_match_all_fields
-    store_names ["Butter"]
-    assert_search "*", [], fields: [:name], exclude: "butter"
-    assert_search "*", ["Butter"], fields: [:color], exclude: "butter"
-  end
-
   # other
 
   def test_all
@@ -304,6 +261,54 @@ class MatchTest < Minitest::Test
   def test_emoji_multiple
     store_names ["Ice Cream Cake"]
     assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true
+  end
+
+  # operator
+
+  def test_operator
+    store_names ["Honey"]
+    assert_search "fresh honey", []
+    assert_search "fresh honey", ["Honey"], operator: "or"
+  end
+
+  def test_operator_scoring
+    store_names ["Big Red Circle", "Big Green Circle", "Small Orange Circle"]
+    assert_order "big red circle", ["Big Red Circle", "Big Green Circle", "Small Orange Circle"], operator: "or"
+  end
+
+  # fields
+
+  def test_fields_operator
+    store [
+      {name: "red", color: "red"},
+      {name: "blue", color: "blue"},
+      {name: "cyan", color: "blue green"},
+      {name: "magenta", color: "red blue"},
+      {name: "green", color: "green"}
+    ]
+    assert_search "red blue", ["red", "blue", "cyan", "magenta"], operator: "or", fields: ["color"]
+  end
+
+  def test_fields
+    store [
+      {name: "red", color: "light blue"},
+      {name: "blue", color: "red fish"}
+    ]
+    assert_search "blue", ["red"], fields: ["color"]
+  end
+
+  def test_non_existent_field
+    store_names ["Milk"]
+    assert_search "milk", [], fields: ["not_here"]
+  end
+
+  def test_fields_both_match
+    # have same score due to dismax
+    store [
+      {name: "Blue A", color: "red"},
+      {name: "Blue B", color: "light blue"}
+    ]
+    assert_first "blue", "Blue B", fields: [:name, :color]
   end
 
   # TODO find better place
