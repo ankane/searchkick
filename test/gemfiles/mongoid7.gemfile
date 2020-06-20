@@ -6,6 +6,7 @@ gemspec path: "../../"
 gem "mongoid", "~> 7.0.0"
 gem "activejob", require: "active_job"
 gem "redis"
+gem "elasticsearch-xpack", ">= 7.8.0"
 
 # kaminari
 gem "actionpack"
