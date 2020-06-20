@@ -1,12 +1,12 @@
 require_relative "test_helper"
 
 class RoutingTest < Minitest::Test
-  def test_routing_query
+  def test_query
     query = Store.search("Dollar Tree", routing: "Dollar Tree", execute: false)
     assert_equal query.params[:routing], "Dollar Tree"
   end
 
-  def test_routing_mappings
+  def test_mappings
     mappings = Store.searchkick_index.index_options[:mappings]
     if Searchkick.server_below?("7.0.0")
       mappings = mappings[:store]
@@ -14,24 +14,24 @@ class RoutingTest < Minitest::Test
     assert_equal mappings[:_routing], required: true
   end
 
-  def test_routing_correct_node
+  def test_correct_node
     store_names ["Dollar Tree"], Store
     assert_search "*", ["Dollar Tree"], {routing: "Dollar Tree"}, Store
   end
 
-  def test_routing_incorrect_node
+  def test_incorrect_node
     store_names ["Dollar Tree"], Store
     assert_search "*", ["Dollar Tree"], {routing: "Boom"}, Store
   end
 
-  def test_routing_async
+  def test_async
     with_options({routing: true, callbacks: :async}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all
     end
   end
 
-  def test_routing_queue
+  def test_queue
     with_options({routing: true, callbacks: :queue}, Song) do
       store_names ["Dollar Tree"], Song
       Song.destroy_all

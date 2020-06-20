@@ -1,7 +1,7 @@
 require_relative "test_helper"
 
 class ScrollTest < Minitest::Test
-  def test_scroll
+  def test_works
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", order: {name: :asc}, scroll: '1m', per_page: 2)
     assert_equal ["Product A", "Product B"], products.map(&:name)
@@ -25,7 +25,7 @@ class ScrollTest < Minitest::Test
     assert_equal [], products.map(&:name)
   end
 
-  def test_scroll_body
+  def test_body
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", body: {query: {match_all: {}}, sort: [{name: "asc"}]}, scroll: '1m', per_page: 2)
     assert_equal ["Product A", "Product B"], products.map(&:name)
@@ -49,12 +49,12 @@ class ScrollTest < Minitest::Test
     assert_equal [], products.map(&:name)
   end
 
-  def test_scroll_all
+  def test_all
     store_names ["Product A"]
     assert_equal ["Product A"], Product.search("*", scroll: "1m").map(&:name)
   end
 
-  def test_scroll_no_option
+  def test_no_option
     products = Product.search("*")
     error = assert_raises Searchkick::Error do
       products.scroll
@@ -62,7 +62,7 @@ class ScrollTest < Minitest::Test
     assert_match /Pass .+ option/, error.message
   end
 
-  def test_scroll_block
+  def test_block
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     batches_count = 0
     Product.search("*", scroll: "1m", per_page: 2).scroll do |batch|
