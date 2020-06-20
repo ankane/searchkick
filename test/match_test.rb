@@ -208,14 +208,6 @@ class MatchTest < Minitest::Test
     assert_search "ben and jerry's", ["Ben and Jerrys"]
   end
 
-  # for issue #855
-  def test_apostrophes
-    store_names ["Valentine's Day Special"]
-    assert_search "Valentines", ["Valentine's Day Special"], fields: ["name^5"]
-    assert_search "Valentine's", ["Valentine's Day Special"], fields: ["name^5"]
-    assert_search "Valentine", ["Valentine's Day Special"], fields: ["name^5"]
-  end
-
   def test_ampersand_index
     store_names ["Ben & Jerry's"]
     assert_search "ben and jerrys", ["Ben & Jerry's"]
