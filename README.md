@@ -2040,3 +2040,5 @@ cd searchkick
 bundle install
 bundle exec rake test
 ```
+
+Feel free to open an issue to get feedback on your idea before spending too much time on it.

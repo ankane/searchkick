@@ -7,6 +7,9 @@ assignees: ''
 
 ---
 
+**First**
+Search existing issues to see if it’s been discussed.
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

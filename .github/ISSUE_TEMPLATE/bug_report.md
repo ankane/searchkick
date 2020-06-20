@@ -7,11 +7,14 @@ assignees: ''
 
 ---
 
+**First**
+Search existing issues to see if it’s been reported.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Use this code to reproduce:
+Use this code to reproduce when possible:
 
 ```ruby
 require "bundler/inline"
