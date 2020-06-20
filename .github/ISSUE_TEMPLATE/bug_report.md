@@ -11,7 +11,7 @@ assignees: ''
 Search existing issues to see if it’s been reported.
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of the bug.
 
 **To Reproduce**
 Use this code to reproduce when possible:
