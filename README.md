@@ -523,7 +523,7 @@ For large data sets, try [parallel reindexing](#parallel-reindexing).
 
 - app starts
 
-### Stay Synced
+### Strategies
 
 There are four strategies for keeping the index synced with your database.
 
@@ -1180,6 +1180,10 @@ FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
 
+- [Heroku](#heroku)
+- [Amazon Elasticsearch Service](#amazon-elasticsearch-service)
+- [Other](#other)
+
 ### Heroku
 
 Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai), [SearchBox](https://elements.heroku.com/addons/searchbox), or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch).
@@ -1220,7 +1224,7 @@ heroku config:set ELASTICSEARCH_URL=https://elastic:password@12345.us-east-1.aws
 Then deploy and reindex:
 
 ```sh
-heroku run rake searchkick:reindex CLASS=Product
+heroku run rake searchkick:reindex:all
 ```
 
 ### Amazon Elasticsearch Service
@@ -1250,7 +1254,7 @@ Searchkick.aws_credentials = {
 Then deploy and reindex:
 
 ```sh
-rake searchkick:reindex CLASS=Product
+rake searchkick:reindex:all
 ```
 
 ### Other
@@ -1264,7 +1268,7 @@ ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
 Then deploy and reindex:
 
 ```sh
-rake searchkick:reindex CLASS=Product
+rake searchkick:reindex:all
 ```
 
 ### Data Protection
