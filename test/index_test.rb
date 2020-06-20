@@ -18,9 +18,9 @@ class IndexTest < Minitest::Test
     old_index.create
     different_index.create
 
-    Product.searchkick_index.clean_indices
+    Product.search_index.clean_indices
 
-    assert Product.searchkick_index.exists?
+    assert Product.search_index.exists?
     assert different_index.exists?
     assert !old_index.exists?
   end
@@ -30,21 +30,21 @@ class IndexTest < Minitest::Test
     old_index = Searchkick::Index.new("products_test#{suffix}_20130801000000")
     old_index.create
 
-    Product.searchkick_index.clean_indices
+    Product.search_index.clean_indices
 
     assert !old_index.exists?
   end
 
   def test_retain
     Product.reindex
-    assert_equal 1, Product.searchkick_index.all_indices.size
+    assert_equal 1, Product.search_index.all_indices.size
     Product.reindex(retain: true)
-    assert_equal 2, Product.searchkick_index.all_indices.size
+    assert_equal 2, Product.search_index.all_indices.size
   end
 
   def test_total_docs
     store_names ["Product A"]
-    assert_equal 1, Product.searchkick_index.total_docs
+    assert_equal 1, Product.search_index.total_docs
   end
 
   def test_mappings
@@ -56,16 +56,16 @@ class IndexTest < Minitest::Test
   end
 
   def test_tokens
-    assert_equal ["dollar", "dollartre", "tree"], Product.searchkick_index.tokens("Dollar Tree", analyzer: "searchkick_index")
+    assert_equal ["dollar", "dollartre", "tree"], Product.search_index.tokens("Dollar Tree", analyzer: "search_index")
   end
 
   def test_tokens_analyzer
-    assert_equal ["dollar", "tree"], Product.searchkick_index.tokens("Dollar Tree", analyzer: "searchkick_search2")
+    assert_equal ["dollar", "tree"], Product.search_index.tokens("Dollar Tree", analyzer: "searchkick_search2")
   end
 
   def test_remove_blank_id
     store_names ["Product A"]
-    Product.searchkick_index.remove(Product.new)
+    Product.search_index.remove(Product.new)
     assert_search "product", ["Product A"]
   ensure
     Product.reindex
