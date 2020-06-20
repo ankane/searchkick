@@ -13,7 +13,7 @@ Search existing issues to see if it’s been reported.
 **Describe the bug**
 A clear and concise description of the bug.
 
-**To Reproduce**
+**To reproduce**
 Use this code to reproduce when possible:
 
 ```ruby
@@ -48,8 +48,5 @@ Product.search_index.refresh
 p Product.search("test", fields: [:name]).response
 ```
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
 **Additional context**
-Add any other context about the problem here.
+Add any other context.
