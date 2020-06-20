@@ -13,7 +13,7 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_index_name
-    assert_equal "animals-#{Date.today.year}", Dog.searchkick_index.name
+    assert_equal "animals-#{Date.today.year}#{ENV["TEST_ENV_NUMBER"]}", Dog.searchkick_index.name
   end
 
   def test_child_search

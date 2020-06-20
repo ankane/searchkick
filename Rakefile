@@ -7,3 +7,7 @@ Rake::TestTask.new do |t|
   t.pattern = "test/**/*_test.rb"
   t.warning = false
 end
+
+# to test in parallel, uncomment and run:
+# rake parallel:test
+# require "parallel_tests/tasks"
