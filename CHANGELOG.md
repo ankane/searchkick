@@ -1,3 +1,7 @@
+## 4.4.1 (unreleased)
+
+- Improved error message for `reload_synonyms` with non-OSS version of Elasticsearch
+
 ## 4.4.0 (2020-06-17)
 
 - Added support for reloadable, multi-word, search time synonyms
