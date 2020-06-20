@@ -41,6 +41,7 @@ Plus:
 - [Performance](#performance)
 - [Elasticsearch DSL](#advanced)
 - [Reference](#reference)
+- [Contributing](#contributing)
 
 ## Getting Started
 
