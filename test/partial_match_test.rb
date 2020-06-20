@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class AutocompleteTest < Minitest::Test
+class PartialMatchTest < Minitest::Test
   def test_autocomplete
     store_names ["Hummus"]
     assert_search "hum", ["Hummus"], match: :text_start
