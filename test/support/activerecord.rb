@@ -10,44 +10,7 @@ ActiveRecord::Base.time_zone_aware_attributes = true
 # migrations
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::VERSION::STRING.start_with?("4.2.")
-
-if defined?(Apartment)
-  class Rails
-    def self.env
-      ENV["RACK_ENV"]
-    end
-  end
-
-  tenants = ["tenant1", "tenant2"]
-  Apartment.configure do |config|
-    config.tenant_names = tenants
-    config.database_schema_file = false
-    config.excluded_models = ["Product", "Store", "Animal", "Dog", "Cat"]
-  end
-
-  class Tenant < ActiveRecord::Base
-    searchkick index_prefix: -> { Apartment::Tenant.current }
-  end
-
-  tenants.each do |tenant|
-    begin
-      Apartment::Tenant.create(tenant)
-    rescue Apartment::TenantExists
-      # do nothing
-    end
-    Apartment::Tenant.switch!(tenant)
-
-    ActiveRecord::Migration.create_table :tenants, force: true do |t|
-      t.string :name
-      t.timestamps null: true
-    end
-
-    Tenant.reindex
-  end
-
-  Apartment::Tenant.reset
-end
+require_relative "apartment" if defined?(Apartment)
 
 ActiveRecord::Migration.create_table :products do |t|
   t.string :name
