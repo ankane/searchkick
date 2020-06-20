@@ -17,4 +17,4 @@ A clear and concise description of the problem.
 A clear and concise description of your idea.
 
 **Additional context**
-Add any other context about the feature request.
+Add any other context.
