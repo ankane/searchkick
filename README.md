@@ -299,7 +299,9 @@ To only match the exact order, use:
 User.search "fresh honey", match: :phrase
 ```
 
-### Language
+### Language and Stemming
+
+Searchkick stems words by default for better matching. `tomatoes` and `tomato` both stem to `tomato`, so searches for either term will have the same matches.
 
 Searchkick defaults to English for stemming. To change this, use:
 
@@ -321,6 +323,30 @@ A few languages require plugins:
 - `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-stempel.html)
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-ukrainian.html)
 - `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese)
+
+Disable stemming with:
+
+```ruby
+class Image < ApplicationRecord
+  searchkick stem: false
+end
+```
+
+Specify certain words to be excluded from stemming: [unreleased]
+
+```ruby
+class Image < ApplicationRecord
+  searchkick stem_exclusion: ["tomatoes"]
+end
+```
+
+Or change how words are stemmed: [unreleased]
+
+```ruby
+class Image < ApplicationRecord
+  searchkick stemmer_override: ["tomatoes => other"]
+end
+```
 
 ### Synonyms
 
@@ -1855,14 +1881,6 @@ Turn off special characters
 class Product < ApplicationRecord
   # A will not match Ä
   searchkick special_characters: false
-end
-```
-
-Turn off stemming
-
-```ruby
-class Product < ApplicationRecord
-  searchkick stem: false
 end
 ```
 
