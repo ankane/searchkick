@@ -30,7 +30,7 @@ class IndexOptionsTest < Minitest::Test
   end
 
   def test_stem_exclusion
-    with_options({language: "english", stem_exclusion: ["anime"]}) do
+    with_options({stem_exclusion: ["anime"]}) do
       store_names ["animals", "anime"]
       assert_search "animals", ["animals"], {misspellings: false}
       assert_search "anime", ["anime"], {misspellings: false}
