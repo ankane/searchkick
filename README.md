@@ -299,7 +299,7 @@ To only match the exact order, use:
 User.search "fresh honey", match: :phrase
 ```
 
-### Language and Stemming
+### Stemming and Language
 
 Searchkick stems words by default for better matching. `tomatoes` and `tomato` both stem to `tomato`, so searches for either term will have the same matches.
 
