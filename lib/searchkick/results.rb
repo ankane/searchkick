@@ -211,9 +211,18 @@ module Searchkick
       end
     end
 
+    # TODO return enumerator like with_score
     def with_highlights(multiple: false)
       with_hit.map do |result, hit|
         [result, hit_highlights(hit, multiple: multiple)]
+      end
+    end
+
+    def with_score
+      return enum_for(:with_score) unless block_given?
+
+      with_hit.each do |result, hit|
+        yield result, hit["_score"]
       end
     end
 
