@@ -39,6 +39,26 @@ class IndexOptionsTest < Minitest::Test
     end
   end
 
+  def test_no_stemmer_override
+    with_options({}) do
+      store_names ["animals", "animations"]
+      assert_search "animals", ["animals", "animations"], {misspellings: false}
+      assert_search "animations", ["animals", "animations"], {misspellings: false}
+      assert_equal ["anim"], Song.search_index.tokens("animations", analyzer: "searchkick_index")
+      assert_equal ["anim"], Song.search_index.tokens("animations", analyzer: "searchkick_search2")
+    end
+  end
+
+  def test_stemmer_override
+    with_options({stemmer_override: ["animations => animat"]}) do
+      store_names ["animals", "animations"]
+      assert_search "animals", ["animals"], {misspellings: false}
+      assert_search "animations", ["animations"], {misspellings: false}
+      assert_equal ["animat"], Song.search_index.tokens("animations", analyzer: "searchkick_index")
+      assert_equal ["animat"], Song.search_index.tokens("animations", analyzer: "searchkick_search2")
+    end
+  end
+
   def test_special_characters
     with_options({special_characters: false}) do
       store_names ["jalapeño"]

@@ -296,6 +296,23 @@ module Searchkick
         end
       end
 
+      if options[:stemmer_override]
+        stemmer_override = {
+          type: "stemmer_override"
+        }
+        if options[:stemmer_override].is_a?(String)
+          stemmer_override[:rules_path] = options[:stemmer_override]
+        else
+          stemmer_override[:rules] = options[:stemmer_override]
+        end
+        settings[:analysis][:filter][:searchkick_stemmer_override] = stemmer_override
+
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          stemmer_index = analyzer[:filter].index("searchkick_stemmer") if analyzer[:filter]
+          analyzer[:filter].insert(stemmer_index, "searchkick_stemmer_override") if stemmer_index
+        end
+      end
+
       if options[:stem_exclusion]
         settings[:analysis][:filter][:searchkick_stem_exclusion] = {
           type: "keyword_marker",
