@@ -295,6 +295,18 @@ module Searchkick
           analyzer[:filter].delete("searchkick_stemmer") if analyzer[:filter]
         end
       end
+
+      if options[:stem_exclusion]
+        settings[:analysis][:filter][:searchkick_stem_exclusion] = {
+          type: "keyword_marker",
+          keywords: options[:stem_exclusion]
+        }
+
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          stemmer_index = analyzer[:filter].index("searchkick_stemmer") if analyzer[:filter]
+          analyzer[:filter].insert(stemmer_index, "searchkick_stem_exclusion") if stemmer_index
+        end
+      end
     end
 
     def generate_mappings

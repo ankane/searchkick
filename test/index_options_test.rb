@@ -19,6 +19,26 @@ class IndexOptionsTest < Minitest::Test
     end
   end
 
+  def test_no_stem_exclusion
+    with_options({}) do
+      store_names ["animals", "anime"]
+      assert_search "animals", ["animals", "anime"], {misspellings: false}
+      assert_search "anime", ["animals", "anime"], {misspellings: false}
+      assert_equal ["anim"], Song.search_index.tokens("anime", analyzer: "searchkick_index")
+      assert_equal ["anim"], Song.search_index.tokens("anime", analyzer: "searchkick_search2")
+    end
+  end
+
+  def test_stem_exclusion
+    with_options({language: "english", stem_exclusion: ["anime"]}) do
+      store_names ["animals", "anime"]
+      assert_search "animals", ["animals"], {misspellings: false}
+      assert_search "anime", ["anime"], {misspellings: false}
+      assert_equal ["anime"], Song.search_index.tokens("anime", analyzer: "searchkick_index")
+      assert_equal ["anime"], Song.search_index.tokens("anime", analyzer: "searchkick_search2")
+    end
+  end
+
   def test_special_characters
     with_options({special_characters: false}) do
       store_names ["jalapeño"]

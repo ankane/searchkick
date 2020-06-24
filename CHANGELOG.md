@@ -1,5 +1,6 @@
 ## 4.4.1 (unreleased)
 
+- Added `stem_exclusion` option
 - Improved error message for `reload_synonyms` with non-OSS version of Elasticsearch
 - Improved output for reindex rake task
 
