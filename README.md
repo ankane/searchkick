@@ -1204,9 +1204,24 @@ FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
 
+- [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
 - [Amazon Elasticsearch Service](#amazon-elasticsearch-service)
-- [Other](#other)
+- [Self-Hosted and Other](#other)
+
+### Elastic Cloud
+
+Create an initializer `config/initializers/elasticsearch.rb` with:
+
+```ruby
+ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
+```
+
+Then deploy and reindex:
+
+```sh
+rake searchkick:reindex:all
+```
 
 ### Heroku
 
@@ -1281,7 +1296,7 @@ Then deploy and reindex:
 rake searchkick:reindex:all
 ```
 
-### Other
+### Self-Hosted and Other
 
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
