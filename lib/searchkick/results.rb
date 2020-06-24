@@ -19,6 +19,7 @@ module Searchkick
       @results ||= with_hit.map(&:first)
     end
 
+    # TODO return enumerator like with_score
     def with_hit
       @with_hit ||= begin
         if options[:load]
