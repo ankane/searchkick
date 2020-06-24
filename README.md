@@ -656,7 +656,7 @@ rake searchkick:reindex CLASS=Product
 
 This can make a huge difference on the quality of your search.
 
-**Note:** For a more performant (but more advanced) approach, check out [performant conversions](#performant-conversions).
+For a more performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
 
 ## Personalized Results
 
