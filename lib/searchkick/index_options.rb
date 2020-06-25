@@ -161,6 +161,7 @@ module Searchkick
         settings[:number_of_replicas] = 0
       end
 
+      # TODO remove in Searchkick 5 (classic no longer supported)
       if options[:similarity]
         settings[:similarity] = {default: {type: options[:similarity]}}
       end
@@ -183,6 +184,7 @@ module Searchkick
 
       add_synonyms(settings)
       add_search_synonyms(settings)
+      # TODO remove in Searchkick 5
       add_wordnet(settings) if options[:wordnet]
 
       if options[:special_characters] == false

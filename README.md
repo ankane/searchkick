@@ -1907,14 +1907,6 @@ class Product < ApplicationRecord
 end
 ```
 
-Use a different [similarity algorithm](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) for scoring
-
-```ruby
-class Product < ApplicationRecord
-  searchkick similarity: "classic"
-end
-```
-
 Make search case-sensitive
 
 ```ruby
