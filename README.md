@@ -1071,6 +1071,8 @@ See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/3
 
 ## Testing
 
+As you iterate on your search, it’s a good idea to add tests.
+
 For performance, only enable Searchkick callbacks for the tests that need it.
 
 ### Parallel Tests
