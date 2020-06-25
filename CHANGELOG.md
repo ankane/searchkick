@@ -1,4 +1,4 @@
-## 4.4.1 (unreleased)
+## 4.4.1 (2020-06-24)
 
 - Added `stem_exclusion` and `stemmer_override` options
 - Added `with_score` method to search results

@@ -330,7 +330,7 @@ class Image < ApplicationRecord
 end
 ```
 
-Specify certain words to be excluded from stemming: [unreleased]
+Exclude certain words from stemming with:
 
 ```ruby
 class Image < ApplicationRecord
@@ -338,7 +338,7 @@ class Image < ApplicationRecord
 end
 ```
 
-Or change how words are stemmed: [unreleased]
+Or change how words are stemmed:
 
 ```ruby
 class Image < ApplicationRecord
