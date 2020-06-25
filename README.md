@@ -301,7 +301,7 @@ User.search "fresh honey", match: :phrase
 
 ### Stemming and Language
 
-Searchkick stems words by default for better matching. `tomatoes` and `tomato` both stem to `tomato`, so searches for either term will have the same matches.
+Searchkick stems words by default for better matching. `apple` and `apples` both stem to `appl`, so searches for either term will have the same matches.
 
 Searchkick defaults to English for stemming. To change this, use:
 
@@ -334,7 +334,7 @@ Specify certain words to be excluded from stemming: [unreleased]
 
 ```ruby
 class Image < ApplicationRecord
-  searchkick stem_exclusion: ["tomatoes"]
+  searchkick stem_exclusion: ["apples"]
 end
 ```
 
@@ -342,7 +342,7 @@ Or change how words are stemmed: [unreleased]
 
 ```ruby
 class Image < ApplicationRecord
-  searchkick stemmer_override: ["tomatoes => other"]
+  searchkick stemmer_override: ["apples => other"]
 end
 ```
 
