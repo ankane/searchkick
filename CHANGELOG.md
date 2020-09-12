@@ -1,3 +1,7 @@
+## 4.4.2 (unreleased)
+
+- Fixed issue with `like` and special characters
+
 ## 4.4.1 (2020-06-24)
 
 - Added `stem_exclusion` and `stemmer_override` options
