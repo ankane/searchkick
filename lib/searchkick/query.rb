@@ -967,7 +967,7 @@ module Searchkick
                   regex.gsub!(v, "\\" + v)
                 end
                 regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
-                filters << {regexp: {field => {value: regex}}}
+                filters << {regexp: {field => {value: regex, flags: "NONE"}}}
               when :prefix
                 filters << {prefix: {field => {value: op_value}}}
               when :regexp # support for regexp queries without using a regexp ruby object

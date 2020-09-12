@@ -166,6 +166,13 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product ABC\""], where: {name: {like: "%ABC\""}}
   end
 
+  def test_like_optional_operators
+    store_names ["Product A&B", "Product B", "Product <3", "Product @Home"]
+    assert_search "product", ["Product A&B"], where: {name: {like: "%A&B"}}
+    assert_search "product", ["Product <3"], where: {name: {like: "%<%"}}
+    assert_search "product", ["Product @Home"], where: {name: {like: "%@Home%"}}
+  end
+
   # def test_script
   #   store [
   #     {name: "Product A", store_id: 1},
