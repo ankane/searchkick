@@ -162,6 +162,20 @@ module Searchkick
     end
   end
 
+  def self.wait_for_refresh(value = true)
+    if block_given?
+      previous_value = should_wait_for_refresh
+      begin
+        self.should_wait_for_refresh = value
+        yield
+      ensure
+        self.should_wait_for_refresh = previous_value
+      end
+    else
+      self.should_wait_for_refresh = value
+    end
+  end
+
   def self.aws_credentials=(creds)
     begin
       # TODO remove in Searchkick 5 (just use aws_sigv4)
@@ -234,6 +248,15 @@ module Searchkick
   # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
+  end
+
+  # private
+  def self.should_wait_for_refresh
+    Thread.current[:searchkick_should_wait_for_refresh]
+  end
+
+  def self.should_wait_for_refresh=(value)
+    Thread.current[:searchkick_should_wait_for_refresh] = value
   end
 
   # private

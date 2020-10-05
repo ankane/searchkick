@@ -105,4 +105,28 @@ class IndexTest < Minitest::Test
     # values that exceed ignore_above are not included in _all field :(
     # assert_search "hello", ["Product A"], {}, Region
   end
+
+  def test_wait_for_refresh
+    refresh_calls = []
+    bulk_receiver = lambda do |args|
+      refresh_calls.push(args[:refresh])
+      {}
+    end
+
+    # Initial store should wait for refresh
+    Searchkick.wait_for_refresh do
+      Searchkick.client.stub :bulk, bulk_receiver do
+        store_names ["Product A"]
+      end
+    end
+
+    # Second re-index should not wait for refresh
+    Searchkick.client.stub :bulk, bulk_receiver do
+      Product.reindex
+    end
+
+    assert_equal(refresh_calls.size, 2)
+    assert_equal(refresh_calls.first, "wait_for")
+    assert_nil(refresh_calls.last)
+  end
 end
