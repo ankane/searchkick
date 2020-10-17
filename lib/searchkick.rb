@@ -43,7 +43,7 @@ module Searchkick
     extend Forwardable
 
     attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options
-    attr_writer :client, :env, :search_timeout
+    attr_writer :env, :search_timeout
     attr_reader :aws_credentials
 
     def_delegators :client, :server_version, :server_below?
@@ -56,8 +56,20 @@ module Searchkick
   self.queue_name = :searchkick
   self.model_options = {}
 
-  def self.client
-    @client ||= build_client(url: ENV["ELASTICSEARCH_URL"])
+  def self.client(name = nil)
+    clients[name]
+  end
+
+  def self.client=(client)
+    clients.default = client
+  end
+
+  def self.clients
+    @clients ||= Hash.new(build_client(url: ENV["ELASTICSEARCH_URL"]))
+  end
+
+  def self.add_client(name, options)
+    clients[name] = build_client(**options)
   end
 
   def self.env
@@ -148,7 +160,7 @@ module Searchkick
       require "faraday_middleware/aws_sigv4"
     end
     @aws_credentials = creds
-    @client = nil # reset client
+    @clients = nil # reset clients
   end
 
   def self.reindex_status(index_name)
