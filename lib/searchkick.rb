@@ -6,6 +6,7 @@ require "hashie"
 
 # modules
 require "searchkick/bulk_indexer"
+require "searchkick/client"
 require "searchkick/index"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
@@ -52,18 +53,7 @@ module Searchkick
   self.model_options = {}
 
   def self.client
-    @client ||= begin
-      require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
-
-      Elasticsearch::Client.new({
-        url: ENV["ELASTICSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
-        retry_on_failure: 2
-      }.deep_merge(client_options)) do |f|
-        f.use Searchkick::Middleware
-        f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
-      end
-    end
+    @client ||= build_client(url: ENV["ELASTICSEARCH_URL"])
   end
 
   def self.env
@@ -237,21 +227,13 @@ module Searchkick
   end
 
   # private
-  def self.signer_middleware_key
-    defined?(FaradayMiddleware::AwsSignersV4) ? :aws_signers_v4 : :aws_sigv4
-  end
-
-  # private
-  def self.signer_middleware_aws_params
-    if signer_middleware_key == :aws_sigv4
-      {service: "es", region: "us-east-1"}.merge(aws_credentials)
-    else
-      {
-        credentials: aws_credentials[:credentials] || Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
-        service_name: "es",
-        region: aws_credentials[:region] || "us-east-1"
-      }
-    end
+  def self.build_client(url:, timeout: nil, aws_credentials: nil, **options)
+    Searchkick::Client.new(
+      url: url,
+      timeout: timeout || self.timeout,
+      aws_credentials: aws_credentials || self.aws_credentials,
+      **client_options.deep_merge(options)
+    )
   end
 
   # private
