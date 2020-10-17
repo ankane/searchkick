@@ -40,9 +40,13 @@ module Searchkick
   class ImportError < Error; end
 
   class << self
+    extend Forwardable
+
     attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
+
+    def_delegators :client, :server_version, :server_below?
   end
   self.search_method_name = :search
   self.wordnet_path = "/var/lib/wn_s.pl"
@@ -62,22 +66,6 @@ module Searchkick
 
   def self.search_timeout
     (defined?(@search_timeout) && @search_timeout) || timeout
-  end
-
-  def self.server_version
-    @server_version ||= client.info["version"]["number"]
-  end
-
-  def self.server_below?(version)
-    Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
-  end
-
-  # memoize for performance
-  def self.server_below7?
-    unless defined?(@server_below7)
-      @server_below7 = server_below?("7.0.0")
-    end
-    @server_below7
   end
 
   def self.search(term = "*", model: nil, **options, &block)

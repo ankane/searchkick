@@ -25,6 +25,15 @@ module Searchkick
       @host ||= @client.transport.hosts.first
     end
 
+    def server_version
+      @server_version ||= Gem::Version.new(@client.info["version"]["number"].split("-")[0])
+    end
+
+    def server_below?(version)
+      @server_below ||= {}
+      @server_below[version] ||= server_version < Gem::Version.new(version.split("-")[0])
+    end
+
     private
 
     def signer_middleware_key

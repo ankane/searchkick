@@ -178,7 +178,7 @@ module Searchkick
 
     def reload_synonyms
       require "elasticsearch/xpack"
-      raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
+      raise Error, "Requires Elasticsearch 7.3+" if client.server_below?("7.3.0")
       raise Error, "Requires elasticsearch-xpack 7.8+" unless client.xpack.respond_to?(:indices)
       begin
         client.xpack.indices.reload_search_analyzers(index: name)
@@ -274,11 +274,11 @@ module Searchkick
       index_settings["uuid"]
     end
 
-    protected
-
     def client
       Searchkick.client
     end
+
+    protected
 
     def bulk_indexer
       @bulk_indexer ||= BulkIndexer.new(self)
