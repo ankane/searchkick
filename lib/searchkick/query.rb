@@ -14,6 +14,8 @@ module Searchkick
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
       :out_of_range?, :hits, :response, :to_a, :first, :scroll
 
+    def_delegators :@client, :host
+
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
@@ -28,6 +30,7 @@ module Searchkick
         term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
       end
 
+      @client = Searchkick.client # temp
       @klass = klass
       @term = term
       @options = options
@@ -109,7 +112,6 @@ module Searchkick
       request_params = query.except(:index, :type, :body)
 
       # no easy way to tell which host the client will use
-      host = Searchkick.client.transport.hosts.first
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
       params = ["pretty"]
       request_params.each do |k, v|

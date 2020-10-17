@@ -21,6 +21,10 @@ module Searchkick
       end
     end
 
+    def host
+      @host ||= @client.transport.hosts.first
+    end
+
     private
 
     def signer_middleware_key
