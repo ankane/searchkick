@@ -120,7 +120,7 @@ module Searchkick
     def clean_indices
       indices = all_indices(unaliased: true)
       indices.each do |index|
-        Searchkick::Index.new(index).delete
+        Searchkick::Index.new(index, @options).delete
       end
       indices
     end
@@ -274,8 +274,12 @@ module Searchkick
       index_settings["uuid"]
     end
 
+    def client_name
+      options[:client_name]
+    end
+
     def client
-      Searchkick.client
+      Searchkick.client(client_name)
     end
 
     protected
@@ -341,7 +345,7 @@ module Searchkick
           puts "Jobs queued. Waiting..."
           loop do
             sleep 3
-            status = Searchkick.reindex_status(index.name)
+            status = Searchkick.reindex_status(index.name, options)
             break if status[:completed]
             puts "Batches left: #{status[:batches_left]}"
           end

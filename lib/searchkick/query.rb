@@ -30,8 +30,8 @@ module Searchkick
         term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
       end
 
-      @client = Searchkick.client # temp
       @klass = klass
+      @client = (searchkick_index || Searchkick).client
       @term = term
       @options = options
       @match_suffix = options[:match] || searchkick_options[:match] || "analyzed"
@@ -227,7 +227,7 @@ module Searchkick
     end
 
     def execute_search
-      Searchkick.client.search(params)
+      @client.search(params)
     end
 
     def prepare

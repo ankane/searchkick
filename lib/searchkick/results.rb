@@ -5,7 +5,7 @@ module Searchkick
     include Enumerable
     extend Forwardable
 
-    attr_reader :klass, :response, :options
+    attr_reader :klass, :response, :options, :client
 
     def_delegators :results, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary
 
@@ -13,6 +13,7 @@ module Searchkick
       @klass = klass
       @response = response
       @options = options
+      @client = (klass&.searchkick_index || Searchkick).client
     end
 
     def results
@@ -195,7 +196,7 @@ module Searchkick
 
         begin
           # TODO Active Support notifications for this scroll call
-          Searchkick::Results.new(@klass, Searchkick.client.scroll(params), @options)
+          Searchkick::Results.new(@klass, client.scroll(params), @options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           if e.class.to_s =~ /NotFound/ && e.message =~ /search_context_missing_exception/i
             raise Searchkick::Error, "Scroll id has expired"
@@ -211,7 +212,7 @@ module Searchkick
         # try to clear scroll
         # not required as scroll will expire
         # but there is a cost to open scrolls
-        Searchkick.client.clear_scroll(scroll_id: scroll_id)
+        client.clear_scroll(scroll_id: scroll_id)
       rescue Elasticsearch::Transport::Transport::Error
         # do nothing
       end

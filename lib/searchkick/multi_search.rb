@@ -1,9 +1,10 @@
 module Searchkick
   class MultiSearch
-    attr_reader :queries
+    attr_reader :queries, :client
 
-    def initialize(queries)
+    def initialize(queries, client_name: nil)
       @queries = queries
+      @client = Searchkick.client(client_name)
     end
 
     def perform
@@ -32,10 +33,6 @@ module Searchkick
       end
 
       search_queries
-    end
-
-    def client
-      Searchkick.client
     end
   end
 end

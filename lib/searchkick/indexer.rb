@@ -14,14 +14,20 @@ module Searchkick
     def perform
       items = @queued_items
       @queued_items = []
-      if items.any?
-        response = Searchkick.client.bulk(body: items)
-        if response["errors"]
-          first_with_error = response["items"].map do |item|
-            (item["index"] || item["delete"] || item["update"])
-          end.find { |item| item["error"] }
-          raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
-        end
+
+      items.group_by { |item| item.delete(:client_name) }.map do |client_name, group|
+        client = Searchkick.client(client_name)
+        perform_for_client(client, group)
+      end
+    end
+
+    def perform_for_client(client, items)
+      response = client.bulk(body: items)
+      if response["errors"]
+        first_with_error = response["items"].map do |item|
+          (item["index"] || item["delete"] || item["update"])
+        end.find { |item| item["error"] }
+        raise Searchkick::ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
       end
     end
   end

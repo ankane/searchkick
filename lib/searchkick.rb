@@ -163,10 +163,10 @@ module Searchkick
     @clients = nil # reset clients
   end
 
-  def self.reindex_status(index_name)
+  def self.reindex_status(*args)
     raise Searchkick::Error, "Redis not configured" unless redis
 
-    batches_left = Searchkick::Index.new(index_name).batches_left
+    batches_left = Searchkick::Index.new(*args).batches_left
     {
       completed: batches_left == 0,
       batches_left: batches_left
