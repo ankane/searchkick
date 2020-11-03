@@ -88,7 +88,8 @@ class PaginationTest < Minitest::Test
     I18n.load_path = Dir["test/support/kaminari.yml"]
     I18n.backend.load_translations
 
-    view = ActionView::Base.new(ActionView::LookupContext.new([]))
+    view_args = [[], nil] if ActionView::VERSION::STRING.to_f >= 6.1
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), *view_args)
 
     store_names ["Product A"]
     assert_equal "Displaying <b>1</b> product", view.page_entries_info(Product.search("product"))
