@@ -12,6 +12,8 @@ ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
 require_relative "apartment" if defined?(Apartment)
 
+ActiveRecord::Migration.verbose = ENV["VERBOSE"]
+
 ActiveRecord::Migration.create_table :products do |t|
   t.string :name
   t.integer :store_id
