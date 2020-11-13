@@ -1202,6 +1202,14 @@ end
 FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
 ```
 
+### GitHub Actions
+
+Check out [setup-elasticsearch](https://github.com/ankane/setup-elasticsearch) for an easy way to install Elasticsearch.
+
+```yml
+    - uses: ankane/setup-elasticsearch@v1
+```
+
 ## Deployment
 
 Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
