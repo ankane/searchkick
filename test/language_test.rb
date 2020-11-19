@@ -52,7 +52,7 @@ class LanguageTest < Minitest::Test
   end
 
   def test_korean2
-    skip if Searchkick.server_below?("6.4.0")
+    skip if Searchkick.server_below?("6.4.0") || ci?
 
     # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-nori.html
     with_options({language: "korean2"}) do

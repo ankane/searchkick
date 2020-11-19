@@ -1,0 +1,57 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - ruby: 2.7
+          gemfile: Gemfile
+          elasticsearch: 7.10.0
+        - ruby: 2.6
+          gemfile: gemfiles/activerecord52.gemfile
+          elasticsearch: 7.0.0
+        - ruby: 2.5
+          gemfile: gemfiles/activerecord51.gemfile
+          elasticsearch: 6.8.13
+        - ruby: 2.4
+          gemfile: gemfiles/activerecord50.gemfile
+          elasticsearch: 6.0.0
+        - ruby: 2.7
+          gemfile: gemfiles/mongoid7.gemfile
+          elasticsearch: 7
+          mongodb: true
+        - ruby: 2.6
+          gemfile: gemfiles/mongoid6.gemfile
+          elasticsearch: 6
+          mongodb: true
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - run: bundle update
+    - uses: actions/cache@v2
+      with:
+        path: ~/elasticsearch
+        key: ${{ runner.os }}-elasticsearch-${{ matrix.elasticsearch }}
+    - uses: ankane/setup-elasticsearch@v1
+      with:
+        elasticsearch-version: ${{ matrix.elasticsearch }}
+        plugins: |
+          analysis-kuromoji
+          analysis-smartcn
+          analysis-stempel
+          analysis-ukrainian
+    - uses: ankane/setup-mongodb@v1
+      if: ${{ matrix.mongodb }}
+    - run: |
+        sudo apt-get install redis-server
+        sudo systemctl start redis
+    - run: bundle exec rake test

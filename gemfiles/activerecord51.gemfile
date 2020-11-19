@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gemspec path: "../../"
+gemspec path: ".."
 
 gem "rake"
 gem "minitest", ">= 5"
