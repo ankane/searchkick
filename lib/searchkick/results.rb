@@ -21,80 +21,11 @@ module Searchkick
 
     # TODO return enumerator like with_score
     def with_hit
-      @with_hit ||= begin
-        @missing_ids = []
-
-        if options[:load]
-          # results can have different types
-          results = {}
-
-          hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
-            klasses =
-              if @klass
-                [@klass]
-              else
-                index_alias = index.split("_")[0..-2].join("_")
-                Array((options[:index_mapping] || {})[index_alias])
-              end
-            raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
-
-            results[index] = {}
-            klasses.each do |klass|
-              results[index].merge!(results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s })
-            end
-          end
-
-          # sort
-          results =
-            hits.map do |hit|
-              result = results[hit["_index"]][hit["_id"].to_s]
-              if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
-                if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
-                  highlights = hit_highlights(hit)
-                  result.define_singleton_method(:search_highlights) do
-                    highlights
-                  end
-                end
-              end
-              [result, hit]
-            end.select do |result, hit|
-              @missing_ids << hit["_id"] unless result
-              result
-            end
-
-          if @missing_ids.any?
-            Searchkick.warn("Records in search index do not exist in database: #{@missing_ids.join(", ")}")
-          end
-
-          results
-        else
-          hits.map do |hit|
-            result =
-              if hit["_source"]
-                hit.except("_source").merge(hit["_source"])
-              elsif hit["fields"]
-                hit.except("fields").merge(hit["fields"])
-              else
-                hit
-              end
-
-            if hit["highlight"] || options[:highlight]
-              highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
-              options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
-                result["highlighted_#{k}"] ||= (highlight[k] || result[k])
-              end
-            end
-
-            result["id"] ||= result["_id"] # needed for legacy reasons
-            [HashWrapper.new(result), hit]
-          end
-        end
-      end
+      @with_hit ||= with_hit_and_missing_ids[0]
     end
 
     def missing_ids
-      with_hit
-      @missing_ids
+      @missing_ids ||= with_hit_and_missing_ids[1]
     end
 
     def suggestions
@@ -282,6 +213,79 @@ module Searchkick
     end
 
     private
+
+    def with_hit_and_missing_ids
+      @with_hit_and_missing_ids ||= begin
+        missing_ids = []
+
+        if options[:load]
+          # results can have different types
+          results = {}
+
+          hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
+            klasses =
+              if @klass
+                [@klass]
+              else
+                index_alias = index.split("_")[0..-2].join("_")
+                Array((options[:index_mapping] || {})[index_alias])
+              end
+            raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
+
+            results[index] = {}
+            klasses.each do |klass|
+              results[index].merge!(results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s })
+            end
+          end
+
+          # sort
+          results =
+            hits.map do |hit|
+              result = results[hit["_index"]][hit["_id"].to_s]
+              if result && !(options[:load].is_a?(Hash) && options[:load][:dumpable])
+                if (hit["highlight"] || options[:highlight]) && !result.respond_to?(:search_highlights)
+                  highlights = hit_highlights(hit)
+                  result.define_singleton_method(:search_highlights) do
+                    highlights
+                  end
+                end
+              end
+              [result, hit]
+            end.select do |result, hit|
+              missing_ids << hit["_id"] unless result
+              result
+            end
+
+          if missing_ids.any?
+            Searchkick.warn("Records in search index do not exist in database: #{missing_ids.join(", ")}")
+          end
+        else
+          results =
+            hits.map do |hit|
+              result =
+                if hit["_source"]
+                  hit.except("_source").merge(hit["_source"])
+                elsif hit["fields"]
+                  hit.except("fields").merge(hit["fields"])
+                else
+                  hit
+                end
+
+              if hit["highlight"] || options[:highlight]
+                highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
+                options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
+                  result["highlighted_#{k}"] ||= (highlight[k] || result[k])
+                end
+              end
+
+              result["id"] ||= result["_id"] # needed for legacy reasons
+              [HashWrapper.new(result), hit]
+            end
+        end
+
+       [results, missing_ids]
+      end
+    end
 
     def results_query(records, hits)
       ids = hits.map { |hit| hit["_id"] }
