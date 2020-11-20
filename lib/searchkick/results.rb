@@ -224,9 +224,6 @@ module Searchkick
         missing_records = []
 
         if options[:load]
-          # results can have different types
-          results = {}
-
           grouped_hits = hits.group_by { |hit, _| hit["_index"] }
 
           # determine models
@@ -244,6 +241,7 @@ module Searchkick
           end
 
           # fetch results
+          results = {}
           grouped_hits.each do |index, index_hits|
             results[index] = {}
             index_models[index].each do |klass|
