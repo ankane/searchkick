@@ -229,23 +229,23 @@ module Searchkick
           # determine models
           index_models = {}
           grouped_hits.each do |index, _|
-            klasses =
+            models =
               if @klass
                 [@klass]
               else
                 index_alias = index.split("_")[0..-2].join("_")
                 Array((options[:index_mapping] || {})[index_alias])
               end
-            raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
-            index_models[index] = klasses
+            raise Searchkick::Error, "Unknown model for index: #{index}" unless models.any?
+            index_models[index] = models
           end
 
           # fetch results
           results = {}
           grouped_hits.each do |index, index_hits|
             results[index] = {}
-            index_models[index].each do |klass|
-              results[index].merge!(results_query(klass, index_hits).to_a.index_by { |r| r.id.to_s })
+            index_models[index].each do |model|
+              results[index].merge!(results_query(model, index_hits).to_a.index_by { |r| r.id.to_s })
             end
           end
 
