@@ -227,8 +227,11 @@ module Searchkick
           # results can have different types
           results = {}
 
+          grouped_hits = hits.group_by { |hit, _| hit["_index"] }
+
+          # determine models
           index_models = {}
-          hits.group_by { |hit, _| hit["_index"] }.each do |index, index_hits|
+          grouped_hits.each do |index, index_hits|
             klasses =
               if @klass
                 [@klass]
@@ -238,9 +241,12 @@ module Searchkick
               end
             raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
             index_models[index] = klasses
+          end
 
+          # fetch results
+          grouped_hits.each do |index, index_hits|
             results[index] = {}
-            klasses.each do |klass|
+            index_models[index].each do |klass|
               results[index].merge!(results_query(klass, index_hits).to_a.index_by { |r| r.id.to_s })
             end
           end
