@@ -228,7 +228,7 @@ module Searchkick
 
           # determine models
           index_models = {}
-          grouped_hits.each do |index, index_hits|
+          grouped_hits.each do |index, _|
             klasses =
               if @klass
                 [@klass]
