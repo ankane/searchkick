@@ -37,16 +37,17 @@ class SearchTest < Minitest::Test
     assert_equal ["Dollar Tree"], products.map(&:name)
   end
 
-  def test_missing_hits
+  def test_missing_records
     store_names ["Product A", "Product B"]
     product = Product.find_by(name: "Product A")
     product.delete
     assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database/ do
       result = Product.search("product")
       assert_equal ["Product B"], result.map(&:name)
-      assert_equal [product.id.to_s], result.missing_hits.map { |v| v["_id"] }
+      assert_equal [product.id.to_s], result.missing_records.map { |v| v[:id] }
+      assert_equal [Product], result.missing_records.map { |v| v[:model] }
     end
-    assert_empty Product.search("product", load: false).missing_hits
+    assert_empty Product.search("product", load: false).missing_records
   ensure
     Product.reindex
   end

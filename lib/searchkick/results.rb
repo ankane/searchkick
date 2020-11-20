@@ -22,15 +22,15 @@ module Searchkick
     # TODO return enumerator like with_score
     def with_hit
       @with_hit ||= begin
-        if missing_hits.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_hits.map { |v| v["_id"] }.join(", ")}")
+        if missing_records.any?
+          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
         end
-        with_hit_and_missing_hits[0]
+        with_hit_and_missing_records[0]
       end
     end
 
-    def missing_hits
-      @missing_hits ||= with_hit_and_missing_hits[1]
+    def missing_records
+      @missing_records ||= with_hit_and_missing_records[1]
     end
 
     def suggestions
@@ -219,15 +219,16 @@ module Searchkick
 
     private
 
-    def with_hit_and_missing_hits
-      @with_hit_and_missing_hits ||= begin
-        missing_hits = []
+    def with_hit_and_missing_records
+      @with_hit_and_missing_records ||= begin
+        missing_records = []
 
         if options[:load]
           # results can have different types
           results = {}
 
-          hits.group_by { |hit, _| hit["_index"] }.each do |index, grouped_hits|
+          index_models = {}
+          hits.group_by { |hit, _| hit["_index"] }.each do |index, index_hits|
             klasses =
               if @klass
                 [@klass]
@@ -236,10 +237,11 @@ module Searchkick
                 Array((options[:index_mapping] || {})[index_alias])
               end
             raise Searchkick::Error, "Unknown model for index: #{index}" unless klasses.any?
+            index_models[index] = klasses
 
             results[index] = {}
             klasses.each do |klass|
-              results[index].merge!(results_query(klass, grouped_hits).to_a.index_by { |r| r.id.to_s })
+              results[index].merge!(results_query(klass, index_hits).to_a.index_by { |r| r.id.to_s })
             end
           end
 
@@ -257,7 +259,16 @@ module Searchkick
               end
               [result, hit]
             end.select do |result, hit|
-              missing_hits << hit unless result
+              unless result
+                models = index_models[hit["_index"]]
+                missing_records << {
+                  id: hit["_id"],
+                  # may be multiple models for inheritance with child models
+                  # not ideal to return different types
+                  # but this situation shouldn't be common
+                  model: models.size == 1 ? models.first : models
+                }
+              end
               result
             end
         else
@@ -284,7 +295,7 @@ module Searchkick
             end
         end
 
-       [results, missing_hits]
+       [results, missing_records]
       end
     end
 
