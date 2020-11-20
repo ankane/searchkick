@@ -37,12 +37,16 @@ class SearchTest < Minitest::Test
     assert_equal ["Dollar Tree"], products.map(&:name)
   end
 
-  def test_record_not_found
+  def test_missing_ids
     store_names ["Product A", "Product B"]
-    Product.where(name: "Product A").delete_all
+    product = Product.find_by(name: "Product A")
+    product.delete
     assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database/ do
-      assert_search "product", ["Product B"]
+      result = Product.search("product")
+      assert_equal ["Product B"], result.map(&:name)
+      assert_equal [product.id.to_s], result.missing_ids
     end
+    assert_equal [], Product.search("product", load: false).missing_ids
   ensure
     Product.reindex
   end

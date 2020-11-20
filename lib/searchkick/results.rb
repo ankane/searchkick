@@ -22,6 +22,8 @@ module Searchkick
     # TODO return enumerator like with_score
     def with_hit
       @with_hit ||= begin
+        @missing_ids = []
+
         if options[:load]
           # results can have different types
           results = {}
@@ -42,8 +44,6 @@ module Searchkick
             end
           end
 
-          missing_ids = []
-
           # sort
           results =
             hits.map do |hit|
@@ -58,12 +58,12 @@ module Searchkick
               end
               [result, hit]
             end.select do |result, hit|
-              missing_ids << hit["_id"] unless result
+              @missing_ids << hit["_id"] unless result
               result
             end
 
-          if missing_ids.any?
-            Searchkick.warn("Records in search index do not exist in database: #{missing_ids.join(", ")}")
+          if @missing_ids.any?
+            Searchkick.warn("Records in search index do not exist in database: #{@missing_ids.join(", ")}")
           end
 
           results
@@ -90,6 +90,11 @@ module Searchkick
           end
         end
       end
+    end
+
+    def missing_ids
+      with_hit
+      @missing_ids
     end
 
     def suggestions

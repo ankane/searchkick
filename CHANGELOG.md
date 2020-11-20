@@ -1,5 +1,6 @@
 ## 4.4.2 (unreleased)
 
+- Added `missing_ids` method to results
 - Fixed issue with `like` and special characters
 
 ## 4.4.1 (2020-06-24)
