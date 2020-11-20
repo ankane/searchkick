@@ -22,15 +22,15 @@ module Searchkick
     # TODO return enumerator like with_score
     def with_hit
       @with_hit ||= begin
-        if missing_ids.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_ids.join(", ")}")
+        if missing_hits.any?
+          Searchkick.warn("Records in search index do not exist in database: #{missing_hits.map { |v| v["_id"] }.join(", ")}")
         end
-        with_hit_and_missing_ids[0]
+        with_hit_and_missing_hits[0]
       end
     end
 
-    def missing_ids
-      @missing_ids ||= with_hit_and_missing_ids[1]
+    def missing_hits
+      @missing_hits ||= with_hit_and_missing_hits[1]
     end
 
     def suggestions
@@ -219,9 +219,9 @@ module Searchkick
 
     private
 
-    def with_hit_and_missing_ids
-      @with_hit_and_missing_ids ||= begin
-        missing_ids = []
+    def with_hit_and_missing_hits
+      @with_hit_and_missing_hits ||= begin
+        missing_hits = []
 
         if options[:load]
           # results can have different types
@@ -257,7 +257,7 @@ module Searchkick
               end
               [result, hit]
             end.select do |result, hit|
-              missing_ids << hit["_id"] unless result
+              missing_hits << hit unless result
               result
             end
         else
@@ -284,7 +284,7 @@ module Searchkick
             end
         end
 
-       [results, missing_ids]
+       [results, missing_hits]
       end
     end
 
