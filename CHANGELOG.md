@@ -1,4 +1,4 @@
-## 4.4.2 (unreleased)
+## 4.4.2 (2020-11-23)
 
 - Added `missing_records` method to results
 - Fixed issue with `like` and special characters
