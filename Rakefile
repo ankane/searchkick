@@ -5,7 +5,7 @@ task default: :test
 Rake::TestTask.new do |t|
   t.libs << "test"
   t.pattern = "test/**/*_test.rb"
-  t.warning = false
+  t.warning = false # for elasticsearch and tests
 end
 
 # to test in parallel, uncomment and run:

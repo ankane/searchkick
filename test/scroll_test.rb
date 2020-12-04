@@ -59,7 +59,7 @@ class ScrollTest < Minitest::Test
     error = assert_raises Searchkick::Error do
       products.scroll
     end
-    assert_match /Pass .+ option/, error.message
+    assert_match(/Pass .+ option/, error.message)
   end
 
   def test_block
