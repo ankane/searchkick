@@ -22,6 +22,12 @@ end
 if ENV["SETUP"]
   total_docs = 1000000
 
+  ActiveRecord::Migration.create_table :products, force: :cascade do |t|
+    t.string :name
+    t.string :color
+    t.integer :store_id
+  end
+
   records = []
   total_docs.times do |i|
     records << {
