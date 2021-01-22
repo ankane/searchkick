@@ -22,13 +22,15 @@ end
 if ENV["SETUP"]
   total_docs = 1000000
 
-  ActiveRecord::Migration.create_table :products, force: :cascade do |t|
-    t.string :name
-    t.string :color
-    t.integer :store_id
+  records = []
+  total_docs.times do |i|
+    records << {
+      name: "Product #{i}",
+      color: ["red", "blue"].sample,
+      store_id: rand(10)
+    }
   end
-
-  Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+  Product.insert_all(records)
 
   puts "Imported"
 
