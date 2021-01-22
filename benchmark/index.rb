@@ -1,6 +1,7 @@
 require "bundler/setup"
 Bundler.require(:default)
 require "active_record"
+require "active_job"
 require "benchmark"
 require "active_support/notifications"
 
@@ -42,7 +43,15 @@ if ENV["SETUP"]
     t.integer :store_id
   end
 
-  Product.import ["name", "color", "store_id"], total_docs.times.map { |i| ["Product #{i}", ["red", "blue"].sample, rand(10)] }
+  records = []
+  total_docs.times do |i|
+    records << {
+      name: "Product #{i}",
+      color: ["red", "blue"].sample,
+      store_id: rand(10)
+    }
+  end
+  Product.insert_all(records)
 
   puts "Imported"
 end
