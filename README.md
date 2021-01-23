@@ -176,7 +176,7 @@ Get the full response from Elasticsearch
 results.response
 ```
 
-**Note:** By default, Elasticsearch [limits paging](#deep-paging-master) to the first 10,000 results for performance. With Elasticsearch 7, this applies to the total count as well.
+**Note:** By default, Elasticsearch [limits paging](#deep-paging) to the first 10,000 results for performance. With Elasticsearch 7, this applies to the total count as well.
 
 ### Boosting
 
@@ -209,7 +209,7 @@ boost_by_recency: {created_at: {scale: "7d", decay: 0.5}}
 
 You can also boost by:
 
-- [Conversions](#keep-getting-better)
+- [Conversions](#intelligent-search)
 - [Distance](#boost-by-distance)
 
 ### Get Everything
@@ -1217,7 +1217,7 @@ Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This de
 - [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
 - [Amazon Elasticsearch Service](#amazon-elasticsearch-service)
-- [Self-Hosted and Other](#other)
+- [Self-Hosted and Other](#self-hosted-and-other)
 
 ### Elastic Cloud
 
