@@ -1469,7 +1469,7 @@ Product.search_index.promote(index_name, update_refresh_interval: true)
 
 ### Queuing
 
-Push ids of records needing reindexed to a queue and reindex in bulk for better performance. First, set up Redis in an initializer. We recommend using [connection_pool](https://github.com/mperham/connection_pool).
+Push ids of records needing reindexing to a queue and reindex in bulk for better performance. First, set up Redis in an initializer. We recommend using [connection_pool](https://github.com/mperham/connection_pool).
 
 ```ruby
 Searchkick.redis = ConnectionPool.new { Redis.new }
