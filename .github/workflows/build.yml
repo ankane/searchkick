@@ -9,16 +9,16 @@ jobs:
         include:
         - ruby: 3.0
           gemfile: Gemfile
-          elasticsearch: 7.10.2
+          elasticsearch: 7.11.0
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
-          elasticsearch: 7.10.2
+          elasticsearch: 7.11.0
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
           elasticsearch: 7.0.0
         - ruby: 2.5
           gemfile: gemfiles/activerecord51.gemfile
-          elasticsearch: 6.8.13
+          elasticsearch: 6.8.14
         - ruby: 2.4
           gemfile: gemfiles/activerecord50.gemfile
           elasticsearch: 6.0.0
