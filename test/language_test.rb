@@ -99,6 +99,14 @@ class LanguageTest < Minitest::Test
     end
   end
 
+  def test_unknown_type
+    error = assert_raises(ArgumentError) do
+      with_options({language: {type: "bad"}}) do
+      end
+    end
+    assert_equal "Unknown language: bad", error.message
+  end
+
   def assert_language_search(term, expected)
     assert_search term, expected, {misspellings: false}
   end

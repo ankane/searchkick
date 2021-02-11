@@ -153,8 +153,8 @@ module Searchkick
         }
       }
 
-      if language.is_a?(Hash) && language[:type] == "hunspell"
-        update_hunspell(settings, language)
+      if language.is_a?(Hash)
+        update_language_type(settings, language)
       else
         update_language(settings, language)
       end
@@ -200,9 +200,14 @@ module Searchkick
       settings
     end
 
-    # supports all hunspell token filter options
-    def update_hunspell(settings, language)
-      settings[:analysis][:filter][:searchkick_stemmer] = language
+    def update_language_type(settings, language)
+      case language[:type]
+      when "hunspell"
+        # supports all token filter options
+        settings[:analysis][:filter][:searchkick_stemmer] = language
+      else
+        raise ArgumentError, "Unknown language: #{language[:type]}"
+      end
     end
 
     def update_language(settings, language)
