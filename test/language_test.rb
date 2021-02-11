@@ -90,6 +90,15 @@ class LanguageTest < Minitest::Test
     end
   end
 
+  def test_hunspell
+    skip if ci?
+
+    with_options({language: {type: "hunspell", locale: "en_US"}}) do
+      store_names ["the foxes jumping quickly"]
+      assert_language_search "fox", ["the foxes jumping quickly"]
+    end
+  end
+
   def assert_language_search(term, expected)
     assert_search term, expected, {misspellings: false}
   end

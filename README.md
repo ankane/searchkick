@@ -322,6 +322,14 @@ See the [list of stemmers](https://www.elastic.co/guide/en/elasticsearch/referen
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-ukrainian.html)
 - `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese)
 
+You can also use a Hunspell dictionary for stemming. [master]
+
+```ruby
+class Product < ApplicationRecord
+  searchkick language: {type: "hunspell", locale: "en_US"}
+end
+```
+
 Disable stemming with:
 
 ```ruby

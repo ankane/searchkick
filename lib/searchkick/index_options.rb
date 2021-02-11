@@ -153,7 +153,11 @@ module Searchkick
         }
       }
 
-      update_language(settings, language)
+      if language.is_a?(Hash) && language[:type] == "hunspell"
+        update_hunspell(settings, language)
+      else
+        update_language(settings, language)
+      end
       update_stemming(settings)
 
       if Searchkick.env == "test"
@@ -194,6 +198,11 @@ module Searchkick
       end
 
       settings
+    end
+
+    # supports all hunspell token filter options
+    def update_hunspell(settings, language)
+      settings[:analysis][:filter][:searchkick_stemmer] = language
     end
 
     def update_language(settings, language)
