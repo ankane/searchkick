@@ -105,7 +105,7 @@ module Searchkick
       indices =
         begin
           if client.indices.respond_to?(:get_alias)
-            client.indices.get_alias
+            client.indices.get_alias(index: "#{name}*")
           else
             client.indices.get_aliases
           end
