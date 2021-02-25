@@ -1,4 +1,4 @@
-## 4.4.3 (unreleased)
+## 4.4.3 (2020-02-25)
 
 - Added support for Hunspell
 - Fixed warning about accessing system indices

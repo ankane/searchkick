@@ -311,7 +311,7 @@ class Product < ApplicationRecord
 end
 ```
 
-See the [list of stemmers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html). A few languages require plugins:
+See the [list of languages](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html). A few languages require plugins:
 
 - `chinese` - [analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
 - `chinese2` - [analysis-smartcn plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-smartcn.html)
@@ -322,7 +322,7 @@ See the [list of stemmers](https://www.elastic.co/guide/en/elasticsearch/referen
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-ukrainian.html)
 - `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese)
 
-You can also use a Hunspell dictionary for stemming. [master]
+You can also use a Hunspell dictionary for stemming.
 
 ```ruby
 class Product < ApplicationRecord
