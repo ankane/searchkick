@@ -326,7 +326,7 @@ You can also use a Hunspell dictionary for stemming. [master]
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick language: {type: "hunspell", locale: "en_US"}
+  searchkick stemmer: {type: "hunspell", locale: "en_US"}
 end
 ```
 

@@ -153,11 +153,8 @@ module Searchkick
         }
       }
 
-      if language.is_a?(Hash)
-        update_language_type(settings, language)
-      else
-        update_language(settings, language)
-      end
+      raise ArgumentError, "Can't pass both language and stemmer" if options[:stemmer] && language
+      update_language(settings, language)
       update_stemming(settings)
 
       if Searchkick.env == "test"
@@ -198,16 +195,6 @@ module Searchkick
       end
 
       settings
-    end
-
-    def update_language_type(settings, language)
-      case language[:type]
-      when "hunspell"
-        # supports all token filter options
-        settings[:analysis][:filter][:searchkick_stemmer] = language
-      else
-        raise ArgumentError, "Unknown language: #{language[:type]}"
-      end
     end
 
     def update_language(settings, language)
@@ -300,6 +287,18 @@ module Searchkick
     end
 
     def update_stemming(settings)
+      if options[:stemmer]
+        stemmer = options[:stemmer]
+        # could also support snowball and stemmer
+        case stemmer[:type]
+        when "hunspell"
+          # supports all token filter options
+          settings[:analysis][:filter][:searchkick_stemmer] = stemmer
+        else
+          raise ArgumentError, "Unknown stemmer: #{stemmer[:type]}"
+        end
+      end
+
       stem = options[:stem]
 
       # language analyzer used

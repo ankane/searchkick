@@ -90,21 +90,31 @@ class LanguageTest < Minitest::Test
     end
   end
 
-  def test_hunspell
+  def test_stemmer_hunspell
     skip if ci?
 
-    with_options({language: {type: "hunspell", locale: "en_US"}}) do
+    with_options({stemmer: {type: "hunspell", locale: "en_US"}}) do
       store_names ["the foxes jumping quickly"]
       assert_language_search "fox", ["the foxes jumping quickly"]
     end
   end
 
-  def test_unknown_type
+  def test_stemmer_unknown_type
     error = assert_raises(ArgumentError) do
-      with_options({language: {type: "bad"}}) do
+      with_options({stemmer: {type: "bad"}}) do
       end
     end
-    assert_equal "Unknown language: bad", error.message
+    assert_equal "Unknown stemmer: bad", error.message
+  end
+
+  def test_stemmer_language
+    skip if ci?
+
+    error = assert_raises(ArgumentError) do
+      with_options({stemmer: {type: "hunspell", locale: "en_US"}, language: "english"}) do
+      end
+    end
+    assert_equal "Can't pass both language and stemmer", error.message
   end
 
   def assert_language_search(term, expected)
