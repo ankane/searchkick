@@ -49,19 +49,19 @@ module Searchkick
               tokenizer: "standard",
               # synonym should come last, after stemming and shingle
               # shingle must come before searchkick_stemmer
-              filter: ["lowercase", "asciifolding", "searchkick_index_shingle", "searchkick_stemmer"]
+              filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer", "gist_special_chars"]
             },
             searchkick_search: {
               type: "custom",
               char_filter: ["ampersand"],
               tokenizer: "standard",
-              filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer"]
+              filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer", "gist_special_chars"]
             },
             searchkick_search2: {
               type: "custom",
               char_filter: ["ampersand"],
               tokenizer: "standard",
-              filter: ["lowercase", "asciifolding", "searchkick_stemmer"]
+              filter: ["lowercase", "asciifolding", "searchkick_search_shingle", "searchkick_stemmer", "gist_special_chars"]
             },
             # https://github.com/leschenko/elasticsearch_autocomplete/blob/master/lib/elasticsearch_autocomplete/analyzers.rb
             searchkick_autocomplete_search: {
@@ -135,6 +135,12 @@ module Searchkick
               type: "ngram",
               min_gram: 1,
               max_gram: 50
+            },
+            gist_special_chars: {
+              "type": "ngram",
+              "min_gram": 2,
+              "max_gram": 30,
+              "token_chars": ["letter","digit","symbol","punctuation"]
             },
             searchkick_stemmer: {
               # use stemmer if language is lowercase, snowball otherwise
