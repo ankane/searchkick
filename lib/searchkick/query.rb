@@ -234,6 +234,12 @@ module Searchkick
 
       all = term == "*"
 
+      tenancy_term = nil
+      account_id = options[:account_id]
+      if account_id.present?
+        tenancy_term = term_filters("account_id", account_id)
+      end
+
       @json = options[:json] || options[:body]
       if @json
         payload = @json
@@ -251,9 +257,11 @@ module Searchkick
             }
           }
         elsif all
-          payload = {
-            match_all: {}
-          }
+          if tenancy_term.present?
+            payload = tenancy_term
+          else
+            payload = { match_all: {} }
+          end
         else
           if options[:autocomplete]
             payload = {
@@ -265,6 +273,10 @@ module Searchkick
             }
           else
             queries = []
+
+            if tenancy_term.present?
+              queries << tenancy_term
+            end
 
             misspellings =
               if options.key?(:misspellings)
