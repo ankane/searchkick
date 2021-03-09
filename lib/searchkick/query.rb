@@ -274,10 +274,6 @@ module Searchkick
           else
             queries = []
 
-            if tenancy_term.present?
-              queries << tenancy_term
-            end
-
             misspellings =
               if options.key?(:misspellings)
                 options[:misspellings]
