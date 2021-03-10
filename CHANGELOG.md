@@ -1,6 +1,7 @@
 ## 4.4.4 (unreleased)
 
 - Fixed `too_long_frame_exception` exception with `scroll` method
+- Fixed multi-word emoji tokenization
 
 ## 4.4.3 (2020-02-25)
 
