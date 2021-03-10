@@ -25,7 +25,7 @@ module Searchkick
       term = term.to_s
 
       if options[:emoji]
-        term = EmojiParser.parse_unicode(term) { |e| " #{e.name} " }.strip
+        term = EmojiParser.parse_unicode(term) { |e| " #{e.name.tr('_', ' ')} " }.strip
       end
 
       @klass = klass

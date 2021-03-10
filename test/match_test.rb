@@ -254,6 +254,7 @@ class MatchTest < Minitest::Test
   def test_emoji_multiple
     store_names ["Ice Cream Cake"]
     assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true
+    assert_search "🍨🍰", ["Ice Cream Cake"], emoji: true, misspellings: false
   end
 
   # operator
