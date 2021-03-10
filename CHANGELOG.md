@@ -1,3 +1,7 @@
+## 4.4.4 (unreleased)
+
+- Fixed `too_long_frame_exception` exception with `scroll` method
+
 ## 4.4.3 (2020-02-25)
 
 - Added support for Hunspell
