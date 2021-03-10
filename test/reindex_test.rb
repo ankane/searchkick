@@ -166,6 +166,9 @@ class ReindexTest < Minitest::Test
   def test_callbacks_queue
     skip unless defined?(ActiveJob) && defined?(Redis)
 
+    # TODO figure out which earlier test leaves records in index
+    Product.reindex
+
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
