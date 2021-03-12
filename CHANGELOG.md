@@ -1,9 +1,9 @@
-## 4.4.4 (unreleased)
+## 4.4.4 (2021-03-12)
 
-- Fixed `too_long_frame_exception` exception with `scroll` method
+- Fixed `too_long_frame_exception` with `scroll` method
 - Fixed multi-word emoji tokenization
 
-## 4.4.3 (2020-02-25)
+## 4.4.3 (2021-02-25)
 
 - Added support for Hunspell
 - Fixed warning about accessing system indices
