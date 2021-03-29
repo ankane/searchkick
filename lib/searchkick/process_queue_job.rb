@@ -1,5 +1,5 @@
 module Searchkick
-  class ProcessQueueJob < ActiveJob::Base
+  class ProcessQueueJob < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, index_name: nil, inline: false)
