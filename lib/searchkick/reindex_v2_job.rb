@@ -1,5 +1,5 @@
 module Searchkick
-  class ReindexV2Job < ActiveJob::Base
+  class ReindexV2Job < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
     def perform(class_name, id, method_name = nil, routing: nil, index_name: nil)
