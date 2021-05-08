@@ -80,7 +80,7 @@ module Searchkick
   end
 
   def self.server_version
-    @server_version ||= opensearch? ? "7.10.2" : server_info["version"]["number"]
+    @server_version ||= server_info["version"]["number"]
   end
 
   def self.opensearch?
@@ -91,7 +91,11 @@ module Searchkick
   end
 
   def self.server_below?(version)
-    Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
+    if opensearch?
+      Gem::Version.new("7.10.2") < Gem::Version.new(version.split("-")[0])
+    else
+      Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
+    end
   end
 
   # memoize for performance

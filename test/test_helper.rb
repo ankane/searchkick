@@ -19,7 +19,7 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 # add to elasticsearch-7.0.0/config/
 Searchkick.wordnet_path = "wn_s.pl" if ENV["WORDNET"]
 
-puts "Running against Elasticsearch #{Searchkick.server_version}"
+puts "Running against #{Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"} #{Searchkick.server_version}"
 
 Searchkick.redis =
   if defined?(ConnectionPool)

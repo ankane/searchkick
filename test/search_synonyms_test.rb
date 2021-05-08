@@ -60,6 +60,8 @@ class SearchSynonymsTest < Minitest::Test
   end
 
   def test_reload_synonyms
+    skip if Searchkick.opensearch?
+
     if Searchkick.server_below?("7.3.0")
       error = assert_raises(Searchkick::Error) do
         Speaker.search_index.reload_synonyms
