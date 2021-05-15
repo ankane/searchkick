@@ -34,8 +34,10 @@ puts "Elasticsearch version: #{Searchkick.server_version}"
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 ActiveJob::Base.queue_adapter = :inline
 
-ActiveRecord::Migration.create_table :products do |t|
-  t.string :name
+ActiveRecord::Schema.define do
+  create_table :products do |t|
+    t.string :name
+  end
 end
 
 class Product < ActiveRecord::Base

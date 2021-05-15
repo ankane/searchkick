@@ -14,50 +14,52 @@ require_relative "apartment" if defined?(Apartment)
 
 ActiveRecord::Migration.verbose = ENV["VERBOSE"]
 
-ActiveRecord::Migration.create_table :products do |t|
-  t.string :name
-  t.integer :store_id
-  t.boolean :in_stock
-  t.boolean :backordered
-  t.integer :orders_count
-  t.decimal :found_rate
-  t.integer :price
-  t.string :color
-  t.decimal :latitude, precision: 10, scale: 7
-  t.decimal :longitude, precision: 10, scale: 7
-  t.text :description
-  t.text :alt_description
-  t.timestamps null: true
-end
+ActiveRecord::Schema.define do
+  create_table :products do |t|
+    t.string :name
+    t.integer :store_id
+    t.boolean :in_stock
+    t.boolean :backordered
+    t.integer :orders_count
+    t.decimal :found_rate
+    t.integer :price
+    t.string :color
+    t.decimal :latitude, precision: 10, scale: 7
+    t.decimal :longitude, precision: 10, scale: 7
+    t.text :description
+    t.text :alt_description
+    t.timestamps null: true
+  end
 
-ActiveRecord::Migration.create_table :stores do |t|
-  t.string :name
-end
+  create_table :stores do |t|
+    t.string :name
+  end
 
-ActiveRecord::Migration.create_table :regions do |t|
-  t.string :name
-  t.text :text
-end
+  create_table :regions do |t|
+    t.string :name
+    t.text :text
+  end
 
-ActiveRecord::Migration.create_table :speakers do |t|
-  t.string :name
-end
+  create_table :speakers do |t|
+    t.string :name
+  end
 
-ActiveRecord::Migration.create_table :animals do |t|
-  t.string :name
-  t.string :type
-end
+  create_table :animals do |t|
+    t.string :name
+    t.string :type
+  end
 
-ActiveRecord::Migration.create_table :skus, id: :uuid do |t|
-  t.string :name
-end
+  create_table :skus, id: :uuid do |t|
+    t.string :name
+  end
 
-ActiveRecord::Migration.create_table :songs do |t|
-  t.string :name
-end
+  create_table :songs do |t|
+    t.string :name
+  end
 
-ActiveRecord::Migration.create_table :bands do |t|
-  t.string :name
+  create_table :bands do |t|
+    t.string :name
+  end
 end
 
 class Product < ActiveRecord::Base
