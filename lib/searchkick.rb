@@ -128,6 +128,11 @@ module Searchkick
       end
     end
 
+    # TODO raise ArgumentError in next major version
+    unless klass || options[:models]
+      Searchkick.warn("missing keyword: :models")
+    end
+
     options = options.merge(block: block) if block
     query = Searchkick::Query.new(klass, term, **options)
     if options[:execute] == false
