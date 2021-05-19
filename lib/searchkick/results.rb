@@ -231,7 +231,7 @@ module Searchkick
                 index_alias = index.split("_")[0..-2].join("_")
                 Array((options[:index_mapping] || {})[index_alias])
               end
-            raise Searchkick::Error, "Unknown model for index: #{index}" unless models.any?
+            raise Searchkick::Error, "Unknown model for index: #{index}. Pass the `models` option to the search method." unless models.any?
             index_models[index] = models
           end
 
