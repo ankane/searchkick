@@ -1,3 +1,7 @@
+## 4.5.0 (unreleased)
+
+- Added experimental support for OpenSearch
+
 ## 4.4.4 (2021-03-12)
 
 - Fixed `too_long_frame_exception` with `scroll` method

@@ -3,6 +3,7 @@ require_relative "test_helper"
 class LanguageTest < Minitest::Test
   def setup
     skip "Requires plugin" unless ci? || ENV["TEST_LANGUAGE"]
+    skip "Requires Elasticsearch" if Searchkick.opensearch?
 
     Song.destroy_all
   end

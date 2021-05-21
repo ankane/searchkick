@@ -10,6 +10,9 @@ jobs:
         - ruby: 3.0
           gemfile: Gemfile
           elasticsearch: 7.12.1
+        - ruby: 3.0
+          gemfile: Gemfile
+          opensearch: 1
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
           elasticsearch: 7.12.1
@@ -40,11 +43,14 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - run: bundle update
+
     - uses: actions/cache@v2
+      if: ${{ matrix.elasticsearch }}
       with:
         path: ~/elasticsearch
         key: ${{ runner.os }}-elasticsearch-${{ matrix.elasticsearch }}
     - uses: ankane/setup-elasticsearch@v1
+      if: ${{ matrix.elasticsearch }}
       with:
         elasticsearch-version: ${{ matrix.elasticsearch }}
         plugins: |
@@ -52,6 +58,17 @@ jobs:
           analysis-smartcn
           analysis-stempel
           analysis-ukrainian
+
+    - uses: actions/cache@v2
+      if: ${{ matrix.opensearch }}
+      with:
+        path: ~/opensearch
+        key: ${{ runner.os }}-opensearch-${{ matrix.opensearch }}
+    - uses: ankane/setup-opensearch@v1
+      if: ${{ matrix.opensearch }}
+      with:
+        opensearch-version: ${{ matrix.opensearch }}
+
     - uses: ankane/setup-mongodb@v1
       if: ${{ matrix.mongodb }}
     - run: |
