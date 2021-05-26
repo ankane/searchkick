@@ -45,7 +45,7 @@ class LanguageTest < Minitest::Test
       with_options({language: "japanese", search_synonyms: [["飲む", "喰らう"]]}) do
       end
     end
-    assert_equal "Search synonyms not supported yet for language", error.message
+    assert_equal "Search synonyms are not supported yet for language", error.message
   end
 
   def test_japanese2
