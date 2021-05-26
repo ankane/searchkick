@@ -353,8 +353,8 @@ module Searchkick
               shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false || (!below73? && !track_total_hits?)
               qs << shared_options.merge(analyzer: "searchkick_search")
 
-              # searchkick_search and searchkick_search2 are the same for ukrainian
-              unless %w(japanese korean polish ukrainian vietnamese).include?(searchkick_options[:language])
+              # searchkick_search and searchkick_search2 are the same for some languages
+              unless %w(japanese japanese2 korean polish ukrainian vietnamese).include?(searchkick_options[:language])
                 qs << shared_options.merge(analyzer: "searchkick_search2")
               end
               exclude_analyzer = "searchkick_search2"
