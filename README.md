@@ -1212,10 +1212,16 @@ FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
 
 ### GitHub Actions
 
-Check out [setup-elasticsearch](https://github.com/ankane/setup-elasticsearch) for an easy way to install Elasticsearch.
+Check out [setup-elasticsearch](https://github.com/ankane/setup-elasticsearch) for an easy way to install Elasticsearch:
 
 ```yml
     - uses: ankane/setup-elasticsearch@v1
+```
+
+And [setup-opensearch](https://github.com/ankane/setup-opensearch) for an easy way to install OpenSearch:
+
+```yml
+    - uses: ankane/setup-opensearch@v1
 ```
 
 ## Deployment
