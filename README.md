@@ -45,11 +45,11 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 
 ## Getting Started
 
-[Install Elasticsearch](https://www.elastic.co/downloads/elasticsearch). For Homebrew, use:
+Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html) (OpenSearch support is experimental). For Homebrew, use:
 
 ```sh
-brew install elasticsearch
-brew services start elasticsearch
+brew install elasticsearch # or opensearch
+brew services start elasticsearch # or opensearch
 ```
 
 Add this line to your application’s Gemfile:
@@ -58,7 +58,7 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-The latest version works with Elasticsearch 6 and 7. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
+The latest version works with Elasticsearch 6 and 7 and OpenSearch 1. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
 
 Add searchkick to models you want to search.
 
