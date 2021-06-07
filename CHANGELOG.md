@@ -1,4 +1,4 @@
-## 4.5.0 (unreleased)
+## 4.5.0 (2021-06-07)
 
 - Added experimental support for OpenSearch
 - Added support for synonyms in Japanese
