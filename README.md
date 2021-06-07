@@ -20,7 +20,7 @@ Plus:
 - autocomplete
 - “Did you mean” suggestions
 - supports many languages
-- works with ActiveRecord, Mongoid, and NoBrainer
+- works with Active Record, Mongoid, and NoBrainer
 
 Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Autosuggest](https://github.com/ankane/autosuggest) for query suggestions
 
