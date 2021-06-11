@@ -1,4 +1,6 @@
 require "forwardable"
+require "active_support/core_ext" # Required by active_model/naming
+require "active_model/naming"
 
 module Searchkick
   class Results
@@ -71,7 +73,11 @@ module Searchkick
     end
 
     def model_name
-      klass.model_name
+      if klass.nil?
+        ActiveModel::Name.new(self.class)
+      else
+        klass.model_name
+      end
     end
 
     def entry_name(options = {})
