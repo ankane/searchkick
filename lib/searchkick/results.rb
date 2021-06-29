@@ -74,7 +74,7 @@ module Searchkick
 
     def model_name
       if klass.nil?
-        ActiveModel::Name.new(self.class)
+        ActiveModel::Name.new(self.class, nil, 'Result')
       else
         klass.model_name
       end

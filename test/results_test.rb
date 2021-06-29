@@ -24,6 +24,6 @@ class ResultsTest < Minitest::Test
   def test_model_name_without_klass
     store_names ["Product A", "Product B"]
     results = Searchkick.search("product")
-    assert_equal "Results", results.model_name.human
+    assert_equal "Result", results.model_name.human
   end
 end
