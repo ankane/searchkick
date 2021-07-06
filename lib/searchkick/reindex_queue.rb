@@ -14,11 +14,17 @@ module Searchkick
 
     # TODO use reliable queuing
     def reserve(limit: 1000)
-      record_ids = Set.new
-      while record_ids.size < limit && (record_id = Searchkick.with_redis { |r| r.rpop(redis_key) })
-        record_ids << record_id
+      if supports_rpop_with_count?
+        Searchkick.with_redis { |r| r.call("rpop", redis_key, limit) }
+      else
+        record_ids = []
+        Searchkick.with_redis do |r|
+          while record_ids.size < limit && (record_id = r.rpop(redis_key))
+            record_ids << record_id
+          end
+        end
+        record_ids
       end
-      record_ids.to_a
     end
 
     def clear
@@ -33,6 +39,16 @@ module Searchkick
 
     def redis_key
       "searchkick:reindex_queue:#{name}"
+    end
+
+    def supports_rpop_with_count?
+      redis_server_version >= Gem::Version.new("6.2")
+    end
+
+    def redis_server_version
+      @redis_server_version ||= Searchkick.with_redis { |r|
+        Gem::Version.new(r.info["server_version"])
+      }
     end
   end
 end
