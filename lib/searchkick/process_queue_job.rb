@@ -11,7 +11,7 @@ module Searchkick
         if record_ids.any?
           batch_options = {
             class_name: class_name,
-            record_ids: record_ids,
+            record_ids: record_ids.uniq,
             index_name: index_name
           }
 

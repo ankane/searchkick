@@ -42,13 +42,11 @@ module Searchkick
     end
 
     def supports_rpop_with_count?
-      redis_server_version >= Gem::Version.new("6.2")
+      redis_version >= Gem::Version.new("6.2")
     end
 
-    def redis_server_version
-      @redis_server_version ||= Searchkick.with_redis { |r|
-        Gem::Version.new(r.info["server_version"])
-      }
+    def redis_version
+      @redis_version ||= Searchkick.with_redis { |r| Gem::Version.new(r.info["redis_version"]) }
     end
   end
 end
