@@ -29,4 +29,17 @@ class ShouldIndexTest < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "index", []
   end
+
+  def test_bulk
+    store_names ["INDEX"]
+    product = Product.first
+    product.name = "DO NOT INDEX"
+    Searchkick.callbacks(false) do
+      product.save!
+    end
+    Product.where(id: product.id).reindex
+    Product.searchkick_index.refresh
+    # TODO fix in Searchkick 5
+    # assert_search "index", []
+  end
 end
