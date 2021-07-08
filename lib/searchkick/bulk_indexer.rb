@@ -84,6 +84,9 @@ module Searchkick
 
     def full_reindex_async(scope)
       if scope.respond_to?(:primary_key)
+        # hack to improve performance for MIN, MAX queries as LEFT OUTER JOIN by includes impacts request performance
+        scope = scope.dup.tap {|rel| rel.includes_values = []} if scope.respond_to?(:includes_values=)
+
         # TODO expire Redis key
         primary_key = scope.primary_key
 
