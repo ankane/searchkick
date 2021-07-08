@@ -11,19 +11,7 @@ module Searchkick
 
     def perform(klass, id, method_name = nil, routing: nil)
       model = klass.constantize
-      record =
-        begin
-          if model.respond_to?(:unscoped)
-            model.unscoped.find(id)
-          else
-            model.find(id)
-          end
-        rescue => e
-          # check by name rather than rescue directly so we don't need
-          # to determine which classes are defined
-          raise e unless RECORD_NOT_FOUND_CLASSES.include?(e.class.name)
-          nil
-        end
+      record = load_record(model, id)
 
       unless record
         record = model.new
@@ -36,6 +24,30 @@ module Searchkick
       end
 
       RecordIndexer.new(record).reindex(method_name, mode: :inline)
+    end
+
+    private
+
+    def load_record(model, id)
+      scope = model
+
+      if model.respond_to?(:unscoped)
+        scope = scope.unscoped
+      end
+
+      if scope.respond_to?(:search_import)
+        scope = scope.search_import
+      end
+
+      begin
+        scope.find(id)
+      rescue => e
+        # Check by name rather than rescue directly so we don't
+        # need to determine which classes are defined.
+        unless RECORD_NOT_FOUND_CLASSES.include?(e.class.name)
+          raise e
+        end
+      end
     end
   end
 end
