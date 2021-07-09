@@ -1,5 +1,5 @@
 module Searchkick
-  class ReindexV2Job < ActiveJob::Base
+  class ReindexV2Job < Searchkick.parent_job.constantize
     RECORD_NOT_FOUND_CLASSES = [
       "ActiveRecord::RecordNotFound",
       "Mongoid::Errors::DocumentNotFound",
