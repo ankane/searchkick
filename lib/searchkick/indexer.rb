@@ -15,7 +15,10 @@ module Searchkick
       items = @queued_items
       @queued_items = []
       if items.any?
-        response = Searchkick.client.bulk(body: items)
+        bulk_index_options = { body: items }
+        bulk_index_options[:refresh] = "wait_for" if Searchkick.should_wait_for_refresh
+
+        response = Searchkick.client.bulk(**bulk_index_options)
         if response["errors"]
           first_with_error = response["items"].map do |item|
             (item["index"] || item["delete"] || item["update"])
