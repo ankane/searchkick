@@ -649,7 +649,7 @@ class Product < ApplicationRecord
   def search_data
     {
       name: name,
-      conversions: searches.group(:query).uniq.count(:user_id)
+      conversions: searches.group(:query).distinct.count(:user_id)
       # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
     }
   end
@@ -1586,14 +1586,14 @@ class ReindexConversionsJob < ApplicationJob
     # get records that have a recent conversion
     recently_converted_ids =
       Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
-      .order(:convertable_id).uniq.pluck(:convertable_id)
+      .order(:convertable_id).distinct.pluck(:convertable_id)
 
     # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
       conversions =
         Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
-        .group(:convertable_id, :query).uniq.count(:user_id)
+        .group(:convertable_id, :query).distinct.count(:user_id)
 
       # group conversions by record
       conversions_by_record = {}
@@ -1845,7 +1845,7 @@ class Product < ApplicationRecord
   def search_data
     {
       name: name,
-      unique_user_conversions: searches.group(:query).uniq.count(:user_id),
+      unique_user_conversions: searches.group(:query).distinct.count(:user_id),
       # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
       total_conversions: searches.group(:query).count
       # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
