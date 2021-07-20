@@ -2,20 +2,19 @@ name: build
 on: [push, pull_request]
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     strategy:
       fail-fast: false
       matrix:
         include:
         - ruby: 3.0
           gemfile: Gemfile
-          elasticsearch: 7.13.3
+          elasticsearch: 7.13.4
         - ruby: 3.0
           gemfile: Gemfile
           opensearch: 1
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
-          elasticsearch: 7.13.3
+          elasticsearch: 7.13.4
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
           elasticsearch: 7.0.0
@@ -71,6 +70,7 @@ jobs:
 
     - uses: ankane/setup-mongodb@v1
       if: ${{ matrix.mongodb }}
+
     - run: |
         sudo apt-get install redis-server
         sudo systemctl start redis
