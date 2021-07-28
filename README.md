@@ -75,6 +75,27 @@ User.search(where: {
 })
 ```
 
+### Dynamic callbacks mode
+It's possible to specify callbacks mode by lambda, in order to apply very special conditions like
+
+```ruby
+class User < ActeveRecord::Base
+  searchkick callbacks: ->{ searchkick_callbacks_mode }
+
+  private
+
+  def searchkick_callbacks_mode
+    if saved_changes.keys == [:last_sign_in_at]
+      false
+    elsif saved_changes.key?(:additional_search_data)
+      :inline
+    else
+      :async
+    end
+  end
+end
+```
+
 ---
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.

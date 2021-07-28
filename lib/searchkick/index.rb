@@ -340,9 +340,17 @@ module Searchkick
 
     def reindex_records(object, mode: nil, refresh: false, **options)
       mode ||= Searchkick.callbacks_value || @options[:callbacks] || :inline
-      mode = :inline if mode == :bulk
 
-      result = RecordIndexer.new(self).reindex(object, mode: mode, full: false, **options)
+      grouped_object = object.to_a.group_by { |record|
+        individual_mode = mode.is_a?(Proc) ? record.instance_exec(&mode) : mode
+        individual_mode = :inline if individual_mode == :bulk
+        individual_mode
+      }
+      return if grouped_object.empty?
+
+      result = grouped_object.all? { |individual_mode, records|
+        RecordIndexer.new(self).reindex(records, mode: individual_mode, full: false, **options)
+      }
       self.refresh if refresh
       result
     end
