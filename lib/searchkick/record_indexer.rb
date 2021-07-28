@@ -13,6 +13,7 @@ module Searchkick
       end
 
       mode ||= Searchkick.callbacks_value || index.options[:callbacks] || true
+      mode = record.instance_exec(&mode) if mode.is_a?(Proc)
 
       case mode
       when :queue

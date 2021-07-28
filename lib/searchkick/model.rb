@@ -17,9 +17,6 @@ module Searchkick
       options[:_type] ||= -> { searchkick_index.klass_document_type(self, true) }
 
       callbacks = options.key?(:callbacks) ? options[:callbacks] : :inline
-      unless [:inline, true, false, :async, :queue].include?(callbacks)
-        raise ArgumentError, "Invalid value for callbacks"
-      end
 
       index_name =
         if options[:index_name]
@@ -65,13 +62,23 @@ module Searchkick
           end
         end
 
+
+        if_callbacks_proc = -> {
+          default_callbacks = callbacks.is_a?(Proc) ? instance_exec(&callbacks) : callbacks
+
+          unless [:inline, true, false, :async, :queue].include?(default_callbacks)
+            raise ArgumentError, "Invalid value for callbacks"
+          end
+
+          Searchkick.callbacks?(default: default_callbacks)
+        }
         # always add callbacks, even when callbacks is false
         # so Model.callbacks block can be used
         if respond_to?(:after_commit)
-          after_commit :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_commit :reindex, if: if_callbacks_proc
         elsif respond_to?(:after_save)
-          after_save :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
-          after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_save :reindex, if: if_callbacks_proc
+          after_destroy :reindex, if: if_callbacks_proc
         end
 
         def reindex(method_name = nil, **options)
