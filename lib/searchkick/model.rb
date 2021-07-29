@@ -82,7 +82,9 @@ module Searchkick
         end
 
         def reindex(method_name = nil, **options)
-          RecordIndexer.new(self).reindex(method_name, **options)
+          arp = after_reindex_params if respond_to?(:after_reindex_params)
+
+          RecordIndexer.new(self).reindex(method_name, after_reindex_params: arp, **options)
         end unless method_defined?(:reindex)
 
         def similar(options = {})
