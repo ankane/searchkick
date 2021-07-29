@@ -125,6 +125,44 @@ class User < ActeveRecord::Base
 end
 ```
 
+### `Thread_safe` mode
+There is race condition during reindexing because of the chain of non-atomic operations:
+1. Fetch the record by ID from DB
+2. Build search_data for such record
+3. Send reindexing API request to ElasticSearch
+
+As a result it's possible to face out-of-sync index data:
+1. Process 1 adds Label 1 to User
+2. Process 1 reloads the User for reindexing, taking associated Label 1
+3. Process 2 adds Label 2 to User
+4. Process 2 reloads the User for reindexing, taking associated Label 1 and Label 2
+5. Process 2 sends Label 1 and Label 2 to ElasticSearch
+6. Process 1 sends only Label 1 to ElasticSearch
+
+In order to prevent it we introduce `thread_safe` reindexing mode:
+
+```ruby
+class User < ActeveRecord::Base
+  searchkick thread_safe: true
+end
+```
+
+which will do the following under the hood:
+1. Wrap all operations related to reindexing by Postgress pessimistic lock;
+2. When asked to reindex in_memory object we will not use its state for search_data building. Instead we will fetch the edge state from DB by ID, wrapping all reindexing operations by pesismistic lock just like we do in #1
+
+There are two ENV variables related to `thread_safe` mode:
+* `SEARCHKICK_THREAD_SAFE_LOCK_TIMEOUT_SECONDS` will change the timeout used by advisory locking, 1 second by default;
+* `SEARCHKICK_THREAD_SAFE_DISABLED` should be set to `true` in order to turn off `thread_safe` mode globally in emergency case.
+
+** IMPORTANT **
+
+Starting from `4.0.0-everfi.1` gem version you need to add the migration for `Searchkick::IndexVersion` model in order to make it working:
+
+```
+bundle exec rails generate searchkick:migration
+```
+
 ---
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.

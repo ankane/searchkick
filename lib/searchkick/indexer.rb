@@ -24,8 +24,10 @@ module Searchkick
         # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|
           (item["index"] || item["delete"] || item["update"])
-        end.find { |item| item["error"] }
-        raise ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
+          # Just ignore versioning error
+        end.find { |item| item["error"] && item["error"]["type"] != 'version_conflict_engine_exception' }
+
+        raise ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'" if first_with_error
       end
 
       # maybe return response in future

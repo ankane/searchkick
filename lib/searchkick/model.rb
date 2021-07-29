@@ -7,8 +7,12 @@ module Searchkick
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :max_result_window, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,
         :special_characters, :stem, :stemmer, :stem_conversions, :stem_exclusion, :stemmer_override, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start]
+        :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start, :thread_safe]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
+
+      if options[:thread_safe] && !respond_to?(:insert_all)
+        raise ArgumentError, 'Use ActiveRecord > 6.0 in order apply thread_safe mode'
+      end
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
 

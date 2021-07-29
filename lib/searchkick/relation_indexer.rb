@@ -15,7 +15,7 @@ module Searchkick
       end
 
       # remove unneeded loading for async
-      if mode == :async
+      if mode == :async || Searchkick::ThreadSafeRecordIndexer.new(index).thread_safe?(relation)
         if relation.respond_to?(:primary_key)
           relation = relation.select(relation.primary_key).except(:includes, :preload)
         elsif relation.respond_to?(:only)

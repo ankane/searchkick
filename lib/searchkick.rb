@@ -29,6 +29,9 @@ require "searchkick/results"
 require "searchkick/version"
 require "searchkick/where"
 
+require "searchkick/index_version" if defined?(::ActiveRecord)
+require "searchkick/thread_safe_record_indexer"
+
 # integrations
 require "searchkick/railtie" if defined?(Rails)
 

@@ -14,7 +14,7 @@ module Searchkick
         end
 
       relation = Searchkick.scope(model)
-      RecordIndexer.new(index).reindex_items(relation, items, method_name: nil)
+      ThreadSafeRecordIndexer.new(index).reindex_items(relation, items, method_name: nil)
     end
   end
 end

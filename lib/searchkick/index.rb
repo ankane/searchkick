@@ -146,28 +146,28 @@ module Searchkick
       end
     end
 
-    def bulk_delete(records)
+    def bulk_delete(records, records_data: nil)
       return if records.empty?
 
       notify_bulk(records, "Delete") do
-        queue_delete(records)
+        queue_delete(records, records_data: records_data)
       end
     end
 
-    def bulk_index(records)
+    def bulk_index(records, records_data: nil)
       return if records.empty?
 
       notify_bulk(records, "Import") do
-        queue_index(records)
+        queue_index(records, records_data: records_data)
       end
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name)
+    def bulk_update(records, method_name, records_data: nil)
       return if records.empty?
 
       notify_bulk(records, "Update") do
-        queue_update(records, method_name)
+        queue_update(records, method_name, records_data: records_data)
       end
     end
 
@@ -314,16 +314,16 @@ module Searchkick
       Searchkick.client
     end
 
-    def queue_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
+    def queue_index(records, records_data: nil)
+      Searchkick.indexer.queue(records_data || records.map { |r| RecordData.new(self, r).index_data })
     end
 
-    def queue_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
+    def queue_delete(records, records_data: nil)
+      Searchkick.indexer.queue(records_data || records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
-    def queue_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
+    def queue_update(records, method_name, records_data: nil)
+      Searchkick.indexer.queue(records_data || records.map { |r| RecordData.new(self, r).update_data(method_name) })
     end
 
     def relation_indexer

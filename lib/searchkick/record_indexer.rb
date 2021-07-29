@@ -52,7 +52,7 @@ module Searchkick
         index.reindex_queue.push_records(records)
       when true, :inline
         index_records, other_records = records.partition { |r| index_record?(r) }
-        import_inline(index_records, !full ? other_records : [], method_name: method_name, single: single, after_reindex_params: after_reindex_params)
+        Searchkick::ThreadSafeRecordIndexer.new(index).reindex_stale_records(index_records, !full ? other_records : [], method_name: method_name, single: single, after_reindex_params: after_reindex_params)
       else
         raise ArgumentError, "Invalid value for mode"
       end
@@ -61,7 +61,7 @@ module Searchkick
       true
     end
 
-    def reindex_items(klass, items, method_name:, single: false, after_reindex_params: nil)
+    def fetch_items(klass, items)
       routing = items.to_h { |r| [r[:id], r[:routing]] }
       record_ids = routing.keys
 
@@ -77,36 +77,36 @@ module Searchkick
           construct_record(klass, id, routing[id])
         end
 
-      import_inline(records, delete_records, method_name: method_name, single: single, after_reindex_params: after_reindex_params)
-    end
-
-    private
-
-    def index_record?(record)
-      record.persisted? && !record.destroyed? && record.should_index?
+      [records, delete_records]
     end
 
     # import in single request with retries
-    def import_inline(index_records, delete_records, method_name:, single:, after_reindex_params: nil)
+    def import_inline(index_records, delete_records, method_name:, single:, after_reindex_params: nil, records_data: nil, delete_records_data: nil)
       return if index_records.empty? && delete_records.empty?
 
       maybe_bulk(index_records, delete_records, method_name, single) do
         if index_records.any?
           if method_name
-            index.bulk_update(index_records, method_name)
+            index.bulk_update(index_records, method_name, records_data: records_data)
           else
-            index.bulk_index(index_records)
+            index.bulk_index(index_records, records_data: records_data)
           end
 
           run_after_reindex_callback(index_records, after_reindex_params)
         end
 
         if delete_records.any?
-          index.bulk_delete(delete_records)
+          index.bulk_delete(delete_records, records_data: delete_records_data)
 
           run_after_reindex_callback(delete_records, after_reindex_params)
         end
       end
+    end
+
+    private
+
+    def index_record?(record)
+      record.persisted? && !record.destroyed? && record.should_index?
     end
 
     def maybe_bulk(index_records, delete_records, method_name, single)
