@@ -25,7 +25,9 @@ module Searchkick
       include(mod)
       mod.module_eval do
         def reindex(method_name = nil, mode: nil, refresh: false)
-          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true)
+          arp = after_reindex_params if respond_to?(:after_reindex_params)
+
+          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true, after_reindex_params: { self.id.to_s => arp })
         end unless base.method_defined?(:reindex)
 
         def similar(**options)

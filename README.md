@@ -96,6 +96,35 @@ class User < ActeveRecord::Base
 end
 ```
 
+### `after_reindex` callback
+It's possible to specify `after_reindex` method on model in order to evaluate some stuff right after reindexing.
+For instance it might be needed for Kafka messaging, to be sure that comsumer will surely see search_data changes.
+In addimional you might be needed to implement `after_reindex_params` method in order to pass the data from in_memory
+object (such as `saved_changes`) to `after_reindex` callback:
+
+```ruby
+class User < ActeveRecord::Base
+  def after_reindex_params
+    params = {}
+
+    if saved_changes.key?(:active)
+      params[:activation_status] = active ? :active : :inactive
+    end
+
+    params
+  end
+
+  def after_reindex(params)
+    return unless params
+
+    # Important since the Symbol-typed values will be casted to strings during ActiveJob serialization
+    params.symbolize_keys!
+
+    UserStatusChanged.publish(**params) if params.key?(:activation_status)
+  end
+end
+```
+
 ---
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.
