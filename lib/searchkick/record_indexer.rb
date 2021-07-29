@@ -50,9 +50,7 @@ module Searchkick
           after_reindex_params: after_reindex_params
         )
       else # bulk, inline/true/nil
-        reindex_record(method_name)
-        record.after_reindex(after_reindex_params) if record.respond_to?(:after_reindex)
-
+        Searchkick::ThreadSafeIndexer.new.reindex_stale_record(record, method_name, after_reindex_params: after_reindex_params)
         index.refresh if refresh
       end
     end
@@ -61,22 +59,6 @@ module Searchkick
 
     def queue_escape(value)
       value.gsub("|", "||")
-    end
-
-    def reindex_record(method_name)
-      if record.destroyed? || !record.persisted? || !record.should_index?
-        begin
-          index.remove(record)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
-        end
-      else
-        if method_name
-          index.update_record(record, method_name)
-        else
-          index.store(record)
-        end
-      end
     end
   end
 end
