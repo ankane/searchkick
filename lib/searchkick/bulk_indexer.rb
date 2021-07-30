@@ -27,9 +27,7 @@ module Searchkick
           relation = relation.where("id > ?", index.total_docs)
         end
 
-        relation = relation.select("id").except(:includes, :preload) if async
-
-        relation.find_in_batches batch_size: batch_size do |items|
+        Searchkick::ThreadSafeIndexer.new.find_in_batches(relation, async: async, full: full, batch_size: batch_size) do |items|
           import_or_update items, method_name, async
         end
       else
