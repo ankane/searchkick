@@ -118,7 +118,7 @@ class GeoShapeTest < Minitest::Test
     }
   end
 
-  def test_search_math
+  def test_search_match
     assert_search "witch", ["Region A"], {
       where: {
         territory: {

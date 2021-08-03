@@ -297,6 +297,10 @@ class WhereTest < Minitest::Test
     unless Searchkick.server_below?("7.12.0")
       assert_match "Deprecated field [geo_polygon] used", stderr
     end
+
+    # see test/geo_shape_test.rb for other geo_shape tests
+    polygon << polygon.first
+    assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_shape: {type: "polygon", coordinates: [polygon]}}}
   end
 
   def test_top_left_bottom_right
