@@ -22,7 +22,9 @@ class OrderTest < Minitest::Test
     _, stderr = capture_io do
       assert_order "product", [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name), order: {id: :asc}
     end
-    assert_match "Loading the fielddata on the _id field is deprecated", stderr
+    unless Searchkick.server_below?("7.6.0")
+      assert_match "Loading the fielddata on the _id field is deprecated", stderr
+    end
   end
 
   def test_multiple

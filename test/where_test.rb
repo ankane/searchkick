@@ -291,7 +291,12 @@ class WhereTest < Minitest::Test
       {lat: 27.122789, lon: -94.125535},
       {lat: 27.12278, lon: -125.496146}
     ]
-    assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
+    _, stderr = capture_io do
+      assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
+    end
+    unless Searchkick.server_below?("7.12.0")
+      assert_match "Deprecated field [geo_polygon] used", stderr
+    end
   end
 
   def test_top_left_bottom_right
