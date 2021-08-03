@@ -1,4 +1,4 @@
-## 4.6.0 (unreleased)
+## 4.5.1 (2021-08-03)
 
 - Improved performance of reindex queue
 
