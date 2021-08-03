@@ -84,6 +84,8 @@ class QueryTest < Minitest::Test
     skip unless activerecord?
 
     store_names ["Product A", "Product B"]
-    assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
+    assert_warns "Records in search index do not exist in database" do
+      assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
+    end
   end
 end

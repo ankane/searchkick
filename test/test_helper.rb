@@ -114,6 +114,13 @@ class Minitest::Test
     assert_search(term, expected, options, klass)
   end
 
+  def assert_warns(message)
+    _, stderr = capture_io do
+      yield
+    end
+    assert_match "[searchkick] WARNING: #{message}", stderr
+  end
+
   def with_options(options, klass = default_model)
     previous_options = klass.searchkick_options.dup
     begin

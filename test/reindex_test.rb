@@ -145,7 +145,9 @@ class ReindexTest < Minitest::Test
   def test_full_partial_async
     store_names ["Product A"]
     # warn for now
-    Product.reindex(:search_name, async: true)
+    assert_warns "unsupported keywords: :async" do
+      Product.reindex(:search_name, async: true)
+    end
   end
 
   def test_callbacks_false

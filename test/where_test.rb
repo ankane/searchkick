@@ -113,24 +113,38 @@ class WhereTest < Minitest::Test
     store_names ["abcde"]
     # regular expressions are always anchored right now
     # TODO change in future release
-    assert_search "*", [], where: {name: /abcd/}
-    assert_search "*", [], where: {name: /bcde/}
-    assert_search "*", ["abcde"], where: {name: /abcde/}
-    assert_search "*", ["abcde"], where: {name: /.*bcd.*/}
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", [], where: {name: /abcd/}
+    end
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", [], where: {name: /bcde/}
+    end
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", ["abcde"], where: {name: /abcde/}
+    end
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", ["abcde"], where: {name: /.*bcd.*/}
+    end
   end
 
   def test_regexp_anchored
     store_names ["abcde"]
     assert_search "*", ["abcde"], where: {name: /\Aabcde\z/}
-    assert_search "*", [], where: {name: /\Abcd/}
-    assert_search "*", [], where: {name: /bcd\z/}
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", [], where: {name: /\Abcd/}
+    end
+    assert_warns "Regular expressions are always anchored in Elasticsearch" do
+      assert_search "*", [], where: {name: /bcd\z/}
+    end
   end
 
   def test_regexp_case
     store_names ["abcde"]
     assert_search "*", [], where: {name: /\AABCDE\z/}
     # flags don't work
-    assert_search "*", [], where: {name: /\AABCDE\z/i}
+    assert_warns "Case-insensitive flag does not work with Elasticsearch" do
+      assert_search "*", [], where: {name: /\AABCDE\z/i}
+    end
   end
 
   def test_prefix
