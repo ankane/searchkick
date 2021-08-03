@@ -11,6 +11,8 @@ class MultiIndicesTest < Minitest::Test
     store_names ["Product A"]
     assert_equal ["Product A"], Product.search("product", index_name: Product.searchkick_index.name).map(&:name)
     assert_equal ["Product A"], Product.search("product", index_name: Product).map(&:name)
+
+    Speaker.search_index.refresh
     assert_equal [], Product.search("product", index_name: Speaker.searchkick_index.name, conversions: false).map(&:name)
   end
 
