@@ -939,7 +939,7 @@ Restaurant.search "sushi", where: {location: {top_left: {lat: 38, lon: -123}, bo
 Bounded by a polygon
 
 ```ruby
-Restaurant.search "dessert", where: {location: {geo_shape: {type: "polygon", coordinates: [[{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}, {lat: 38, lon: -123}]]}}}
+Restaurant.search "dessert", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
 ```
 
 ### Boost By Distance
