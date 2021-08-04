@@ -1,6 +1,4 @@
 require "forwardable"
-require "active_support/core_ext/module/delegation" # Required by active_model/naming
-require "active_model/naming"
 
 module Searchkick
   class Results
