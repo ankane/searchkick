@@ -10,7 +10,7 @@ jobs:
           gemfile: Gemfile
           elasticsearch: 7.14.0
         - ruby: 3.0
-          gemfile: Gemfile
+          gemfile: gemfiles/opensearch.gemfile
           opensearch: 1
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
