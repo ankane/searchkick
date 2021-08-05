@@ -1,3 +1,7 @@
+## 4.5.2 (unreleased)
+
+- Fixed error with reindex queue
+
 ## 4.5.1 (2021-08-03)
 
 - Improved performance of reindex queue

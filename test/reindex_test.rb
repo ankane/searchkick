@@ -198,6 +198,9 @@ class ReindexTest < Minitest::Test
     Product.searchkick_index.refresh
     assert_search "product", ["Product A", "Product C"], load: false
     assert_equal 0, reindex_queue.length
+
+    # ensure no error with empty queue
+    Searchkick::ProcessQueueJob.perform_later(class_name: "Product")
   end
 
   def test_transaction

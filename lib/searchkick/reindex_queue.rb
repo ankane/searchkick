@@ -15,7 +15,7 @@ module Searchkick
     # TODO use reliable queuing
     def reserve(limit: 1000)
       if supports_rpop_with_count?
-        Searchkick.with_redis { |r| r.call("rpop", redis_key, limit) }
+        Searchkick.with_redis { |r| r.call("rpop", redis_key, limit) }.to_a
       else
         record_ids = []
         Searchkick.with_redis do |r|
