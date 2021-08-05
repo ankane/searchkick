@@ -12,7 +12,11 @@ ENV["ES_PATH"] ||= "#{ENV["HOME"]}/elasticsearch/#{ENV["ELASTICSEARCH_VERSION"]}
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
-Searchkick.client.transport.logger = $logger
+if Elasticsearch::VERSION.to_f >= 7.14
+  Searchkick.client.transport.transport.logger = $logger
+else
+  Searchkick.client.transport.logger = $logger
+end
 Searchkick.search_timeout = 5
 Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 
