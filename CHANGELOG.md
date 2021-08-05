@@ -2,6 +2,7 @@
 
 - Fixed error with reindex queue
 - Fixed error with `model_name` method with multiple models
+- Fixed error with `debug` option with elasticsearch-ruby 7.14
 
 ## 4.5.1 (2021-08-03)
 

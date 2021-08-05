@@ -109,7 +109,12 @@ module Searchkick
       request_params = query.except(:index, :type, :body)
 
       # no easy way to tell which host the client will use
-      host = Searchkick.client.transport.hosts.first
+      host =
+        if Elasticsearch::VERSION.to_f >= 7.14
+          Searchkick.client.transport.transport.hosts.first
+        else
+          Searchkick.client.transport.hosts.first
+        end
       credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
       params = ["pretty"]
       request_params.each do |k, v|
