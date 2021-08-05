@@ -1,4 +1,4 @@
-## 4.5.2 (unreleased)
+## 4.5.2 (2021-08-05)
 
 - Fixed error with reindex queue
 - Fixed error with `model_name` method with multiple models
