@@ -71,7 +71,11 @@ module Searchkick
     end
 
     def model_name
-      klass.model_name
+      if klass.nil?
+        ActiveModel::Name.new(self.class, nil, 'Result')
+      else
+        klass.model_name
+      end
     end
 
     def entry_name(options = {})
