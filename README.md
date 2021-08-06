@@ -45,7 +45,7 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 
 ## Getting Started
 
-Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html) (OpenSearch support is experimental). For Homebrew, use:
+Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html). For Homebrew, use:
 
 ```sh
 brew install elasticsearch # or opensearch
