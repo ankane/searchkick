@@ -407,7 +407,7 @@ And use:
 Product.search_index.reload_synonyms
 ```
 
-#### Elasticsearch < 7.3
+#### Elasticsearch < 7.3 or OpenSearch
 
 You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
 
