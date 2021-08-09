@@ -131,7 +131,7 @@ Order
 order: {_score: :desc} # most relevant first - default
 ```
 
-[All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html)
+[All of these sort options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/sort-search-results.html)
 
 Limit / offset
 
@@ -145,7 +145,7 @@ Select
 select: [:name]
 ```
 
-[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-source-filtering)
+[These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#source-filtering)
 
 ### Results
 
@@ -905,7 +905,7 @@ Additional options can be specified for each field:
 Band.search "cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}}
 ```
 
-You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-highlighting.html#_highlighted_fragments).
+You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html).
 
 ## Similar Items
 
@@ -956,7 +956,7 @@ Boost results by distance - closer results are boosted more
 Restaurant.search "noodles", boost_by_distance: {location: {origin: {lat: 37, lon: -122}}}
 ```
 
-Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#_decay_functions)
+Also supports [additional options](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay)
 
 ```ruby
 Restaurant.search "wings", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, function: "linear", scale: "30mi", decay: 0.5}}
@@ -1723,7 +1723,7 @@ Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenan
 
 ## Scroll API
 
-Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
+Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
 
 ```ruby
 Product.search("*", scroll: "1m").scroll do |batch|
@@ -1976,7 +1976,7 @@ products = Product.search("carrots", execute: false)
 products.each { ... } # search not executed until here
 ```
 
-Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html), like `search_type` and `query_cache`
+Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params) like `search_type`
 
 ```ruby
 Product.search("carrots", request_params: {search_type: "dfs_query_then_fetch"})
