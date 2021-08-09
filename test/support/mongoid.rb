@@ -55,6 +55,15 @@ end
 class Cat < Animal
 end
 
+class Thing
+  include Mongoid::Document
+
+  field :name
+end
+
+class Wheel < Thing
+end
+
 class Sku
   include Mongoid::Document
 

@@ -49,6 +49,16 @@ ActiveRecord::Schema.define do
     t.string :type
   end
 
+  create_table :things do |t|
+    t.string :name
+    t.string :type
+  end
+
+  create_table :wheels do |t|
+    t.string :name
+    t.string :type
+  end
+
   create_table :skus, id: :uuid do |t|
     t.string :name
   end
@@ -83,6 +93,13 @@ class Dog < Animal
 end
 
 class Cat < Animal
+end
+
+class Thing < ActiveRecord::Base
+end
+
+class Wheel < Thing
+  self.table_name = 'wheels'
 end
 
 class Sku < ActiveRecord::Base

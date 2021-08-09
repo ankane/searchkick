@@ -58,6 +58,16 @@ end
 class Cat < Animal
 end
 
+class Thing
+  include NoBrainer::Document
+
+  field :id,   type: Object
+  field :name, type: String
+end
+
+class Wheel < Thing
+end
+
 class Sku
   include NoBrainer::Document
 

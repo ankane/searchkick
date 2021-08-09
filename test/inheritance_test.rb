@@ -99,6 +99,21 @@ class InheritanceTest < Minitest::Test
     assert_equal expected, Searchkick.search("bear", models: [Cat, Product], per_page: 1).total_pages
   end
 
+  def test_inherited_model_custom_table_name
+    skip unless activerecord?
+
+    store_names ["Knot A"], Thing
+    store_names ["Knot B"], Wheel
+    store_names ["Knot C"]
+    Thing.reindex
+
+    assert_equal 2, Searchkick.search("knot", models: [Wheel, Product]).size
+    assert_equal 2, Searchkick.search("knot", models: [Wheel, Thing]).size
+
+    assert_equal 'wheels_test', Wheel.searchkick_index.name
+    assert_equal 'things_test', Thing.searchkick_index.name
+  end
+
   # TODO move somewhere better
 
   def test_multiple_indices

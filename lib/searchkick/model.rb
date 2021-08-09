@@ -22,24 +22,56 @@ module Searchkick
         raise ArgumentError, "Invalid value for callbacks"
       end
 
-      index_name =
-        if options[:index_name]
-          options[:index_name]
-        elsif options[:index_prefix].respond_to?(:call)
-          -> { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
-        else
-          [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
-        end
-
       class_eval do
-        cattr_reader :searchkick_options, :searchkick_klass
-
         class_variable_set :@@searchkick_options, options.dup
-        class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_index, index_name
         class_variable_set :@@searchkick_index_cache, {}
 
+        delegate :searchkick_klass, :searchkick_options, to: self
+
         class << self
+          def searchkick_klass
+            searchkick_target
+          end
+
+          def searchkick_target
+            @searchkick_target ||=
+              if superclass.respond_to?(:searchkick_index) &&
+                class_variable_get(:@@searchkick_options)&.fetch(:inheritance, false)
+
+                superclass
+              else
+                self
+              end
+          end
+
+          def searchkick_options
+            @searchkick_options ||= class_variable_get(:@@searchkick_options).to_h.merge(
+              class_name: searchkick_target.name
+            )
+          end
+
+          def searchkick_index_name
+            @searchkick_index_name ||=
+              if searchkick_options[:index_name]
+                searchkick_options[:index_name]
+              elsif searchkick_options[:index_prefix].respond_to?(:call)
+                -> { build_searchkick_index_name(searchkick_options[:index_prefix].call) }
+              else
+                build_searchkick_index_name(searchkick_options[:index_prefix])
+              end
+          end
+
+          def build_searchkick_index_name(prefix = nil)
+            parts = [
+              prefix || Searchkick.index_prefix,
+              defined?(table_name) ? table_name : model_name.plural,
+              Searchkick.env,
+              Searchkick.index_suffix
+            ]
+
+            parts.compact.join("_")
+          end
+
           def searchkick_search(term = "*", **options, &block)
             # TODO throw error in next major version
             Searchkick.warn("calling search on a relation is deprecated") if Searchkick.relation?(self)
@@ -49,7 +81,7 @@ module Searchkick
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index(name: nil)
-            index = name || class_variable_get(:@@searchkick_index)
+            index = name || searchkick_index_name
             index = index.call if index.respond_to?(:call)
             index_cache = class_variable_get(:@@searchkick_index_cache)
             index_cache[index] ||= Searchkick::Index.new(index, searchkick_options)

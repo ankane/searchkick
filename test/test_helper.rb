@@ -61,6 +61,8 @@ Product.create!(name: "Set mapping")
 
 Store.reindex
 Animal.reindex
+Thing.reindex
+Wheel.reindex
 Speaker.reindex
 Region.reindex
 
@@ -70,6 +72,8 @@ class Minitest::Test
     Store.destroy_all
     Animal.destroy_all
     Speaker.destroy_all
+    Thing.destroy_all
+    Wheel.destroy_all
   end
 
   protected
