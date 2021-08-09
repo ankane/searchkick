@@ -1,3 +1,7 @@
+## 4.5.3 (unreleased)
+
+- Added support for `OPENSEARCH_URL`
+
 ## 4.5.2 (2021-08-05)
 
 - Fixed error with reindex queue

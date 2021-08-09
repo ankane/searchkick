@@ -56,7 +56,7 @@ module Searchkick
       require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
 
       Elasticsearch::Client.new({
-        url: ENV["ELASTICSEARCH_URL"],
+        url: ENV["ELASTICSEARCH_URL"] || ENV["OPENSEARCH_URL"],
         transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
         retry_on_failure: 2
       }.deep_merge(client_options)) do |f|
