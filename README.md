@@ -1260,7 +1260,7 @@ Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai), [SearchBo
 For Bonsai:
 
 ```sh
-heroku addons:create bonsai
+heroku addons:create bonsai # use --engine=opensearch for OpenSearch
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
 ```
 
