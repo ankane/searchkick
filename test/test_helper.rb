@@ -12,7 +12,7 @@ ENV["ES_PATH"] ||= "#{ENV["HOME"]}/elasticsearch/#{ENV["ELASTICSEARCH_VERSION"]}
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
-if Elasticsearch::VERSION.to_f >= 7.14
+if Gem::Version.new(Elasticsearch::VERSION) >= Gem::Version.new("7.14.0")
   Searchkick.client.transport.transport.logger = $logger
 else
   Searchkick.client.transport.logger = $logger

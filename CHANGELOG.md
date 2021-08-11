@@ -1,6 +1,7 @@
 ## 4.5.3 (unreleased)
 
 - Added support for `OPENSEARCH_URL`
+- Fixed error with `debug` option
 
 ## 4.5.2 (2021-08-05)
 

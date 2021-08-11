@@ -110,7 +110,7 @@ module Searchkick
 
       # no easy way to tell which host the client will use
       host =
-        if Elasticsearch::VERSION.to_f >= 7.14
+        if Gem::Version.new(Elasticsearch::VERSION) >= Gem::Version.new("7.14.0")
           Searchkick.client.transport.transport.hosts.first
         else
           Searchkick.client.transport.hosts.first
