@@ -141,8 +141,13 @@ class WhereTest < Minitest::Test
   def test_regexp_case
     store_names ["abcde"]
     assert_search "*", [], where: {name: /\AABCDE\z/}
-    assert_search "*", ["abcde"], where: {name: /\AABCDE\z/i}
-    assert_search "*", ["abcde"], where: {name: /\AaBcDe\z/i}
+    if Searchkick.server_below?("7.10.0")
+      assert_warns "Case-insensitive flag does not work with Elasticsearch < 7.10" do
+        assert_search "*", [], where: {name: /\AABCDE\z/i}
+      end
+    else
+      assert_search "*", ["abcde"], where: {name: /\AABCDE\z/i}
+    end
   end
 
   def test_prefix
