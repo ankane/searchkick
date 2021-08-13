@@ -1,5 +1,6 @@
 ## 4.5.3 (unreleased)
 
+- Added support for case-insensitive regular expressions with Elasticsearch 7.10+
 - Added support for `OPENSEARCH_URL`
 - Fixed error with `debug` option
 
