@@ -1028,10 +1028,6 @@ module Searchkick
       elsif value.nil?
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
-        if value.casefold?
-          Searchkick.warn("Case-insensitive flag does not work with Elasticsearch")
-        end
-
         source = value.source
         unless source.start_with?("\\A") && source.end_with?("\\z")
           # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
@@ -1053,7 +1049,14 @@ module Searchkick
           # source = "#{source}.*"
         end
 
-        {regexp: {field => {value: source, flags: "NONE"}}}
+        if below710?
+          if value.casefold?
+            Searchkick.warn("Case-insensitive flag does not work with Elasticsearch < 7.10")
+          end
+          {regexp: {field => {value: source, flags: "NONE"}}}
+        else
+          {regexp: {field => {value: source, flags: "NONE", case_insensitive: value.casefold?}}}
+        end
       else
         # TODO add this for other values
         if value.as_json.is_a?(Enumerable)
@@ -1150,6 +1153,10 @@ module Searchkick
 
     def below75?
       Searchkick.server_below?("7.5.0")
+    end
+
+    def below710?
+      Searchkick.server_below?("7.10.0")
     end
   end
 end
