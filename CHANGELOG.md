@@ -1,4 +1,4 @@
-## 4.5.3 (unreleased)
+## 4.6.0 (2021-08-22)
 
 - Added support for case-insensitive regular expressions with Elasticsearch 7.10+
 - Added support for `OPENSEARCH_URL`
