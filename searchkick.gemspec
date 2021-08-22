@@ -16,6 +16,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.4"
 
   spec.add_dependency "activemodel", ">= 5"
-  spec.add_dependency "elasticsearch", ">= 6"
+  spec.add_dependency "elasticsearch", ">= 6", "< 7.14"
   spec.add_dependency "hashie"
 end

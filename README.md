@@ -58,12 +58,6 @@ Add this line to your application’s Gemfile:
 gem 'searchkick'
 ```
 
-For OpenSearch, also add:
-
-```ruby
-gem 'elasticsearch', '< 7.14'
-```
-
 The latest version works with Elasticsearch 6 and 7 and OpenSearch 1. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
 
 Add searchkick to models you want to search.
