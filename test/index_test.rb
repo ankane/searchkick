@@ -102,8 +102,7 @@ class IndexTest < Minitest::Test
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
-    # values that exceed ignore_above are not included in _all field :(
-    # assert_search "hello", ["Product A"], {}, Region
+    assert_search "hello", ["Product A"], {}, Region
   end
 
   def test_bulk_import_raises_error
