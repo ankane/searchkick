@@ -74,12 +74,11 @@ class IndexTest < Minitest::Test
   # TODO move
 
   def test_filterable
-    # skip for 5.0 since it throws
-    # Cannot search on field [alt_description] since it is not indexed.
     store [{name: "Product A", alt_description: "Hello"}]
-    assert_raises(Searchkick::InvalidQueryError) do
+    error = assert_raises(Searchkick::InvalidQueryError) do
       assert_search "*", [], where: {alt_description: "Hello"}
     end
+    assert_match "Cannot search on field [alt_description] since it is not indexed", error.message
   end
 
   def test_filterable_non_string
