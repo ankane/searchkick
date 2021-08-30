@@ -93,6 +93,7 @@ class IndexTest < Minitest::Test
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
     assert_search "hello", ["Product A"], {}, Region
+    assert_search "*", ["Product A"], {where: {text: large_value}}, Region
   end
 
   def test_very_large_value
@@ -102,6 +103,8 @@ class IndexTest < Minitest::Test
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
     assert_search "hello", ["Product A"], {}, Region
+    # keyword not indexed
+    assert_search "*", [], {where: {text: large_value}}, Region
   end
 
   def test_bulk_import_raises_error
