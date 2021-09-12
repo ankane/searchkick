@@ -1,13 +1,5 @@
 module Searchkick
   class ThreadSafeIndexer
-    class LockTimeoutError < StandardError; end
-
-    DEFAULT_LOCK_TIMEOUT_SECONDS = 1
-    # Be sure that we under the limit of `max_locks_per_transaction` Postgres setting,
-    #  which is typically equals to 64
-    THREAD_SAFE_BATCH_SIZE = 50
-
-
     RECORD_NOT_FOUND_CLASSES = [
       "ActiveRecord::RecordNotFound",
       "Mongoid::Errors::DocumentNotFound",
@@ -31,7 +23,7 @@ module Searchkick
     end
 
     def find_and_reindex_record(model, id, method_name = nil, routing: nil, after_reindex_params: nil)
-      acquire_lock(model, id) do
+      acquire_locks!(model, id) do
         record =
           begin
             if model.respond_to?(:unscoped)
@@ -65,7 +57,6 @@ module Searchkick
 
       batching_relation = origin_relation
       batching_relation = batching_relation.select("id").except(:includes, :preload) if async || thread_safe_mode
-      batch_size = [batch_size, THREAD_SAFE_BATCH_SIZE].min if thread_safe_mode
 
       batching_relation.find_in_batches batch_size: batch_size do |items|
         unless thread_safe_mode
@@ -86,31 +77,13 @@ module Searchkick
       ENV['SEARCHKICK_THREAD_SAFE_DISABLED'] != 'true' && model.searchkick_index.options[:thread_safe]
     end
 
-    def acquire_lock(model, id, &block)
-      unless thread_safe?(model)
-        return block.call
+    def acquire_locks!(model, ids)
+      ids = Array.wrap(ids).compact.uniq.sort
+      return yield if !thread_safe?(model) || ids.empty?
+
+      Searchkick::IndexVersion.bump_versions(model, ids) do
+        yield
       end
-
-      acquire_locks!(model, id, &block)
-    end
-
-    def acquire_locks!(model, ids, recursive: false, &block)
-      unless recursive
-        ids = Array.wrap(ids).compact.uniq.sort
-      end
-
-      id = ids.shift
-      return block.call unless id
-
-      lock_name = "SearchkickReindexing_#{model.name}_#{id}"
-      lock_timeout_seconds = ENV['SEARCHKICK_THREAD_SAFE_LOCK_TIMEOUT_SECONDS']&.to_f || DEFAULT_LOCK_TIMEOUT_SECONDS
-
-      lock_aquired = model.with_advisory_lock(lock_name, timeout_seconds: lock_timeout_seconds) do
-        acquire_locks!(model, ids, recursive: true, &block)
-        true
-      end
-
-      raise LockTimeoutError unless lock_aquired
     end
 
     def reindex_record(record, method_name, after_reindex_params:)

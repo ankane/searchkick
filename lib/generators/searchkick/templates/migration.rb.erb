@@ -1,0 +1,11 @@
+class CreateSearchkickTables < ActiveRecord::Migration<%= migration_version %>
+  def change
+    create_table :searchkick_index_versions do |t|
+      t.string  :resource_id,   null: false
+      t.string  :resource_type, null: false
+      t.integer :version,       null: false, default: 0
+    end
+
+    add_index :searchkick_index_versions, [:resource_type, :resource_id], unique: true, name: 'index_searchkick_index_versions_on_resource'
+  end
+end

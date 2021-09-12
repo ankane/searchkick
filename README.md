@@ -79,10 +79,8 @@ end
 ```
 
 which will do the following inder the hood:
-1. Wrap all operations related to reindexing by Postgress advisory lock;
-2. When asked to reindex in_memory object we will not use its state for search_data building. Instead we will fetch the edge state from DB by ID, wrapping all reindexing operations by advisory lock just like we do in #1
-
-Note that you need to add `with_advisory_lock` gem into your project in order to make it working.
+1. Wrap all operations related to reindexing by Postgress pessimistic lock;
+2. When asked to reindex in_memory object we will not use its state for search_data building. Instead we will fetch the edge state from DB by ID, wrapping all reindexing operations by pesismistic lock just like we do in #1
 
 There are two ENV variables related to `thread_safe` mode:
 * `SEARCHKICK_THREAD_SAFE_LOCK_TIMEOUT_SECONDS` will change the timeout used by advisory locking, 1 second by default;
