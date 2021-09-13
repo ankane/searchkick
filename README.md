@@ -1230,7 +1230,7 @@ Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This de
 
 - [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
-- [Amazon Elasticsearch Service](#amazon-elasticsearch-service)
+- [Amazon OpenSearch Service](#amazon-opensearch-service)
 - [Self-Hosted and Other](#self-hosted-and-other)
 
 ### Elastic Cloud
@@ -1290,7 +1290,7 @@ Then deploy and reindex:
 heroku run rake searchkick:reindex:all
 ```
 
-### Amazon Elasticsearch Service
+### Amazon OpenSearch Service
 
 Create an initializer `config/initializers/elasticsearch.rb` with:
 
