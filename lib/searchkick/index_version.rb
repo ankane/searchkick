@@ -10,9 +10,8 @@ module Searchkick
         # applied by Postgres to updated version records.
         # There is no any need to ask for `requires_new: true`.
         transaction do
-          # TODO: To be used somehow
           new_versions = update_versions(model, ids)
-          yield
+          yield new_versions
         end
       end
 
