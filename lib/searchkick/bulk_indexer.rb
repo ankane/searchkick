@@ -27,9 +27,7 @@ module Searchkick
           relation = relation.where("id > ?", index.total_docs)
         end
 
-        Searchkick::ThreadSafeIndexer.new.find_in_batches(relation, async: async, full: full, batch_size: batch_size) do |items|
-          import_or_update items, method_name, async
-        end
+        Searchkick::ThreadSafeIndexer.new.reindex_relation(relation, method_name, bulk_indexer: self, async: async, full: full, batch_size: batch_size)
       else
         each_batch(relation) do |items|
           import_or_update items, method_name, async

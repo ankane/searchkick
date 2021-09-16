@@ -33,30 +33,29 @@ module Searchkick
 
       record, record_data = thread_safe_find_record(model, id, method_name, routing: routing)
 
-      begin
-        # Run versioned ES reindexing out from the locked block, no needs to lock it
-        queue_record_data(record, record_data, after_reindex_params: after_reindex_params)
-      rescue Searchkick::ImportError => e
-        # Just ignore versioning error
-        raise unless e.message.include?('version_conflict_engine_exception')
-      end
+      # Run versioned ES reindexing out from the locked block, no needs to lock it
+      thread_safe_queue_record_data(record, record_data, after_reindex_params: after_reindex_params)
     end
 
-    def find_in_batches(origin_relation, async:, full:, batch_size:)
+    def reindex_relation(origin_relation, method_name, bulk_indexer:, async:, full:, batch_size:)
       thread_safe_mode = !async && !full && thread_safe?(origin_relation)
 
       batching_relation = origin_relation
       batching_relation = batching_relation.select("id").except(:includes, :preload) if async || thread_safe_mode
 
-      batching_relation.find_in_batches batch_size: batch_size do |items|
+      batching_relation.find_in_batches batch_size: batch_size do |records|
         unless thread_safe_mode
-          yield items
+          bulk_indexer.send(:import_or_update, records, method_name, async)
           next
         end
 
-        ids = items.map(&:id)
-        acquire_locks!(origin_relation.klass, ids) do |versions|
-          yield origin_relation.where(id: ids).to_a
+        ids = records.map(&:id)
+
+        record_data_array = thread_safe_find_record_data_array(origin_relation, ids, method_name, bulk_indexer: bulk_indexer)
+
+        bulk_indexer.send(:with_retries) do
+          # Run versioned ES reindexing out from the locked block, no needs to lock it
+          thread_safe_queue_record_data_array(record_data_array)
         end
       end
     end
@@ -89,14 +88,30 @@ module Searchkick
       end
     end
 
-    def queue_record_data(record, record_data, after_reindex_params:)
-      Searchkick.indexer.queue([record_data])
+    def thread_unsafe_queue_record_data(record, record_data, after_reindex_params:)
+      queue_record_data_array([record_data], rescue_version_conflict: false)
       record.after_reindex(after_reindex_params) if record.respond_to?(:after_reindex)
+    end
+
+    def thread_safe_queue_record_data(record, record_data, after_reindex_params:)
+      queue_record_data_array([record_data], rescue_version_conflict: true)
+      record.after_reindex(after_reindex_params) if record.respond_to?(:after_reindex)
+    end
+
+    def thread_safe_queue_record_data_array(record_data_array)
+      queue_record_data_array(record_data_array, rescue_version_conflict: true)
+    end
+
+    def queue_record_data_array(record_data_array, rescue_version_conflict:)
+      Searchkick.indexer.queue(record_data_array)
+    rescue Searchkick::ImportError => e
+      # Just ignore versioning error
+      raise unless rescue_version_conflict && e.message.include?('version_conflict_engine_exception')
     end
 
     def thread_unsafe_reindex_record(record, method_name, after_reindex_params:)
       record_data = build_record_data(record, method_name)
-      queue_record_data(record, record_data, after_reindex_params: after_reindex_params)
+      thread_unsafe_queue_record_data(record, record_data, after_reindex_params: after_reindex_params)
     end
 
     def thread_unsafe_find_record(model, id, routing:)
@@ -134,6 +149,20 @@ module Searchkick
         record_data = build_record_data(record, method_name, external_version: versions[id])
 
         [record, record_data]
+      end
+    end
+
+    def thread_safe_find_record_data_array(relation, ids, method_name, bulk_indexer:)
+      index = bulk_indexer.index
+
+      acquire_locks!(relation.klass, ids) do |versions|
+        records = relation.where(id: ids).to_a
+        records.select!(&:should_index?)
+
+        records.map do |record|
+          record_data_builder = RecordData.new(index, record, external_version: versions[record.id])
+          method_name ? record_data_builder.update_data(method_name) : record_data_builder.index_data
+        end
       end
     end
   end
