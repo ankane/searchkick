@@ -103,7 +103,12 @@ module Searchkick
     end
 
     def queue_record_data_array(record_data_array, rescue_version_conflict:)
+      return if record_data_array.empty?
+
       Searchkick.indexer.queue(record_data_array)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      # do nothing if we wanted to delete the record from index
+      raise unless record_data_array.all? { |record_data| record_data.key?(:delete) }
     rescue Searchkick::ImportError => e
       # Just ignore versioning error
       raise unless rescue_version_conflict && e.message.include?('version_conflict_engine_exception')

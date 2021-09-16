@@ -1,5 +1,5 @@
 module Searchkick
-  class IndexVersion < ActiveRecord::Base
+  class IndexVersion < ::ActiveRecord::Base
     self.table_name = 'searchkick_index_versions'
 
     class << self
