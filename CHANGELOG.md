@@ -1,3 +1,7 @@
+## 4.6.1 (unreleased)
+
+- Added `ilike` operator for Elasticsearch 7.10+
+
 ## 4.6.0 (2021-08-22)
 
 - Added support for case-insensitive regular expressions with Elasticsearch 7.10+

@@ -959,7 +959,7 @@ module Searchkick
                     }
                   }
                 }
-              when :like
+              when :like, :ilike
                 # based on Postgres
                 # https://www.postgresql.org/docs/current/functions-matching.html
                 # % matches zero or more characters
@@ -973,7 +973,16 @@ module Searchkick
                   regex.gsub!(v, "\\" + v)
                 end
                 regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
-                filters << {regexp: {field => {value: regex, flags: "NONE"}}}
+
+                if op == :ilike
+                  if below710?
+                    raise ArgumentError, "ilike requires Elasticsearch 7.10+"
+                  else
+                    filters << {regexp: {field => {value: regex, flags: "NONE", case_insensitive: true}}}
+                  end
+                else
+                  filters << {regexp: {field => {value: regex, flags: "NONE"}}}
+                end
               when :prefix
                 filters << {prefix: {field => {value: op_value}}}
               when :regexp # support for regexp queries without using a regexp ruby object

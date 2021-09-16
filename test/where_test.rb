@@ -89,7 +89,7 @@ class WhereTest < Minitest::Test
 
   def test_unknown_operator
     error = assert_raises RuntimeError do
-      assert_search "product", [], where: {store_id: {ilike: "%2%"}}
+      assert_search "product", [], where: {store_id: {contains: "%2%"}}
     end
     assert_includes error.message, "Unknown where operator"
   end
@@ -141,7 +141,7 @@ class WhereTest < Minitest::Test
   def test_regexp_case
     store_names ["abcde"]
     assert_search "*", [], where: {name: /\AABCDE\z/}
-    if Searchkick.server_below?("7.10.0")
+    unless case_insensitive_supported?
       assert_warns "Case-insensitive flag does not work with Elasticsearch < 7.10" do
         assert_search "*", [], where: {name: /\AABCDE\z/i}
       end
@@ -188,6 +188,46 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A&B"], where: {name: {like: "%A&B"}}
     assert_search "product", ["Product <3"], where: {name: {like: "%<%"}}
     assert_search "product", ["Product @Home"], where: {name: {like: "%@Home%"}}
+  end
+
+  def test_ilike
+    if case_insensitive_supported?
+      store_names ["Product ABC", "Product DEF"]
+      assert_search "product", ["Product ABC"], where: {name: {ilike: "%abc%"}}
+      assert_search "product", ["Product ABC"], where: {name: {ilike: "%abc"}}
+      assert_search "product", [], where: {name: {ilike: "abc"}}
+      assert_search "product", [], where: {name: {ilike: "abc%"}}
+      assert_search "product", [], where: {name: {ilike: "abc%"}}
+      assert_search "product", ["Product ABC"], where: {name: {ilike: "Product_abc"}}
+    else
+      error = assert_raises(ArgumentError) do
+        Product.search("*", where: {name: {ilike: "%abc%"}})
+      end
+      assert_equal "ilike requires Elasticsearch 7.10+", error.message
+    end
+  end
+
+  def test_ilike_escape
+    skip unless case_insensitive_supported?
+
+    store_names ["Product 100%", "Product B"]
+    assert_search "product", ["Product 100%"], where: {name: {ilike: "% 100\\%"}}
+  end
+
+  def test_ilike_special_characters
+    skip unless case_insensitive_supported?
+
+    store_names ["Product ABC\"", "Product B"]
+    assert_search "product", ["Product ABC\""], where: {name: {ilike: "%abc\""}}
+  end
+
+  def test_ilike_optional_operators
+    skip unless case_insensitive_supported?
+
+    store_names ["Product A&B", "Product B", "Product <3", "Product @Home"]
+    assert_search "product", ["Product A&B"], where: {name: {ilike: "%a&b"}}
+    assert_search "product", ["Product <3"], where: {name: {ilike: "%<%"}}
+    assert_search "product", ["Product @Home"], where: {name: {ilike: "%@home%"}}
   end
 
   # def test_script
@@ -371,5 +411,9 @@ class WhereTest < Minitest::Test
       {name: "Product A", details: {year: 2016}}
     ]
     assert_search "product", ["Product A"], where: {"details.year" => 2016}
+  end
+
+  def case_insensitive_supported?
+    !Searchkick.server_below?("7.10.0")
   end
 end
