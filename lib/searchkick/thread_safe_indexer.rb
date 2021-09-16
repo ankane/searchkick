@@ -38,7 +38,7 @@ module Searchkick
     end
 
     def reindex_relation(origin_relation, method_name, bulk_indexer:, async:, full:, batch_size:)
-      thread_safe_mode = !async && !full && thread_safe?(origin_relation)
+      thread_safe_mode = !async && thread_safe?(origin_relation)
 
       batching_relation = origin_relation
       batching_relation = batching_relation.select("id").except(:includes, :preload) if async || thread_safe_mode
