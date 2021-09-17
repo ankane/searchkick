@@ -59,7 +59,7 @@ module Searchkick
       end
     end
 
-    def bulk_index(records)
+    def bulk_index(records, true_refresh: false)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Import",
@@ -113,7 +113,7 @@ module Searchkick
   end
 
   module IndexerWithInstrumentation
-    def perform
+    def perform(true_refresh: false)
       if Searchkick.callbacks_value == :bulk
         event = {
           name: "Bulk",

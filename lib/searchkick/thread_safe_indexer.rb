@@ -37,7 +37,7 @@ module Searchkick
       thread_safe_queue_record_data(record, record_data, after_reindex_params: after_reindex_params)
     end
 
-    def reindex_relation(origin_relation, method_name, bulk_indexer:, async:, full:, batch_size:)
+    def reindex_relation(origin_relation, method_name, bulk_indexer:, async:, full:, batch_size:, true_refresh:)
       thread_safe_mode = !async && thread_safe?(origin_relation)
 
       batching_relation = origin_relation
@@ -45,7 +45,7 @@ module Searchkick
 
       batching_relation.find_in_batches batch_size: batch_size do |records|
         unless thread_safe_mode
-          bulk_indexer.send(:import_or_update, records, method_name, async)
+          bulk_indexer.send(:import_or_update, records, method_name, async, true_refresh: true_refresh)
           next
         end
 
@@ -55,7 +55,7 @@ module Searchkick
 
         bulk_indexer.send(:with_retries) do
           # Run versioned ES reindexing out from the locked block, no needs to lock it
-          thread_safe_queue_record_data_array(record_data_array)
+          thread_safe_queue_record_data_array(record_data_array, true_refresh: true_refresh)
         end
       end
     end
@@ -98,14 +98,14 @@ module Searchkick
       record.after_reindex(after_reindex_params) if record.respond_to?(:after_reindex)
     end
 
-    def thread_safe_queue_record_data_array(record_data_array)
-      queue_record_data_array(record_data_array, rescue_version_conflict: true)
+    def thread_safe_queue_record_data_array(record_data_array, true_refresh: false)
+      queue_record_data_array(record_data_array, rescue_version_conflict: true, true_refresh: true_refresh)
     end
 
-    def queue_record_data_array(record_data_array, rescue_version_conflict:)
+    def queue_record_data_array(record_data_array, true_refresh: false, rescue_version_conflict:)
       return if record_data_array.empty?
 
-      Searchkick.indexer.queue(record_data_array)
+      Searchkick.indexer.queue(record_data_array, true_refresh: true_refresh)
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
       # do nothing if we wanted to delete the record from index
       raise unless record_data_array.all? { |record_data| record_data.key?(:delete) }
