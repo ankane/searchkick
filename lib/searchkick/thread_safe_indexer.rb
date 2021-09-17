@@ -66,13 +66,11 @@ module Searchkick
       ENV['SEARCHKICK_THREAD_SAFE_DISABLED'] != 'true' && model.searchkick_index.options[:thread_safe]
     end
 
-    def acquire_locks!(model, ids)
+    def acquire_locks!(model, ids, &block)
       ids = Array.wrap(ids).compact.uniq.sort
       return yield({}) if !thread_safe?(model) || ids.empty?
 
-      Searchkick::IndexVersion.bump_versions(model, ids) do |versions|
-        yield(versions)
-      end
+      Searchkick::IndexVersion.bump_versions(model, ids, &block)
     end
 
     def build_record_data(record, method_name, external_version: nil)

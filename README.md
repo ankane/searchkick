@@ -88,11 +88,13 @@ There are two ENV variables related to `thread_safe` mode:
 
 ** IMPORTANT **
 
-Starting from `4.0.0-everfi.1` gem version you need to add the migration for `Searchkick::IhndexVersion` model in order to make it working:
+Starting from `4.0.0-everfi.1` gem version you need to add the migration for `Searchkick::IndexVersion` model in order to make it working:
 
 ```
 bundle exec rails generate searchkick:migration
 ```
+
+Then reindex the models which used `thread_safe` mode in past.
 
 ### `true_refresh` reindexing option
 
