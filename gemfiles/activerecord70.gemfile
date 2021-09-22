@@ -1,0 +1,16 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "rake"
+gem "minitest", ">= 5"
+gem "sqlite3"
+gem "activerecord", "~> 7.0.0.alpha2"
+gem "actionpack", "~> 7.0.0.alpha2"
+gem "activejob", "~> 7.0.0.alpha2", require: "active_job"
+gem "elasticsearch", "~> 7"
+gem "elasticsearch-xpack", ">= 7.8", "< 7.14"
+gem "redis"
+gem "connection_pool"
+gem "kaminari"
+gem "gemoji-parser"
