@@ -1688,12 +1688,21 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-products = Product.search("snacks", execute: false)
-coupons = Coupon.search("snacks", execute: false)
-Searchkick.multi_search([products, coupons])
+products_query = Product.search("snacks", execute: false)
+coupons_query = Coupon.search("snacks", execute: false)
+Searchkick.multi_search([products_query, coupons_query])
 ```
 
-Then use `products` and `coupons` as typical results.
+Then `products_query` and `coupons_query` will be an instance of `Searchkick::Query` where you can call:
+1. `products_query.results` -> for a Ruby `Array` of products
+2. `products_query.execute` -> for the regular `Searchkick::Result` result, don't worry about `#execute`, it won't make the Elasticsearch request again because the result is already stored in an instance variable of `products_query`.
+
+You will need to use option 2 when you need to work with other parts of Searchkick that don't expect an `Array`. For example, when you want to get the results with highlights:
+```ruby
+products_query.execute.with_highlights.each do |product, highlights|
+  highlights[:name] # "Ultra <em>Wide</em> Monitor"
+end
+```
 
 **Note:** Errors are not raised as with single requests. Use the `error` method on each query to check for errors.
 
