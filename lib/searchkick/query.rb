@@ -12,7 +12,8 @@ module Searchkick
       :took, :error, :model_name, :entry_name, :total_count, :total_entries,
       :current_page, :per_page, :limit_value, :padding, :total_pages, :num_pages,
       :offset_value, :offset, :previous_page, :prev_page, :next_page, :first_page?, :last_page?,
-      :out_of_range?, :hits, :response, :to_a, :first, :scroll
+      :out_of_range?, :hits, :response, :to_a, :first, :scroll, :highlights, :with_highlights,
+      :with_score, :misspellings?, :scroll_id, :clear_scroll, :missing_records
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
