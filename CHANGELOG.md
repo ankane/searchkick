@@ -1,4 +1,4 @@
-## 4.6.1 (unreleased)
+## 4.6.1 (2021-09-25)
 
 - Added `ilike` operator for Elasticsearch 7.10+
 - Fixed missing methods with `multi_search`
