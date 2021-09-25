@@ -11,6 +11,12 @@ class MultiSearchTest < Minitest::Test
     assert_equal ["Store A"], stores.map(&:name)
   end
 
+  def test_methods
+    result = Product.search("*")
+    query = Product.search("*", execute: false)
+    assert_empty(result.methods - query.methods)
+  end
+
   def test_error
     store_names ["Product A"]
     products = Product.search("*", execute: false)
