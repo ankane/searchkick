@@ -11,7 +11,7 @@ jobs:
           elasticsearch: 7.15.0
         - ruby: 3.0
           gemfile: gemfiles/opensearch.gemfile
-          opensearch: 1.0.1
+          opensearch: 1.1.0
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
           elasticsearch: 7.15.0
@@ -67,6 +67,11 @@ jobs:
       if: ${{ matrix.opensearch }}
       with:
         opensearch-version: ${{ matrix.opensearch }}
+        plugins: |
+          analysis-kuromoji
+          analysis-smartcn
+          analysis-stempel
+          analysis-ukrainian
 
     - uses: ankane/setup-mongodb@v1
       if: ${{ matrix.mongodb }}
