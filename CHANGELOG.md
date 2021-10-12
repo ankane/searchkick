@@ -1,3 +1,7 @@
+## 4.6.2 (unreleased)
+
+- Fixed `like` and `ilike` with `+` character
+
 ## 4.6.1 (2021-09-25)
 
 - Added `ilike` operator for Elasticsearch 7.10+

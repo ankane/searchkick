@@ -174,13 +174,26 @@ class WhereTest < Minitest::Test
   end
 
   def test_like_escape
-    store_names ["Product 100%", "Product B"]
+    store_names ["Product 100%", "Product 1000"]
     assert_search "product", ["Product 100%"], where: {name: {like: "% 100\\%"}}
   end
 
   def test_like_special_characters
-    store_names ["Product ABC\"", "Product B"]
-    assert_search "product", ["Product ABC\""], where: {name: {like: "%ABC\""}}
+    store_names [
+      "Product ABC", "Product.ABC", "Product?ABC", "Product+ABC", "Product*ABC", "Product|ABC",
+      "Product{ABC}", "Product[ABC]", "Product(ABC)",  "Product\"ABC\"", "Product\\ABC"
+    ]
+    # TODO debug
+    # assert_search "product", ["Product.ABC"], where: {name: {like: "Product.A%"}}
+    assert_search "product", ["Product?ABC"], where: {name: {like: "Product?A%"}}
+    assert_search "product", ["Product+ABC"], where: {name: {like: "Product+A%"}}
+    assert_search "product", ["Product*ABC"], where: {name: {like: "Product*A%"}}
+    assert_search "product", ["Product|ABC"], where: {name: {like: "Product|A%"}}
+    assert_search "product", ["Product{ABC}"], where: {name: {like: "%{ABC}"}}
+    assert_search "product", ["Product[ABC]"], where: {name: {like: "%[ABC]"}}
+    assert_search "product", ["Product(ABC)"], where: {name: {like: "%(ABC)"}}
+    assert_search "product", ["Product\"ABC\""], where: {name: {like: "%\"ABC\""}}
+    assert_search "product", ["Product\\ABC"], where: {name: {like: "Product\\A%"}}
   end
 
   def test_like_optional_operators

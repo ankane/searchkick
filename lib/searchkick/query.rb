@@ -969,10 +969,10 @@ module Searchkick
                 # \ is escape character
                 # escape Lucene reserved characters
                 # https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html#regexp-optional-operators
-                reserved = %w(. ? + * | { } [ ] ( ) " \\)
+                reserved = %w(\\ . ? + * | { } [ ] ( ) ")
                 regex = op_value.dup
                 reserved.each do |v|
-                  regex.gsub!(v, "\\" + v)
+                  regex.gsub!(v, "\\\\" + v)
                 end
                 regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
 
