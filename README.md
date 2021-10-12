@@ -943,6 +943,12 @@ Bounded by a polygon
 Restaurant.search "dessert", where: {location: {geo_polygon: {points: [{lat: 38, lon: -123}, {lat: 39, lon: -123}, {lat: 37, lon: 122}]}}}
 ```
 
+Search By Multiple Locations:
+
+```ruby
+Restaurant.search "pizza", where: {_or: [{ location: { near: { lat: 40.7127281, lon: -74.0060152}, within: "100mi"}}, { location: { near: {lat: 51.2800275, lon: 1.0802533}, within: "100mi"}}]}
+```
+
 ### Boost By Distance
 
 Boost results by distance - closer results are boosted more
