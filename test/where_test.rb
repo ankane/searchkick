@@ -183,17 +183,16 @@ class WhereTest < Minitest::Test
       "Product ABC", "Product.ABC", "Product?ABC", "Product+ABC", "Product*ABC", "Product|ABC",
       "Product{ABC}", "Product[ABC]", "Product(ABC)",  "Product\"ABC\"", "Product\\ABC"
     ]
-    # TODO debug
-    # assert_search "product", ["Product.ABC"], where: {name: {like: "Product.A%"}}
-    assert_search "product", ["Product?ABC"], where: {name: {like: "Product?A%"}}
-    assert_search "product", ["Product+ABC"], where: {name: {like: "Product+A%"}}
-    assert_search "product", ["Product*ABC"], where: {name: {like: "Product*A%"}}
-    assert_search "product", ["Product|ABC"], where: {name: {like: "Product|A%"}}
-    assert_search "product", ["Product{ABC}"], where: {name: {like: "%{ABC}"}}
-    assert_search "product", ["Product[ABC]"], where: {name: {like: "%[ABC]"}}
-    assert_search "product", ["Product(ABC)"], where: {name: {like: "%(ABC)"}}
-    assert_search "product", ["Product\"ABC\""], where: {name: {like: "%\"ABC\""}}
-    assert_search "product", ["Product\\ABC"], where: {name: {like: "Product\\A%"}}
+    assert_search "*", ["Product.ABC"], where: {name: {like: "Product.A%"}}
+    assert_search "*", ["Product?ABC"], where: {name: {like: "Product?A%"}}
+    assert_search "*", ["Product+ABC"], where: {name: {like: "Product+A%"}}
+    assert_search "*", ["Product*ABC"], where: {name: {like: "Product*A%"}}
+    assert_search "*", ["Product|ABC"], where: {name: {like: "Product|A%"}}
+    assert_search "*", ["Product{ABC}"], where: {name: {like: "%{ABC}"}}
+    assert_search "*", ["Product[ABC]"], where: {name: {like: "%[ABC]"}}
+    assert_search "*", ["Product(ABC)"], where: {name: {like: "%(ABC)"}}
+    assert_search "*", ["Product\"ABC\""], where: {name: {like: "%\"ABC\""}}
+    assert_search "*", ["Product\\ABC"], where: {name: {like: "Product\\A%"}}
   end
 
   def test_like_optional_operators
