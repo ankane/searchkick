@@ -6,7 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil)
+    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil, true_refresh: false)
       if scope
         relation = relation.send(scope)
       elsif relation.respond_to?(:search_import)
@@ -27,9 +27,14 @@ module Searchkick
           relation = relation.where("id > ?", index.total_docs)
         end
 
-        Searchkick::ThreadSafeIndexer.new.find_in_batches(relation, async: async, full: full, batch_size: batch_size) do |items|
-          import_or_update items, method_name, async
-        end
+        Searchkick::ThreadSafeIndexer.new.reindex_relation(
+          relation, method_name,
+          bulk_indexer: self,
+          async: async,
+          full: full,
+          batch_size: batch_size,
+          true_refresh: true_refresh
+        )
       else
         each_batch(relation) do |items|
           import_or_update items, method_name, async
@@ -37,16 +42,16 @@ module Searchkick
       end
     end
 
-    def bulk_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).index_data })
+    def bulk_index(records, true_refresh: false)
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).index_data }, true_refresh: true_refresh)
     end
 
     def bulk_delete(records)
       Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(index, r).delete_data })
     end
 
-    def bulk_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).update_data(method_name) })
+    def bulk_update(records, method_name, true_refresh: false)
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).update_data(method_name) }, true_refresh: true_refresh)
     end
 
     def batches_left
@@ -55,7 +60,7 @@ module Searchkick
 
     private
 
-    def import_or_update(records, method_name, async)
+    def import_or_update(records, method_name, async, true_refresh: false)
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
@@ -70,9 +75,9 @@ module Searchkick
             with_retries do
               # call out to index for ActiveSupport notifications
               if method_name
-                index.bulk_update(records, method_name)
+                index.bulk_update(records, method_name, true_refresh: true_refresh)
               else
-                index.bulk_index(records)
+                index.bulk_index(records, true_refresh: true_refresh)
               end
             end
           end

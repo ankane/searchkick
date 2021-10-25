@@ -10,8 +10,8 @@ module Searchkick
         :text_middle, :text_start, :word, :wordnet, :word_end, :word_middle, :word_start, :thread_safe]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
-      if options[:thread_safe] && !respond_to?(:with_advisory_lock)
-        raise ArgumentError, 'Add "with_advisory_lock" gem in order apply thread_safe mode'
+      if options[:thread_safe] && !respond_to?(:insert_all)
+        raise ArgumentError, 'Use ActiveRecord > 6.0 in order apply thread_safe mode'
       end
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)

@@ -2,11 +2,12 @@ module Searchkick
   class RecordData
     TYPE_KEYS = ["type", :type]
 
-    attr_reader :index, :record
+    attr_reader :index, :record, :external_version
 
-    def initialize(index, record)
+    def initialize(index, record, external_version: nil)
       @index = index
       @record = record
+      @external_version = external_version
     end
 
     def index_data
@@ -43,6 +44,12 @@ module Searchkick
         _type: document_type
       }
       data[:_routing] = record.search_routing if record.respond_to?(:search_routing)
+
+      if external_version
+        data[:_version] = external_version
+        data[:_version_type] = 'external'
+      end
+
       data
     end
 

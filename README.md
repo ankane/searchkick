@@ -78,15 +78,35 @@ class User < ActeveRecord::Base
 end
 ```
 
-which will do the following inder the hood:
-1. Wrap all operations related to reindexing by Postgress advisory lock;
-2. When asked to reindex in_memory object we will not use its state for search_data building. Instead we will fetch the edge state from DB by ID, wrapping all reindexing operations by advisory lock just like we do in #1
-
-Note that you need to add `with_advisory_lock` gem into your project in order to make it working.
+which will do the following under the hood:
+1. Wrap all operations related to reindexing by Postgress pessimistic lock;
+2. When asked to reindex in_memory object we will not use its state for search_data building. Instead we will fetch the edge state from DB by ID, wrapping all reindexing operations by pesismistic lock just like we do in #1
 
 There are two ENV variables related to `thread_safe` mode:
 * `SEARCHKICK_THREAD_SAFE_LOCK_TIMEOUT_SECONDS` will change the timeout used by advisory locking, 1 second by default;
 * `SEARCHKICK_THREAD_SAFE_DISABLED` should be set to `true` in order to turn off `thread_safe` mode globally in emergency case.
+
+** IMPORTANT **
+
+Starting from `4.0.0-everfi.1` gem version you need to add the migration for `Searchkick::IndexVersion` model in order to make it working:
+
+```
+bundle exec rails generate searchkick:migration
+```
+
+Then reindex the models which used `thread_safe` mode in past.
+
+### `true_refresh` reindexing option
+
+Originaly Searchkick supports `Model.some_scope.reindex(refresh: true)` option but it does not forward it to ElasticSearch idex API call.
+Instead the separated ES refresh API call will be fired - which makes sense for instance when we reindex the large scope
+splitting it to the batches on the way. This way we refresh once at the very end but not after the each batch.
+
+But sometimes we really want to make true ES reindex call with refresh option. Now it's possible to do as follows:
+
+```ruby
+Model.some_scope.reindex(true_refresh: :wait_for)
+```
 
 ---
 
