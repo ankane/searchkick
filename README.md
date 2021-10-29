@@ -6,6 +6,16 @@
 
 ## ! Custom Foundry features presenting in this fork only !
 
+### Global refresh mode
+
+In additional to generic `Searchkick.callbacks(:inline) do; end` now it's possible to set refresh mode for the nested block:
+
+```ruby
+Searchkick.refresh(true) do # accepts `true`, 'false' or `:wait_for`
+  # Foobar
+end
+```
+
 ### Dynamic callbacks mode
 It's possible to specify callbacks mode by lambda, in order to apply very special conditions like
 

@@ -1,3 +1,3 @@
 module Searchkick
-  VERSION = "4.0.0.everfi.1"
+  VERSION = "3.1.1.everfi.2.0.0"
 end

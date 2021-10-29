@@ -15,7 +15,7 @@ module Searchkick
       items = @queued_items
       @queued_items = []
       if items.any?
-        response = Searchkick.client.bulk(body: items, refresh: true_refresh)
+        response = Searchkick.client.bulk(body: items, refresh: Searchkick.refresh_value || true_refresh)
         if response["errors"]
           first_with_error = response["items"].map do |item|
             (item["index"] || item["delete"] || item["update"])
