@@ -238,6 +238,21 @@ module Searchkick
     end
   end
 
+  def self.refresh(value)
+    unless block_given?
+      self.refresh_value = value
+      return
+    end
+
+    previous_value = refresh_value
+    begin
+      self.refresh_value = value
+      yield
+    ensure
+      self.refresh_value = previous_value
+    end
+  end
+
   def self.aws_credentials=(creds)
     require "faraday_middleware/aws_sigv4"
 
@@ -322,6 +337,15 @@ module Searchkick
   # private
   def self.signer_middleware_aws_params
     {service: "es", region: "us-east-1"}.merge(aws_credentials)
+  end
+
+  def self.refresh_value
+    Thread.current[:searchkick_refresh_value]
+  end
+
+  # private
+  def self.refresh_value=(value)
+    Thread.current[:searchkick_refresh_value] = value
   end
 
   # private

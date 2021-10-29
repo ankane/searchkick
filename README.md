@@ -163,6 +163,16 @@ Starting from `4.0.0-everfi.1` gem version you need to add the migration for `Se
 bundle exec rails generate searchkick:migration
 ```
 
+### Global refresh mode
+
+In additional to generic `Searchkick.callbacks(:inline) do; end` now it's possible to set refresh mode for the nested block:
+
+```ruby
+Searchkick.refresh(true) do # accepts `true`, 'false' or `:wait_for`
+  # Foobar
+end
+```
+
 ---
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.

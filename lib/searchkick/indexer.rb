@@ -19,7 +19,7 @@ module Searchkick
 
       return if items.empty?
 
-      response = Searchkick.client.bulk(body: items)
+      response = Searchkick.client.bulk(body: items, refresh: Searchkick.refresh_value)
       if response["errors"]
         # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|
