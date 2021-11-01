@@ -153,6 +153,21 @@ module Searchkick
     end
   end
 
+  def self.refresh(value)
+    unless block_given?
+      self.refresh_value = value
+      return
+    end
+
+    previous_value = refresh_value
+    begin
+      self.refresh_value = value
+      yield
+    ensure
+      self.refresh_value = previous_value
+    end
+  end
+
   def self.aws_credentials=(creds)
     begin
       require "faraday_middleware/aws_signers_v4"
@@ -221,6 +236,16 @@ module Searchkick
   # private
   def self.callbacks_value=(value)
     Thread.current[:searchkick_callbacks_enabled] = value
+  end
+
+  # private
+  def self.refresh_value
+    Thread.current[:searchkick_refresh_value]
+  end
+
+  # private
+  def self.refresh_value=(value)
+    Thread.current[:searchkick_refresh_value] = value
   end
 
   # private
