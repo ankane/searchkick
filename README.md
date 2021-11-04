@@ -300,6 +300,23 @@ To only match the exact order, use:
 User.search "fresh honey", match: :phrase
 ```
 
+### Mix matcher
+
+```ruby
+class Product < ApplicationRecord
+  searchkick text_middle: [:name],
+             word_start: [:content]
+end
+```
+
+search with (-> without match key):
+```ruby
+Product.search query, fields: [
+  { 'name^3': :text_middle }, # use togehter with boost
+  { content: :word_start },
+]
+```
+
 ### Stemming and Language
 
 Searchkick stems words by default for better matching. `apple` and `apples` both stem to `appl`, so searches for either term will have the same matches.
