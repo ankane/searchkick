@@ -904,12 +904,7 @@ module Searchkick
         else
           # expand ranges
           if value.is_a?(Range)
-            # infinite? added in Ruby 2.4
-            if value.end.nil? || (value.end.respond_to?(:infinite?) && value.end.infinite?)
-              value = {gte: value.first}
-            else
-              value = {gte: value.first, (value.exclude_end? ? :lt : :lte) => value.last}
-            end
+            value = expand_range(value)
           end
 
           value = {in: value} if value.is_a?(Array)
@@ -1136,6 +1131,17 @@ module Searchkick
       else
         value
       end
+    end
+
+    def expand_range(range)
+      expanded = {}
+      expanded[:gte] = range.begin if range.begin
+
+      if range.end && !(range.end.respond_to?(:infinite?) && range.end.infinite?)
+        expanded[range.exclude_end? ? :lt : :lte] = range.end
+      end
+
+      expanded
     end
 
     def base_field(k)
