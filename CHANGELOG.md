@@ -2,6 +2,7 @@
 
 - Added support for beginless ranges to `where` option
 - Fixed `like` and `ilike` with `+` character
+- Fixed warning about accessing system indices when no model or index specified
 
 ## 4.6.1 (2021-09-25)
 

@@ -75,7 +75,8 @@ module Searchkick
         elsif searchkick_index
           searchkick_index.name
         else
-          "_all"
+          # fixes warning about accessing system indices
+          "*,-.*"
         end
 
       params = {
