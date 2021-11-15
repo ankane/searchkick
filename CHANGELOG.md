@@ -1,4 +1,4 @@
-## 4.6.2 (unreleased)
+## 4.6.2 (2021-11-15)
 
 - Added support for beginless ranges to `where` option
 - Fixed `like` and `ilike` with `+` character
