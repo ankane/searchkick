@@ -143,7 +143,12 @@ module Searchkick
       begin
         self.callbacks_value = value
         result = yield
-        indexer.perform if callbacks_value == :bulk
+        begin
+          indexer.perform if callbacks_value == :bulk
+        rescue Searchkick::ImportError => e
+          # Just ignore versioning error
+          raise unless e.message.include?('version_conflict_engine_exception')
+        end
         result
       ensure
         self.callbacks_value = previous_value
