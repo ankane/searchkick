@@ -1,4 +1,4 @@
-## 4.6.3 (unreleased)
+## 4.6.3 (2021-11-19)
 
 - Added support for reloadable synonyms for OpenSearch
 - Added experimental support for `opensearch` gem
