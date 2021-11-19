@@ -16,7 +16,7 @@ if defined?(OpenSearch)
   Searchkick.client = OpenSearch::Client.new
 end
 
-if defined?(OpenSearch) || Gem::Version.new(Elasticsearch::VERSION) >= Gem::Version.new("7.14.0")
+if Searchkick.client.transport.respond_to?(:transport)
   Searchkick.client.transport.transport.logger = $logger
 else
   Searchkick.client.transport.logger = $logger
