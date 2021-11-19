@@ -180,13 +180,17 @@ module Searchkick
     end
 
     def reload_synonyms
-      require "elasticsearch/xpack"
-      raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
-      raise Error, "Requires elasticsearch-xpack 7.8+" unless client.xpack.respond_to?(:indices)
-      begin
-        client.xpack.indices.reload_search_analyzers(index: name)
-      rescue Elasticsearch::Transport::Transport::Errors::MethodNotAllowed
-        raise Error, "Requires non-OSS version of Elasticsearch"
+      if Searchkick.opensearch?
+        client.transport.perform_request "POST", "_plugins/_refresh_search_analyzers/#{CGI.escape(name)}"
+      else
+        require "elasticsearch/xpack"
+        raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
+        raise Error, "Requires elasticsearch-xpack 7.8+" unless client.xpack.respond_to?(:indices)
+        begin
+          client.xpack.indices.reload_search_analyzers(index: name)
+        rescue Elasticsearch::Transport::Transport::Errors::MethodNotAllowed
+          raise Error, "Requires non-OSS version of Elasticsearch"
+        end
       end
     end
 

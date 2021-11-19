@@ -375,9 +375,9 @@ search_synonyms: ["lightbulb => halogenlamp"]
 
 The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms without a full reindex.
 
-#### Elasticsearch 7.3+
+#### Elasticsearch 7.3+ and OpenSearch
 
-For Elasticsearch 7.3+, we recommend placing synonyms in a file on the Elasticsearch server (in the `config` directory). This allows you to reload synonyms without reindexing.
+For Elasticsearch 7.3+ and OpenSearch, we recommend placing synonyms in a file on the Elasticsearch or OpenSearch server (in the `config` directory). This allows you to reload synonyms without reindexing.
 
 ```txt
 pop, soda
@@ -390,13 +390,13 @@ Then use:
 search_synonyms: "synonyms.txt"
 ```
 
-Add [elasticsearch-xpack](https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-xpack) to your Gemfile:
+For Elasticsearch, add [elasticsearch-xpack](https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-xpack) to your Gemfile:
 
 ```ruby
 gem 'elasticsearch-xpack', '>= 7.8', '< 7.14'
 ```
 
-And use:
+Reload with:
 
 ```ruby
 Product.search_index.reload_synonyms

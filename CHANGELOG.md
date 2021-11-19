@@ -1,5 +1,6 @@
 ## 4.6.3 (unreleased)
 
+- Added support for reloadable synonyms for OpenSearch
 - Added experimental support for `opensearch` gem
 
 ## 4.6.2 (2021-11-15)
