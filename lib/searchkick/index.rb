@@ -365,8 +365,8 @@ module Searchkick
         index.refresh
         true
       end
-    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
-      if e.message.include?("No handler for type [text]")
+    rescue => e
+      if Searchkick.transport_error?(e) && e.message.include?("No handler for type [text]")
         raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 6 or greater"
       end
 
