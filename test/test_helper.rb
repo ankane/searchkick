@@ -8,7 +8,9 @@ require "active_support/notifications"
 ENV["RACK_ENV"] = "test"
 
 # for reloadable synonyms
-ENV["ES_PATH"] ||= File.join(ENV["HOME"], Searchkick.opensearch? ? "opensearch" : "elasticsearch")
+if ENV["CI"]
+  ENV["ES_PATH"] ||= File.join(ENV["HOME"], Searchkick.opensearch? ? "opensearch" : "elasticsearch", Searchkick.server_version)
+end
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
