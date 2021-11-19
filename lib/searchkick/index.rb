@@ -84,7 +84,8 @@ module Searchkick
       old_indices =
         begin
           client.indices.get_alias(name: name).keys
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue => e
+          raise e unless Searchkick.not_found_error?(e)
           {}
         end
       actions = old_indices.map { |old_name| {remove: {index: old_name, alias: name}} } + [{add: {index: new_name, alias: name}}]
@@ -109,7 +110,8 @@ module Searchkick
           else
             client.indices.get_aliases
           end
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue => e
+          raise e unless Searchkick.not_found_error?(e)
           {}
         end
       indices = indices.select { |_k, v| v.empty? || v["aliases"].empty? } if unaliased

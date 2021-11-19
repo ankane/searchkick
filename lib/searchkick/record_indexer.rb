@@ -64,8 +64,9 @@ module Searchkick
       if record.destroyed? || !record.persisted? || !record.should_index?
         begin
           index.remove(record)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          # do nothing
+        rescue => e
+          raise e unless Searchkick.not_found_error?(e)
+          # do nothing if not found
         end
       else
         if method_name

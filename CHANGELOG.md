@@ -1,3 +1,7 @@
+## 4.6.3 (unreleased)
+
+- Added experimental support for `opensearch` gem
+
 ## 4.6.2 (2021-11-15)
 
 - Added support for beginless ranges to `where` option
