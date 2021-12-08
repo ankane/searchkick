@@ -106,7 +106,7 @@ module Searchkick
       end
     end
 
-    query = Searchkick::Query.new(klass, term, options)
+    query = Searchkick::Query.new(klass, term, **options)
     block.call(query.body) if block
     if options[:execute] == false
       query

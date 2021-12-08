@@ -77,7 +77,7 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, *args)
+    def bulk_update(records, ...)
       if records.any?
         event = {
           name: "#{records.first.searchkick_klass.name} Update",
@@ -201,7 +201,7 @@ module Searchkick
 
     attr_internal :searchkick_runtime
 
-    def process_action(action, *args)
+    def process_action(action, ...)
       # We also need to reset the runtime before each action
       # because of queries in middleware or in cases we are streaming
       # and it won't be cleaned up by the method below.
