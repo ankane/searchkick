@@ -8,22 +8,22 @@ jobs:
         include:
         - ruby: 3.0
           gemfile: Gemfile
-          elasticsearch: 7.16.1
+          elasticsearch: 7.16.2
         - ruby: 3.0
           gemfile: gemfiles/opensearch.gemfile
           opensearch: 1.2.2
         - ruby: 3.0
           gemfile: gemfiles/activerecord61.gemfile
-          elasticsearch: 7.16.1
+          elasticsearch: 7.16.2
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
-          elasticsearch: 7.16.1
+          elasticsearch: 7.16.2
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
           elasticsearch: 7.0.0
         - ruby: 2.5
           gemfile: gemfiles/activerecord51.gemfile
-          elasticsearch: 6.8.21
+          elasticsearch: 6.8.22
         - ruby: 2.4
           gemfile: gemfiles/activerecord50.gemfile
           elasticsearch: 6.0.0
