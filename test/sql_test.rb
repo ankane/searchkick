@@ -167,7 +167,7 @@ class SqlTest < Minitest::Test
       }
     ], Store
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         _and: [
           {
@@ -192,7 +192,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         _and: [
           {
@@ -217,7 +217,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 0
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         _or: [
           {
@@ -283,7 +283,7 @@ class SqlTest < Minitest::Test
     ], Store
 
     # Single nested
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         name: 'Amazon',
         nested: {
@@ -297,7 +297,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('Amazon', {
+    result = Store.search('Amazon', **{
       where: {
         name: 'Amazon',
         nested: {
@@ -311,7 +311,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('foo', {
+    result = Store.search('foo', **{
       where: {
         name: 'Amazon',
         nested: {
@@ -325,7 +325,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 0
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         name: 'Amazon',
         nested: {
@@ -340,7 +340,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 0
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         name: 'Amazon',
         nested: {
@@ -355,7 +355,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 0
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         name: 'Costco',
         nested: {
@@ -371,7 +371,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.count, 1
 
     # multiple nested
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         nested: {
           path: 'employees',
@@ -389,7 +389,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('Costco', {
+    result = Store.search('Costco', **{
       where: {
         nested: {
           path: 'employees',
@@ -407,7 +407,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('Amazon', {
+    result = Store.search('Amazon', **{
       where: {
         nested: {
           path: 'employees',
@@ -426,7 +426,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.count, 0
 
     # Nested sibling documents
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         nested: {
           path: 'employees',
@@ -452,7 +452,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 2
 
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         nested: {
           path: 'employees',
@@ -478,7 +478,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('foo', {
+    result = Store.search('foo', **{
       where: {
         nested: {
           path: 'employees',
@@ -505,7 +505,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.count, 0
 
     # With all
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    nested: {
                                      path: 'employees',
                                      where: {
@@ -517,7 +517,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.first.name, 'Amazon'
 
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    nested: {
                                      path: 'employees',
                                      where: {
@@ -530,7 +530,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Costco'
 
     # With range
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    nested: {
                                      path: 'employees',
                                      where: {
@@ -545,7 +545,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Walmart'
 
     # Deeply nested
-    result = Store.search('*', {
+    result = Store.search('*', **{
       where: {
         nested: {
           path: 'employees',
@@ -575,7 +575,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('Walmart', {
+    result = Store.search('Walmart', **{
       where: {
         nested: {
           path: 'employees',
@@ -605,7 +605,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 1
 
-    result = Store.search('Amazon', {
+    result = Store.search('Amazon', **{
       where: {
         nested: {
           path: 'employees',
@@ -635,7 +635,7 @@ class SqlTest < Minitest::Test
 
     assert_equal result.results.count, 0
 
-    result = Store.search('Walmart Amazon', {
+    result = Store.search('Walmart Amazon', **{
       operator: 'or',
       where: {
         nested: {
@@ -675,7 +675,7 @@ class SqlTest < Minitest::Test
     ], Store
 
     # Flattened dot notation
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    'nested_json.nested_field.name': 'test1'
                                  }
                                }
@@ -683,7 +683,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Amazon'
 
     # Directly access nested JSON field
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    name: 'Amazon',
                                    nested: {
                                      path: 'nested_field',
@@ -697,7 +697,7 @@ class SqlTest < Minitest::Test
     assert_equal result.results.first.name, 'Amazon'
 
     # Access JSON from field then nested mapping
-    result = Store.search "*", { where: {
+    result = Store.search "*", **{ where: {
                                    name: 'Amazon',
                                    nested_json: {
                                      foo: 'bar',
@@ -721,7 +721,7 @@ class SqlTest < Minitest::Test
       {name: 'Karen', reviews: [Review.create(name: 'Review C')]}
     ], Employee
 
-    result = Employee.search({ body: {
+    result = Employee.search(**{ body: {
                                  query: {
                                    nested: {
                                      path: 'reviews',

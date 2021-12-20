@@ -142,11 +142,12 @@ module Searchkick
 
     def bulk_reindex_job(scope, batch_id, options)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
-      Searchkick::BulkReindexJob.perform_later({
+      Searchkick::BulkReindexJob.perform_later(
         class_name: scope.model_name.name,
         index_name: index.name,
-        batch_id: batch_id
-      }.merge(options))
+        batch_id: batch_id,
+        **options
+      )
     end
 
     def with_retries
