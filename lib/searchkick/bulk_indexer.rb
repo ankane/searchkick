@@ -90,6 +90,16 @@ module Searchkick
         # TODO expire Redis key
         primary_key = scope.primary_key
 
+        # Improved performance of async full reindex
+        # We do not want to leverage includes or preload
+        # prior to full async reindex since only the id
+        # is required for the job and any preloaded
+        # associations is a waste of resources.
+        #
+        # Also addressed in upstream
+        # https://github.com/ankane/searchkick/issues/1325
+        scope = scope.select(primary_key).except(:includes, :preload)
+
         starting_id =
           begin
             scope.minimum(primary_key)
