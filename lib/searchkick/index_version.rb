@@ -1,5 +1,6 @@
 module Searchkick
   class IndexVersion < ::ActiveRecord::Base
+    INITIAL_VERSION = 10_000
     self.table_name = 'searchkick_index_versions'
 
     class << self
@@ -21,7 +22,8 @@ module Searchkick
         new_records_attributes = ids.map { |id|
           {
             resource_type: model.name,
-            resource_id: id
+            resource_id: id,
+            version: INITIAL_VERSION
           }
         }
 
@@ -33,7 +35,7 @@ module Searchkick
 
         result_sets = connection.execute <<~SQL
           UPDATE #{table_name}
-          SET version = version + 1
+          SET version = GREATEST(version, #{INITIAL_VERSION}) + 1
           WHERE resource_type = #{connection.quote(model.name)}
             AND resource_id IN (#{quoted_ids})
           RETURNING resource_id, version
