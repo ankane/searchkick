@@ -6,13 +6,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 3.0
+        - ruby: 3.1
           gemfile: Gemfile
           elasticsearch: 7.16.2
-        - ruby: 3.0
+        - ruby: 3.1
           gemfile: gemfiles/opensearch.gemfile
           opensearch: 1.2.3
-        - ruby: 3.0
+        - ruby: "3.0"
           gemfile: gemfiles/activerecord61.gemfile
           elasticsearch: 7.16.2
         - ruby: 2.7
