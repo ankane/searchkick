@@ -34,8 +34,7 @@ module Searchkick
   class Error < StandardError; end
   class MissingIndexError < Error; end
   class UnsupportedVersionError < Error; end
-  # TODO switch to Error
-  class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
+  class InvalidQueryError < Error; end
   class DangerousOperation < Error; end
   class ImportError < Error; end
 
