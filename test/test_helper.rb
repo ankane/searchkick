@@ -2,7 +2,6 @@ require "bundler/setup"
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
-require "active_support/core_ext" if defined?(NoBrainer)
 require "active_support/notifications"
 
 ENV["RACK_ENV"] = "test"
@@ -47,10 +46,6 @@ ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["
 
 if defined?(Mongoid)
   require_relative "support/mongoid"
-elsif defined?(NoBrainer)
-  require_relative "support/nobrainer"
-elsif defined?(Cequel)
-  require_relative "support/cequel"
 else
   require_relative "support/activerecord"
 end
@@ -145,14 +140,6 @@ class Minitest::Test
 
   def activerecord?
     defined?(ActiveRecord)
-  end
-
-  def nobrainer?
-    defined?(NoBrainer)
-  end
-
-  def cequel?
-    defined?(Cequel)
   end
 
   def default_model

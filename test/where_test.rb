@@ -15,14 +15,11 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: 2}
     assert_search "product", ["Product A", "Product C"], where: {user_ids: [2, 3]}
 
-    # due to precision
-    unless cequel?
-      # date
-      assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
-      assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
-      assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
-      assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
-    end
+    # date
+    assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
+    assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
+    assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
+    assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
 
     # integer
     assert_search "product", ["Product A"], where: {store_id: {lt: 2}}

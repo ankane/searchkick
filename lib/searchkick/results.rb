@@ -309,16 +309,7 @@ module Searchkick
         combine_includes(included_relations, options[:includes])
         combine_includes(included_relations, options[:model_includes][records]) if options[:model_includes]
 
-        records =
-          if defined?(NoBrainer::Document) && records < NoBrainer::Document
-            if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
-              records.eager_load(included_relations)
-            else
-              records.preload(included_relations)
-            end
-          else
-            records.includes(included_relations)
-          end
+        records = records.includes(included_relations)
       end
 
       if options[:scope_results]

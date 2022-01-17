@@ -2,9 +2,7 @@ module Searchkick
   class ReindexV2Job < ActiveJob::Base
     RECORD_NOT_FOUND_CLASSES = [
       "ActiveRecord::RecordNotFound",
-      "Mongoid::Errors::DocumentNotFound",
-      "NoBrainer::Error::DocumentNotFound",
-      "Cequel::Record::RecordNotFound"
+      "Mongoid::Errors::DocumentNotFound"
     ]
 
     queue_as { Searchkick.queue_name }

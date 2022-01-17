@@ -1,6 +1,7 @@
 ## 5.0.0 (unreleased)
 
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
+- Dropped support for NoBrainer and Cequel
 
 ## 4.6.3 (2021-11-19)
 

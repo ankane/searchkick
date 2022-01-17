@@ -1,9 +1,0 @@
-source "https://rubygems.org"
-
-gemspec path: ".."
-
-gem "rake"
-gem "minitest", ">= 5"
-gem "nobrainer", ">= 0.21.0"
-gem "activejob"
-gem "redis"
