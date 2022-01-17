@@ -290,12 +290,9 @@ module Searchkick
   end
 end
 
-require "active_model/callbacks"
-ActiveModel::Callbacks.include(Searchkick::Model)
-# TODO use
-# ActiveSupport.on_load(:mongoid) do
-#   Mongoid::Document::ClassMethods.include Searchkick::Model
-# end
+ActiveSupport.on_load(:mongoid) do
+  Mongoid::Document::ClassMethods.include Searchkick::Model
+end
 
 ActiveSupport.on_load(:active_record) do
   extend Searchkick::Model
