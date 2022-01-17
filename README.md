@@ -55,7 +55,7 @@ brew services start elasticsearch # or opensearch
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'searchkick'
+gem "searchkick"
 ```
 
 The latest version works with Elasticsearch 6 and 7 and OpenSearch 1. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
@@ -485,7 +485,7 @@ Search :ice_cream::cake: and get `ice cream cake`!
 Add this line to your application’s Gemfile:
 
 ```ruby
-gem 'gemoji-parser'
+gem "gemoji-parser"
 ```
 
 And use:
@@ -1298,7 +1298,7 @@ ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:44
 To use signed requests, include in your Gemfile:
 
 ```ruby
-gem 'faraday_middleware-aws-sigv4'
+gem "faraday_middleware-aws-sigv4"
 ```
 
 and add to your initializer:
@@ -1368,7 +1368,7 @@ See [Production Rails](https://github.com/ankane/production_rails) for other goo
 Significantly increase performance with faster JSON generation. Add [Oj](https://github.com/ohler55/oj) to your Gemfile.
 
 ```ruby
-gem 'oj'
+gem "oj"
 ```
 
 This speeds up all JSON generation and parsing in your application (automatically!)
@@ -1378,7 +1378,7 @@ This speeds up all JSON generation and parsing in your application (automaticall
 Significantly increase performance with persistent HTTP connections. Add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile and it’ll automatically be used.
 
 ```ruby
-gem 'typhoeus'
+gem "typhoeus"
 ```
 
 To reduce log noise, create an initializer with:
@@ -1447,7 +1447,7 @@ Product.reindex(async: {wait: true})
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
 
 ```ruby
-gem 'activejob-traffic_control', '>= 0.1.3'
+gem "activejob-traffic_control", ">= 0.1.3"
 ```
 
 And create an initializer with:
