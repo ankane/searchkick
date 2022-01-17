@@ -21,19 +21,13 @@ jobs:
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
           elasticsearch: 7.0.0
-        - ruby: 2.5
-          gemfile: gemfiles/activerecord51.gemfile
-          elasticsearch: 6.8.23
-        - ruby: 2.4
-          gemfile: gemfiles/activerecord50.gemfile
-          elasticsearch: 6.0.0
         - ruby: 2.7
           gemfile: gemfiles/mongoid7.gemfile
           elasticsearch: 7
           mongodb: true
         - ruby: 2.6
           gemfile: gemfiles/mongoid6.gemfile
-          elasticsearch: 6
+          elasticsearch: 7
           mongodb: true
     runs-on: ubuntu-latest
     env:

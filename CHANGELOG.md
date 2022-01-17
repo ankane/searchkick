@@ -1,3 +1,7 @@
+## 5.0.0 (unreleased)
+
+- Dropped support for Ruby < 2.6 and Active Record < 5.2
+
 ## 4.6.3 (2021-11-19)
 
 - Added support for reloadable synonyms for OpenSearch
