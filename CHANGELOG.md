@@ -2,6 +2,7 @@
 
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
 - Dropped support for NoBrainer and Cequel
+- Dropped support for `faraday_middleware-aws-signers-v4` (use `faraday_middleware-aws-sigv4` instead)
 
 ## 4.6.3 (2021-11-19)
 

@@ -177,12 +177,8 @@ module Searchkick
   end
 
   def self.aws_credentials=(creds)
-    begin
-      # TODO remove in Searchkick 5 (just use aws_sigv4)
-      require "faraday_middleware/aws_signers_v4"
-    rescue LoadError
-      require "faraday_middleware/aws_sigv4"
-    end
+    require "faraday_middleware/aws_sigv4"
+
     @aws_credentials = creds
     @client = nil # reset client
   end
