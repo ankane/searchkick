@@ -11,7 +11,7 @@ jobs:
           elasticsearch: 7.16.3
         - ruby: 3.1
           gemfile: gemfiles/opensearch.gemfile
-          opensearch: 1.2.3
+          opensearch: 1.2.4
         - ruby: "3.0"
           gemfile: gemfiles/activerecord61.gemfile
           elasticsearch: 7.16.3
