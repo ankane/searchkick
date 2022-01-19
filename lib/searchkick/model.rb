@@ -41,8 +41,9 @@ module Searchkick
 
         class << self
           def searchkick_search(term = "*", **options, &block)
-            # TODO throw error in next major version
-            Searchkick.warn("calling search on a relation is deprecated") if Searchkick.relation?(self)
+            if Searchkick.relation?(self)
+              raise Searchkick::Error, "search must be called on model, not relation"
+            end
 
             Searchkick.search(term, model: self, **options, &block)
           end

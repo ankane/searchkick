@@ -2,19 +2,20 @@ require_relative "test_helper"
 
 class SearchTest < Minitest::Test
   def test_search_relation
-    _, stderr = capture_io { Product.search("*") }
-    assert_equal "", stderr
-    _, stderr = capture_io { Product.all.search("*") }
-    assert_match "WARNING", stderr
+    error = assert_raises(Searchkick::Error) do
+      Product.all.search("*")
+    end
+    assert_equal "search must be called on model, not relation", error.message
   end
 
   def test_search_relation_default_scope
     Band.reindex
+    Band.search("*") # test works
 
-    _, stderr = capture_io { Band.search("*") }
-    assert_equal "", stderr
-    _, stderr = capture_io { Band.all.search("*") }
-    assert_match "WARNING", stderr
+    error = assert_raises(Searchkick::Error) do
+      Band.all.search("*")
+    end
+    assert_equal "search must be called on model, not relation", error.message
   end
 
   def test_body
