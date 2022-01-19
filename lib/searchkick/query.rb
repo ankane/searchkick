@@ -1058,7 +1058,7 @@ module Searchkick
 
         if below710?
           if value.casefold?
-            Searchkick.warn("Case-insensitive flag does not work with Elasticsearch < 7.10")
+            raise Searchkick::Error, "Case-insensitive flag does not work with Elasticsearch < 7.10"
           end
           {regexp: {field => {value: source, flags: "NONE"}}}
         else

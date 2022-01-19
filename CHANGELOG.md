@@ -1,6 +1,7 @@
 ## 5.0.0 (unreleased)
 
 - Raise error when `search` called on relations
+- Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
 - Dropped support for NoBrainer and Cequel
 - Dropped support for `faraday_middleware-aws-signers-v4` (use `faraday_middleware-aws-sigv4` instead)
