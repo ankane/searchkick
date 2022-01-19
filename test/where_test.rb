@@ -83,14 +83,14 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_string_operators
-    error = assert_raises RuntimeError do
+    error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
     end
     assert_includes error.message, "Unknown where operator"
   end
 
   def test_unknown_operator
-    error = assert_raises RuntimeError do
+    error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {contains: "%2%"}}
     end
     assert_includes error.message, "Unknown where operator"

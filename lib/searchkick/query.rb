@@ -1007,7 +1007,7 @@ module Searchkick
                   when :lte
                     {to: op_value, include_upper: true}
                   else
-                    raise "Unknown where operator: #{op.inspect}"
+                    raise ArgumentError, "Unknown where operator: #{op.inspect}"
                   end
                 # issue 132
                 if (existing = filters.find { |f| f[:range] && f[:range][field] })
