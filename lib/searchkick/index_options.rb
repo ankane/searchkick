@@ -223,19 +223,7 @@ module Searchkick
             type: "smartcn"
           }
         )
-      when "japanese"
-        settings[:analysis][:analyzer].merge!(
-          default_analyzer => {
-            type: "kuromoji"
-          },
-          searchkick_search: {
-            type: "kuromoji"
-          },
-          searchkick_search2: {
-            type: "kuromoji"
-          }
-        )
-      when "japanese2"
+      when "japanese", "japanese2"
         analyzer = {
           type: "custom",
           tokenizer: "kuromoji_tokenizer",
