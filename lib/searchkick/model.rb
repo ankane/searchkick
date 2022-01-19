@@ -57,10 +57,7 @@ module Searchkick
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
           def searchkick_reindex(method_name = nil, **options)
-            # TODO relation = Searchkick.relation?(self)
-            relation = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
-              (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
-
+            relation = Searchkick.relation?(self)
             searchkick_index.reindex(searchkick_klass, method_name, scoped: relation, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
