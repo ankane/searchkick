@@ -1036,24 +1036,18 @@ module Searchkick
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
         source = value.source
-        unless source.start_with?("\\A") && source.end_with?("\\z")
-          # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
-          Searchkick.warn("Regular expressions are always anchored in Elasticsearch")
-        end
 
         # TODO handle other anchor characters, like ^, $, \Z
         if source.start_with?("\\A")
           source = source[2..-1]
         else
-          # TODO uncomment in Searchkick 5
-          # source = ".*#{source}"
+          source = ".*#{source}"
         end
 
         if source.end_with?("\\z")
           source = source[0..-3]
         else
-          # TODO uncomment in Searchkick 5
-          # source = "#{source}.*"
+          source = "#{source}.*"
         end
 
         if below710?

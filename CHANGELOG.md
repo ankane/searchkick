@@ -1,5 +1,6 @@
 ## 5.0.0 (unreleased)
 
+- Anchor regular expressions by default
 - Raise error when `search` called on relations
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
