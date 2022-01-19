@@ -83,8 +83,7 @@ module Searchkick
           RecordIndexer.new(self).reindex(method_name, **options)
         end unless method_defined?(:reindex)
 
-        # TODO switch to keyword arguments
-        def similar(options = {})
+        def similar(**options)
           self.class.searchkick_index.similar_record(self, **options)
         end unless method_defined?(:similar)
 
