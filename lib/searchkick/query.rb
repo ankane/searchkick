@@ -1037,6 +1037,8 @@ module Searchkick
       elsif value.is_a?(Regexp)
         source = value.source
 
+        # TODO handle other regexp options
+
         # TODO handle other anchor characters, like ^, $, \Z
         if source.start_with?("\\A")
           source = source[2..-1]
