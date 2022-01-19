@@ -134,7 +134,7 @@ class WhereTest < Minitest::Test
     if case_insensitive_supported?
       assert_search "*", ["abcde"], where: {name: /\AABCDE\z/i}
     else
-      error = assert_raises(Searchkick::Error) do
+      error = assert_raises(ArgumentError) do
         assert_search "*", [], where: {name: /\AABCDE\z/i}
       end
       assert_equal "Case-insensitive flag does not work with Elasticsearch < 7.10", error.message

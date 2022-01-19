@@ -1054,7 +1054,7 @@ module Searchkick
 
         if below710?
           if value.casefold?
-            raise Searchkick::Error, "Case-insensitive flag does not work with Elasticsearch < 7.10"
+            raise ArgumentError, "Case-insensitive flag does not work with Elasticsearch < 7.10"
           end
           {regexp: {field => {value: source, flags: "NONE"}}}
         else
@@ -1065,9 +1065,7 @@ module Searchkick
         if value.as_json.is_a?(Enumerable)
           # query will fail, but this is better
           # same message as Active Record
-          # TODO make TypeError
-          # raise InvalidQueryError for backward compatibility
-          raise Searchkick::InvalidQueryError, "can't cast #{value.class.name}"
+          raise TypeError, "can't cast #{value.class.name}"
         end
 
         {term: {field => {value: value}}}
