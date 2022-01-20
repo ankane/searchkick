@@ -268,9 +268,10 @@ module Searchkick
         should = []
 
         if options[:similar]
+          like = options[:similar] == true ? term : options[:similar]
           query = {
             more_like_this: {
-              like: term,
+              like: like,
               min_doc_freq: 1,
               min_term_freq: 1,
               analyzer: "searchkick_search2"

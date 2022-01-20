@@ -163,20 +163,12 @@ module Searchkick
       RecordData.new(self, record).document_type
     end
 
-    # TODO use like: [{_index: ..., _id: ...}] in Searchkick 5
     def similar_record(record, **options)
-      like_text = retrieve(record).to_hash
-        .keep_if { |k, _| !options[:fields] || options[:fields].map(&:to_s).include?(k) }
-        .values.compact.join(" ")
-
-      options[:where] ||= {}
-      options[:where][:_id] ||= {}
-      options[:where][:_id][:not] = Array(options[:where][:_id][:not]) + [record.id.to_s]
       options[:per_page] ||= 10
-      options[:similar] = true
+      options[:similar] = [RecordData.new(self, record).record_data]
 
       # TODO use index class instead of record class
-      Searchkick.search(like_text, model: record.class, **options)
+      Searchkick.search("*", model: record.class, **options)
     end
 
     def reload_synonyms
