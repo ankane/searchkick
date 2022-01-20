@@ -873,11 +873,7 @@ module Searchkick
     end
 
     def set_order(payload)
-      order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      id_field = :_id
-      # TODO no longer map id to _id in Searchkick 5
-      # since sorting on _id is deprecated in Elasticsearch
-      payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
+      payload[:sort] = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
     end
 
     def where_filters(where)
