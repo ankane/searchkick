@@ -1,7 +1,6 @@
 # dependencies
 require "active_support"
 require "active_support/core_ext/hash/deep_merge"
-require "elasticsearch"
 require "hashie"
 
 # modules
@@ -41,6 +40,7 @@ module Searchkick
   class InvalidQueryError < Error; end
   class DangerousOperation < Error; end
   class ImportError < Error; end
+  class ClientNotFound < Error; end
 
   class << self
     attr_accessor :search_method_name, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options
@@ -58,13 +58,38 @@ module Searchkick
     @client ||= begin
       require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
 
-      Elasticsearch::Client.new({
-        url: ENV["ELASTICSEARCH_URL"] || ENV["OPENSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
-        retry_on_failure: 2
-      }.deep_merge(client_options)) do |f|
-        f.use Searchkick::Middleware
-        f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+      client_type =
+        if ENV["OPENSEARCH_URL"]
+          :opensearch
+        elsif ENV["ELASTICSEARCH_URL"]
+          :elasticsearch
+        elsif defined?(OpenSearch::Client)
+          :opensearch
+        elsif defined?(Elasticsearch::Client)
+          :elasticsearch
+        else
+          raise ClientNotFound, "Install the `opensearch-ruby` or `elasticsearch` gem"
+        end
+
+      if client_type == :opensearch
+        OpenSearch::Client.new({
+          url: ENV["OPENSEARCH_URL"],
+          transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
+          retry_on_failure: 2
+        }.deep_merge(client_options)) do |f|
+          f.use Searchkick::Middleware
+          f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+        end
+      else
+        # TODO check version >= 7
+        Elasticsearch::Client.new({
+          url: ENV["ELASTICSEARCH_URL"],
+          transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
+          retry_on_failure: 2
+        }.deep_merge(client_options)) do |f|
+          f.use Searchkick::Middleware
+          f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+        end
       end
     end
   end
