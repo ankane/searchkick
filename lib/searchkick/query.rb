@@ -210,14 +210,14 @@ module Searchkick
         e.message.include?("No query registered for [function_score]")
       )
 
-        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
+        raise UnsupportedVersionError
       elsif status_code == 400
         if (
           e.message.include?("bool query does not support [filter]") ||
           e.message.include?("[bool] filter does not support [filter]")
         )
 
-          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
+          raise UnsupportedVersionError
         elsif e.message =~ /analyzer \[searchkick_.+\] not found/
           raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
         else
