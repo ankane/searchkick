@@ -8,10 +8,6 @@ module Searchkick
 
     def index_options
       custom_mapping = options[:mappings] || {}
-      if below70? && custom_mapping.keys.map(&:to_sym).include?(:properties)
-        # add type
-        custom_mapping = {index_type => custom_mapping}
-      end
 
       if options[:mappings] && !options[:merge_mappings]
         settings = options[:settings] || {}
@@ -167,12 +163,10 @@ module Searchkick
         settings[:similarity] = {default: {type: options[:similarity]}}
       end
 
-      unless below62?
-        settings[:index] = {
-          max_ngram_diff: 49,
-          max_shingle_diff: 4
-        }
-      end
+      settings[:index] = {
+        max_ngram_diff: 49,
+        max_shingle_diff: 4
+      }
 
       if options[:case_sensitive]
         settings[:analysis][:analyzer].each do |_, analyzer|
@@ -467,10 +461,6 @@ module Searchkick
         ]
       }
 
-      if below70?
-        mappings = {index_type => mappings}
-      end
-
       mappings
     end
 
@@ -556,14 +546,6 @@ module Searchkick
 
     def default_analyzer
       :searchkick_index
-    end
-
-    def below62?
-      Searchkick.server_below?("6.2.0")
-    end
-
-    def below70?
-      Searchkick.server_below?("7.0.0")
     end
 
     def below73?

@@ -31,23 +31,6 @@ class GeoShapeTest < Minitest::Test
     ]
   end
 
-  def test_circle
-    # https://github.com/elastic/elasticsearch/issues/39237
-    skip unless Searchkick.server_below?("6.6.0")
-
-    assert_search "*", ["Region A"], {
-      where: {
-        territory: {
-          geo_shape: {
-            type: "circle",
-            coordinates: {lat: 28.0, lon: 38.0},
-            radius: "444000m"
-          }
-        }
-      }
-    }
-  end
-
   def test_envelope
     assert_search "*", ["Region A"], {
       where: {
@@ -138,23 +121,6 @@ class GeoShapeTest < Minitest::Test
           geo_shape: {
             type: "envelope",
             coordinates: [[28, 42], [32, 38]]
-          }
-        }
-      }
-    }
-  end
-
-  def test_contains
-    # CONTAINS query relation not supported
-    skip unless Searchkick.server_below?("6.6.0")
-
-    assert_search "*", ["Region C"], {
-      where: {
-        territory: {
-          geo_shape: {
-            type: "envelope",
-            relation: "contains",
-            coordinates: [[12, 13], [13, 12]]
           }
         }
       }

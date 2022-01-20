@@ -123,14 +123,6 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
-  # memoize for performance
-  def self.server_below7?
-    unless defined?(@server_below7)
-      @server_below7 = server_below?("7.0.0")
-    end
-    @server_below7
-  end
-
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model

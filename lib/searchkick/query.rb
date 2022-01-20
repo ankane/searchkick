@@ -384,11 +384,6 @@ module Searchkick
 
             if field.start_with?("*.")
               q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
-              if below61?
-                q2.each do |q|
-                  q[:multi_match].delete(:fuzzy_transpositions)
-                end
-              end
             else
               q2 = qs.map { |q| {match_type => {field => q}} }
             end
@@ -1141,19 +1136,11 @@ module Searchkick
     end
 
     def track_total_hits?
-      (searchkick_options[:deep_paging] && !below70?) || body_options[:track_total_hits]
+      searchkick_options[:deep_paging] || body_options[:track_total_hits]
     end
 
     def body_options
       options[:body_options] || {}
-    end
-
-    def below61?
-      Searchkick.server_below?("6.1.0")
-    end
-
-    def below70?
-      Searchkick.server_below?("7.0.0")
     end
 
     def below73?

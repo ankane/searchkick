@@ -59,7 +59,6 @@ class IndexTest < Minitest::Test
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
     mapping = Store.search_index.mapping.values.first["mappings"]
-    mapping = mapping["store"] if Searchkick.server_below?("7.0.0")
     assert_equal "text", mapping["properties"]["name"]["type"]
   end
 

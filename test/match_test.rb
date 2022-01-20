@@ -34,8 +34,6 @@ class MatchTest < Minitest::Test
   end
 
   def test_percent
-    # Note: "2% Milk" doesn't get matched in ES below 5.1.1
-    # This could be a bug since it has an edit distance of 1
     store_names ["1% Milk", "Whole Milk"]
     assert_search "1%", ["1% Milk"]
   end

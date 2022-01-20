@@ -8,9 +8,6 @@ class RoutingTest < Minitest::Test
 
   def test_mappings
     mappings = Store.searchkick_index.index_options[:mappings]
-    if Searchkick.server_below?("7.0.0")
-      mappings = mappings[:store]
-    end
     assert_equal mappings[:_routing], required: true
   end
 
