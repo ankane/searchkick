@@ -185,8 +185,6 @@ module Searchkick
 
       add_synonyms(settings)
       add_search_synonyms(settings)
-      # TODO remove in Searchkick 5
-      add_wordnet(settings) if options[:wordnet]
 
       if options[:special_characters] == false
         settings[:analysis][:analyzer].each_value do |analyzer_settings|
@@ -534,21 +532,6 @@ module Searchkick
             settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")
           end
         end
-      end
-    end
-
-    def add_wordnet(settings)
-      settings[:analysis][:filter][:searchkick_wordnet] = {
-        type: "synonym",
-        format: "wordnet",
-        synonyms_path: Searchkick.wordnet_path
-      }
-
-      settings[:analysis][:analyzer][default_analyzer][:filter].insert(4, "searchkick_wordnet")
-      settings[:analysis][:analyzer][default_analyzer][:filter] << "searchkick_wordnet"
-
-      %w(word_start word_middle word_end).each do |type|
-        settings[:analysis][:analyzer]["searchkick_#{type}_index".to_sym][:filter].insert(2, "searchkick_wordnet")
       end
     end
 

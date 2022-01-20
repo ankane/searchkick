@@ -5,6 +5,7 @@
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Raise `ArgumentError` instead of `RuntimeError` for unknown operators
 - Removed mapping of `id` to `_id` with `order` option
+- Removed `wordnet` option
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
 - Dropped support for NoBrainer and Cequel
 - Dropped support for `faraday_middleware-aws-signers-v4` (use `faraday_middleware-aws-sigv4` instead)

@@ -31,14 +31,6 @@ class SynonymsTest < Minitest::Test
     assert_search "clorox", ["Clorox Bleach", "Kroger Bleach"], fields: [{name: :word_start}]
   end
 
-  def test_wordnet
-    # requires WordNet
-    skip unless ENV["WORDNET"]
-
-    store_names ["Creature", "Beast", "Dragon"], Animal
-    assert_search "animal", ["Creature", "Beast"], {}, Animal
-  end
-
   def test_directional
     store_names ["Lightbulb", "Green Onions", "Led"]
     assert_search "led", ["Lightbulb", "Led"]
