@@ -496,7 +496,8 @@ Product.search "🍨🍰", emoji: true
 
 ## Indexing
 
-Control what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
+You can customise what data is indexed with the `search_data` method. Call `Product.reindex` after changing this method.
+Note: by convention, _all_ database columns for the model are indexed.
 
 ```ruby
 class Product < ApplicationRecord
