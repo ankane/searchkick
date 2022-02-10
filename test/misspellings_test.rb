@@ -13,13 +13,21 @@ class MisspellingsTest < Minitest::Test
 
   def test_prefix_length
     store_names ["ap", "api", "apt", "any", "nap", "ah", "ahi"]
-    assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
+    if Searchkick.server_below?("8.0.0")
+      assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
+    else
+      assert_search "ap", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
+    end
     assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
   end
 
   def test_prefix_length_operator
     store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
-    assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
+    if Searchkick.server_below?("8.0.0")
+      assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
+    else
+      assert_search "ap ah", ["ap", "ah", "api", "apt", "aha"], operator: "or", misspellings: {prefix_length: 2}
+    end
     assert_search "api ahi", ["ap", "api", "apt", "ah", "aha"], operator: "or", misspellings: {prefix_length: 2}
   end
 

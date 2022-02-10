@@ -14,7 +14,7 @@ class OrderTest < Minitest::Test
   # TODO no longer map id to _id in Searchkick 5
   # since sorting on _id is deprecated in Elasticsearch
   def test_id
-    skip if cequel?
+    skip if cequel? || !Searchkick.server_below?("8.0.0")
 
     store_names ["Product A", "Product B"]
     product_a = Product.where(name: "Product A").first
