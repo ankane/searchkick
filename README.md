@@ -43,6 +43,8 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 - [Reference](#reference)
 - [Contributing](#contributing)
 
+**Searchkick 5.0 was recently released!** See [how to upgrade](#upgrading)
+
 ## Getting Started
 
 Install [OpenSearch](https://opensearch.org/downloads.html) or [Elasticsearch](https://www.elastic.co/downloads/elasticsearch). For Homebrew, use:
@@ -2038,6 +2040,18 @@ end
 ```
 
 For convenience, this is set by default in the test environment.
+
+## Upgrading
+
+### 5.0
+
+Searchkick 5 supports both the `opensearch-ruby` and `elasticsearch` gems. Add the one you want to use to your Gemfile:
+
+```ruby
+gem "elasticsearch"
+```
+
+If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
 
 ## History
 
