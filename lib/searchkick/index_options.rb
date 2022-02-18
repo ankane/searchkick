@@ -158,7 +158,6 @@ module Searchkick
         settings[:number_of_replicas] = 0
       end
 
-      # TODO remove in Searchkick 5 (classic no longer supported)
       if options[:similarity]
         settings[:similarity] = {default: {type: options[:similarity]}}
       end
