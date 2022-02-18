@@ -78,7 +78,7 @@ module Searchkick
           retry_on_failure: 2
         }.deep_merge(client_options)) do |f|
           f.use Searchkick::Middleware
-          f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+          f.request :aws_sigv4, signer_middleware_aws_params if aws_credentials
         end
       else
         # TODO figure out error type
@@ -90,7 +90,7 @@ module Searchkick
           retry_on_failure: 2
         }.deep_merge(client_options)) do |f|
           f.use Searchkick::Middleware
-          f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+          f.request :aws_sigv4, signer_middleware_aws_params if aws_credentials
         end
       end
     end
@@ -265,21 +265,8 @@ module Searchkick
   end
 
   # private
-  def self.signer_middleware_key
-    defined?(FaradayMiddleware::AwsSignersV4) ? :aws_signers_v4 : :aws_sigv4
-  end
-
-  # private
   def self.signer_middleware_aws_params
-    if signer_middleware_key == :aws_sigv4
-      {service: "es", region: "us-east-1"}.merge(aws_credentials)
-    else
-      {
-        credentials: aws_credentials[:credentials] || Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
-        service_name: "es",
-        region: aws_credentials[:region] || "us-east-1"
-      }
-    end
+    {service: "es", region: "us-east-1"}.merge(aws_credentials)
   end
 
   # private
