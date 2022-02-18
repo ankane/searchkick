@@ -340,9 +340,10 @@ class WhereTest < Minitest::Test
     _, stderr = capture_io do
       assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
     end
-    unless Searchkick.server_below?("7.12.0")
-      assert_match "Deprecated field [geo_polygon] used", stderr
-    end
+    # only warns for elasticsearch gem < 8
+    # unless Searchkick.server_below?("7.12.0")
+    #   assert_match "Deprecated field [geo_polygon] used", stderr
+    # end
 
     # Field [location] is not of type [geo_shape] but of type [geo_point] error for previous versions
     unless Searchkick.server_below?("7.14.0")
