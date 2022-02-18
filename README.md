@@ -2053,6 +2053,8 @@ gem "elasticsearch"
 
 If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
 
+Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
+
 ## History
 
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
