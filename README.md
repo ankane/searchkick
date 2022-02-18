@@ -2053,6 +2053,18 @@ gem "elasticsearch"
 
 If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
 
+Also, searches now use lazy loading:
+
+```ruby
+# search not executed
+products = Product.search("milk")
+
+# search executed
+products.each do |product|
+  # ...
+end
+```
+
 Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
 
 ## History

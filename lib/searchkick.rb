@@ -15,6 +15,7 @@ require "searchkick/query"
 require "searchkick/reindex_queue"
 require "searchkick/record_data"
 require "searchkick/record_indexer"
+require "searchkick/relation"
 require "searchkick/results"
 require "searchkick/version"
 
@@ -150,16 +151,18 @@ module Searchkick
       end
     end
 
-    options = options.merge(block: block) if block
-    query = Searchkick::Query.new(klass, term, **options)
+    # TODO remove in Searchkick 6.0
     if options[:execute] == false
-      query
-    else
-      query.execute
+      Searchkick.warn("The execute option is no longer needed")
+      options.delete(:execute)
     end
+
+    options = options.merge(block: block) if block
+    Searchkick::Relation.new(klass, term, **options)
   end
 
   def self.multi_search(queries)
+    queries = queries.map { |q| q.send(:query) }
     Searchkick::MultiSearch.new(queries).perform
   end
 

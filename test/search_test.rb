@@ -56,14 +56,14 @@ class SearchTest < Minitest::Test
   def test_bad_mapping
     Product.searchkick_index.delete
     store_names ["Product A"]
-    error = assert_raises(Searchkick::InvalidQueryError) { Product.search "test" }
+    error = assert_raises(Searchkick::InvalidQueryError) { Product.search("test").to_a }
     assert_equal "Bad mapping - run Product.reindex", error.message
   ensure
     Product.reindex
   end
 
   def test_missing_index
-    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found") }
+    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found").to_a }
   end
 
   def test_unsupported_version
@@ -77,11 +77,11 @@ class SearchTest < Minitest::Test
       end
     end
     Searchkick.client.stub :search, raises_exception do
-      assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
+      assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test").to_a }
     end
   end
 
   def test_invalid_body
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}) }
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}).to_a }
   end
 end
