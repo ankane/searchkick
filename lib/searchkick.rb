@@ -217,7 +217,6 @@ module Searchkick
     }
   end
 
-  # TODO use ConnectionPool::Wrapper when redis is set so this is no longer needed
   def self.with_redis
     if redis
       if redis.respond_to?(:with)
