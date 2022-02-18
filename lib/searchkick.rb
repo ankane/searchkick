@@ -81,7 +81,9 @@ module Searchkick
           f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
         end
       else
-        # TODO check version >= 7
+        # TODO figure out error type
+        raise "The `elasticsearch` gem must be 7+" if Elasticsearch::VERSION.to_i < 7
+
         Elasticsearch::Client.new({
           url: ENV["ELASTICSEARCH_URL"],
           transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
