@@ -173,9 +173,6 @@ module Searchkick
         end
       end
 
-      # TODO do this last in Searchkick 5
-      settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
-
       add_synonyms(settings)
       add_search_synonyms(settings)
 
@@ -184,6 +181,9 @@ module Searchkick
           analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
         end
       end
+
+      # merge settings option last
+      settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
       settings
     end
