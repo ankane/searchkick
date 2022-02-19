@@ -1688,8 +1688,8 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-products = Product.search("snacks", execute: false)
-coupons = Coupon.search("snacks", execute: false)
+products = Product.search("snacks")
+coupons = Coupon.search("snacks")
 Searchkick.multi_search([products, coupons])
 ```
 
@@ -1963,13 +1963,6 @@ class Product < ApplicationRecord
 end
 ```
 
-Lazy searching
-
-```ruby
-products = Product.search("carrots", execute: false)
-products.each { ... } # search not executed until here
-```
-
 Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params) like `search_type`
 
 ```ruby
@@ -2057,12 +2050,10 @@ Also, searches now use lazy loading:
 
 ```ruby
 # search not executed
-products = Product.search("milk")
+Product.search("milk")
 
 # search executed
-products.each do |product|
-  # ...
-end
+Product.search("milk").to_a
 ```
 
 Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
