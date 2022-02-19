@@ -2006,11 +2006,6 @@ Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
 
-## Elasticsearch 6 to 7 Upgrade
-
-1. Install Searchkick 4
-2. Upgrade your Elasticsearch cluster
-
 ## Gotchas
 
 ### Consistency
