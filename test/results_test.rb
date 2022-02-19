@@ -1,6 +1,19 @@
 require_relative "test_helper"
 
 class ResultsTest < Minitest::Test
+  def test_array_methods
+    store_names ["Product A", "Product B"]
+    products = Product.search("product")
+    assert_equal 2, products.count
+    assert_equal 2, products.size
+    assert_equal 2, products.length
+    assert products.any?
+    refute products.empty?
+    assert_kind_of Product, products[0]
+    assert_kind_of Array, products.slice(0, 1)
+    assert_kind_of Array, products.to_ary
+  end
+
   def test_with_hit
     store_names ["Product A", "Product B"]
     results = Product.search("product")
