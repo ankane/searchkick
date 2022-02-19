@@ -35,12 +35,29 @@ class LogSubscriberTest < Minitest::Test
   end
 
   def test_reindex
-    Product.create!(name: "Product A")
+    create_products
     output = capture_logs do
       Product.reindex
     end
     assert_match "Product Import", output
-    assert_match '"count":1', output
+    assert_match '"count":3', output
+  end
+
+  def test_reindex_relation
+    products = create_products
+    output = capture_logs do
+      Product.where.not(id: products.last.id).reindex
+    end
+    assert_match "Product Import", output
+    assert_match '"count":2', output
+  end
+
+  def create_products
+    Searchkick.callbacks(false) do
+      3.times.map do
+        Product.create!(name: "Product A")
+      end
+    end
   end
 
   def capture_logs
