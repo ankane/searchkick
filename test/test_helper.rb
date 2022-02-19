@@ -13,10 +13,6 @@ end
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
-if defined?(OpenSearch)
-  Searchkick.client = OpenSearch::Client.new
-end
-
 if Searchkick.client.transport.respond_to?(:transport)
   Searchkick.client.transport.transport.logger = $logger
 else
