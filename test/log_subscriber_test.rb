@@ -24,6 +24,16 @@ class LogSubscriberTest < Minitest::Test
     assert_match "Product Remove", output
   end
 
+  def test_bulk
+    output = capture_logs do
+      Searchkick.callbacks(:bulk) do
+        Product.create!(name: "Product A")
+      end
+    end
+    assert_match "Bulk", output
+    refute_match "Product Store", output
+  end
+
   def test_reindex
     Product.create!(name: "Product A")
     output = capture_logs do
