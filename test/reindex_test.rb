@@ -5,7 +5,8 @@ class ReindexTest < Minitest::Test
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    product.reindex(refresh: true)
+    # TODO decide on return value
+    assert_kind_of Object, product.reindex(refresh: true)
     assert_search "product", ["Product A"]
   end
 
@@ -15,14 +16,15 @@ class ReindexTest < Minitest::Test
     product = Product.find_by!(name: "Product A")
     product.destroy
     Product.search_index.refresh
-    product.reindex
+    assert_nil product.reindex
   end
 
   def test_record_async
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    product.reindex(mode: :async)
+    # TODO decide on return value
+    assert_kind_of ActiveJob::Base, product.reindex(mode: :async)
     Product.search_index.refresh
     assert_search "product", ["Product A"]
   end
@@ -36,7 +38,8 @@ class ReindexTest < Minitest::Test
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    product.reindex(mode: :queue)
+    # TODO improve return value
+    assert_equal 1, product.reindex(mode: :queue)
     Product.search_index.refresh
     assert_search "product", []
 
@@ -56,7 +59,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A"]
     store = Store.create!(name: "Test")
     Product.create!(name: "Product B", store_id: store.id)
-    store.products.reindex(refresh: true)
+    assert_equal true, store.products.reindex(refresh: true)
     assert_search "product", ["Product A", "Product B"]
   end
 
@@ -65,7 +68,7 @@ class ReindexTest < Minitest::Test
     Searchkick.callbacks(false) do
       Product.find_by(name: "Product B").update!(name: "DO NOT INDEX")
     end
-    Product.where(name: "DO NOT INDEX").reindex
+    assert_equal true, Product.where(name: "DO NOT INDEX").reindex
     Product.search_index.refresh
     assert_search "product", ["Product A"]
   end

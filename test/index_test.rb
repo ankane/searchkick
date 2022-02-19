@@ -75,6 +75,18 @@ class IndexTest < Minitest::Test
     Product.reindex
   end
 
+  # keep simple for now, but maybe return client response in future
+  def test_store_response
+    product = Searchkick.callbacks(false) { Product.create!(name: "Product A") }
+    assert_nil Product.search_index.store(product)
+  end
+
+  # keep simple for now, but maybe return client response in future
+  def test_bulk_index_response
+    product = Searchkick.callbacks(false) { Product.create!(name: "Product A") }
+    assert_nil Product.search_index.bulk_index([product])
+  end
+
   # TODO move
 
   def test_filterable
