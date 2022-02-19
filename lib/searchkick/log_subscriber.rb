@@ -55,5 +55,3 @@ module Searchkick
     end
   end
 end
-
-Searchkick::LogSubscriber.attach_to :searchkick

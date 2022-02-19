@@ -31,6 +31,8 @@ if defined?(ActiveSupport::Notifications)
   ActiveSupport.on_load(:action_controller) do
     include Searchkick::ControllerRuntime
   end
+
+  Searchkick::LogSubscriber.attach_to :searchkick
 end
 
 module Searchkick
