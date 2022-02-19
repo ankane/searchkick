@@ -52,6 +52,7 @@ class LogSubscriberTest < Minitest::Test
       io.rewind
       output = io.read
       previous_logger.debug(output) if previous_logger
+      puts output if ENV["LOG_SUBSCRIBER"]
       output
     ensure
       ActiveSupport::LogSubscriber.logger = previous_logger
