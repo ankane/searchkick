@@ -26,6 +26,11 @@ require "searchkick/railtie" if defined?(Rails)
 if defined?(ActiveSupport::Notifications)
   require "searchkick/logging"
   require "searchkick/log_subscriber"
+  require "searchkick/controller_runtime"
+
+  ActiveSupport.on_load(:action_controller) do
+    include Searchkick::ControllerRuntime
+  end
 end
 
 module Searchkick
