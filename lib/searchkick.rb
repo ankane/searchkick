@@ -56,10 +56,9 @@ module Searchkick
   class InvalidQueryError < Error; end
   class DangerousOperation < Error; end
   class ImportError < Error; end
-  class ClientNotFound < Error; end
 
   class << self
-    attr_accessor :search_method_name, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options
+    attr_accessor :search_method_name, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options, :client_type
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
@@ -73,16 +72,16 @@ module Searchkick
   def self.client
     @client ||= begin
       client_type =
-        if ENV["OPENSEARCH_URL"]
-          :opensearch
-        elsif ENV["ELASTICSEARCH_URL"]
-          :elasticsearch
+        if self.client_type
+          self.client_type
+        elsif defined?(OpenSearch::Client) && defined?(Elasticsearch::Client)
+          raise Error, "Multiple clients found - set Searchkick.client_type = :elasticsearch or :opensearch"
         elsif defined?(OpenSearch::Client)
           :opensearch
         elsif defined?(Elasticsearch::Client)
           :elasticsearch
         else
-          raise ClientNotFound, "Install the `opensearch-ruby` or `elasticsearch` gem"
+          raise Error, "No client found - install the `elasticsearch` or `opensearch-ruby` gem"
         end
 
       # check after client to ensure faraday is installed
