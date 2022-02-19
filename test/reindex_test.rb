@@ -147,10 +147,10 @@ class ReindexTest < Minitest::Test
 
   def test_full_partial_async
     store_names ["Product A"]
-    # warn for now
-    assert_warns "unsupported keywords: :async" do
+    error = assert_raises(ArgumentError) do
       Product.reindex(:search_name, async: true)
     end
+    assert_match "unsupported keywords: :async", error.message
   end
 
   def test_callbacks_false
