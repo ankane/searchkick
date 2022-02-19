@@ -40,12 +40,15 @@ module Searchkick
       client.indices.exists_alias name: name
     end
 
+    # call to_h for consistent results between elasticsearch gem 7 and 8
+    # could do for all API calls, but just do for ones where return value is focus for now
     def mapping
-      client.indices.get_mapping index: name
+      client.indices.get_mapping(index: name).to_h
     end
 
+    # call to_h for consistent results between elasticsearch gem 7 and 8
     def settings
-      client.indices.get_settings index: name
+      client.indices.get_settings(index: name).to_h
     end
 
     def refresh_interval

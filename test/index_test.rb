@@ -58,8 +58,13 @@ class IndexTest < Minitest::Test
   def test_mappings
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
-    mapping = Store.search_index.mapping.values.first["mappings"]
-    assert_equal "text", mapping["properties"]["name"]["type"]
+    mapping = Store.search_index.mapping
+    assert_kind_of Hash, mapping
+    assert_equal "text", mapping.values.first["mappings"]["properties"]["name"]["type"]
+  end
+
+  def test_settings
+    assert_kind_of Hash, Store.search_index.settings
   end
 
   def test_remove_blank_id
