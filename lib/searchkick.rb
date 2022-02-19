@@ -8,7 +8,6 @@ require "searchkick/bulk_indexer"
 require "searchkick/index"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
-require "searchkick/middleware"
 require "searchkick/model"
 require "searchkick/multi_search"
 require "searchkick/query"
@@ -24,6 +23,9 @@ require "searchkick/railtie" if defined?(Rails)
 require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
 module Searchkick
+  # requires faraday
+  autoload :Middleware, "searchkick/middleware"
+
   # background jobs
   autoload :BulkReindexJob,  "searchkick/bulk_reindex_job"
   autoload :ProcessBatchJob, "searchkick/process_batch_job"
@@ -57,8 +59,6 @@ module Searchkick
 
   def self.client
     @client ||= begin
-      require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
-
       client_type =
         if ENV["OPENSEARCH_URL"]
           :opensearch
@@ -71,6 +71,12 @@ module Searchkick
         else
           raise ClientNotFound, "Install the `opensearch-ruby` or `elasticsearch` gem"
         end
+
+      # check after client to ensure faraday is installed
+      # TODO remove in Searchkick 6
+      if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
+        require "typhoeus/adapters/faraday"
+      end
 
       if client_type == :opensearch
         OpenSearch::Client.new({
