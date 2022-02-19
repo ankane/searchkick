@@ -157,7 +157,7 @@ module Searchkick
       end
     end
 
-    # TODO remove in Searchkick 6.0
+    # TODO remove in Searchkick 6
     if options[:execute] == false
       Searchkick.warn("The execute option is no longer needed")
       options.delete(:execute)
