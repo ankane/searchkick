@@ -6,17 +6,30 @@ class ParametersTest < Minitest::Test
     super
   end
 
-  def test_where_unpermitted
-    # TODO raise error in Searchkick 6
-    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+  def test_options
     params = ActionController::Parameters.new({store_id: 1})
-    assert_search "product", ["Product A"], where: params
+    assert_raises(ActionController::UnfilteredParameters) do
+      Product.search("*", **params)
+    end
+  end
+
+  def test_where
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_raises(ActionController::UnfilteredParameters) do
+      Product.search("*", where: params)
+    end
   end
 
   def test_where_permitted
     store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
     params = ActionController::Parameters.new({store_id: 1})
-    assert_search "product", ["Product A"], where: params.permit!
+    assert_search "product", ["Product A"], where: params.permit(:store_id)
+  end
+
+  def test_where_value
+    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_search "product", ["Product A"], where: {store_id: params[:store_id]}
   end
 
   def test_where_hash
@@ -25,5 +38,19 @@ class ParametersTest < Minitest::Test
       assert_search "product", [], where: {store_id: params[:store_id]}
     end
     assert_equal error.message, "can't cast ActionController::Parameters"
+  end
+
+  def test_aggs_where
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_raises(ActionController::UnfilteredParameters) do
+      Product.search("*", aggs: {size: {where: params}})
+    end
+  end
+
+  def test_aggs_where_smart_aggs_false
+    params = ActionController::Parameters.new({store_id: 1})
+    assert_raises(ActionController::UnfilteredParameters) do
+      Product.search("*", aggs: {size: {where: params}}, smart_aggs: false)
+    end
   end
 end

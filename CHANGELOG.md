@@ -1,6 +1,7 @@
 ## 5.0.0 (unreleased)
 
 - Searches now use lazy loading (similar to Active Record)
+- Added basic protection from unfiltered parameters to `where` option
 - Anchor regular expressions by default
 - Raise error when `search` called on relations
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers

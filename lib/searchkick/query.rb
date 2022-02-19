@@ -435,7 +435,7 @@ module Searchkick
         payload = {}
 
         # type when inheritance
-        where = (options[:where] || {}).dup
+        where = ensure_permitted(options[:where] || {}).dup
         if searchkick_options[:inheritance] && (options[:type] || (klass != searchkick_klass && searchkick_index))
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
@@ -832,8 +832,9 @@ module Searchkick
         end
 
         where = {}
-        where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
-        agg_filters = where_filters(where.merge(agg_options[:where] || {}))
+        where = ensure_permitted(options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
+        agg_where = ensure_permitted(agg_options[:where] || {})
+        agg_filters = where_filters(where.merge(agg_where))
 
         # only do one level comparison for simplicity
         filters.select! do |filter|
@@ -872,12 +873,13 @@ module Searchkick
       payload[:sort] = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
     end
 
-    def where_filters(where)
-      # if where.respond_to?(:permitted?) && !where.permitted?
-      #   # TODO check in more places
-      #   Searchkick.warn("Passing unpermitted parameters will raise an exception in Searchkick 5")
-      # end
+    # provides *very* basic protection from unfiltered parameters
+    # this is not meant to be comprehensive and may be expanded in the future
+    def ensure_permitted(obj)
+      obj.to_h
+    end
 
+    def where_filters(where)
       filters = []
       (where || {}).each do |field, value|
         field = :_id if field.to_s == "id"
