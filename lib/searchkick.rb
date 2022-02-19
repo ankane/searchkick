@@ -3,6 +3,9 @@ require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "hashie"
 
+# stdlib
+require "forwardable"
+
 # modules
 require "searchkick/bulk_indexer"
 require "searchkick/index"
