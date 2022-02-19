@@ -75,10 +75,32 @@ class ReindexTest < Minitest::Test
 
   def test_relation_async
     skip "Not available yet"
+
+    store_names ["Product A"]
+    store_names ["Product B", "Product C"], reindex: false
+    Product.where(name: "Product B").reindex(mode: :async)
+    Product.search_index.refresh
+    assert_search "product", ["Product A", "Product B"]
   end
 
   def test_relation_queue
     skip "Not available yet"
+
+    skip unless defined?(ActiveJob) && defined?(Redis)
+
+    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue.clear
+
+    store_names ["Product A"]
+    store_names ["Product B", "Product C"], reindex: false
+
+    Product.where(name: "Product B").reindex(mode: :queue)
+    Product.search_index.refresh
+    assert_search "product", []
+
+    Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
+    Product.search_index.refresh
+    assert_search "product", ["Product A", "Product B"]
   end
 
   def test_full_async
