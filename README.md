@@ -1226,7 +1226,7 @@ And [setup-opensearch](https://github.com/ankane/setup-opensearch) for an easy w
 
 ## Deployment
 
-Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the search server. This defaults to `http://localhost:9200`.
+For the search server, Searchkick uses `ENV["ELASTICSEARCH_URL"]` for Elasticsearch and `ENV["OPENSEARCH_URL"]` for OpenSearch. This defaults to `http://localhost:9200`.
 
 - [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
@@ -1251,11 +1251,18 @@ rake searchkick:reindex:all
 
 Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai), [SearchBox](https://elements.heroku.com/addons/searchbox), or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch).
 
-For Bonsai:
+For Elasticsearch on Bonsai:
 
 ```sh
-heroku addons:create bonsai # use --engine=opensearch for OpenSearch
+heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
+```
+
+For OpenSearch on Bonsai:
+
+```sh
+heroku addons:create bonsai --engine=opensearch
+heroku config:set OPENSEARCH_URL=`heroku config:get BONSAI_URL`
 ```
 
 For SearchBox:
@@ -1292,10 +1299,10 @@ heroku run rake searchkick:reindex:all
 
 ### Amazon OpenSearch Service
 
-Create an initializer `config/initializers/elasticsearch.rb` with:
+Create an initializer `config/initializers/opensearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
+ENV["OPENSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
 ```
 
 To use signed requests, include in your Gemfile:
@@ -1322,10 +1329,12 @@ rake searchkick:reindex:all
 
 ### Self-Hosted and Other
 
-Create an initializer `config/initializers/elasticsearch.rb` with:
+Create an initializer with:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
+# or
+ENV["OPENSEARCH_URL"] = "https://user:password@host:port"
 ```
 
 Then deploy and reindex:
