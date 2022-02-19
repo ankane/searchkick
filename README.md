@@ -39,7 +39,7 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 - [Testing](#testing)
 - [Deployment](#deployment)
 - [Performance](#performance)
-- [Elasticsearch DSL](#advanced)
+- [Advanced Search](#advanced)
 - [Reference](#reference)
 - [Contributing](#contributing)
 
@@ -153,7 +153,7 @@ results.any?
 results.each { |result| ... }
 ```
 
-By default, ids are fetched from Elasticsearch and records are fetched from your database. To fetch everything from Elasticsearch, use:
+By default, ids are fetched from the search server and records are fetched from your database. To fetch everything from the search server, use:
 
 ```ruby
 Product.search("apples", load: false)
@@ -171,13 +171,13 @@ Get the time the search took (in milliseconds)
 results.took
 ```
 
-Get the full response from Elasticsearch
+Get the full response from the search server
 
 ```ruby
 results.response
 ```
 
-**Note:** By default, Elasticsearch [limits paging](#deep-paging) to the first 10,000 results for performance. With Elasticsearch 7, this applies to the total count as well.
+**Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. With Elasticsearch 7 and OpenSearch, this applies to the total count as well.
 
 ### Boosting
 
@@ -375,9 +375,9 @@ search_synonyms: ["lightbulb => halogenlamp"]
 
 The above approach works well when your synonym list is static, but in practice, this is often not the case. When you analyze search conversions, you often want to add new synonyms without a full reindex.
 
-#### Elasticsearch 7.3+ or OpenSearch
+#### Elasticsearch 7.3+ and OpenSearch
 
-For Elasticsearch 7.3+ or OpenSearch, we recommend placing synonyms in a file on the Elasticsearch or OpenSearch server (in the `config` directory). This allows you to reload synonyms without reindexing.
+For Elasticsearch 7.3+ and OpenSearch, we recommend placing synonyms in a file on the search server (in the `config` directory). This allows you to reload synonyms without reindexing.
 
 ```txt
 pop, soda
@@ -1043,13 +1043,13 @@ Product.search("soap", debug: true)
 
 This prints useful info to `stdout`.
 
-See how Elasticsearch scores your queries with:
+See how the search server scores your queries with:
 
 ```ruby
 Product.search("soap", explain: true).response
 ```
 
-See how Elasticsearch tokenizes your queries with:
+See how the search server tokenizes your queries with:
 
 ```ruby
 Product.search_index.tokens("Dish Washer Soap", analyzer: "searchkick_index")
@@ -1223,7 +1223,7 @@ And [setup-opensearch](https://github.com/ankane/setup-opensearch) for an easy w
 
 ## Deployment
 
-Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the Elasticsearch server. This defaults to `http://localhost:9200`.
+Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the search server. This defaults to `http://localhost:9200`.
 
 - [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
@@ -1333,9 +1333,9 @@ rake searchkick:reindex:all
 
 ### Data Protection
 
-We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you send [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users to Elasticsearch.
+We recommend encrypting data at rest and in transit (even inside your own network). This is especially important if you send [personal data](https://en.wikipedia.org/wiki/Personally_identifiable_information) of your users to the search server.
 
-Bonsai, Elastic Cloud, and Amazon Elasticsearch all support encryption at rest and HTTPS.
+Bonsai, Elastic Cloud, and Amazon OpenSearch Service all support encryption at rest and HTTPS.
 
 ### Automatic Failover
 
@@ -1510,7 +1510,7 @@ For more tips, check out [Keeping Elasticsearch in Sync](https://www.elastic.co/
 
 ### Routing
 
-Searchkick supports [Elasticsearch’s routing feature](https://www.elastic.co/blog/customizing-your-document-routing), which can significantly speed up searches.
+Searchkick supports [routing](https://www.elastic.co/blog/customizing-your-document-routing), which can significantly speed up searches.
 
 ```ruby
 class Business < ApplicationRecord
@@ -1672,7 +1672,7 @@ products =
   end
 ```
 
-### Elasticsearch Gem
+### Client
 
 Searchkick is built on top of the [elasticsearch](https://github.com/elastic/elasticsearch-ruby) gem. To access the client directly, use:
 
@@ -1737,7 +1737,7 @@ products.clear_scroll
 
 ## Deep Paging
 
-By default, Elasticsearch limits paging to the first 10,000 results. [Here’s why](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you really need all results, you can use:
+By default, Elasticsearch and OpenSearch limit paging to the first 10,000 results. [Here’s why](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you really need all results, you can use:
 
 ```ruby
 class Product < ApplicationRecord
@@ -1745,7 +1745,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you just need an accurate total count with Elasticsearch 7, you can instead use:
+If you just need an accurate total count with Elasticsearch 7 and OpenSearch, you can instead use:
 
 ```ruby
 Product.search("pears", body_options: {track_total_hits: true})
@@ -2004,7 +2004,7 @@ Turn on misspellings after a certain number of characters
 Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 ```
 
-**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off
+**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off with Elasticsearch 7 and OpenSearch
 
 ```ruby
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
@@ -2015,11 +2015,11 @@ Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 1. Install Searchkick 4
 2. Upgrade your Elasticsearch cluster
 
-## Elasticsearch Gotchas
+## Gotchas
 
 ### Consistency
 
-Elasticsearch is eventually consistent, meaning it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
+Elasticsearch and OpenSearch are eventually consistent, meaning it can take up to a second for a change to reflect in search. You can use the `refresh` method to have it show up immediately.
 
 ```ruby
 product.save!
@@ -2028,7 +2028,7 @@ Product.search_index.refresh
 
 ### Inconsistent Scores
 
-Due to the distributed nature of Elasticsearch, you can get incorrect results when the number of documents in the index is low. You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch). To fix this, do:
+Due to the distributed nature of Elasticsearch and OpenSearch, you can get incorrect results when the number of documents in the index is low. You can [read more about it here](https://www.elastic.co/blog/understanding-query-then-fetch-vs-dfs-query-then-fetch). To fix this, do:
 
 ```ruby
 class Product < ApplicationRecord
