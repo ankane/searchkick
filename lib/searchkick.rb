@@ -23,7 +23,10 @@ require "searchkick/version"
 
 # integrations
 require "searchkick/railtie" if defined?(Rails)
-require "searchkick/logging" if defined?(ActiveSupport::Notifications)
+if defined?(ActiveSupport::Notifications)
+  require "searchkick/logging"
+  require "searchkick/log_subscriber"
+end
 
 module Searchkick
   # requires faraday
