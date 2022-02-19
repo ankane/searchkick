@@ -9,6 +9,15 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_record_destroyed
+    store_names ["Product A", "Product B"]
+
+    product = Product.find_by!(name: "Product A")
+    product.destroy
+    Product.search_index.refresh
+    product.reindex
+  end
+
   def test_record_async
     store_names ["Product A", "Product B"], reindex: false
 
