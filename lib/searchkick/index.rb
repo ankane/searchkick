@@ -199,18 +199,11 @@ module Searchkick
       refresh = options.fetch(:refresh, !scoped)
       options.delete(:refresh)
 
-      if method_name
+      if method_name || (scoped && !full)
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
-        # update
+        # import only
         import_scope(relation, method_name: method_name, scope: scope)
-        self.refresh if refresh
-        true
-      elsif scoped && !full
-        raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
-
-        # reindex association
-        import_scope(relation, scope: scope)
         self.refresh if refresh
         true
       else
