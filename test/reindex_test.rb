@@ -30,8 +30,6 @@ class ReindexTest < Minitest::Test
   end
 
   def test_record_queue
-    skip unless defined?(ActiveJob) && defined?(Redis)
-
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
@@ -85,8 +83,6 @@ class ReindexTest < Minitest::Test
 
   def test_relation_queue
     skip "Not available yet"
-
-    skip unless defined?(ActiveJob) && defined?(Redis)
 
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
@@ -192,8 +188,6 @@ class ReindexTest < Minitest::Test
   end
 
   def test_callbacks_queue
-    skip unless defined?(ActiveJob) && defined?(Redis)
-
     # TODO figure out which earlier test leaves records in index
     Product.reindex
 
