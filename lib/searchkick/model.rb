@@ -72,8 +72,12 @@ module Searchkick
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
           def searchkick_reindex(method_name = nil, **options)
-            relation = Searchkick.relation?(self)
-            searchkick_index.reindex(searchkick_klass, method_name, scoped: relation, **options)
+            scoped = Searchkick.relation?(self)
+            relation = scoped ? all : searchkick_klass
+            # prevent scope from affecting search_data
+            unscoped do
+              searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
+            end
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
