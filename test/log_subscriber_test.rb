@@ -30,7 +30,7 @@ class LogSubscriberTest < Minitest::Test
       Product.reindex
     end
     assert_match "Product Import", output
-    assert_match "\"count\":1", output
+    assert_match '"count":1', output
   end
 
   def capture_logs
