@@ -52,6 +52,15 @@ class LogSubscriberTest < Minitest::Test
     assert_match '"count":2', output
   end
 
+  def test_search
+    output = capture_logs do
+      Product.search("product").to_a
+    end
+    assert_match "Product Search", output
+  end
+
+  private
+
   def create_products
     Searchkick.callbacks(false) do
       3.times.map do
