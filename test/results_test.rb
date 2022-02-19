@@ -1,6 +1,20 @@
 require_relative "test_helper"
 
 class ResultsTest < Minitest::Test
+  def test_with_hit
+    store_names ["Product A", "Product B"]
+    results = Product.search("product")
+    assert_kind_of Enumerator, results.with_hit
+    assert_equal 2, results.with_hit.to_a.size
+    count = 0
+    results.with_hit do |product, hit|
+      assert_kind_of Product, product
+      assert_kind_of Hash, hit
+      count += 1
+    end
+    assert_equal 2, count
+  end
+
   def test_with_score
     store_names ["Product A", "Product B"]
     results = Product.search("product")

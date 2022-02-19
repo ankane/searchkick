@@ -19,13 +19,11 @@ module Searchkick
       @results ||= with_hit.map(&:first)
     end
 
-    # TODO return enumerator like with_score
     def with_hit
-      @with_hit ||= begin
-        if missing_records.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
-        end
-        with_hit_and_missing_records[0]
+      return enum_for(:with_hit) unless block_given?
+
+      build_hits.each do |result|
+        yield result
       end
     end
 
@@ -157,10 +155,11 @@ module Searchkick
       end
     end
 
-    # TODO return enumerator like with_score
     def with_highlights(multiple: false)
-      with_hit.map do |result, hit|
-        [result, hit_highlights(hit, multiple: multiple)]
+      return enum_for(:with_highlights, multiple: multiple) unless block_given?
+
+      with_hit.each do |result, hit|
+        yield result, hit_highlights(hit, multiple: multiple)
       end
     end
 
@@ -299,6 +298,15 @@ module Searchkick
         end
 
        [results, missing_records]
+      end
+    end
+
+    def build_hits
+      @build_hits ||= begin
+        if missing_records.any?
+          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
+        end
+        with_hit_and_missing_records[0]
       end
     end
 
