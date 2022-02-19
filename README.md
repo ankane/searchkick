@@ -180,7 +180,7 @@ Get the full response from the search server
 results.response
 ```
 
-**Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. With Elasticsearch 7 and OpenSearch, this applies to the total count as well.
+**Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. This applies to the total count as well.
 
 ### Boosting
 
@@ -1757,7 +1757,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you just need an accurate total count with Elasticsearch 7 and OpenSearch, you can instead use:
+If you just need an accurate total count, you can instead use:
 
 ```ruby
 Product.search("pears", body_options: {track_total_hits: true})
