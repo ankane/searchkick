@@ -7,14 +7,16 @@ module Searchkick
     end
 
     def index_options
-      custom_mapping = options[:mappings] || {}
+      # mortal symbols are garbage collected in Ruby 2.2+
+      custom_settings = (options[:settings] || {}).deep_symbolize_keys
+      custom_mappings = (options[:mappings] || {}).deep_symbolize_keys
 
       if options[:mappings] && !options[:merge_mappings]
-        settings = options[:settings] || {}
-        mappings = custom_mapping
+        settings = custom_settings
+        mappings = custom_mappings
       else
-        settings = generate_settings
-        mappings = generate_mappings.symbolize_keys.deep_merge(custom_mapping.symbolize_keys)
+        settings = generate_settings.deep_symbolize_keys.deep_merge(custom_settings)
+        mappings = generate_mappings.deep_symbolize_keys.deep_merge(custom_mappings)
       end
 
       set_deep_paging(settings) if options[:deep_paging]
@@ -181,9 +183,6 @@ module Searchkick
           analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
         end
       end
-
-      # merge settings option last
-      settings = settings.symbolize_keys.deep_merge((options[:settings] || {}).symbolize_keys)
 
       settings
     end
@@ -367,7 +366,7 @@ module Searchkick
 
       mapping_options[:searchable].delete("_all")
 
-      analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer}
+      analyzed_field_options = {type: default_type, index: true, analyzer: default_analyzer.to_s}
 
       mapping_options.values.flatten.uniq.each do |field|
         fields = {}
