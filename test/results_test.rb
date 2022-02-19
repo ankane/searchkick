@@ -9,6 +9,9 @@ class ResultsTest < Minitest::Test
     assert_equal 2, products.length
     assert products.any?
     refute products.empty?
+    refute products.none?
+    refute products.one?
+    assert products.many?
     assert_kind_of Product, products[0]
     assert_kind_of Array, products.slice(0, 1)
     assert_kind_of Array, products.to_ary
