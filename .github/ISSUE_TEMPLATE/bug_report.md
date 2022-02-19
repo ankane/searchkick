@@ -26,10 +26,11 @@ gemfile do
   gem "activejob", require: "active_job"
   gem "sqlite3"
   gem "searchkick", git: "https://github.com/ankane/searchkick.git"
+  gem "elasticsearch" # or "opensearch-ruby"
 end
 
 puts "Searchkick version: #{Searchkick::VERSION}"
-puts "Elasticsearch version: #{Searchkick.server_version}"
+puts "Server version: #{Searchkick.server_version}"
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 ActiveJob::Base.queue_adapter = :inline
