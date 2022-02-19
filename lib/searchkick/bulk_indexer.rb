@@ -14,7 +14,7 @@ module Searchkick
       end
 
       if batch
-        import_or_update relation.to_a, method_name, async
+        import_or_update relation.to_a, method_name, async, full
         Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
       elsif full && async
         full_reindex_async(relation)
@@ -30,11 +30,11 @@ module Searchkick
         relation = relation.select("id").except(:includes, :preload) if async
 
         relation.find_in_batches batch_size: batch_size do |items|
-          import_or_update items, method_name, async
+          import_or_update items, method_name, async, full
         end
       else
         each_batch(relation) do |items|
-          import_or_update items, method_name, async
+          import_or_update items, method_name, async, full
         end
       end
     end
@@ -57,7 +57,7 @@ module Searchkick
 
     private
 
-    def import_or_update(records, method_name, async)
+    def import_or_update(records, method_name, async, full)
       if records.any?
         if async
           Searchkick::BulkReindexJob.perform_later(
@@ -67,15 +67,23 @@ module Searchkick
             method_name: method_name ? method_name.to_s : nil
           )
         else
-          records = records.select(&:should_index?)
-          if records.any?
+          index_records, other_records = records.partition(&:should_index?)
+
+          if index_records.any?
             with_retries do
               # call out to index for ActiveSupport notifications
               if method_name
-                index.bulk_update(records, method_name)
+                index.bulk_update(index_records, method_name)
               else
-                index.bulk_index(records)
+                index.bulk_index(index_records)
               end
+            end
+          end
+
+          if other_records.any? && !full
+            with_retries do
+              # call out to index for ActiveSupport notifications
+              index.bulk_delete(other_records)
             end
           end
         end

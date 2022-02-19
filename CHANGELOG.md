@@ -8,6 +8,7 @@
 - Raise `ArgumentError` instead of `RuntimeError` for unknown operators
 - Updated `searchkick_index_options` to return symbol keys (instead of mix of strings and symbols)
 - Fixed issue with `merge_mappings`
+- Fixed removing records when `should_index?` is `false` when `reindex` called on relation
 - Removed mapping of `id` to `_id` with `order` option
 - Removed `wordnet` option
 - Removed `elasticsearch` dependency

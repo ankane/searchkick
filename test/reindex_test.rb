@@ -61,8 +61,6 @@ class ReindexTest < Minitest::Test
   end
 
   def test_relation_should_index
-    skip "TODO make pass in Searchkick 5"
-
     store_names ["Product A", "Product B"]
     Searchkick.callbacks(false) do
       Product.find_by(name: "Product B").update!(name: "DO NOT INDEX")
