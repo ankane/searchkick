@@ -147,7 +147,7 @@ select: [:name]
 
 ### Results
 
-Searches return a `Searchkick::Results` object. This responds like an array to most methods.
+Searches return a `Searchkick::Relation` object. This responds like an array to most methods.
 
 ```ruby
 results = Product.search("milk")
