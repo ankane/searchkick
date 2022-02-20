@@ -25,7 +25,7 @@ module Searchkick
         end
       end
 
-      if full && async
+      if mode == :async && full
         return full_reindex_async(relation)
       end
 
