@@ -266,21 +266,20 @@ module Searchkick
   end
 
   # private
-  def self.load_records(records, ids)
-    records =
-      if records.respond_to?(:primary_key)
-        # ActiveRecord
-        records.where(records.primary_key => ids) if records.primary_key
-      elsif records.respond_to?(:queryable)
-        # Mongoid 3+
-        records.queryable.for_ids(ids)
-      elsif records.respond_to?(:key_column_names)
-        records.where(records.key_column_names.first => ids)
+  def self.load_records(relation, ids)
+    relation =
+      if relation.respond_to?(:primary_key)
+        primary_key = relation.primary_key
+        raise Error, "Need primary key to load records" if !primary_key
+
+        relation.where(primary_key => ids)
+      elsif relation.respond_to?(:queryable)
+        relation.queryable.for_ids(ids)
       end
 
-    raise Searchkick::Error, "Not sure how to load records" if !records
+    raise Error, "Not sure how to load records" if !relation
 
-    records
+    relation
   end
 
   # private
