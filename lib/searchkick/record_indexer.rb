@@ -7,6 +7,8 @@ module Searchkick
     end
 
     def reindex(records, mode:, method_name:, full: false, single: false)
+      # prevents exists? check if records is a relation
+      records = records.to_a
       return if records.empty?
 
       case mode
