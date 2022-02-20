@@ -357,10 +357,9 @@ module Searchkick
         }
       end
 
-      mapping_options = Hash[
+      mapping_options =
         [:suggest, :word, :text_start, :text_middle, :text_end, :word_start, :word_middle, :word_end, :highlight, :searchable, :filterable]
-          .map { |type| [type, (options[type] || []).map(&:to_s)] }
-      ]
+          .to_h { |type| [type, (options[type] || []).map(&:to_s)] }
 
       word = options[:word] != false && (!options[:match] || options[:match] == :word)
 

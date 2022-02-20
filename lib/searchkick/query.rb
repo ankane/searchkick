@@ -692,9 +692,9 @@ module Searchkick
     def set_boost_by(multiply_filters, custom_filters)
       boost_by = options[:boost_by] || {}
       if boost_by.is_a?(Array)
-        boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+        boost_by = boost_by.to_h { |f| [f, {factor: 1}] }
       elsif boost_by.is_a?(Hash)
-        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map { |i| Hash[i] }
+        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map(&:to_h)
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
@@ -759,7 +759,7 @@ module Searchkick
 
     def set_highlights(payload, fields)
       payload[:highlight] = {
-        fields: Hash[fields.map { |f| [f, {}] }],
+        fields: fields.to_h { |f| [f, {}] },
         fragment_size: 0
       }
 
@@ -793,7 +793,7 @@ module Searchkick
       aggs = options[:aggs]
       payload[:aggs] = {}
 
-      aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
+      aggs = aggs.to_h { |f| [f, {}] } if aggs.is_a?(Array) # convert to more advanced syntax
       aggs.each do |field, agg_options|
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
         shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where)

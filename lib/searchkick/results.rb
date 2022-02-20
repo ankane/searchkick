@@ -284,7 +284,7 @@ module Searchkick
                 end
 
               if hit["highlight"] || options[:highlight]
-                highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
+                highlight = hit["highlight"].to_a.to_h { |k, v| [base_field(k), v.first] }
                 options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                   result["highlighted_#{k}"] ||= (highlight[k] || result[k])
                 end
@@ -341,7 +341,7 @@ module Searchkick
 
     def hit_highlights(hit, multiple: false)
       if hit["highlight"]
-        Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }]
+        hit["highlight"].to_h { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }
       else
         {}
       end

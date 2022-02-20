@@ -100,7 +100,7 @@ module Searchkick
       record_data = RecordData.new(self, record).record_data
 
       # remove underscore
-      get_options = Hash[record_data.map { |k, v| [k.to_s.sub(/\A_/, "").to_sym, v] }]
+      get_options = record_data.to_h { |k, v| [k.to_s.sub(/\A_/, "").to_sym, v] }
 
       client.get(get_options)["_source"]
     end
