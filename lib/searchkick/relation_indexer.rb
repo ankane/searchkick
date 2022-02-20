@@ -63,9 +63,8 @@ module Searchkick
       if relation.respond_to?(:primary_key)
         # use total docs instead of max id since there's not a great way
         # to get the max _id without scripting since it's a string
-
-        # TODO use primary key and prefix with table name
-        relation = relation.where("id > ?", index.total_docs)
+        where = relation.arel_table[relation.primary_key].gt(index.total_docs)
+        relation = relation.where(where)
       else
         raise Error, "Resume not supported for Mongoid"
       end
