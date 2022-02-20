@@ -7,13 +7,23 @@ module Searchkick
     end
 
     def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
+      mode ||= (async ? :async : :inline)
+
+      # apply scopes
       if scope
         relation = relation.send(scope)
       elsif relation.respond_to?(:search_import)
         relation = relation.search_import
       end
 
-      mode ||= (async ? :async : :inline)
+      # remove unneeded conditions for async
+      if mode == :async
+        if relation.respond_to?(:primary_key)
+          relation = relation.select(relation.primary_key).except(:includes, :preload)
+        elsif relation.respond_to?(:only)
+          relation = relation.only(:_id)
+        end
+      end
 
       if full && async
         return full_reindex_async(relation)
@@ -26,22 +36,23 @@ module Searchkick
       }
       record_indexer = RecordIndexer.new(index)
 
-      if relation.respond_to?(:find_in_batches)
-        if resume
+      if resume
+        if relation.respond_to?(:primary_key)
           # use total docs instead of max id since there's not a great way
           # to get the max _id without scripting since it's a string
 
           # TODO use primary key and prefix with table name
           relation = relation.where("id > ?", index.total_docs)
+        else
+          # TODO support resume for Mongoid
         end
+      end
 
-        relation = relation.select("id").except(:includes, :preload) if mode == :async
-
+      if relation.respond_to?(:find_in_batches)
         relation.find_in_batches(batch_size: batch_size) do |items|
           record_indexer.reindex(items, **reindex_options)
         end
       else
-        # TODO handle resume option
         each_batch(relation, batch_size: batch_size) do |items|
           record_indexer.reindex(items, **reindex_options)
         end
@@ -62,8 +73,6 @@ module Searchkick
       if scope.respond_to?(:primary_key)
         # TODO expire Redis key
         primary_key = scope.primary_key
-
-        scope = scope.select(primary_key).except(:includes, :preload)
 
         starting_id =
           begin
@@ -92,8 +101,6 @@ module Searchkick
         end
       else
         batch_id = 1
-        # TODO remove any eager loading
-        scope = scope.only(:_id) if scope.respond_to?(:only)
         each_batch(scope, batch_size: batch_size) do |items|
           bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
           batch_id += 1
