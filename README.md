@@ -520,12 +520,10 @@ class Product < ApplicationRecord
 end
 ```
 
-By default, all records are indexed. To control which records are indexed, use the `should_index?` method together with the `search_import` scope.
+By default, all records are indexed. To control which records are indexed, use the `should_index?` method.
 
 ```ruby
 class Product < ApplicationRecord
-  scope :search_import, -> { where(active: true) }
-
   def should_index?
     active # only index active records
   end
