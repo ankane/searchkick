@@ -21,6 +21,7 @@ module Searchkick
 
       response = Searchkick.client.bulk(body: items)
       if response["errors"]
+        # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|
           (item["index"] || item["delete"] || item["update"])
         end.find { |item| item["error"] }
