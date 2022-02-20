@@ -13,10 +13,13 @@ end
 
 $logger = ActiveSupport::Logger.new(ENV["VERBOSE"] ? STDOUT : nil)
 
-if Searchkick.client.transport.respond_to?(:transport)
-  Searchkick.client.transport.transport.logger = $logger
-else
-  Searchkick.client.transport.logger = $logger
+if ENV["LOG_TRANSPORT"]
+  transport_logger = ActiveSupport::Logger.new(STDOUT)
+  if Searchkick.client.transport.respond_to?(:transport)
+    Searchkick.client.transport.transport.logger = transport_logger
+  else
+    Searchkick.client.transport.logger = transport_logger
+  end
 end
 Searchkick.search_timeout = 5
 Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
