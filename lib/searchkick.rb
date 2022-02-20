@@ -285,7 +285,7 @@ module Searchkick
 
   # private
   def self.indexer
-    Thread.current[:searchkick_indexer] ||= Searchkick::Indexer.new
+    Thread.current[:searchkick_indexer] ||= Indexer.new
   end
 
   # private
