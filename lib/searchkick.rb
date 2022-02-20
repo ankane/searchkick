@@ -172,6 +172,8 @@ module Searchkick
   end
 
   def self.multi_search(queries)
+    return if queries.empty?
+
     queries = queries.map { |q| q.send(:query) }
     event = {
       name: "Multi Search",
