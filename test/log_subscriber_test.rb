@@ -59,6 +59,13 @@ class LogSubscriberTest < Minitest::Test
     assert_match "Product Search", output
   end
 
+  def test_multi_search
+    output = capture_logs do
+      Searchkick.multi_search([Product.search("product")])
+    end
+    assert_match "Multi Search", output
+  end
+
   private
 
   def create_products
