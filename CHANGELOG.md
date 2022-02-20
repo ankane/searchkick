@@ -5,13 +5,13 @@
 - Added basic protection from unfiltered parameters to `where` option
 - Added `models` option to `similar` method
 - Changed async reindex to fetch ids instead of using ranges for numeric primary keys with Active Record
-- Anchor regular expressions by default
+- Changed `searchkick_index_options` to return symbol keys (instead of mix of strings and symbols)
+- Changed non-anchored regular expressions to match expected results (previously warned)
+- Fixed issue with `merge_mappings`
+- Fixed removing records when `should_index?` is `false` when `reindex` called on relation
 - Raise error when `search` called on relations
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Raise `ArgumentError` instead of `RuntimeError` for unknown operators
-- Updated `searchkick_index_options` to return symbol keys (instead of mix of strings and symbols)
-- Fixed issue with `merge_mappings`
-- Fixed removing records when `should_index?` is `false` when `reindex` called on relation
 - Removed mapping of `id` to `_id` with `order` option
 - Removed `wordnet` option
 - Removed `elasticsearch` dependency
