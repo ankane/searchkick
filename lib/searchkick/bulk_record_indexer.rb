@@ -31,12 +31,12 @@ module Searchkick
       end
     end
 
-    def reindex_items(klass, items)
+    def reindex_items(klass, items, method_name:)
       routing = items.to_h { |r| [r[:id], r[:routing]] }
       record_ids = routing.keys
 
       scope = Searchkick.load_records(klass, record_ids)
-      scope = scope.search_import if scope.respond_to?(:search_import)
+      # scope = scope.search_import if scope.respond_to?(:search_import)
       records = scope.select(&:should_index?)
 
       # determine which records to delete
@@ -46,7 +46,7 @@ module Searchkick
           construct_record(klass, id, routing[id])
         end
 
-      import_inline(records, delete_records, method_name: nil)
+      import_inline(records, delete_records, method_name: method_name)
     end
 
     private
