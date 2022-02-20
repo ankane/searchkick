@@ -6,15 +6,17 @@ module Searchkick
       @index = index
     end
 
-    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil)
+    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil, mode: nil)
       if scope
         relation = relation.send(scope)
       elsif relation.respond_to?(:search_import)
         relation = relation.search_import
       end
 
+      mode ||= (async ? :async : :inline)
+
       if batch
-        import_or_update relation.to_a, method_name, async, full
+        import_or_update relation.to_a, method_name, mode, full
         Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
       elsif full && async
         full_reindex_async(relation)
@@ -27,14 +29,14 @@ module Searchkick
           relation = relation.where("id > ?", index.total_docs)
         end
 
-        relation = relation.select("id").except(:includes, :preload) if async
+        relation = relation.select("id").except(:includes, :preload) if mode == :async
 
         relation.find_in_batches batch_size: batch_size do |items|
-          import_or_update items, method_name, async, full
+          import_or_update items, method_name, mode, full
         end
       else
         each_batch(relation) do |items|
-          import_or_update items, method_name, async, full
+          import_or_update items, method_name, mode, full
         end
       end
     end
@@ -57,16 +59,22 @@ module Searchkick
 
     private
 
-    def import_or_update(records, method_name, async, full)
+    def import_or_update(records, method_name, mode, full)
       if records.any?
-        if async
+        case mode
+        when :async
           Searchkick::BulkReindexJob.perform_later(
             class_name: records.first.class.searchkick_options[:class_name],
             record_ids: records.map(&:id),
             index_name: index.name,
             method_name: method_name ? method_name.to_s : nil
           )
-        else
+        when :queue
+          # TODO push in single Redis call
+          records.each do |record|
+            RecordIndexer.new(record).reindex(method_name, mode: mode)
+          end
+        when true, :inline
           index_records, other_records = records.partition(&:should_index?)
 
           if index_records.any?
@@ -86,6 +94,8 @@ module Searchkick
               index.bulk_delete(other_records)
             end
           end
+        else
+          raise ArgumentError, "Invalid value for mode"
         end
       end
     end

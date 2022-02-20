@@ -200,10 +200,11 @@ module Searchkick
       options.delete(:refresh)
 
       if method_name || (scoped && !full)
+        mode = options.delete(:mode)
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, scope: scope)
+        import_scope(relation, method_name: method_name, scope: scope, mode: mode)
         self.refresh if refresh
         true
       else

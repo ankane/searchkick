@@ -72,8 +72,6 @@ class ReindexTest < Minitest::Test
   end
 
   def test_relation_async
-    skip "Not available yet"
-
     store_names ["Product A"]
     store_names ["Product B", "Product C"], reindex: false
     Product.where(name: "Product B").reindex(mode: :async)
@@ -82,8 +80,6 @@ class ReindexTest < Minitest::Test
   end
 
   def test_relation_queue
-    skip "Not available yet"
-
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
@@ -92,7 +88,7 @@ class ReindexTest < Minitest::Test
 
     Product.where(name: "Product B").reindex(mode: :queue)
     Product.search_index.refresh
-    assert_search "product", []
+    assert_search "product", ["Product A"]
 
     Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     Product.search_index.refresh
