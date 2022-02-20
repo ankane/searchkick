@@ -6,11 +6,6 @@ module Searchkick
       @index = index
     end
 
-    def import_batch(relation, method_name: nil, batch_id: nil)
-      import_or_update relation.to_a, method_name, :inline, false
-      Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
-    end
-
     def import_queue(klass, record_ids)
       # separate routing from id
       routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
@@ -75,6 +70,10 @@ module Searchkick
 
     def batches_left
       Searchkick.with_redis { |r| r.scard(batches_key) }
+    end
+
+    def batch_completed(batch_id)
+      Searchkick.with_redis { |r| r.srem(batches_key, batch_id) }
     end
 
     private
@@ -163,7 +162,7 @@ module Searchkick
     end
 
     def bulk_record_indexer
-      @bulk_record_indexer ||= BulkRecordIndexer.new(index)
+      @bulk_record_indexer ||= index.send(:bulk_record_indexer)
     end
   end
 end

@@ -6,11 +6,11 @@ module Searchkick
       klass = class_name.constantize
       index = index_name ? Searchkick::Index.new(index_name, klass.searchkick_options) : klass.searchkick_index
       record_ids ||= min_id..max_id
-      index.send(:bulk_indexer).import_batch(
-        Searchkick.load_records(klass, record_ids),
-        method_name: method_name,
-        batch_id: batch_id
-      )
+      records = Searchkick.load_records(klass, record_ids)
+
+      # TODO expose functionality on index
+      index.send(:bulk_record_indexer).reindex(records, mode: :inline, method_name: method_name, full: false)
+      index.send(:bulk_indexer).batch_completed(batch_id) if batch_id
     end
   end
 end

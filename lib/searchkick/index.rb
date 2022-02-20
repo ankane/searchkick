@@ -302,6 +302,10 @@ module Searchkick
       @bulk_indexer ||= BulkIndexer.new(self)
     end
 
+    def bulk_record_indexer
+      @bulk_record_indexer ||= BulkRecordIndexer.new(self)
+    end
+
     def index_settings
       settings.values.first["settings"]["index"]
     end
