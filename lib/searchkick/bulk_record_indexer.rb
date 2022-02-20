@@ -6,17 +6,39 @@ module Searchkick
       @index = index
     end
 
-    def reindex(records, mode:, method_name:, full:)
+    def reindex(records, mode:, method_name:, full: false, single: false)
       return if records.empty?
 
       case mode
       when :async
-        Searchkick::BulkReindexJob.perform_later(
-          class_name: records.first.class.searchkick_options[:class_name],
-          record_ids: records.map(&:id),
-          index_name: index.name,
-          method_name: method_name ? method_name.to_s : nil
-        )
+        unless defined?(ActiveJob)
+          raise Searchkick::Error, "Active Job not found"
+        end
+
+        # temporary hack
+        if single
+          record = records.first
+
+          # always pass routing in case record is deleted
+          # before the async job runs
+          if record.respond_to?(:search_routing)
+            routing = record.search_routing
+          end
+
+          Searchkick::ReindexV2Job.perform_later(
+            record.class.name,
+            record.id.to_s,
+            method_name ? method_name.to_s : nil,
+            routing: routing
+          )
+        else
+          Searchkick::BulkReindexJob.perform_later(
+            class_name: records.first.class.searchkick_options[:class_name],
+            record_ids: records.map(&:id),
+            index_name: index.name,
+            method_name: method_name ? method_name.to_s : nil
+          )
+        end
       when :queue
         if method_name
           raise Searchkick::Error, "Partial reindex not supported with queue option"
@@ -24,7 +46,7 @@ module Searchkick
 
         index.reindex_queue.push_records(records)
       when true, :inline
-        index_records, other_records = records.partition(&:should_index?)
+        index_records, other_records = records.partition { |r| index_record?(r) }
         import_inline(index_records, !full ? other_records : [], method_name: method_name)
       else
         raise ArgumentError, "Invalid value for mode"
@@ -50,6 +72,10 @@ module Searchkick
     end
 
     private
+
+    def index_record?(record)
+      record.persisted? && !record.destroyed? && record.should_index?
+    end
 
     # import in single request with retries
     def import_inline(index_records, delete_records, method_name:)

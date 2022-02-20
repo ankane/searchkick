@@ -25,8 +25,13 @@ module Searchkick
       mod = Module.new
       include(mod)
       mod.module_eval do
-        def reindex(method_name = nil, **options)
-          RecordIndexer.new(self).reindex(method_name, **options)
+        # TODO fix notifications
+        def reindex(method_name = nil, mode: nil, refresh: false)
+          mode ||= Searchkick.callbacks_value || self.class.searchkick_index.options[:callbacks] || true
+          mode = :inline if mode == :bulk
+          result = self.class.searchkick_index.send(:bulk_record_indexer).reindex([self], mode: mode, method_name: method_name, single: true)
+          self.class.searchkick_index.refresh if refresh
+          result
         end
 
         def similar(**options)
