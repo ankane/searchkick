@@ -148,9 +148,6 @@ module Searchkick
       }
 
       if options[:debug]
-        # can remove when minimum Ruby version is 2.5
-        require "pp"
-
         puts "Searchkick Version: #{Searchkick::VERSION}"
         puts "Elasticsearch Version: #{Searchkick.server_version}"
         puts
