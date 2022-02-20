@@ -6,9 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def reindex(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
-      mode ||= (async ? :async : :inline)
-
+    def reindex(relation, mode:, method_name: nil, full: false, resume: false, scope: nil)
       # apply scopes
       if scope
         relation = relation.send(scope)

@@ -214,7 +214,7 @@ module Searchkick
       options.delete(:refresh)
 
       if method_name || (scoped && !full)
-        mode = options.delete(:mode)
+        mode = options.delete(:mode) || :inline
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
@@ -316,6 +316,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+    # TODO deprecate async in favor of mode: :async, wait: true/false
     def reindex_scope(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
       if resume
         index_name = all_indices.sort.last
@@ -330,9 +331,9 @@ module Searchkick
       end
 
       import_options = {
-        resume: resume,
-        async: async,
+        mode: (async ? :async : :inline),
         full: true,
+        resume: resume,
         scope: scope
       }
 
