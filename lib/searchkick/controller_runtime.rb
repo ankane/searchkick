@@ -1,5 +1,5 @@
+# based on https://gist.github.com/mnutt/566725
 module Searchkick
-  # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/railties/controller_runtime.rb
   module ControllerRuntime
     extend ActiveSupport::Concern
 

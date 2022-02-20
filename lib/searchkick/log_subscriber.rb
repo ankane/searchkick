@@ -1,5 +1,5 @@
+# based on https://gist.github.com/mnutt/566725
 module Searchkick
-  # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/log_subscriber.rb
   class LogSubscriber < ActiveSupport::LogSubscriber
     def self.runtime=(value)
       Thread.current[:searchkick_runtime] = value
