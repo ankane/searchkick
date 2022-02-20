@@ -163,7 +163,14 @@ class ReindexTest < Minitest::Test
   end
 
   def test_full_resume
-    assert Product.reindex(resume: true)
+    if mongoid?
+      error = assert_raises(Searchkick::Error) do
+        Product.reindex(resume: true)
+      end
+      assert_equal "Resume not supported for Mongoid", error.message
+    else
+      assert Product.reindex(resume: true)
+    end
   end
 
   def test_full_refresh

@@ -34,7 +34,7 @@ module Searchkick
         else
           Searchkick::BulkReindexJob.perform_later(
             class_name: records.first.class.searchkick_options[:class_name],
-            record_ids: records.map(&:id),
+            record_ids: records.map { |r| r.id.to_s },
             index_name: index.name,
             method_name: method_name ? method_name.to_s : nil
           )

@@ -2,7 +2,7 @@ Mongoid.logger = $logger
 Mongo::Logger.logger = $logger if defined?(Mongo::Logger)
 
 Mongoid.configure do |config|
-  config.connect_to "searchkick_test"
+  config.connect_to "searchkick_test", server_selection_timeout: 1
 end
 
 class Product

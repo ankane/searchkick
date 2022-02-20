@@ -43,6 +43,10 @@ else
   require_relative "support/activerecord"
 end
 
+def mongoid?
+  defined?(Mongoid)
+end
+
 # models
 Dir["#{__dir__}/models/*"].each do |file|
   require file

@@ -29,24 +29,14 @@ module Searchkick
         return full_reindex_async(relation)
       end
 
+      relation = resume_relation(relation) if resume
+
       reindex_options = {
         mode: mode,
         method_name: method_name,
         full: full
       }
       record_indexer = RecordIndexer.new(index)
-
-      if resume
-        if relation.respond_to?(:primary_key)
-          # use total docs instead of max id since there's not a great way
-          # to get the max _id without scripting since it's a string
-
-          # TODO use primary key and prefix with table name
-          relation = relation.where("id > ?", index.total_docs)
-        else
-          # TODO support resume for Mongoid
-        end
-      end
 
       if relation.respond_to?(:find_in_batches)
         relation.find_in_batches(batch_size: batch_size) do |items|
@@ -68,6 +58,18 @@ module Searchkick
     end
 
     private
+
+    def resume_relation(relation)
+      if relation.respond_to?(:primary_key)
+        # use total docs instead of max id since there's not a great way
+        # to get the max _id without scripting since it's a string
+
+        # TODO use primary key and prefix with table name
+        relation = relation.where("id > ?", index.total_docs)
+      else
+        raise Error, "Resume not supported for Mongoid"
+      end
+    end
 
     def full_reindex_async(scope)
       if scope.respond_to?(:primary_key)
