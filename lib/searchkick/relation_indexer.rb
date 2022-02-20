@@ -41,7 +41,8 @@ module Searchkick
           record_indexer.reindex(items, **reindex_options)
         end
       else
-        each_batch(relation) do |items|
+        # TODO handle resume option
+        each_batch(relation, batch_size: batch_size) do |items|
           record_indexer.reindex(items, **reindex_options)
         end
       end
@@ -93,14 +94,14 @@ module Searchkick
         batch_id = 1
         # TODO remove any eager loading
         scope = scope.only(:_id) if scope.respond_to?(:only)
-        each_batch(scope) do |items|
+        each_batch(scope, batch_size: batch_size) do |items|
           bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
           batch_id += 1
         end
       end
     end
 
-    def each_batch(scope)
+    def each_batch(scope, batch_size:)
       # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
       # use cursor for Mongoid
       items = []
