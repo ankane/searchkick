@@ -9,7 +9,7 @@ module Searchkick
       records = Searchkick.load_records(klass, record_ids)
 
       # TODO expose functionality on index
-      index.send(:bulk_record_indexer).reindex(records, mode: :inline, method_name: method_name, full: false)
+      index.send(:record_indexer).reindex(records, mode: :inline, method_name: method_name, full: false)
       index.send(:relation_indexer).batch_completed(batch_id) if batch_id
     end
   end

@@ -15,7 +15,7 @@ module Searchkick
 
       relation = klass
       relation = relation.search_import if relation.respond_to?(:search_import)
-      index.send(:bulk_record_indexer).reindex_items(relation, items, method_name: nil)
+      index.send(:record_indexer).reindex_items(relation, items, method_name: nil)
     end
   end
 end

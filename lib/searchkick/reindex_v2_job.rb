@@ -8,7 +8,7 @@ module Searchkick
       model = model.unscoped if model.respond_to?(:unscoped)
       items = [{id: id, routing: routing}]
       # TODO improve notification
-      model.searchkick_index.send(:bulk_record_indexer).reindex_items(model, items, method_name: method_name)
+      model.searchkick_index.send(:record_indexer).reindex_items(model, items, method_name: method_name)
     end
   end
 end

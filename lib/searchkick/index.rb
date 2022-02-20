@@ -302,8 +302,8 @@ module Searchkick
       @relation_indexer ||= RelationIndexer.new(self)
     end
 
-    def bulk_record_indexer
-      @bulk_record_indexer ||= BulkRecordIndexer.new(self)
+    def record_indexer
+      @record_indexer ||= RecordIndexer.new(self)
     end
 
     def index_settings

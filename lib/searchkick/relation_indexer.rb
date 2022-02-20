@@ -49,7 +49,7 @@ module Searchkick
     private
 
     def import_or_update(records, method_name, mode, full)
-      bulk_record_indexer.reindex(
+      record_indexer.reindex(
         records,
         mode: mode,
         method_name: method_name,
@@ -131,8 +131,8 @@ module Searchkick
       @batch_size ||= index.options[:batch_size] || 1000
     end
 
-    def bulk_record_indexer
-      @bulk_record_indexer ||= index.send(:bulk_record_indexer)
+    def record_indexer
+      @record_indexer ||= index.send(:record_indexer)
     end
   end
 end
