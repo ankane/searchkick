@@ -1,5 +1,3 @@
-require "active_support/core_ext/module/delegation"
-
 module Searchkick
   class Relation
     # note: modifying body directly is not supported
