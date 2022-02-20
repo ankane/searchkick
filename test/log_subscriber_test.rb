@@ -11,9 +11,9 @@ class LogSubscriberTest < Minitest::Test
   def test_update
     product = Product.create!(name: "Product A")
     output = capture_logs do
-      product.update!(name: "Product B")
+      product.reindex(:search_name)
     end
-    assert_match "Product Store", output
+    assert_match "Product Update", output
   end
 
   def test_destroy
