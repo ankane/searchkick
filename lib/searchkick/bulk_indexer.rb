@@ -106,8 +106,10 @@ module Searchkick
 
     # import in single request with retries
     def import_inline(index_records, delete_records, method_name:)
+      action = method_name ? "Update" : "Import"
+      name = (index_records.first || delete_records.first).searchkick_klass.name
       with_retries do
-        Searchkick.callbacks(:bulk) do
+        Searchkick.callbacks(:bulk, message: "#{name} #{action}") do
           if index_records.any?
             if method_name
               index.bulk_update(index_records, method_name)
