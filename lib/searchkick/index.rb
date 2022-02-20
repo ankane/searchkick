@@ -235,7 +235,7 @@ module Searchkick
     end
 
     def import_scope(relation, **options)
-      relation_indexer.import_scope(relation, **options)
+      relation_indexer.reindex(relation, **options)
     end
 
     def batches_left

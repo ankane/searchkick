@@ -6,7 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
+    def reindex(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
       mode ||= (async ? :async : :inline)
 
       # apply scopes
@@ -70,14 +70,16 @@ module Searchkick
       end
     end
 
-    def full_reindex_async(scope)
-      if scope.respond_to?(:primary_key)
+    def full_reindex_async(relation)
+      batch_id = 1
+
+      if relation.respond_to?(:primary_key)
         # TODO expire Redis key
-        primary_key = scope.primary_key
+        primary_key = relation.primary_key
 
         starting_id =
           begin
-            scope.minimum(primary_key)
+            relation.minimum(primary_key)
           rescue ActiveRecord::StatementInvalid
             false
           end
@@ -85,34 +87,33 @@ module Searchkick
         if starting_id.nil?
           # no records, do nothing
         elsif starting_id.is_a?(Numeric)
-          max_id = scope.maximum(primary_key)
+          max_id = relation.maximum(primary_key)
           batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
           batches_count.times do |i|
-            batch_id = i + 1
             min_id = starting_id + (i * batch_size)
-            bulk_reindex_job(scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
+            bulk_reindex_job(relation, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
+            batch_id += 1
           end
         else
-          scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
-            batch_id = i + 1
-            bulk_reindex_job(scope, batch_id, record_ids: batch.map { |record| record.id.to_s })
+          relation.find_in_batches(batch_size: batch_size) do |batch|
+            bulk_reindex_job(relation, batch_id, record_ids: batch.map { |record| record.id.to_s })
+            batch_id += 1
           end
         end
       else
-        batch_id = 1
-        each_batch(scope, batch_size: batch_size) do |items|
-          bulk_reindex_job(scope, batch_id, record_ids: items.map { |i| i.id.to_s })
+        each_batch(relation, batch_size: batch_size) do |items|
+          bulk_reindex_job(relation, batch_id, record_ids: items.map { |i| i.id.to_s })
           batch_id += 1
         end
       end
     end
 
-    def each_batch(scope, batch_size:)
+    def each_batch(relation, batch_size:)
       # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
       # use cursor for Mongoid
       items = []
-      scope.all.each do |item|
+      relation.all.each do |item|
         items << item
         if items.length == batch_size
           yield items
@@ -122,10 +123,10 @@ module Searchkick
       yield items if items.any?
     end
 
-    def bulk_reindex_job(scope, batch_id, **options)
+    def bulk_reindex_job(relation, batch_id, **options)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
       Searchkick::BulkReindexJob.perform_later(
-        class_name: scope.searchkick_options[:class_name],
+        class_name: relation.searchkick_options[:class_name],
         index_name: index.name,
         batch_id: batch_id,
         **options
