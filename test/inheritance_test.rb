@@ -115,4 +115,14 @@ class InheritanceTest < Minitest::Test
     end
     assert_includes error.message, "Unknown model"
   end
+
+  def test_similar
+    store_names ["Dog", "Other dog"], Dog
+    store_names ["Not dog"], Cat
+
+    dog = Dog.find_by!(name: "Dog")
+    assert_equal ["Other dog"], dog.similar(fields: [:name]).map(&:name)
+    assert_equal ["Not dog", "Other dog"], dog.similar(fields: [:name], models: [Animal]).map(&:name).sort
+    assert_equal ["Not dog"], dog.similar(fields: [:name], models: [Cat]).map(&:name).sort
+  end
 end

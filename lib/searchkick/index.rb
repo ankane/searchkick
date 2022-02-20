@@ -169,9 +169,9 @@ module Searchkick
     def similar_record(record, **options)
       options[:per_page] ||= 10
       options[:similar] = [RecordData.new(self, record).record_data]
+      options[:models] ||= [record.class] unless options.key?(:model)
 
-      # TODO use index class instead of record class
-      Searchkick.search("*", model: record.class, **options)
+      Searchkick.search("*", **options)
     end
 
     def reload_synonyms

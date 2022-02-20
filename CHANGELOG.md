@@ -3,6 +3,7 @@
 - Searches now use lazy loading (similar to Active Record)
 - Added support for `:async` and `:queue` modes for `reindex` on relation
 - Added basic protection from unfiltered parameters to `where` option
+- Added `models` option to `similar` method
 - Anchor regular expressions by default
 - Raise error when `search` called on relations
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
