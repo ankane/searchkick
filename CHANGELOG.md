@@ -13,7 +13,7 @@
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Raise `ArgumentError` instead of `RuntimeError` for unknown operators
 - Removed mapping of `id` to `_id` with `order` option
-- Removed `wordnet` option
+- Removed `wordnet` option (no longer worked)
 - Removed `elasticsearch` dependency
 - Dropped support for Elasticsearch 6
 - Dropped support for Ruby < 2.6 and Active Record < 5.2
