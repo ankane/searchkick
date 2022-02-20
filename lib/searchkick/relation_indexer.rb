@@ -16,8 +16,17 @@ module Searchkick
       mode ||= (async ? :async : :inline)
 
       if full && async
-        full_reindex_async(relation)
-      elsif relation.respond_to?(:find_in_batches)
+        return full_reindex_async(relation)
+      end
+
+      reindex_options = {
+        mode: mode,
+        method_name: method_name,
+        full: full
+      }
+      record_indexer = RecordIndexer.new(index)
+
+      if relation.respond_to?(:find_in_batches)
         if resume
           # use total docs instead of max id since there's not a great way
           # to get the max _id without scripting since it's a string
@@ -28,12 +37,12 @@ module Searchkick
 
         relation = relation.select("id").except(:includes, :preload) if mode == :async
 
-        relation.find_in_batches batch_size: batch_size do |items|
-          import_or_update items, method_name, mode, full
+        relation.find_in_batches(batch_size: batch_size) do |items|
+          record_indexer.reindex(items, **reindex_options)
         end
       else
         each_batch(relation) do |items|
-          import_or_update items, method_name, mode, full
+          record_indexer.reindex(items, **reindex_options)
         end
       end
     end
@@ -47,15 +56,6 @@ module Searchkick
     end
 
     private
-
-    def import_or_update(records, method_name, mode, full)
-      record_indexer.reindex(
-        records,
-        mode: mode,
-        method_name: method_name,
-        full: full
-      )
-    end
 
     def full_reindex_async(scope)
       if scope.respond_to?(:primary_key)
@@ -129,10 +129,6 @@ module Searchkick
 
     def batch_size
       @batch_size ||= index.options[:batch_size] || 1000
-    end
-
-    def record_indexer
-      @record_indexer ||= index.send(:record_indexer)
     end
   end
 end
