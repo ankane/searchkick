@@ -209,7 +209,7 @@ module Searchkick
 
     # reindex
 
-    def reindex(relation, method_name, scoped:, full: false, scope: nil, **options)
+    def reindex(relation, method_name, scoped:, full: false, **options)
       refresh = options.fetch(:refresh, !scoped)
       options.delete(:refresh)
 
@@ -218,12 +218,11 @@ module Searchkick
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, scope: scope, mode: mode)
+        import_scope(relation, method_name: method_name, mode: mode)
         self.refresh if refresh
         true
       else
-        # full reindex
-        reindex_scope(relation, scope: scope, **options)
+        full_reindex(relation, **options)
       end
     end
 
@@ -317,7 +316,7 @@ module Searchkick
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     # TODO deprecate async in favor of mode: :async, wait: true/false
-    def reindex_scope(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
+    def full_reindex(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
