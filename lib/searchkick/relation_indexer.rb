@@ -72,37 +72,14 @@ module Searchkick
       batch_id = 1
       class_name = relation.searchkick_options[:class_name]
 
-      if relation.respond_to?(:primary_key)
-        # TODO expire Redis key
-        primary_key = relation.primary_key
-
-        starting_id =
-          begin
-            relation.minimum(primary_key)
-          rescue ActiveRecord::StatementInvalid
-            false
-          end
-
-        if starting_id.nil?
-          # no records, do nothing
-        elsif starting_id.is_a?(Numeric)
-          max_id = relation.maximum(primary_key)
-          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
-
-          batches_count.times do |i|
-            min_id = starting_id + (i * batch_size)
-            batch_job(class_name, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
-            batch_id += 1
-          end
-        else
-          relation.find_in_batches(batch_size: batch_size) do |batch|
-            batch_job(class_name, batch_id, record_ids: batch.map { |record| record.id.to_s })
-            batch_id += 1
-          end
+      if relation.respond_to?(:find_in_batches)
+        relation.find_in_batches(batch_size: batch_size) do |items|
+          batch_job(class_name, batch_id, items.map(&:id))
+          batch_id += 1
         end
       else
         each_batch(relation, batch_size: batch_size) do |items|
-          batch_job(class_name, batch_id, record_ids: items.map { |i| i.id.to_s })
+          batch_job(class_name, batch_id, items.map(&:id))
           batch_id += 1
         end
       end
@@ -122,13 +99,13 @@ module Searchkick
       yield items if items.any?
     end
 
-    def batch_job(class_name, batch_id, **options)
+    def batch_job(class_name, batch_id, record_ids)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
       Searchkick::BulkReindexJob.perform_later(
         class_name: class_name,
         index_name: index.name,
         batch_id: batch_id,
-        **options
+        record_ids: record_ids.map { |v| v.instance_of?(Integer) ? v : v.to_s }
       )
     end
 
