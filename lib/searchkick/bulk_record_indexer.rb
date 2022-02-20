@@ -31,8 +31,29 @@ module Searchkick
       end
     end
 
+    # TODO figure out better place for logic
+    def import_queue(klass, record_ids)
+      # separate routing from id
+      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
+      record_ids = routing.keys
+
+      scope = Searchkick.load_records(klass, record_ids)
+      scope = scope.search_import if scope.respond_to?(:search_import)
+      records = scope.select(&:should_index?)
+
+      # determine which records to delete
+      delete_ids = record_ids - records.map { |r| r.id.to_s }
+      delete_records =
+        delete_ids.map do |id|
+          construct_record(klass, id, routing[id])
+        end
+
+      import_inline(records, delete_records, method_name: nil)
+    end
+
+    private
+
     # import in single request with retries
-    # TODO make private
     def import_inline(index_records, delete_records, method_name:)
       return if index_records.empty? && delete_records.empty?
 
@@ -55,7 +76,16 @@ module Searchkick
       end
     end
 
-    private
+    def construct_record(klass, id, routing)
+      record = klass.new
+      record.id = id
+      if routing
+        record.define_singleton_method(:search_routing) do
+          routing
+        end
+      end
+      record
+    end
 
     def with_retries
       retries = 0

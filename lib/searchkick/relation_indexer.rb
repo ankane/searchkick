@@ -6,36 +6,6 @@ module Searchkick
       @index = index
     end
 
-    def import_queue(klass, record_ids)
-      # separate routing from id
-      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
-      record_ids = routing.keys
-
-      scope = Searchkick.load_records(klass, record_ids)
-      scope = scope.search_import if scope.respond_to?(:search_import)
-      records = scope.select(&:should_index?)
-
-      # determine which records to delete
-      delete_ids = record_ids - records.map { |r| r.id.to_s }
-      delete_records =
-        delete_ids.map do |id|
-          construct_record(klass, id, routing[id])
-        end
-
-      bulk_record_indexer.import_inline(records, delete_records, method_name: nil)
-    end
-
-    def construct_record(klass, id, routing)
-      record = klass.new
-      record.id = id
-      if routing
-        record.define_singleton_method(:search_routing) do
-          routing
-        end
-      end
-      record
-    end
-
     def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
       if scope
         relation = relation.send(scope)

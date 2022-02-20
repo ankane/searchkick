@@ -24,7 +24,7 @@ module Searchkick
         end
 
       # TODO move construct_record logic
-      record ||= model.searchkick_index.send(:relation_indexer).construct_record(model, id, routing)
+      record ||= model.searchkick_index.send(:bulk_record_indexer).send(:construct_record, model, id, routing)
 
       RecordIndexer.new(record).reindex(method_name, mode: :inline)
     end

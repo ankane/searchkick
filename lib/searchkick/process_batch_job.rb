@@ -6,7 +6,7 @@ module Searchkick
       klass = class_name.constantize
       index = klass.searchkick_index(name: index_name)
       # TODO move import_queue logic
-      index.send(:relation_indexer).import_queue(klass, record_ids)
+      index.send(:bulk_record_indexer).import_queue(klass, record_ids)
     end
   end
 end
