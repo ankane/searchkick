@@ -43,7 +43,7 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 - [Reference](#reference)
 - [Contributing](#contributing)
 
-**Searchkick 5.0 was recently released!** See [how to upgrade](#upgrading)
+Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
 
 ## Getting Started
 
