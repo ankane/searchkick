@@ -27,7 +27,7 @@ module Searchkick
           construct_record(klass, id, routing[id])
         end
 
-      import_inline(records, delete_records, method_name: nil)
+      bulk_record_indexer.import_inline(records, delete_records, method_name: nil)
     end
 
     def construct_record(klass, id, routing)
@@ -80,49 +80,12 @@ module Searchkick
     private
 
     def import_or_update(records, method_name, mode, full)
-      if records.any?
-        case mode
-        when :async
-          Searchkick::BulkReindexJob.perform_later(
-            class_name: records.first.class.searchkick_options[:class_name],
-            record_ids: records.map(&:id),
-            index_name: index.name,
-            method_name: method_name ? method_name.to_s : nil
-          )
-        when :queue
-          if method_name
-            raise Searchkick::Error, "Partial reindex not supported with queue option"
-          end
-
-          index.reindex_queue.push_records(records)
-        when true, :inline
-          index_records, other_records = records.partition(&:should_index?)
-          import_inline(index_records, !full ? other_records : [], method_name: method_name)
-        else
-          raise ArgumentError, "Invalid value for mode"
-        end
-      end
-    end
-
-    # import in single request with retries
-    def import_inline(index_records, delete_records, method_name:)
-      action = method_name ? "Update" : "Import"
-      name = (index_records.first || delete_records.first).searchkick_klass.name
-      with_retries do
-        Searchkick.callbacks(:bulk, message: "#{name} #{action}") do
-          if index_records.any?
-            if method_name
-              index.bulk_update(index_records, method_name)
-            else
-              index.bulk_index(index_records)
-            end
-          end
-
-          if delete_records.any?
-            index.bulk_delete(delete_records)
-          end
-        end
-      end
+      bulk_record_indexer.reindex(
+        records,
+        mode: mode,
+        method_name: method_name,
+        full: full
+      )
     end
 
     def full_reindex_async(scope)
@@ -191,26 +154,16 @@ module Searchkick
       }.merge(options))
     end
 
-    def with_retries
-      retries = 0
-
-      begin
-        yield
-      rescue Faraday::ClientError => e
-        if retries < 1
-          retries += 1
-          retry
-        end
-        raise e
-      end
-    end
-
     def batches_key
       "searchkick:reindex:#{index.name}:batches"
     end
 
     def batch_size
       @batch_size ||= index.options[:batch_size] || 1000
+    end
+
+    def bulk_record_indexer
+      @bulk_record_indexer ||= BulkRecordIndexer.new(index)
     end
   end
 end

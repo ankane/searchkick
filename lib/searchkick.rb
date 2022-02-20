@@ -11,6 +11,7 @@ require "forwardable"
 
 # modules
 require "searchkick/bulk_indexer"
+require "searchkick/bulk_record_indexer"
 require "searchkick/controller_runtime"
 require "searchkick/index"
 require "searchkick/index_options"
