@@ -23,15 +23,7 @@ module Searchkick
           nil
         end
 
-      unless record
-        record = model.new
-        record.id = id
-        if routing
-          record.define_singleton_method(:search_routing) do
-            routing
-          end
-        end
-      end
+      record ||= model.searchkick_index.send(:bulk_indexer).construct_record(model, id, routing)
 
       RecordIndexer.new(record).reindex(method_name, mode: :inline)
     end

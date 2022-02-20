@@ -22,18 +22,23 @@ module Searchkick
 
       # determine which records to delete
       delete_ids = record_ids - records.map { |r| r.id.to_s }
-      delete_records = delete_ids.map do |id|
-        m = klass.new
-        m.id = id
-        if routing[id]
-          m.define_singleton_method(:search_routing) do
-            routing[id]
-          end
+      delete_records =
+        delete_ids.map do |id|
+          construct_record(klass, id, routing[id])
         end
-        m
-      end
 
       import_inline(records, delete_records, method_name: nil)
+    end
+
+    def construct_record(klass, id, routing)
+      record = klass.new
+      record.id = id
+      if routing
+        record.define_singleton_method(:search_routing) do
+          routing
+        end
+      end
+      record
     end
 
     def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
