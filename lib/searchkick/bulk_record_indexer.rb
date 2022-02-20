@@ -31,10 +31,8 @@ module Searchkick
       end
     end
 
-    # TODO figure out better place for logic
-    def import_queue(klass, record_ids)
-      # separate routing from id
-      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
+    def reindex_items(klass, items)
+      routing = items.to_h { |r| [r[:id], r[:routing]] }
       record_ids = routing.keys
 
       scope = Searchkick.load_records(klass, record_ids)

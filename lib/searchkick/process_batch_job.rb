@@ -5,8 +5,15 @@ module Searchkick
     def perform(class_name:, record_ids:, index_name: nil)
       klass = class_name.constantize
       index = klass.searchkick_index(name: index_name)
-      # TODO move import_queue logic
-      index.send(:bulk_record_indexer).import_queue(klass, record_ids)
+
+      items =
+        record_ids.map do |r|
+          parts = r.split(/(?<!\|)\|(?!\|)/, 2)
+            .map { |v| v.gsub("||", "|") }
+          {id: parts[0], routing: parts[1]}
+        end
+
+      index.send(:bulk_record_indexer).reindex_items(klass, items)
     end
   end
 end
