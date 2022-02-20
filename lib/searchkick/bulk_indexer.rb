@@ -6,7 +6,12 @@ module Searchkick
       @index = index
     end
 
-    def import_scope(relation, resume: false, method_name: nil, async: false, batch: false, batch_id: nil, full: false, scope: nil, mode: nil)
+    def import_batch(relation, method_name: nil, batch_id: nil)
+      import_or_update relation.to_a, method_name, :inline, false
+      Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
+    end
+
+    def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
       if scope
         relation = relation.send(scope)
       elsif relation.respond_to?(:search_import)
@@ -15,10 +20,7 @@ module Searchkick
 
       mode ||= (async ? :async : :inline)
 
-      if batch
-        import_or_update relation.to_a, method_name, mode, full
-        Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
-      elsif full && async
+      if full && async
         full_reindex_async(relation)
       elsif relation.respond_to?(:find_in_batches)
         if resume
