@@ -16,7 +16,11 @@ module Searchkick
 
       case mode
       when :queue
-        index.send(:bulk_indexer).reindex_queue([record], method_name: method_name)
+        if method_name
+          raise Searchkick::Error, "Partial reindex not supported with queue option"
+        end
+
+        index.reindex_queue.push_records([record])
       when :async
         unless defined?(ActiveJob)
           raise Searchkick::Error, "Active Job not found"

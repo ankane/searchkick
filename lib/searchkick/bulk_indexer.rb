@@ -11,28 +11,6 @@ module Searchkick
       Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
     end
 
-    def reindex_queue(records, method_name:)
-      if method_name
-        raise Searchkick::Error, "Partial reindex not supported with queue option"
-      end
-
-      record_ids =
-        records.map do |record|
-          # always pass routing in case record is deleted
-          # before the queue job runs
-          if record.respond_to?(:search_routing)
-            routing = record.search_routing
-          end
-
-          # escape pipe with double pipe
-          value = queue_escape(record.id.to_s)
-          value = "#{value}|#{queue_escape(routing)}" if routing
-          value
-        end
-
-      index.reindex_queue.push(record_ids)
-    end
-
     def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
       if scope
         relation = relation.send(scope)
@@ -82,7 +60,11 @@ module Searchkick
             method_name: method_name ? method_name.to_s : nil
           )
         when :queue
-          reindex_queue(records, method_name: method_name)
+          if method_name
+            raise Searchkick::Error, "Partial reindex not supported with queue option"
+          end
+
+          index.reindex_queue.push_records(records)
         when true, :inline
           index_records, other_records = records.partition(&:should_index?)
 
@@ -195,10 +177,6 @@ module Searchkick
 
     def batch_size
       @batch_size ||= index.options[:batch_size] || 1000
-    end
-
-    def queue_escape(value)
-      value.gsub("|", "||")
     end
   end
 end

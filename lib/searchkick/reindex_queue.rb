@@ -8,9 +8,27 @@ module Searchkick
       raise Searchkick::Error, "Searchkick.redis not set" unless Searchkick.redis
     end
 
-    # supports both single id and array
-    def push(record_id)
-      Searchkick.with_redis { |r| r.lpush(redis_key, record_id) }
+    # supports single and multiple ids
+    def push(record_ids)
+      Searchkick.with_redis { |r| r.lpush(redis_key, record_ids) }
+    end
+
+    def push_records(records)
+      record_ids =
+        records.map do |record|
+          # always pass routing in case record is deleted
+          # before the queue job runs
+          if record.respond_to?(:search_routing)
+            routing = record.search_routing
+          end
+
+          # escape pipe with double pipe
+          value = escape(record.id.to_s)
+          value = "#{value}|#{escape(routing)}" if routing
+          value
+        end
+
+      push(record_ids)
     end
 
     # TODO use reliable queuing
@@ -48,6 +66,10 @@ module Searchkick
 
     def redis_version
       @redis_version ||= Searchkick.with_redis { |r| Gem::Version.new(r.info["redis_version"]) }
+    end
+
+    def escape(value)
+      value.gsub("|", "||")
     end
   end
 end
