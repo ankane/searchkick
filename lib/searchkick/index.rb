@@ -397,14 +397,14 @@ module Searchkick
     end
 
     def notify(record, name)
-      name = "#{record.searchkick_klass.name} #{name}" if record && record.searchkick_klass
-      event = {
-        name: name,
-        id: search_id(record)
-      }
       if Searchkick.callbacks_value == :bulk
         yield
       else
+        name = "#{record.searchkick_klass.name} #{name}" if record && record.searchkick_klass
+        event = {
+          name: name,
+          id: search_id(record)
+        }
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
           yield
         end
@@ -412,14 +412,15 @@ module Searchkick
     end
 
     def notify_bulk(records, name)
-      event = {
-        name: "#{records.first.searchkick_klass.name} #{name}",
-        count: records.size
-      }
-      event[:id] = search_id(records.first) if records.size == 1
       if Searchkick.callbacks_value == :bulk
         yield
       else
+        event = {
+          name: "#{records.first.searchkick_klass.name} #{name}",
+          count: records.size
+        }
+        # TODO remove
+        event[:id] = search_id(records.first) if records.size == 1
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
           yield
         end
