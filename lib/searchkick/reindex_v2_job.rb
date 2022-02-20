@@ -23,7 +23,8 @@ module Searchkick
           nil
         end
 
-      record ||= model.searchkick_index.send(:bulk_indexer).construct_record(model, id, routing)
+      # TODO move construct_record logic
+      record ||= model.searchkick_index.send(:relation_indexer).construct_record(model, id, routing)
 
       RecordIndexer.new(record).reindex(method_name, mode: :inline)
     end

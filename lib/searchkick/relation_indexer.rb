@@ -1,5 +1,5 @@
 module Searchkick
-  class BulkIndexer
+  class RelationIndexer
     attr_reader :index
 
     def initialize(index)

@@ -10,7 +10,6 @@ require "hashie"
 require "forwardable"
 
 # modules
-require "searchkick/bulk_indexer"
 require "searchkick/bulk_record_indexer"
 require "searchkick/controller_runtime"
 require "searchkick/index"
@@ -25,6 +24,7 @@ require "searchkick/reindex_queue"
 require "searchkick/record_data"
 require "searchkick/record_indexer"
 require "searchkick/relation"
+require "searchkick/relation_indexer"
 require "searchkick/results"
 require "searchkick/version"
 

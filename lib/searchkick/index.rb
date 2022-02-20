@@ -235,11 +235,11 @@ module Searchkick
     end
 
     def import_scope(relation, **options)
-      bulk_indexer.import_scope(relation, **options)
+      relation_indexer.import_scope(relation, **options)
     end
 
     def batches_left
-      bulk_indexer.batches_left
+      relation_indexer.batches_left
     end
 
     # other
@@ -298,8 +298,8 @@ module Searchkick
       Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
     end
 
-    def bulk_indexer
-      @bulk_indexer ||= BulkIndexer.new(self)
+    def relation_indexer
+      @relation_indexer ||= RelationIndexer.new(self)
     end
 
     def bulk_record_indexer
