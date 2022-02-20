@@ -205,17 +205,20 @@ module Searchkick
   end
 
   # message is private
-  def self.callbacks(value = nil, message: "Bulk")
+  def self.callbacks(value = nil, message: nil)
     if block_given?
       previous_value = callbacks_value
       begin
         self.callbacks_value = value
         result = yield
-        if callbacks_value == :bulk
-          event = {
-            name: message,
-            count: indexer.queued_items.size
-          }
+        if callbacks_value == :bulk && indexer.queued_items.any?
+          event = {}
+          if message
+            message.call(event)
+          else
+            event[:name] = "Bulk"
+            event[:count] = indexer.queued_items.size
+          end
           ActiveSupport::Notifications.instrument("request.searchkick", event) do
             indexer.perform
           end
