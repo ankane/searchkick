@@ -233,7 +233,14 @@ module Searchkick
     end
 
     def execute_search
-      Searchkick.client.search(params)
+      name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
+      event = {
+        name: name,
+        query: params
+      }
+      ActiveSupport::Notifications.instrument("search.searchkick", event) do
+        Searchkick.client.search(params)
+      end
     end
 
     def prepare

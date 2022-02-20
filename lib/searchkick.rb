@@ -1,6 +1,8 @@
 # dependencies
 require "active_support"
 require "active_support/core_ext/hash/deep_merge"
+require "active_support/core_ext/module/attr_internal"
+require "active_support/notifications"
 require "hashie"
 
 # stdlib
@@ -8,9 +10,11 @@ require "forwardable"
 
 # modules
 require "searchkick/bulk_indexer"
+require "searchkick/controller_runtime"
 require "searchkick/index"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
+require "searchkick/log_subscriber"
 require "searchkick/model"
 require "searchkick/multi_search"
 require "searchkick/query"
@@ -23,17 +27,6 @@ require "searchkick/version"
 
 # integrations
 require "searchkick/railtie" if defined?(Rails)
-if defined?(ActiveSupport::Notifications)
-  require "searchkick/logging"
-  require "searchkick/log_subscriber"
-  require "searchkick/controller_runtime"
-
-  ActiveSupport.on_load(:action_controller) do
-    include Searchkick::ControllerRuntime
-  end
-
-  Searchkick::LogSubscriber.attach_to :searchkick
-end
 
 module Searchkick
   # requires faraday
@@ -180,7 +173,13 @@ module Searchkick
 
   def self.multi_search(queries)
     queries = queries.map { |q| q.send(:query) }
-    Searchkick::MultiSearch.new(queries).perform
+    event = {
+      name: "Multi Search",
+      body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
+    }
+    ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
+      Searchkick::MultiSearch.new(queries).perform
+    end
   end
 
   # callbacks
@@ -207,7 +206,15 @@ module Searchkick
       begin
         self.callbacks_value = value
         result = yield
-        indexer.perform if callbacks_value == :bulk
+        if callbacks_value == :bulk
+          event = {
+            name: "Bulk",
+            count: indexer.queued_items.size
+          }
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            indexer.perform
+          end
+        end
         result
       ensure
         self.callbacks_value = previous_value
@@ -322,10 +329,16 @@ module Searchkick
   end
 end
 
+ActiveSupport.on_load(:active_record) do
+  extend Searchkick::Model
+end
+
 ActiveSupport.on_load(:mongoid) do
   Mongoid::Document::ClassMethods.include Searchkick::Model
 end
 
-ActiveSupport.on_load(:active_record) do
-  extend Searchkick::Model
+ActiveSupport.on_load(:action_controller) do
+  include Searchkick::ControllerRuntime
 end
+
+Searchkick::LogSubscriber.attach_to :searchkick

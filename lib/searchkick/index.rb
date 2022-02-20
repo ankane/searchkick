@@ -130,32 +130,47 @@ module Searchkick
       indices
     end
 
-    # record based
-    # use helpers for notifications
-
     def store(record)
-      queue_index([record])
+      maybe_notify_one(record, "Store") do
+        queue_index([record])
+      end
     end
 
     def remove(record)
-      queue_delete([record])
+      maybe_notify_one(record, "Remove") do
+        queue_delete([record])
+      end
     end
 
     def update_record(record, method_name)
-      queue_update([record], method_name)
+      maybe_notify_one(record, "Update") do
+        queue_update([record], method_name)
+      end
     end
 
     def bulk_delete(records)
-      queue_delete(records)
+      return if records.empty?
+
+      maybe_notify_many(records, "Delete") do
+        queue_delete(records)
+      end
     end
 
     def bulk_index(records)
-      queue_index(records)
+      return if records.empty?
+
+      maybe_notify_many(records, "Import") do
+        queue_index(records)
+      end
     end
     alias_method :import, :bulk_index
 
     def bulk_update(records, method_name)
-      queue_update(records, method_name)
+      return if records.empty?
+
+      maybe_notify_many(records, "Update") do
+        queue_update(records, method_name)
+      end
     end
 
     def search_id(record)
@@ -380,6 +395,36 @@ module Searchkick
     def check_uuid(old_uuid, new_uuid)
       if old_uuid != new_uuid
         raise Searchkick::Error, "Safety check failed - only run one Model.reindex per model at a time"
+      end
+    end
+
+    def maybe_notify_one(record, name)
+      name = record && record.searchkick_klass ? "#{record.searchkick_klass.name} #{name}" : name
+      event = {
+        name: name,
+        id: search_id(record)
+      }
+      if Searchkick.callbacks_value == :bulk
+        yield
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          yield
+        end
+      end
+    end
+
+    def maybe_notify_many(records, name)
+      event = {
+        name: "#{records.first.searchkick_klass.name} #{name}",
+        count: records.size
+      }
+      event[:id] = search_id(records.first) if records.size == 1
+      if Searchkick.callbacks_value == :bulk
+        yield
+      else
+        ActiveSupport::Notifications.instrument("request.searchkick", event) do
+          yield
+        end
       end
     end
   end
