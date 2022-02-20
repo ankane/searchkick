@@ -8,6 +8,7 @@ module Searchkick
       raise Searchkick::Error, "Searchkick.redis not set" unless Searchkick.redis
     end
 
+    # supports both single id and array
     def push(record_id)
       Searchkick.with_redis { |r| r.lpush(redis_key, record_id) }
     end
