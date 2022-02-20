@@ -43,18 +43,6 @@ module Searchkick
       end
     end
 
-    def bulk_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).index_data })
-    end
-
-    def bulk_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(index, r).delete_data })
-    end
-
-    def bulk_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(index, r).update_data(method_name) })
-    end
-
     def batches_left
       Searchkick.with_redis { |r| r.scard(batches_key) }
     end
