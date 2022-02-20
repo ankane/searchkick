@@ -11,6 +11,31 @@ module Searchkick
       Searchkick.with_redis { |r| r.srem(batches_key, batch_id) } if batch_id
     end
 
+    def import_queue(klass, record_ids)
+      # separate routing from id
+      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
+      record_ids = routing.keys
+
+      scope = Searchkick.load_records(klass, record_ids)
+      scope = scope.search_import if scope.respond_to?(:search_import)
+      records = scope.select(&:should_index?)
+
+      # determine which records to delete
+      delete_ids = record_ids - records.map { |r| r.id.to_s }
+      delete_records = delete_ids.map do |id|
+        m = klass.new
+        m.id = id
+        if routing[id]
+          m.define_singleton_method(:search_routing) do
+            routing[id]
+          end
+        end
+        m
+      end
+
+      import_inline(records, delete_records, method_name: nil)
+    end
+
     def import_scope(relation, resume: false, method_name: nil, async: false, full: false, scope: nil, mode: nil)
       if scope
         relation = relation.send(scope)
@@ -67,26 +92,28 @@ module Searchkick
           index.reindex_queue.push_records(records)
         when true, :inline
           index_records, other_records = records.partition(&:should_index?)
-
-          if index_records.any?
-            with_retries do
-              # call out to index for ActiveSupport notifications
-              if method_name
-                index.bulk_update(index_records, method_name)
-              else
-                index.bulk_index(index_records)
-              end
-            end
-          end
-
-          if other_records.any? && !full
-            with_retries do
-              # call out to index for ActiveSupport notifications
-              index.bulk_delete(other_records)
-            end
-          end
+          import_inline(index_records, !full ? other_records : [], method_name: method_name)
         else
           raise ArgumentError, "Invalid value for mode"
+        end
+      end
+    end
+
+    # import in single request with retries
+    def import_inline(index_records, delete_records, method_name:)
+      with_retries do
+        Searchkick.callbacks(:bulk) do
+          if index_records.any?
+            if method_name
+              index.bulk_update(index_records, method_name)
+            else
+              index.bulk_index(index_records)
+            end
+          end
+
+          if delete_records.any?
+            index.bulk_delete(delete_records)
+          end
         end
       end
     end
