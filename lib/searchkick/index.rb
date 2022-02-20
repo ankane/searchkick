@@ -1,5 +1,3 @@
-require "searchkick/index_options"
-
 module Searchkick
   class Index
     attr_reader :name, :options
