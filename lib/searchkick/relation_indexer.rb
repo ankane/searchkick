@@ -16,7 +16,7 @@ module Searchkick
         relation = relation.search_import
       end
 
-      # remove unneeded conditions for async
+      # remove unneeded loading for async
       if mode == :async
         if relation.respond_to?(:primary_key)
           relation = relation.select(relation.primary_key).except(:includes, :preload)
@@ -72,6 +72,7 @@ module Searchkick
 
     def full_reindex_async(relation)
       batch_id = 1
+      class_name = relation.searchkick_options[:class_name]
 
       if relation.respond_to?(:primary_key)
         # TODO expire Redis key
@@ -92,18 +93,18 @@ module Searchkick
 
           batches_count.times do |i|
             min_id = starting_id + (i * batch_size)
-            bulk_reindex_job(relation, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
+            batch_job(class_name, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
             batch_id += 1
           end
         else
           relation.find_in_batches(batch_size: batch_size) do |batch|
-            bulk_reindex_job(relation, batch_id, record_ids: batch.map { |record| record.id.to_s })
+            batch_job(class_name, batch_id, record_ids: batch.map { |record| record.id.to_s })
             batch_id += 1
           end
         end
       else
         each_batch(relation, batch_size: batch_size) do |items|
-          bulk_reindex_job(relation, batch_id, record_ids: items.map { |i| i.id.to_s })
+          batch_job(class_name, batch_id, record_ids: items.map { |i| i.id.to_s })
           batch_id += 1
         end
       end
@@ -123,10 +124,10 @@ module Searchkick
       yield items if items.any?
     end
 
-    def bulk_reindex_job(relation, batch_id, **options)
+    def batch_job(class_name, batch_id, **options)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
       Searchkick::BulkReindexJob.perform_later(
-        class_name: relation.searchkick_options[:class_name],
+        class_name: class_name,
         index_name: index.name,
         batch_id: batch_id,
         **options
