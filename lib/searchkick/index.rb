@@ -181,8 +181,9 @@ module Searchkick
         raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
         begin
           client.transport.perform_request("GET", "#{CGI.escape(name)}/_reload_search_analyzers")
-        rescue Elasticsearch::Transport::Transport::Errors::MethodNotAllowed
-          raise Error, "Requires non-OSS version of Elasticsearch"
+        rescue => e
+          raise Error, "Requires non-OSS version of Elasticsearch" if Searchkick.not_allowed_error?(e)
+          raise e
         end
       end
     end

@@ -313,6 +313,13 @@ module Searchkick
     (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Error)) ||
     (defined?(OpenSearch) && e.is_a?(OpenSearch::Transport::Transport::Error))
   end
+
+  # private
+  def self.not_allowed_error?(e)
+    (defined?(Elastic::Transport) && e.is_a?(Elastic::Transport::Transport::Errors::MethodNotAllowed)) ||
+    (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Errors::MethodNotAllowed)) ||
+    (defined?(OpenSearch) && e.is_a?(OpenSearch::Transport::Transport::Errors::MethodNotAllowed))
+  end
 end
 
 ActiveSupport.on_load(:mongoid) do
