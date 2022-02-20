@@ -91,19 +91,18 @@ module Searchkick
           batches_count.times do |i|
             batch_id = i + 1
             min_id = starting_id + (i * batch_size)
-            bulk_reindex_job scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1
+            bulk_reindex_job(scope, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
           end
         else
           scope.find_in_batches(batch_size: batch_size).each_with_index do |batch, i|
             batch_id = i + 1
-
-            bulk_reindex_job scope, batch_id, record_ids: batch.map { |record| record.id.to_s }
+            bulk_reindex_job(scope, batch_id, record_ids: batch.map { |record| record.id.to_s })
           end
         end
       else
         batch_id = 1
         each_batch(scope, batch_size: batch_size) do |items|
-          bulk_reindex_job scope, batch_id, record_ids: items.map { |i| i.id.to_s }
+          bulk_reindex_job(scope, batch_id, record_ids: items.map { |i| i.id.to_s })
           batch_id += 1
         end
       end
@@ -123,13 +122,14 @@ module Searchkick
       yield items if items.any?
     end
 
-    def bulk_reindex_job(scope, batch_id, options)
+    def bulk_reindex_job(scope, batch_id, **options)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
-      Searchkick::BulkReindexJob.perform_later(**{
+      Searchkick::BulkReindexJob.perform_later(
         class_name: scope.searchkick_options[:class_name],
         index_name: index.name,
-        batch_id: batch_id
-      }.merge(options))
+        batch_id: batch_id,
+        **options
+      )
     end
 
     def batches_key
