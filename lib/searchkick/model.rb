@@ -78,7 +78,7 @@ module Searchkick
 
           def searchkick_reindex(method_name = nil, **options)
             scoped = Searchkick.relation?(self)
-            relation = scoped ? all : searchkick_klass
+            relation = scoped ? all : searchkick_klass.all
             # prevent scope from affecting search_data
             unscoped do
               searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
