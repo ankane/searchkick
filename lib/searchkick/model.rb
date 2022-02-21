@@ -25,7 +25,6 @@ module Searchkick
       mod = Module.new
       include(mod)
       mod.module_eval do
-        # TODO fix notifications
         def reindex(method_name = nil, mode: nil, refresh: false)
           mode ||= Searchkick.callbacks_value || self.class.searchkick_index.options[:callbacks] || true
           mode = :inline if mode == :bulk
