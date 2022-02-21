@@ -77,6 +77,10 @@ class Minitest::Test
     defined?(ActiveRecord)
   end
 
+  def mongoid?
+    defined?(Mongoid)
+  end
+
   def default_model
     Product
   end
