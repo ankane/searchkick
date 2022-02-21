@@ -73,5 +73,5 @@ class Band
   field :name
   field :active, type: Mongoid::Boolean
 
-  default_scope -> { where(active: true).order(:name) }
+  default_scope -> { where(active: true).order(name: 1) }
 end
