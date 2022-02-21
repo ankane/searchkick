@@ -13,9 +13,7 @@ module Searchkick
           {id: parts[0], routing: parts[1]}
         end
 
-      relation = klass
-      relation = relation.search_import if relation.respond_to?(:search_import)
-      index.send(:record_indexer).reindex_items(relation, items, method_name: nil)
+      index.send(:record_indexer).reindex_items(klass, items, method_name: nil)
     end
   end
 end
