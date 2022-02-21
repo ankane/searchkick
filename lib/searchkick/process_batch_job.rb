@@ -3,8 +3,8 @@ module Searchkick
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids:, index_name: nil)
-      klass = class_name.constantize
-      index = klass.searchkick_index(name: index_name)
+      model = Searchkick.load_model(class_name)
+      index = model.searchkick_index(name: index_name)
 
       items =
         record_ids.map do |r|
@@ -13,8 +13,8 @@ module Searchkick
           {id: parts[0], routing: parts[1]}
         end
 
-      klass = Searchkick.scope(klass)
-      index.send(:record_indexer).reindex_items(klass, items, method_name: nil)
+      relation = Searchkick.scope(model)
+      index.send(:record_indexer).reindex_items(relation, items, method_name: nil)
     end
   end
 end

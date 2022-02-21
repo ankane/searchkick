@@ -3,7 +3,7 @@ module Searchkick
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, index_name: nil, inline: false)
-      model = class_name.constantize
+      model = Searchkick.load_model(class_name)
       limit = model.searchkick_options[:batch_size] || 1000
 
       loop do

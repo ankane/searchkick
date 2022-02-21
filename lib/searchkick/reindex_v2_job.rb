@@ -2,8 +2,8 @@ module Searchkick
   class ReindexV2Job < ActiveJob::Base
     queue_as { Searchkick.queue_name }
 
-    def perform(klass, id, method_name = nil, routing: nil)
-      model = klass.constantize
+    def perform(class_name, id, method_name = nil, routing: nil)
+      model = Searchkick.load_model(class_name, allow_child: true)
       # use should_index? to decide whether to index (not default scope)
       # just like saving inline
       # could use Searchkick.scope() in future

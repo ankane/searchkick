@@ -4,9 +4,12 @@ namespace :searchkick do
     class_name = ENV["CLASS"]
     abort "USAGE: rake searchkick:reindex CLASS=Product" unless class_name
 
-    model = class_name.safe_constantize
-    abort "Could not find class: #{class_name}" unless model
-    abort "#{class_name} is not a searchkick model" unless Searchkick.models.include?(model)
+    model =
+      begin
+        Searchkick.load_model(class_name)
+      rescue Searchkick::Error => e
+        abort e.message
+      end
 
     puts "Reindexing #{model.name}..."
     model.reindex

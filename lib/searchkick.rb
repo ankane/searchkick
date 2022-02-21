@@ -283,6 +283,22 @@ module Searchkick
   end
 
   # private
+  def self.load_model(class_name, allow_child: false)
+    model = class_name.safe_constantize
+    raise Error, "Could not find class: #{class_name}" unless model
+    if allow_child
+      unless model.respond_to?(:searchkick_klass)
+        raise Error, "#{class_name} is not a searchkick model"
+      end
+    else
+      unless Searchkick.models.include?(model)
+        raise Error, "#{class_name} is not a searchkick model"
+      end
+    end
+    model
+  end
+
+  # private
   def self.indexer
     Thread.current[:searchkick_indexer] ||= Indexer.new
   end
