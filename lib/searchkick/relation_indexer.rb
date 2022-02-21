@@ -62,16 +62,6 @@ module Searchkick
       end
     end
 
-    def full_reindex_async(relation)
-      batch_id = 1
-      class_name = relation.searchkick_options[:class_name]
-
-      in_batches(relation) do |items|
-        batch_job(class_name, batch_id, items.map(&:id))
-        batch_id += 1
-      end
-    end
-
     def in_batches(relation, &block)
       if relation.respond_to?(:find_in_batches)
         # remove order to prevent possible warnings
@@ -95,6 +85,20 @@ module Searchkick
       yield items if items.any?
     end
 
+    def batch_size
+      @batch_size ||= index.options[:batch_size] || 1000
+    end
+
+    def full_reindex_async(relation)
+      batch_id = 1
+      class_name = relation.searchkick_options[:class_name]
+
+      in_batches(relation) do |items|
+        batch_job(class_name, batch_id, items.map(&:id))
+        batch_id += 1
+      end
+    end
+
     def batch_job(class_name, batch_id, record_ids)
       Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
       Searchkick::BulkReindexJob.perform_later(
@@ -107,10 +111,6 @@ module Searchkick
 
     def batches_key
       "searchkick:reindex:#{index.name}:batches"
-    end
-
-    def batch_size
-      @batch_size ||= index.options[:batch_size] || 1000
     end
   end
 end
