@@ -419,8 +419,6 @@ module Searchkick
           name: "#{records.first.searchkick_klass.name} #{name}",
           count: records.size
         }
-        # TODO remove
-        event[:id] = search_id(records.first) if records.size == 1
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
           yield
         end
