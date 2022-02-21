@@ -79,10 +79,7 @@ module Searchkick
             scoped = Searchkick.relation?(self)
             # call searchkick_klass for inheritance
             relation = scoped ? all : Searchkick.scope(searchkick_klass).all
-            # prevent scope from affecting search_data as well as inline jobs
-            Searchkick.without_scope(self) do
-              searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
-            end
+            searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 

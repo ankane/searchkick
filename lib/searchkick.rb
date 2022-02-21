@@ -315,23 +315,6 @@ module Searchkick
   end
 
   # private
-  def self.without_scope(klass)
-    if klass.respond_to?(:current_scope)
-      previous_scope = klass.current_scope
-      begin
-        klass.current_scope = nil
-        yield
-      ensure
-        klass.current_scope = previous_scope
-      end
-    else
-      klass.with_scope(nil) do
-        yield
-      end
-    end
-  end
-
-  # private
   def self.scope(model)
     # safety check to make sure used properly in code
     raise Error, "Cannot scope relation" if relation?(model)

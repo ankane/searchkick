@@ -62,12 +62,28 @@ module Searchkick
       end
     end
 
-    def in_batches(relation, &block)
+    def in_batches(relation)
       if relation.respond_to?(:find_in_batches)
+        klass = relation.klass
         # remove order to prevent possible warnings
-        relation.except(:order).find_in_batches(batch_size: batch_size, &block)
+        relation.except(:order).find_in_batches(batch_size: batch_size) do |batch|
+          # prevent scope from affecting search_data as well as inline jobs
+          previous_scope = klass.current_scope
+          begin
+            klass.current_scope = nil
+            yield batch
+          ensure
+            klass.current_scope = previous_scope
+          end
+        end
       else
-        each_batch(relation, batch_size: batch_size, &block)
+        klass = relation.klass
+        each_batch(relation, batch_size: batch_size) do |batch|
+          # prevent scope from affecting search_data as well as inline jobs
+          klass.with_scope(nil) do
+            yield batch
+          end
+        end
       end
     end
 
