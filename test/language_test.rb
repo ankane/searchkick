@@ -40,26 +40,8 @@ class LanguageTest < Minitest::Test
   end
 
   def test_japanese_search_synonyms
-    error = assert_raises(Searchkick::Error) do
-      with_options({language: "japanese", search_synonyms: [["飲む", "喰らう"]]}) do
-      end
-    end
-    assert_equal "Search synonyms are not supported yet for language", error.message
-  end
-
-  def test_japanese2
     # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-kuromoji.html
-    with_options({language: "japanese2"}) do
-      store_names ["JR新宿駅の近くにビールを飲みに行こうか"]
-      assert_language_search "飲む", ["JR新宿駅の近くにビールを飲みに行こうか"]
-      assert_language_search "jr", ["JR新宿駅の近くにビールを飲みに行こうか"]
-      assert_language_search "新", []
-    end
-  end
-
-  def test_japanese2_search_synonyms
-    # requires https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-kuromoji.html
-    with_options({language: "japanese2", search_synonyms: [["飲む", "喰らう"]]}) do
+    with_options({language: "japanese", search_synonyms: [["飲む", "喰らう"]]}) do
       store_names ["JR新宿駅の近くにビールを飲みに行こうか"]
       assert_language_search "喰らう", ["JR新宿駅の近くにビールを飲みに行こうか"]
       assert_language_search "新", []
