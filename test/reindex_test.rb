@@ -5,8 +5,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    # TODO decide on return value
-    assert_kind_of Object, product.reindex(refresh: true)
+    assert_nil product.reindex(refresh: true)
     assert_search "product", ["Product A"]
   end
 
