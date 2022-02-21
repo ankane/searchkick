@@ -59,9 +59,7 @@ module Searchkick
       routing = items.to_h { |r| [r[:id], r[:routing]] }
       record_ids = routing.keys
 
-      scope = Searchkick.load_records(klass, record_ids)
-      # scope = scope.search_import if scope.respond_to?(:search_import)
-      records = scope.select(&:should_index?)
+      records = Searchkick.load_records(klass, record_ids).select(&:should_index?)
 
       # determine which records to delete
       delete_ids = record_ids - records.map { |r| r.id.to_s }
