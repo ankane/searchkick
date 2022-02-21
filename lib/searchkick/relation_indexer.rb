@@ -80,8 +80,13 @@ module Searchkick
         klass = relation.klass
         each_batch(relation, batch_size: batch_size) do |batch|
           # prevent scope from affecting search_data as well as inline jobs
-          klass.with_scope(nil) do
+          # note: Model.with_scope doesn't always restore scope, so use custom logic
+          previous_scope = Mongoid::Threaded.current_scope(klass)
+          begin
+            Mongoid::Threaded.set_current_scope(nil, klass)
             yield batch
+          ensure
+            Mongoid::Threaded.set_current_scope(previous_scope, klass)
           end
         end
       end
