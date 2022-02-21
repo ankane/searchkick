@@ -4,7 +4,8 @@ module Searchkick
 
     def perform(klass, id, method_name = nil, routing: nil)
       model = klass.constantize
-      # may not be needed if calling search_import later
+      # use should_index? to decide whether to index (not default scope)
+      # just like saving inline
       model = model.unscoped if model.respond_to?(:unscoped)
       items = [{id: id, routing: routing}]
       model.searchkick_index.send(:record_indexer).reindex_items(model, items, method_name: method_name, single: true)
