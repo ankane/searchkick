@@ -68,7 +68,7 @@ module Searchkick
         # remove order to prevent possible warnings
         relation.except(:order).find_in_batches(batch_size: batch_size) do |batch|
           # prevent scope from affecting search_data as well as inline jobs
-          previous_scope = klass.current_scope
+          previous_scope = klass.current_scope(true)
           begin
             klass.current_scope = nil
             yield batch
