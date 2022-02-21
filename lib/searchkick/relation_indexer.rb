@@ -36,14 +36,8 @@ module Searchkick
       }
       record_indexer = RecordIndexer.new(index)
 
-      if relation.respond_to?(:find_in_batches)
-        relation.find_in_batches(batch_size: batch_size) do |items|
-          record_indexer.reindex(items, **reindex_options)
-        end
-      else
-        each_batch(relation, batch_size: batch_size) do |items|
-          record_indexer.reindex(items, **reindex_options)
-        end
+      in_batches(relation) do |items|
+        record_indexer.reindex(items, **reindex_options)
       end
     end
 
@@ -72,16 +66,17 @@ module Searchkick
       batch_id = 1
       class_name = relation.searchkick_options[:class_name]
 
+      in_batches(relation) do |items|
+        batch_job(class_name, batch_id, items.map(&:id))
+        batch_id += 1
+      end
+    end
+
+    def in_batches(relation, &block)
       if relation.respond_to?(:find_in_batches)
-        relation.find_in_batches(batch_size: batch_size) do |items|
-          batch_job(class_name, batch_id, items.map(&:id))
-          batch_id += 1
-        end
+        relation.find_in_batches(batch_size: batch_size, &block)
       else
-        each_batch(relation, batch_size: batch_size) do |items|
-          batch_job(class_name, batch_id, items.map(&:id))
-          batch_id += 1
-        end
+        each_batch(relation, batch_size: batch_size, &block)
       end
     end
 
