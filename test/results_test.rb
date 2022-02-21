@@ -45,13 +45,13 @@ class ResultsTest < Minitest::Test
     assert_equal 2, count
   end
 
-  def test_model_name_with_klass
+  def test_model_name_with_model
     store_names ["Product A", "Product B"]
     results = Product.search("product")
     assert_equal "Product", results.model_name.human
   end
 
-  def test_model_name_without_klass
+  def test_model_name_without_model
     store_names ["Product A", "Product B"]
     results = Searchkick.search("product")
     assert_equal "Result", results.model_name.human

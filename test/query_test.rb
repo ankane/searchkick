@@ -75,8 +75,8 @@ class QueryTest < Minitest::Test
 
     assert_equal 2, result.length
 
-    result.group_by(&:class).each_pair do |klass, records|
-      assert records.first.association(associations[klass].first).loaded?
+    result.group_by(&:class).each_pair do |model, records|
+      assert records.first.association(associations[model].first).loaded?
     end
   end
 

@@ -10,48 +10,48 @@ class Minitest::Test
 
   protected
 
-  def store(documents, klass = default_model, reindex: true)
+  def store(documents, model = default_model, reindex: true)
     if reindex
       documents.shuffle.each do |document|
-        klass.create!(document)
+        model.create!(document)
       end
-      klass.searchkick_index.refresh
+      model.searchkick_index.refresh
     else
       Searchkick.callbacks(false) do
         documents.shuffle.each do |document|
-          klass.create!(document)
+          model.create!(document)
         end
       end
     end
   end
 
-  def store_names(names, klass = default_model, reindex: true)
-    store names.map { |name| {name: name} }, klass, reindex: reindex
+  def store_names(names, model = default_model, reindex: true)
+    store names.map { |name| {name: name} }, model, reindex: reindex
   end
 
   # no order
-  def assert_search(term, expected, options = {}, klass = default_model)
-    assert_equal expected.sort, klass.search(term, **options).map(&:name).sort
+  def assert_search(term, expected, options = {}, model = default_model)
+    assert_equal expected.sort, model.search(term, **options).map(&:name).sort
   end
 
-  def assert_order(term, expected, options = {}, klass = default_model)
-    assert_equal expected, klass.search(term, **options).map(&:name)
+  def assert_order(term, expected, options = {}, model = default_model)
+    assert_equal expected, model.search(term, **options).map(&:name)
   end
 
-  def assert_equal_scores(term, options = {}, klass = default_model)
-    assert_equal 1, klass.search(term, **options).hits.map { |a| a["_score"] }.uniq.size
+  def assert_equal_scores(term, options = {}, model = default_model)
+    assert_equal 1, model.search(term, **options).hits.map { |a| a["_score"] }.uniq.size
   end
 
-  def assert_first(term, expected, options = {}, klass = default_model)
-    assert_equal expected, klass.search(term, **options).map(&:name).first
+  def assert_first(term, expected, options = {}, model = default_model)
+    assert_equal expected, model.search(term, **options).map(&:name).first
   end
 
-  def assert_misspellings(term, expected, misspellings = {}, klass = default_model)
+  def assert_misspellings(term, expected, misspellings = {}, model = default_model)
     options = {
       fields: [:name, :color],
       misspellings: misspellings
     }
-    assert_search(term, expected, options, klass)
+    assert_search(term, expected, options, model)
   end
 
   def assert_warns(message)
@@ -61,15 +61,15 @@ class Minitest::Test
     assert_match "[searchkick] WARNING: #{message}", stderr
   end
 
-  def with_options(options, klass = default_model)
-    previous_options = klass.searchkick_options.dup
+  def with_options(options, model = default_model)
+    previous_options = model.searchkick_options.dup
     begin
-      klass.searchkick_options.merge!(options)
-      klass.reindex
+      model.searchkick_options.merge!(options)
+      model.reindex
       yield
     ensure
-      klass.searchkick_options.clear
-      klass.searchkick_options.merge!(previous_options)
+      model.searchkick_options.clear
+      model.searchkick_options.merge!(previous_options)
     end
   end
 

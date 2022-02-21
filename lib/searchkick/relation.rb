@@ -6,8 +6,8 @@ module Searchkick
     delegate :body, :params, to: :@query
     delegate_missing_to :private_execute
 
-    def initialize(klass, term = "*", **options)
-      @query = Query.new(klass, term, **options)
+    def initialize(model, term = "*", **options)
+      @query = Query.new(model, term, **options)
     end
 
     # same as Active Record
