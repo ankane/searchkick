@@ -17,7 +17,8 @@ module Searchkick
           raise Searchkick::Error, "Active Job not found"
         end
 
-        # temporary hack
+        # we could likely combine ReindexV2Job, BulkReindexJob, and ProcessBatchJob
+        # but keep them separate for now
         if single
           record = records.first
 
@@ -31,7 +32,8 @@ module Searchkick
             record.class.name,
             record.id.to_s,
             method_name ? method_name.to_s : nil,
-            routing: routing
+            routing: routing,
+            index_name: index.name
           )
         else
           Searchkick::BulkReindexJob.perform_later(
