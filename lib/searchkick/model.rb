@@ -79,8 +79,8 @@ module Searchkick
             scoped = Searchkick.relation?(self)
             # call searchkick_klass for inheritance
             relation = scoped ? all : Searchkick.scope(searchkick_klass).all
-            # prevent scope from affecting search_data
-            unscoped do
+            # prevent scope from affecting search_data as well as inline jobs
+            Searchkick.without_scope(self) do
               searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
             end
           end
