@@ -68,12 +68,18 @@ module Searchkick
         # remove order to prevent possible warnings
         relation.except(:order).find_in_batches(batch_size: batch_size) do |batch|
           # prevent scope from affecting search_data as well as inline jobs
+          # Active Record runs relation calls in scoping block
+          # https://github.com/rails/rails/blob/main/activerecord/lib/active_record/relation/delegation.rb
           previous_scope = klass.current_scope(true)
-          begin
-            klass.current_scope = nil
+          if previous_scope
+            begin
+              klass.current_scope = nil
+              yield batch
+            ensure
+              klass.current_scope = previous_scope
+            end
+          else
             yield batch
-          ensure
-            klass.current_scope = previous_scope
           end
         end
       else
@@ -82,11 +88,15 @@ module Searchkick
           # prevent scope from affecting search_data as well as inline jobs
           # note: Model.with_scope doesn't always restore scope, so use custom logic
           previous_scope = Mongoid::Threaded.current_scope(klass)
-          begin
-            Mongoid::Threaded.set_current_scope(nil, klass)
+          if previous_scope
+            begin
+              Mongoid::Threaded.set_current_scope(nil, klass)
+              yield batch
+            ensure
+              Mongoid::Threaded.set_current_scope(previous_scope, klass)
+            end
+          else
             yield batch
-          ensure
-            Mongoid::Threaded.set_current_scope(previous_scope, klass)
           end
         end
       end

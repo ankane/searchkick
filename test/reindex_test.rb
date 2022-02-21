@@ -77,6 +77,23 @@ class ReindexTest < Minitest::Test
     Product.dynamic_data = nil
   end
 
+  def test_relation_scoping_restored
+    # TODO add test for Mongoid
+    skip unless activerecord?
+
+    assert_nil Product.current_scope
+    Product.where(name: "Product A").scoping do
+      scope = Product.current_scope
+      refute_nil scope
+
+      Product.all.reindex(refresh: true)
+
+      # note: should be reset even if we don't do it
+      assert_equal scope, Product.current_scope
+    end
+    assert_nil Product.current_scope
+  end
+
   def test_relation_should_index
     store_names ["Product A", "Product B"]
     Searchkick.callbacks(false) do
