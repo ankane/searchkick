@@ -71,7 +71,7 @@ module Searchkick
           construct_record(klass, id, routing[id])
         end
 
-      import_inline(records, delete_records, method_name: method_name, single: false)
+      import_inline(records, delete_records, method_name: method_name, single: single)
     end
 
     private
