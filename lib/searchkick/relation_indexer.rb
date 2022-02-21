@@ -70,6 +70,9 @@ module Searchkick
           # prevent scope from affecting search_data as well as inline jobs
           # Active Record runs relation calls in scoping block
           # https://github.com/rails/rails/blob/main/activerecord/lib/active_record/relation/delegation.rb
+          # note: we could probably just call klass.current_scope = nil
+          # anywhere in reindex method (after initial all call),
+          # but this is more cautious
           previous_scope = klass.current_scope(true)
           if previous_scope
             begin
