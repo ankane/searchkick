@@ -1,4 +1,6 @@
 class Minitest::Test
+  include ActiveJob::TestHelper
+
   def setup
     Product.destroy_all
     Store.destroy_all

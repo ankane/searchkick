@@ -6,6 +6,7 @@ class ReindexV2JobTest < Minitest::Test
     Product.search_index.refresh
     assert_search "*", []
     Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s)
+    perform_enqueued_jobs
     Product.search_index.refresh
     assert_search "*", ["Boom"]
   end
@@ -16,6 +17,7 @@ class ReindexV2JobTest < Minitest::Test
     assert_search "*", ["Boom"]
     Searchkick.callbacks(false) { product.destroy }
     Searchkick::ReindexV2Job.perform_later("Product", product.id.to_s)
+    perform_enqueued_jobs
     Product.search_index.refresh
     assert_search "*", []
   end

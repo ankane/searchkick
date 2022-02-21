@@ -36,7 +36,7 @@ Searchkick.redis =
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = $logger
-ActiveJob::Base.queue_adapter = :inline
+ActiveJob::Base.queue_adapter = :test
 
 ActiveSupport::LogSubscriber.logger = ActiveSupport::Logger.new(STDOUT) if ENV["NOTIFICATIONS"]
 
