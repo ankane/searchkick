@@ -11,7 +11,7 @@ module Searchkick
       # but keep for now for backwards compatibility
       model = model.unscoped if model.respond_to?(:unscoped)
       items = [{id: id, routing: routing}]
-      index.send(:record_indexer).reindex_items(model, items, method_name: method_name, single: true)
+      RecordIndexer.new(index).reindex_items(model, items, method_name: method_name, single: true)
     end
   end
 end

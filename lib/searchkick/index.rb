@@ -301,10 +301,6 @@ module Searchkick
       @relation_indexer ||= RelationIndexer.new(self)
     end
 
-    def record_indexer
-      @record_indexer ||= RecordIndexer.new(self)
-    end
-
     def index_settings
       settings.values.first["settings"]["index"]
     end
