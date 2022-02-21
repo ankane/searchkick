@@ -7,7 +7,7 @@ module Searchkick
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,
         :special_characters, :stem, :stemmer, :stem_conversions, :stem_exclusion, :stemmer_override, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :word, :word_end, :word_middle, :word_start]
+        :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
@@ -78,7 +78,7 @@ module Searchkick
           def searchkick_reindex(method_name = nil, **options)
             scoped = Searchkick.relation?(self)
             # call searchkick_klass for inheritance
-            relation = scoped ? all : searchkick_klass.all
+            relation = scoped ? all : Searchkick.scope(searchkick_klass).all
             # prevent scope from affecting search_data
             unscoped do
               searchkick_index.reindex(relation, method_name, scoped: scoped, **options)

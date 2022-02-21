@@ -309,6 +309,8 @@ module Searchkick
     end
 
     def results_query(records, hits)
+      records = Searchkick.scope(records)
+
       ids = hits.map { |hit| hit["_id"] }
       if options[:includes] || options[:model_includes]
         included_relations = []

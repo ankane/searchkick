@@ -1,6 +1,7 @@
 ## 5.0.0 (unreleased)
 
 - Searches now use lazy loading (similar to Active Record)
+- Added `unscope` option to better support working with default scopes
 - Added support for `:async` and `:queue` modes for `reindex` on relation
 - Added basic protection from unfiltered parameters to `where` option
 - Added `models` option to `similar` method

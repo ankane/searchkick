@@ -65,6 +65,12 @@ ActiveRecord::Schema.define do
     t.string :name
     t.boolean :active
   end
+
+ create_table :artists do |t|
+    t.string :name
+    t.boolean :active
+    t.boolean :should_index
+  end
 end
 
 class Product < ActiveRecord::Base
@@ -97,5 +103,9 @@ class Song < ActiveRecord::Base
 end
 
 class Band < ActiveRecord::Base
+  default_scope { where(active: true).order(:name) }
+end
+
+class Artist < ActiveRecord::Base
   default_scope { where(active: true).order(:name) }
 end

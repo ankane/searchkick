@@ -75,3 +75,13 @@ class Band
 
   default_scope -> { where(active: true).order(name: 1) }
 end
+
+class Artist
+  include Mongoid::Document
+
+  field :name
+  field :active, type: Mongoid::Boolean
+  field :should_index, type: Mongoid::Boolean
+
+  default_scope -> { where(active: true).order(name: 1) }
+end

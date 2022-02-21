@@ -10,6 +10,7 @@ module Searchkick
       # legacy
       record_ids ||= min_id..max_id
 
+      klass = Searchkick.scope(klass)
       relation = Searchkick.load_records(klass, record_ids)
       relation = relation.search_import if relation.respond_to?(:search_import)
 

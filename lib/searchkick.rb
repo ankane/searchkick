@@ -315,6 +315,18 @@ module Searchkick
   end
 
   # private
+  def self.scope(model)
+    # safety check to make sure used properly in code
+    raise Error, "Cannot scope relation" if relation?(model)
+
+    if model.searchkick_options[:unscope]
+      model.unscoped
+    else
+      model
+    end
+  end
+
+  # private
   def self.not_found_error?(e)
     (defined?(Elastic::Transport) && e.is_a?(Elastic::Transport::Transport::Errors::NotFound)) ||
     (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Errors::NotFound)) ||

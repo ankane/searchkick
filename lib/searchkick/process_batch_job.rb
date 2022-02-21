@@ -13,6 +13,7 @@ module Searchkick
           {id: parts[0], routing: parts[1]}
         end
 
+      klass = Searchkick.scope(klass)
       index.send(:record_indexer).reindex_items(klass, items, method_name: nil)
     end
   end
