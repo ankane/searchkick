@@ -506,7 +506,7 @@ module Searchkick
         end
         settings[:analysis][:filter][:searchkick_synonym_graph] = synonym_graph
 
-        if options[:language] == "japanese2"
+        if ["japanese", "japanese2"].include?(options[:language])
           [:searchkick_search, :searchkick_search2].each do |analyzer|
             settings[:analysis][:analyzer][analyzer][:filter].insert(4, "searchkick_synonym_graph")
           end
