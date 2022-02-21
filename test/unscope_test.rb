@@ -18,8 +18,9 @@ class UnscopeTest < ActiveSupport::TestCase
   def test_relation_async
     create_records
 
-    Artist.unscoped.reindex(mode: :async)
-    perform_enqueued_jobs
+    perform_enqueued_jobs do
+      Artist.unscoped.reindex(mode: :async)
+    end
 
     Artist.search_index.refresh
     assert_search "*", ["Test", "Test 2"]
