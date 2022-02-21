@@ -74,7 +74,8 @@ module Searchkick
 
     def in_batches(relation, &block)
       if relation.respond_to?(:find_in_batches)
-        relation.find_in_batches(batch_size: batch_size, &block)
+        # remove order to prevent possible warnings
+        relation.except(:order).find_in_batches(batch_size: batch_size, &block)
       else
         each_batch(relation, batch_size: batch_size, &block)
       end
