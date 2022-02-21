@@ -84,4 +84,8 @@ class Minitest::Test
   def ci?
     ENV["CI"]
   end
+
+  # for Active Job helpers
+  def tagged_logger
+  end
 end
