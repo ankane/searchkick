@@ -64,6 +64,19 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A", "Product B"]
   end
 
+  def test_relation_scoping
+    store_names ["Product A", "Product B"]
+    Product.dynamic_data = lambda do
+      {
+        name: "Count #{Product.count}"
+      }
+    end
+    Product.where(name: "Product A").reindex(refresh: true)
+    assert_search "count", ["Count 2"], load: false
+  ensure
+    Product.dynamic_data = nil
+  end
+
   def test_relation_should_index
     store_names ["Product A", "Product B"]
     Searchkick.callbacks(false) do
