@@ -4,7 +4,7 @@
 - Added support for `:async` and `:queue` modes for `reindex` on relation
 - Added basic protection from unfiltered parameters to `where` option
 - Added `models` option to `similar` method
-- Changed async reindex to fetch ids instead of using ranges for numeric primary keys with Active Record
+- Changed async full reindex to fetch ids instead of using ranges for numeric primary keys with Active Record
 - Changed `searchkick_index_options` to return symbol keys (instead of mix of strings and symbols)
 - Changed non-anchored regular expressions to match expected results (previously warned)
 - Updated async reindex job to call `search_import` for nested associations
