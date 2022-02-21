@@ -621,6 +621,28 @@ class Image < ApplicationRecord
 end
 ```
 
+### Default Scopes
+
+If you have a default scope that filters records, use the `should_index?` method to exclude them from indexing:
+
+```ruby
+class Product < ApplicationRecord
+  default_scope { where(deleted_at: nil) }
+
+  def should_index?
+    deleted_at.nil?
+  end
+end
+```
+
+If you want to index and search the filtered records, set:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick unscope: true
+end
+```
+
 ## Intelligent Search
 
 The best starting point to improve your search **by far** is to track searches and conversions. [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
@@ -2059,6 +2081,8 @@ Product.search("milk")
 # search executed
 Product.search("milk").to_a
 ```
+
+And there’s a [new option](#default-scopes) for models with default scopes.
 
 Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
 
