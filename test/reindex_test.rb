@@ -185,12 +185,6 @@ class ReindexTest < Minitest::Test
     assert_match "unsupported keywords: :async", error.message
   end
 
-  def test_full_default_scope
-    store_names ["Test", "Test 2"], Band, reindex: false
-    Band.reindex
-    assert_search "*", ["Test"], {load: false}, Band
-  end
-
   def test_callbacks_false
     Searchkick.callbacks(false) do
       store_names ["Product A", "Product B"]

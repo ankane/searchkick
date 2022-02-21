@@ -8,16 +8,6 @@ class SearchTest < Minitest::Test
     assert_equal "search must be called on model, not relation", error.message
   end
 
-  def test_search_relation_default_scope
-    Band.reindex
-    Band.search("*") # test works
-
-    error = assert_raises(Searchkick::Error) do
-      Band.all.search("*")
-    end
-    assert_equal "search must be called on model, not relation", error.message
-  end
-
   def test_body
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}, load: false).map(&:name)
