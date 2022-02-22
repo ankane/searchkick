@@ -86,7 +86,7 @@ products.each do |product|
 end
 ```
 
-Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
+Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html) and [OpenSearch Search API](https://opensearch.org/docs/latest/opensearch/rest-api/search/). As your search becomes more advanced, we recommend you use the [search server DSL](#advanced) for maximum flexibility.
 
 ## Querying
 
@@ -1652,7 +1652,7 @@ ReindexConversionsJob.perform_later("Product")
 
 ## Advanced
 
-Searchkick makes it easy to use the Elasticsearch DSL on its own.
+Searchkick makes it easy to use the Elasticsearch or OpenSearch DSL on its own.
 
 ### Advanced Mapping
 
