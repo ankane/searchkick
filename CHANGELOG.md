@@ -15,7 +15,7 @@
 - Raise error when `search` called on relations
 - Raise `ArgumentError` (instead of warning) for invalid regular expression modifiers
 - Raise `ArgumentError` instead of `RuntimeError` for unknown operators
-- Removed mapping of `id` to `_id` with `order` option
+- Removed mapping of `id` to `_id` with `order` option (not supported in Elasticsearch 8)
 - Removed `wordnet` option (no longer worked)
 - Removed dependency on `elasticsearch` gem (can use `elasticsearch` or `opensearch-ruby`)
 - Dropped support for Elasticsearch 6
