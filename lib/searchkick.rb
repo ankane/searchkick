@@ -327,7 +327,7 @@ module Searchkick
     if klass.respond_to?(:current_scope)
       !klass.current_scope.nil?
     else
-      !Mongoid::Threaded.current_scope(klass).nil?
+      klass.is_a?(Mongoid::Criteria) || !Mongoid::Threaded.current_scope(klass).nil?
     end
   end
 
