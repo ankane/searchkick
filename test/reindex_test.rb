@@ -5,7 +5,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    assert_nil product.reindex(refresh: true)
+    assert_equal true, product.reindex(refresh: true)
     assert_search "product", ["Product A"]
   end
 
@@ -15,16 +15,15 @@ class ReindexTest < Minitest::Test
     product = Product.find_by!(name: "Product A")
     product.destroy
     Product.search_index.refresh
-    assert_nil product.reindex
+    assert_equal true, product.reindex
   end
 
   def test_record_async
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    # TODO decide on return value
     perform_enqueued_jobs do
-      assert_kind_of ActiveJob::Base, product.reindex(mode: :async)
+      assert_equal true, product.reindex(mode: :async)
     end
     Product.search_index.refresh
     assert_search "product", ["Product A"]
@@ -37,8 +36,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A", "Product B"], reindex: false
 
     product = Product.find_by!(name: "Product A")
-    # TODO improve return value
-    assert_equal 1, product.reindex(mode: :queue)
+    assert_equal true, product.reindex(mode: :queue)
     Product.search_index.refresh
     assert_search "product", []
 

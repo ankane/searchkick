@@ -8,6 +8,7 @@
 - Changed async full reindex to fetch ids instead of using ranges for numeric primary keys with Active Record
 - Changed `searchkick_index_options` to return symbol keys (instead of mix of strings and symbols)
 - Changed non-anchored regular expressions to match expected results (previously warned)
+- Changed record reindex to return `true` to match model and relation reindex
 - Updated async reindex job to call `search_import` for nested associations
 - Fixed removing records when `should_index?` is `false` when `reindex` called on relation
 - Fixed issue with `merge_mappings` for fields that use `searchkick` options

@@ -55,6 +55,9 @@ module Searchkick
       else
         raise ArgumentError, "Invalid value for mode"
       end
+
+      # return true like model and relation reindex for now
+      true
     end
 
     def reindex_items(klass, items, method_name:, single: false)
