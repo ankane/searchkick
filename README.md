@@ -2089,7 +2089,7 @@ Product.search("milk").to_a
 
 And there’s a [new option](#default-scopes) for models with default scopes.
 
-Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
+Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md#500-2022-02-21) for the full list of changes.
 
 ## History
 
