@@ -26,7 +26,9 @@ gemfile do
   gem "activejob", require: "active_job"
   gem "sqlite3"
   gem "searchkick", git: "https://github.com/ankane/searchkick.git"
-  gem "elasticsearch" # or "opensearch-ruby"
+  # uncomment one
+  # gem "elasticsearch"
+  # gem "opensearch-ruby"
 end
 
 puts "Searchkick version: #{Searchkick::VERSION}"
