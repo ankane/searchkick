@@ -1,4 +1,4 @@
-## 5.0.0 (unreleased)
+## 5.0.0 (2022-02-21)
 
 - Searches now use lazy loading (similar to Active Record)
 - Added `unscope` option to better support working with default scopes
