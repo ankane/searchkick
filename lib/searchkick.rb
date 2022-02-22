@@ -46,7 +46,7 @@ module Searchkick
   class MissingIndexError < Error; end
   class UnsupportedVersionError < Error
     def message
-      "This version of Searchkick requires OpenSearch 1+ or Elasticsearch 7+"
+      "This version of Searchkick requires Elasticsearch 7+ or OpenSearch 1+"
     end
   end
   class InvalidQueryError < Error; end
