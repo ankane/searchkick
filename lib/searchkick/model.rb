@@ -55,7 +55,7 @@ module Searchkick
 
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self
-        class_variable_set :@@searchkick_index_cache, {}
+        class_variable_set :@@searchkick_index_cache, Searchkick::IndexCache.new
 
         class << self
           def searchkick_search(term = "*", **options, &block)
@@ -71,7 +71,7 @@ module Searchkick
             index = name || searchkick_index_name
             index = index.call if index.respond_to?(:call)
             index_cache = class_variable_get(:@@searchkick_index_cache)
-            index_cache[index] ||= Searchkick::Index.new(index, searchkick_options)
+            index_cache.fetch(index) { Searchkick::Index.new(index, searchkick_options) }
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 

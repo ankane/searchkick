@@ -12,6 +12,7 @@ require "forwardable"
 # modules
 require "searchkick/controller_runtime"
 require "searchkick/index"
+require "searchkick/index_cache"
 require "searchkick/index_options"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
