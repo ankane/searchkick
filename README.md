@@ -50,15 +50,20 @@ Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
 Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html). For Homebrew, use:
 
 ```sh
-brew install elasticsearch        # or opensearch
-brew services start elasticsearch # or opensearch
+brew install elasticsearch
+brew services start elasticsearch
+# or
+brew install opensearch
+brew services start opensearch
 ```
 
 Add these lines to your application’s Gemfile:
 
 ```ruby
 gem "searchkick"
-gem "elasticsearch" # or "opensearch-ruby"
+
+gem "elasticsearch"   # select one
+gem "opensearch-ruby" # select one
 ```
 
 The latest version works with Elasticsearch 7 and 8 and OpenSearch 1. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
