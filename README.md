@@ -1100,7 +1100,7 @@ Product.search_index.tokens("dieg", analyzer: "searchkick_word_search")
 # ["dieg"] - match!!
 ```
 
-See the [complete list of analyzers](https://github.com/ankane/searchkick/blob/31780ddac7a89eab1e0552a32b403f2040a37931/lib/searchkick/index_options.rb#L32).
+See the [complete list of analyzers](lib/searchkick/index_options.rb#L32).
 
 ## Testing
 
