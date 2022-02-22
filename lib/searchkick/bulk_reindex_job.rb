@@ -5,7 +5,7 @@ module Searchkick
     # TODO remove min_id and max_id in Searchkick 6
     def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil)
       model = Searchkick.load_model(class_name)
-      index = index_name ? Searchkick::Index.new(index_name, model.searchkick_options) : model.searchkick_index
+      index = model.searchkick_index(name: index_name)
 
       # legacy
       record_ids ||= min_id..max_id

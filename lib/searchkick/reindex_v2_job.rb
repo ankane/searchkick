@@ -4,7 +4,7 @@ module Searchkick
 
     def perform(class_name, id, method_name = nil, routing: nil, index_name: nil)
       model = Searchkick.load_model(class_name, allow_child: true)
-      index = index_name ? Searchkick::Index.new(index_name, model.searchkick_options) : model.searchkick_index
+      index = model.searchkick_index(name: index_name)
       # use should_index? to decide whether to index (not default scope)
       # just like saving inline
       # could use Searchkick.scope() in future
