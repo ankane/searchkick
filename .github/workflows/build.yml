@@ -14,7 +14,7 @@ jobs:
           opensearch: 1.2.4
         - ruby: "3.0"
           gemfile: gemfiles/activerecord61.gemfile
-          elasticsearch: 7.17.0
+          elasticsearch: 8.0.0
         - ruby: 2.7
           gemfile: gemfiles/activerecord60.gemfile
           elasticsearch: 7.17.0
@@ -23,7 +23,7 @@ jobs:
           elasticsearch: 7.0.0
         - ruby: 2.7
           gemfile: gemfiles/mongoid7.gemfile
-          elasticsearch: 7
+          elasticsearch: 8
           mongodb: true
         - ruby: 2.6
           gemfile: gemfiles/mongoid6.gemfile
