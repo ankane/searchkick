@@ -1376,13 +1376,13 @@ Bonsai, Elastic Cloud, and Amazon OpenSearch Service all support encryption at r
 
 ### Automatic Failover
 
-Create an initializer `config/initializers/elasticsearch.rb` with multiple hosts:
+Create an initializer with multiple hosts:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
-See [elasticsearch-transport](https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-transport) for a complete list of options.
+See [elastic-transport](https://github.com/elastic/elastic-transport-ruby) or [opensearch-transport](https://github.com/opensearch-project/opensearch-ruby/tree/main/opensearch-transport) for a complete list of options.
 
 ### Lograge
 
