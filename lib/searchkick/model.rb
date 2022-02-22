@@ -26,11 +26,7 @@ module Searchkick
       include(mod)
       mod.module_eval do
         def reindex(method_name = nil, mode: nil, refresh: false)
-          mode ||= Searchkick.callbacks_value || self.class.searchkick_index.options[:callbacks] || true
-          mode = :inline if mode == :bulk
-          result = RecordIndexer.new(self.class.searchkick_index).reindex([self], mode: mode, method_name: method_name, single: true)
-          self.class.searchkick_index.refresh if refresh
-          result
+          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true)
         end
 
         def similar(**options)
@@ -76,10 +72,7 @@ module Searchkick
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
           def searchkick_reindex(method_name = nil, **options)
-            scoped = Searchkick.relation?(self)
-            # call searchkick_klass for inheritance
-            relation = scoped ? all : Searchkick.scope(searchkick_klass).all
-            searchkick_index.reindex(relation, method_name, scoped: scoped, **options)
+            searchkick_index.reindex(self, method_name: method_name, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 

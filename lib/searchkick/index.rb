@@ -209,7 +209,28 @@ module Searchkick
 
     # reindex
 
-    def reindex(relation, method_name, scoped:, full: false, **options)
+    def reindex(object, method_name: nil, full: false, **options)
+      if object.is_a?(Array)
+        mode = options.delete(:mode)
+        mode ||= Searchkick.callbacks_value || @options[:callbacks] || true
+        mode = :inline if mode == :bulk
+
+        refresh = options.delete(:refresh)
+
+        # note: always want full to be false here
+        result = RecordIndexer.new(self).reindex(object, mode: mode, method_name: method_name, full: false, **options)
+        self.refresh if refresh
+        return result
+      end
+
+      if !object.respond_to?(:searchkick_klass)
+        raise Error, "Cannot reindex object"
+      end
+
+      scoped = Searchkick.relation?(object)
+      # call searchkick_klass for inheritance
+      relation = scoped ? object.all : Searchkick.scope(object.searchkick_klass).all
+
       refresh = options.fetch(:refresh, !scoped)
       options.delete(:refresh)
 

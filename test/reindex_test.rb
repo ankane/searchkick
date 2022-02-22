@@ -47,6 +47,14 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_record_index
+    store_names ["Product A", "Product B"], reindex: false
+
+    product = Product.find_by!(name: "Product A")
+    assert_equal true, Product.search_index.reindex([product], refresh: true)
+    assert_search "product", ["Product A"]
+  end
+
   def test_relation_inline
     store_names ["Product A"]
     store_names ["Product B", "Product C"], reindex: false
@@ -139,6 +147,13 @@ class ReindexTest < Minitest::Test
       Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     end
     Product.search_index.refresh
+    assert_search "product", ["Product A", "Product B"]
+  end
+
+  def test_relation_index
+    store_names ["Product A"]
+    store_names ["Product B", "Product C"], reindex: false
+    Product.search_index.reindex(Product.where(name: "Product B"), refresh: true)
     assert_search "product", ["Product A", "Product B"]
   end
 
@@ -288,6 +303,13 @@ class ReindexTest < Minitest::Test
 
     # ensure no error with empty queue
     Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
+  end
+
+  def test_object_index
+    error = assert_raises(Searchkick::Error) do
+      Product.search_index.reindex(Object.new)
+    end
+    assert_equal "Cannot reindex object", error.message
   end
 
   def test_transaction
