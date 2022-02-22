@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class RoutingTest < Minitest::Test
   def test_query
-    query = Store.search("Dollar Tree", routing: "Dollar Tree", execute: false)
+    query = Store.search("Dollar Tree", routing: "Dollar Tree")
     assert_equal query.params[:routing], "Dollar Tree"
   end
 
