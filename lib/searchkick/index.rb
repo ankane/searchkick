@@ -209,6 +209,8 @@ module Searchkick
 
     # reindex
 
+    # note: this is designed to be used internally
+    # so it does not check object matches index class
     def reindex(object, method_name: nil, full: false, **options)
       if object.is_a?(Array)
         # note: purposefully skip full
@@ -254,8 +256,7 @@ module Searchkick
       relation_indexer.batches_left
     end
 
-    # other
-
+    # private
     def klass_document_type(klass, ignore_type = false)
       @klass_document_type[[klass, ignore_type]] ||= begin
         if !ignore_type && klass.searchkick_klass.searchkick_options[:_type]
@@ -268,7 +269,7 @@ module Searchkick
       end
     end
 
-    # should not be public
+    # private
     def conversions_fields
       @conversions_fields ||= begin
         conversions = Array(options[:conversions])
@@ -276,10 +277,12 @@ module Searchkick
       end
     end
 
+    # private
     def suggest_fields
       @suggest_fields ||= Array(options[:suggest]).map(&:to_s)
     end
 
+    # private
     def locations_fields
       @locations_fields ||= begin
         locations = Array(options[:locations])
