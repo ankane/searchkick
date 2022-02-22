@@ -640,7 +640,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you want to index and search the filtered records, set:
+If you want to index and search filtered records, set:
 
 ```ruby
 class Product < ApplicationRecord
