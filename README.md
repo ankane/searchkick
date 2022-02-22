@@ -47,21 +47,21 @@ Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
 
 ## Getting Started
 
-Install [OpenSearch](https://opensearch.org/downloads.html) or [Elasticsearch](https://www.elastic.co/downloads/elasticsearch). For Homebrew, use:
+Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html). For Homebrew, use:
 
 ```sh
-brew install opensearch # or elasticsearch
-brew services start opensearch # or elasticsearch
+brew install elasticsearch        # or opensearch
+brew services start elasticsearch # or opensearch
 ```
 
 Add these lines to your application’s Gemfile:
 
 ```ruby
 gem "searchkick"
-gem "opensearch-ruby" # or "elasticsearch"
+gem "elasticsearch" # or "opensearch-ruby"
 ```
 
-The latest version works with OpenSearch 1 and Elasticsearch 7 and 8. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
+The latest version works with Elasticsearch 7 and 8 and OpenSearch 1. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -2064,10 +2064,10 @@ For convenience, this is set by default in the test environment.
 
 ### 5.0
 
-Searchkick 5 supports both the `opensearch-ruby` and `elasticsearch` gems. Add the one you want to use to your Gemfile:
+Searchkick 5 supports both the `elasticsearch` and `opensearch-ruby` gems. Add the one you want to use to your Gemfile:
 
 ```ruby
-gem "elasticsearch"
+gem "elasticsearch" # or "opensearch-ruby"
 ```
 
 If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
