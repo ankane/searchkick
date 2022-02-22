@@ -25,7 +25,7 @@ module Searchkick
       {delete: record_data}
     end
 
-    # custom id useful for load: false
+    # custom id can be useful for load: false
     def search_id
       id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
       id.is_a?(Numeric) ? id : id.to_s
