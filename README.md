@@ -1711,7 +1711,7 @@ products =
 
 ### Client
 
-Searchkick is built on top of the [elasticsearch](https://github.com/elastic/elasticsearch-ruby) gem. To access the client directly, use:
+To access the `Elasticsearch::Client` or `OpenSearch::Client` directly, use:
 
 ```ruby
 Searchkick.client
