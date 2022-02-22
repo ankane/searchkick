@@ -2067,7 +2067,9 @@ For convenience, this is set by default in the test environment.
 Searchkick 5 supports both the `elasticsearch` and `opensearch-ruby` gems. Add the one you want to use to your Gemfile:
 
 ```ruby
-gem "elasticsearch" # or "opensearch-ruby"
+gem "elasticsearch"
+# or
+gem "opensearch-ruby"
 ```
 
 If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
