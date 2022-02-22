@@ -11,22 +11,6 @@ class OrderTest < Minitest::Test
     assert_order "product", ["Product A", "Product B", "Product C", "Product D"], order: "name"
   end
 
-  # TODO no longer map id to _id in Searchkick 5
-  # since sorting on _id is deprecated in Elasticsearch
-  def test_id
-    skip if cequel? || !Searchkick.server_below?("8.0.0")
-
-    store_names ["Product A", "Product B"]
-    product_a = Product.where(name: "Product A").first
-    product_b = Product.where(name: "Product B").first
-    _, stderr = capture_io do
-      assert_order "product", [product_a, product_b].sort_by { |r| r.id.to_s }.map(&:name), order: {id: :asc}
-    end
-    unless Searchkick.server_below?("7.6.0")
-      assert_match "Loading the fielddata on the _id field is deprecated", stderr
-    end
-  end
-
   def test_multiple
     store [
       {name: "Product A", color: "blue", store_id: 1},

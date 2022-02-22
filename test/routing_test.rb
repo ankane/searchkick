@@ -2,15 +2,12 @@ require_relative "test_helper"
 
 class RoutingTest < Minitest::Test
   def test_query
-    query = Store.search("Dollar Tree", routing: "Dollar Tree", execute: false)
+    query = Store.search("Dollar Tree", routing: "Dollar Tree")
     assert_equal query.params[:routing], "Dollar Tree"
   end
 
   def test_mappings
     mappings = Store.searchkick_index.index_options[:mappings]
-    if Searchkick.server_below?("7.0.0")
-      mappings = mappings[:store]
-    end
     assert_equal mappings[:_routing], required: true
   end
 

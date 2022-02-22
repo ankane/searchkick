@@ -2,19 +2,10 @@ require_relative "test_helper"
 
 class SearchTest < Minitest::Test
   def test_search_relation
-    _, stderr = capture_io { Product.search("*") }
-    assert_equal "", stderr
-    _, stderr = capture_io { Product.all.search("*") }
-    assert_match "WARNING", stderr
-  end
-
-  def test_search_relation_default_scope
-    Band.reindex
-
-    _, stderr = capture_io { Band.search("*") }
-    assert_equal "", stderr
-    _, stderr = capture_io { Band.all.search("*") }
-    assert_match "WARNING", stderr
+    error = assert_raises(Searchkick::Error) do
+      Product.all.search("*")
+    end
+    assert_equal "search must be called on model, not relation", error.message
   end
 
   def test_body
@@ -55,24 +46,32 @@ class SearchTest < Minitest::Test
   def test_bad_mapping
     Product.searchkick_index.delete
     store_names ["Product A"]
-    error = assert_raises(Searchkick::InvalidQueryError) { Product.search "test" }
+    error = assert_raises(Searchkick::InvalidQueryError) { Product.search("test").to_a }
     assert_equal "Bad mapping - run Product.reindex", error.message
   ensure
     Product.reindex
   end
 
   def test_missing_index
-    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found") }
+    assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found").to_a }
   end
 
   def test_unsupported_version
-    raises_exception = ->(_) { raise Elasticsearch::Transport::Transport::Error, "[500] No query registered for [multi_match]" }
+    skip if Searchkick.opensearch?
+
+    raises_exception = lambda do |*|
+      if defined?(Elastic::Transport)
+        raise Elastic::Transport::Transport::Error, "[500] No query registered for [multi_match]"
+      else
+        raise Elasticsearch::Transport::Transport::Error, "[500] No query registered for [multi_match]"
+      end
+    end
     Searchkick.client.stub :search, raises_exception do
-      assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test") }
+      assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test").to_a }
     end
   end
 
   def test_invalid_body
-    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}) }
+    assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}).to_a }
   end
 end

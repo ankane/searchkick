@@ -15,14 +15,11 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: 2}
     assert_search "product", ["Product A", "Product C"], where: {user_ids: [2, 3]}
 
-    # due to precision
-    unless cequel?
-      # date
-      assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
-      assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
-      assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
-      assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
-    end
+    # date
+    assert_search "product", ["Product A"], where: {created_at: {gt: now - 1}}
+    assert_search "product", ["Product A", "Product B"], where: {created_at: {gte: now - 1}}
+    assert_search "product", ["Product D"], where: {created_at: {lt: now - 2}}
+    assert_search "product", ["Product C", "Product D"], where: {created_at: {lte: now - 2}}
 
     # integer
     assert_search "product", ["Product A"], where: {store_id: {lt: 2}}
@@ -86,14 +83,14 @@ class WhereTest < Minitest::Test
   end
 
   def test_where_string_operators
-    error = assert_raises RuntimeError do
+    error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
     end
     assert_includes error.message, "Unknown where operator"
   end
 
   def test_unknown_operator
-    error = assert_raises RuntimeError do
+    error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {contains: "%2%"}}
     end
     assert_includes error.message, "Unknown where operator"
@@ -116,42 +113,31 @@ class WhereTest < Minitest::Test
 
   def test_regexp_not_anchored
     store_names ["abcde"]
-    # regular expressions are always anchored right now
-    # TODO change in future release
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", [], where: {name: /abcd/}
-    end
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", [], where: {name: /bcde/}
-    end
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", ["abcde"], where: {name: /abcde/}
-    end
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", ["abcde"], where: {name: /.*bcd.*/}
-    end
+    assert_search "*", ["abcde"], where: {name: /abcd/}
+    assert_search "*", ["abcde"], where: {name: /bcde/}
+    assert_search "*", ["abcde"], where: {name: /abcde/}
+    assert_search "*", ["abcde"], where: {name: /.*bcd.*/}
   end
 
   def test_regexp_anchored
     store_names ["abcde"]
     assert_search "*", ["abcde"], where: {name: /\Aabcde\z/}
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", [], where: {name: /\Abcd/}
-    end
-    assert_warns "Regular expressions are always anchored in Elasticsearch" do
-      assert_search "*", [], where: {name: /bcd\z/}
-    end
+    assert_search "*", ["abcde"], where: {name: /\Aabc/}
+    assert_search "*", ["abcde"], where: {name: /cde\z/}
+    assert_search "*", [], where: {name: /\Abcd/}
+    assert_search "*", [], where: {name: /bcd\z/}
   end
 
   def test_regexp_case
     store_names ["abcde"]
     assert_search "*", [], where: {name: /\AABCDE\z/}
-    unless case_insensitive_supported?
-      assert_warns "Case-insensitive flag does not work with Elasticsearch < 7.10" do
+    if case_insensitive_supported?
+      assert_search "*", ["abcde"], where: {name: /\AABCDE\z/i}
+    else
+      error = assert_raises(ArgumentError) do
         assert_search "*", [], where: {name: /\AABCDE\z/i}
       end
-    else
-      assert_search "*", ["abcde"], where: {name: /\AABCDE\z/i}
+      assert_equal "Case-insensitive flag does not work with Elasticsearch < 7.10", error.message
     end
   end
 
@@ -354,9 +340,10 @@ class WhereTest < Minitest::Test
     _, stderr = capture_io do
       assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
     end
-    unless Searchkick.server_below?("7.12.0")
-      assert_match "Deprecated field [geo_polygon] used", stderr
-    end
+    # only warns for elasticsearch gem < 8
+    # unless Searchkick.server_below?("7.12.0")
+    #   assert_match "Deprecated field [geo_polygon] used", stderr
+    # end
 
     # Field [location] is not of type [geo_shape] but of type [geo_point] error for previous versions
     unless Searchkick.server_below?("7.14.0")

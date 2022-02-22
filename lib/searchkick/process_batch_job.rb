@@ -3,34 +3,18 @@ module Searchkick
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids:, index_name: nil)
-      # separate routing from id
-      routing = Hash[record_ids.map { |r| r.split(/(?<!\|)\|(?!\|)/, 2).map { |v| v.gsub("||", "|") } }]
-      record_ids = routing.keys
+      model = Searchkick.load_model(class_name)
+      index = model.searchkick_index(name: index_name)
 
-      klass = class_name.constantize
-      scope = Searchkick.load_records(klass, record_ids)
-      scope = scope.search_import if scope.respond_to?(:search_import)
-      records = scope.select(&:should_index?)
-
-      # determine which records to delete
-      delete_ids = record_ids - records.map { |r| r.id.to_s }
-      delete_records = delete_ids.map do |id|
-        m = klass.new
-        m.id = id
-        if routing[id]
-          m.define_singleton_method(:search_routing) do
-            routing[id]
-          end
+      items =
+        record_ids.map do |r|
+          parts = r.split(/(?<!\|)\|(?!\|)/, 2)
+            .map { |v| v.gsub("||", "|") }
+          {id: parts[0], routing: parts[1]}
         end
-        m
-      end
 
-      # bulk reindex
-      index = klass.searchkick_index(name: index_name)
-      Searchkick.callbacks(:bulk) do
-        index.bulk_index(records) if records.any?
-        index.bulk_delete(delete_records) if delete_records.any?
-      end
+      relation = Searchkick.scope(model)
+      RecordIndexer.new(index).reindex_items(relation, items, method_name: nil)
     end
   end
 end

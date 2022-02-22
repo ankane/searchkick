@@ -58,9 +58,13 @@ class IndexTest < Minitest::Test
   def test_mappings
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}).map(&:name)
-    mapping = Store.search_index.mapping.values.first["mappings"]
-    mapping = mapping["store"] if Searchkick.server_below?("7.0.0")
-    assert_equal "text", mapping["properties"]["name"]["type"]
+    mapping = Store.search_index.mapping
+    assert_kind_of Hash, mapping
+    assert_equal "text", mapping.values.first["mappings"]["properties"]["name"]["type"]
+  end
+
+  def test_settings
+    assert_kind_of Hash, Store.search_index.settings
   end
 
   def test_remove_blank_id
@@ -69,6 +73,18 @@ class IndexTest < Minitest::Test
     assert_search "product", ["Product A"]
   ensure
     Product.reindex
+  end
+
+  # keep simple for now, but maybe return client response in future
+  def test_store_response
+    product = Searchkick.callbacks(false) { Product.create!(name: "Product A") }
+    assert_nil Product.search_index.store(product)
+  end
+
+  # keep simple for now, but maybe return client response in future
+  def test_bulk_index_response
+    product = Searchkick.callbacks(false) { Product.create!(name: "Product A") }
+    assert_nil Product.search_index.bulk_index([product])
   end
 
   # TODO move
@@ -87,7 +103,6 @@ class IndexTest < Minitest::Test
   end
 
   def test_large_value
-    skip if nobrainer?
     large_value = 1000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
@@ -97,7 +112,6 @@ class IndexTest < Minitest::Test
   end
 
   def test_very_large_value
-    skip if nobrainer?
     large_value = 10000.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region

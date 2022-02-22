@@ -1,41 +1,17 @@
 module Searchkick
   class ReindexV2Job < ActiveJob::Base
-    RECORD_NOT_FOUND_CLASSES = [
-      "ActiveRecord::RecordNotFound",
-      "Mongoid::Errors::DocumentNotFound",
-      "NoBrainer::Error::DocumentNotFound",
-      "Cequel::Record::RecordNotFound"
-    ]
-
     queue_as { Searchkick.queue_name }
 
-    def perform(klass, id, method_name = nil, routing: nil)
-      model = klass.constantize
-      record =
-        begin
-          if model.respond_to?(:unscoped)
-            model.unscoped.find(id)
-          else
-            model.find(id)
-          end
-        rescue => e
-          # check by name rather than rescue directly so we don't need
-          # to determine which classes are defined
-          raise e unless RECORD_NOT_FOUND_CLASSES.include?(e.class.name)
-          nil
-        end
-
-      unless record
-        record = model.new
-        record.id = id
-        if routing
-          record.define_singleton_method(:search_routing) do
-            routing
-          end
-        end
-      end
-
-      RecordIndexer.new(record).reindex(method_name, mode: :inline)
+    def perform(class_name, id, method_name = nil, routing: nil, index_name: nil)
+      model = Searchkick.load_model(class_name, allow_child: true)
+      index = model.searchkick_index(name: index_name)
+      # use should_index? to decide whether to index (not default scope)
+      # just like saving inline
+      # could use Searchkick.scope() in future
+      # but keep for now for backwards compatibility
+      model = model.unscoped if model.respond_to?(:unscoped)
+      items = [{id: id, routing: routing}]
+      RecordIndexer.new(index).reindex_items(model, items, method_name: method_name, single: true)
     end
   end
 end

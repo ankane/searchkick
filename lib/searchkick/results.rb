@@ -1,5 +1,3 @@
-require "forwardable"
-
 module Searchkick
   class Results
     include Enumerable
@@ -19,13 +17,11 @@ module Searchkick
       @results ||= with_hit.map(&:first)
     end
 
-    # TODO return enumerator like with_score
     def with_hit
-      @with_hit ||= begin
-        if missing_records.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
-        end
-        with_hit_and_missing_records[0]
+      return enum_for(:with_hit) unless block_given?
+
+      build_hits.each do |result|
+        yield result
       end
     end
 
@@ -157,10 +153,11 @@ module Searchkick
       end
     end
 
-    # TODO return enumerator like with_score
     def with_highlights(multiple: false)
-      with_hit.map do |result, hit|
-        [result, hit_highlights(hit, multiple: multiple)]
+      return enum_for(:with_highlights, multiple: multiple) unless block_given?
+
+      with_hit.each do |result, hit|
+        yield result, hit_highlights(hit, multiple: multiple)
       end
     end
 
@@ -287,7 +284,7 @@ module Searchkick
                 end
 
               if hit["highlight"] || options[:highlight]
-                highlight = Hash[hit["highlight"].to_a.map { |k, v| [base_field(k), v.first] }]
+                highlight = hit["highlight"].to_a.to_h { |k, v| [base_field(k), v.first] }
                 options[:highlighted_fields].map { |k| base_field(k) }.each do |k|
                   result["highlighted_#{k}"] ||= (highlight[k] || result[k])
                 end
@@ -302,23 +299,25 @@ module Searchkick
       end
     end
 
+    def build_hits
+      @build_hits ||= begin
+        if missing_records.any?
+          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
+        end
+        with_hit_and_missing_records[0]
+      end
+    end
+
     def results_query(records, hits)
+      records = Searchkick.scope(records)
+
       ids = hits.map { |hit| hit["_id"] }
       if options[:includes] || options[:model_includes]
         included_relations = []
         combine_includes(included_relations, options[:includes])
         combine_includes(included_relations, options[:model_includes][records]) if options[:model_includes]
 
-        records =
-          if defined?(NoBrainer::Document) && records < NoBrainer::Document
-            if Gem.loaded_specs["nobrainer"].version >= Gem::Version.new("0.21")
-              records.eager_load(included_relations)
-            else
-              records.preload(included_relations)
-            end
-          else
-            records.includes(included_relations)
-          end
+        records = records.includes(included_relations)
       end
 
       if options[:scope_results]
@@ -344,7 +343,7 @@ module Searchkick
 
     def hit_highlights(hit, multiple: false)
       if hit["highlight"]
-        Hash[hit["highlight"].map { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }]
+        hit["highlight"].to_h { |k, v| [(options[:json] ? k : k.sub(/\.#{@options[:match_suffix]}\z/, "")).to_sym, multiple ? v : v.first] }
       else
         {}
       end

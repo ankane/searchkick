@@ -18,7 +18,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :execute, :explain,
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
@@ -148,9 +148,6 @@ module Searchkick
       }
 
       if options[:debug]
-        # can remove when minimum Ruby version is 2.5
-        require "pp"
-
         puts "Searchkick Version: #{Searchkick::VERSION}"
         puts "Elasticsearch Version: #{Searchkick.server_version}"
         puts
@@ -210,14 +207,14 @@ module Searchkick
         e.message.include?("No query registered for [function_score]")
       )
 
-        raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
+        raise UnsupportedVersionError
       elsif status_code == 400
         if (
           e.message.include?("bool query does not support [filter]") ||
           e.message.include?("[bool] filter does not support [filter]")
         )
 
-          raise UnsupportedVersionError, "This version of Searchkick requires Elasticsearch 5 or greater"
+          raise UnsupportedVersionError
         elsif e.message =~ /analyzer \[searchkick_.+\] not found/
           raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
         else
@@ -233,7 +230,14 @@ module Searchkick
     end
 
     def execute_search
-      Searchkick.client.search(params)
+      name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
+      event = {
+        name: name,
+        query: params
+      }
+      ActiveSupport::Notifications.instrument("search.searchkick", event) do
+        Searchkick.client.search(params)
+      end
     end
 
     def prepare
@@ -268,9 +272,10 @@ module Searchkick
         should = []
 
         if options[:similar]
+          like = options[:similar] == true ? term : options[:similar]
           query = {
             more_like_this: {
-              like: term,
+              like: like,
               min_doc_freq: 1,
               min_term_freq: 1,
               analyzer: "searchkick_search2"
@@ -383,11 +388,6 @@ module Searchkick
 
             if field.start_with?("*.")
               q2 = qs.map { |q| {multi_match: q.merge(fields: [field], type: match_type == :match_phrase ? "phrase" : "best_fields")} }
-              if below61?
-                q2.each do |q|
-                  q[:multi_match].delete(:fuzzy_transpositions)
-                end
-              end
             else
               q2 = qs.map { |q| {match_type => {field => q}} }
             end
@@ -439,7 +439,7 @@ module Searchkick
         payload = {}
 
         # type when inheritance
-        where = (options[:where] || {}).dup
+        where = ensure_permitted(options[:where] || {}).dup
         if searchkick_options[:inheritance] && (options[:type] || (klass != searchkick_klass && searchkick_index))
           where[:type] = [options[:type] || klass].flatten.map { |v| searchkick_index.klass_document_type(v, true) }
         end
@@ -696,9 +696,9 @@ module Searchkick
     def set_boost_by(multiply_filters, custom_filters)
       boost_by = options[:boost_by] || {}
       if boost_by.is_a?(Array)
-        boost_by = Hash[boost_by.map { |f| [f, {factor: 1}] }]
+        boost_by = boost_by.to_h { |f| [f, {factor: 1}] }
       elsif boost_by.is_a?(Hash)
-        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map { |i| Hash[i] }
+        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map(&:to_h)
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 
@@ -763,7 +763,7 @@ module Searchkick
 
     def set_highlights(payload, fields)
       payload[:highlight] = {
-        fields: Hash[fields.map { |f| [f, {}] }],
+        fields: fields.to_h { |f| [f, {}] },
         fragment_size: 0
       }
 
@@ -797,7 +797,7 @@ module Searchkick
       aggs = options[:aggs]
       payload[:aggs] = {}
 
-      aggs = Hash[aggs.map { |f| [f, {}] }] if aggs.is_a?(Array) # convert to more advanced syntax
+      aggs = aggs.to_h { |f| [f, {}] } if aggs.is_a?(Array) # convert to more advanced syntax
       aggs.each do |field, agg_options|
         size = agg_options[:limit] ? agg_options[:limit] : 1_000
         shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where)
@@ -836,8 +836,9 @@ module Searchkick
         end
 
         where = {}
-        where = (options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
-        agg_filters = where_filters(where.merge(agg_options[:where] || {}))
+        where = ensure_permitted(options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
+        agg_where = ensure_permitted(agg_options[:where] || {})
+        agg_filters = where_filters(where.merge(agg_where))
 
         # only do one level comparison for simplicity
         filters.select! do |filter|
@@ -873,19 +874,16 @@ module Searchkick
     end
 
     def set_order(payload)
-      order = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
-      id_field = :_id
-      # TODO no longer map id to _id in Searchkick 5
-      # since sorting on _id is deprecated in Elasticsearch
-      payload[:sort] = order.is_a?(Array) ? order : Hash[order.map { |k, v| [k.to_s == "id" ? id_field : k, v] }]
+      payload[:sort] = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
+    end
+
+    # provides *very* basic protection from unfiltered parameters
+    # this is not meant to be comprehensive and may be expanded in the future
+    def ensure_permitted(obj)
+      obj.to_h
     end
 
     def where_filters(where)
-      # if where.respond_to?(:permitted?) && !where.permitted?
-      #   # TODO check in more places
-      #   Searchkick.warn("Passing unpermitted parameters will raise an exception in Searchkick 5")
-      # end
-
       filters = []
       (where || {}).each do |field, value|
         field = :_id if field.to_s == "id"
@@ -1007,7 +1005,7 @@ module Searchkick
                   when :lte
                     {to: op_value, include_upper: true}
                   else
-                    raise "Unknown where operator: #{op.inspect}"
+                    raise ArgumentError, "Unknown where operator: #{op.inspect}"
                   end
                 # issue 132
                 if (existing = filters.find { |f| f[:range] && f[:range][field] })
@@ -1036,29 +1034,25 @@ module Searchkick
         {bool: {must_not: {exists: {field: field}}}}
       elsif value.is_a?(Regexp)
         source = value.source
-        unless source.start_with?("\\A") && source.end_with?("\\z")
-          # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
-          Searchkick.warn("Regular expressions are always anchored in Elasticsearch")
-        end
+
+        # TODO handle other regexp options
 
         # TODO handle other anchor characters, like ^, $, \Z
         if source.start_with?("\\A")
           source = source[2..-1]
         else
-          # TODO uncomment in Searchkick 5
-          # source = ".*#{source}"
+          source = ".*#{source}"
         end
 
         if source.end_with?("\\z")
           source = source[0..-3]
         else
-          # TODO uncomment in Searchkick 5
-          # source = "#{source}.*"
+          source = "#{source}.*"
         end
 
         if below710?
           if value.casefold?
-            Searchkick.warn("Case-insensitive flag does not work with Elasticsearch < 7.10")
+            raise ArgumentError, "Case-insensitive flag does not work with Elasticsearch < 7.10"
           end
           {regexp: {field => {value: source, flags: "NONE"}}}
         else
@@ -1069,9 +1063,7 @@ module Searchkick
         if value.as_json.is_a?(Enumerable)
           # query will fail, but this is better
           # same message as Active Record
-          # TODO make TypeError
-          # raise InvalidQueryError for backward compatibility
-          raise Searchkick::InvalidQueryError, "can't cast #{value.class.name}"
+          raise TypeError, "can't cast #{value.class.name}"
         end
 
         {term: {field => {value: value}}}
@@ -1150,19 +1142,11 @@ module Searchkick
     end
 
     def track_total_hits?
-      (searchkick_options[:deep_paging] && !below70?) || body_options[:track_total_hits]
+      searchkick_options[:deep_paging] || body_options[:track_total_hits]
     end
 
     def body_options
       options[:body_options] || {}
-    end
-
-    def below61?
-      Searchkick.server_below?("6.1.0")
-    end
-
-    def below70?
-      Searchkick.server_below?("7.0.0")
     end
 
     def below73?

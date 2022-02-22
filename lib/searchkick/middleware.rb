@@ -1,4 +1,4 @@
-require "faraday/middleware"
+require "faraday"
 
 module Searchkick
   class Middleware < Faraday::Middleware

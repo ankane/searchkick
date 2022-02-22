@@ -1,29 +1,40 @@
 # dependencies
 require "active_support"
 require "active_support/core_ext/hash/deep_merge"
-require "elasticsearch"
+require "active_support/core_ext/module/attr_internal"
+require "active_support/core_ext/module/delegation"
+require "active_support/notifications"
 require "hashie"
 
+# stdlib
+require "forwardable"
+
 # modules
-require "searchkick/bulk_indexer"
+require "searchkick/controller_runtime"
 require "searchkick/index"
+require "searchkick/index_cache"
+require "searchkick/index_options"
 require "searchkick/indexer"
 require "searchkick/hash_wrapper"
-require "searchkick/middleware"
+require "searchkick/log_subscriber"
 require "searchkick/model"
 require "searchkick/multi_search"
 require "searchkick/query"
 require "searchkick/reindex_queue"
 require "searchkick/record_data"
 require "searchkick/record_indexer"
+require "searchkick/relation"
+require "searchkick/relation_indexer"
 require "searchkick/results"
 require "searchkick/version"
 
 # integrations
 require "searchkick/railtie" if defined?(Rails)
-require "searchkick/logging" if defined?(ActiveSupport::Notifications)
 
 module Searchkick
+  # requires faraday
+  autoload :Middleware, "searchkick/middleware"
+
   # background jobs
   autoload :BulkReindexJob,  "searchkick/bulk_reindex_job"
   autoload :ProcessBatchJob, "searchkick/process_batch_job"
@@ -33,19 +44,21 @@ module Searchkick
   # errors
   class Error < StandardError; end
   class MissingIndexError < Error; end
-  class UnsupportedVersionError < Error; end
-  # TODO switch to Error
-  class InvalidQueryError < Elasticsearch::Transport::Transport::Errors::BadRequest; end
+  class UnsupportedVersionError < Error
+    def message
+      "This version of Searchkick requires Elasticsearch 7+ or OpenSearch 1+"
+    end
+  end
+  class InvalidQueryError < Error; end
   class DangerousOperation < Error; end
   class ImportError < Error; end
 
   class << self
-    attr_accessor :search_method_name, :wordnet_path, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options
+    attr_accessor :search_method_name, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options, :client_type
     attr_writer :client, :env, :search_timeout
     attr_reader :aws_credentials
   end
   self.search_method_name = :search
-  self.wordnet_path = "/var/lib/wn_s.pl"
   self.timeout = 10
   self.models = []
   self.client_options = {}
@@ -54,15 +67,45 @@ module Searchkick
 
   def self.client
     @client ||= begin
-      require "typhoeus/adapters/faraday" if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
+      client_type =
+        if self.client_type
+          self.client_type
+        elsif defined?(OpenSearch::Client) && defined?(Elasticsearch::Client)
+          raise Error, "Multiple clients found - set Searchkick.client_type = :elasticsearch or :opensearch"
+        elsif defined?(OpenSearch::Client)
+          :opensearch
+        elsif defined?(Elasticsearch::Client)
+          :elasticsearch
+        else
+          raise Error, "No client found - install the `elasticsearch` or `opensearch-ruby` gem"
+        end
 
-      Elasticsearch::Client.new({
-        url: ENV["ELASTICSEARCH_URL"] || ENV["OPENSEARCH_URL"],
-        transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
-        retry_on_failure: 2
-      }.deep_merge(client_options)) do |f|
-        f.use Searchkick::Middleware
-        f.request signer_middleware_key, signer_middleware_aws_params if aws_credentials
+      # check after client to ensure faraday is installed
+      # TODO remove in Searchkick 6
+      if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
+        require "typhoeus/adapters/faraday"
+      end
+
+      if client_type == :opensearch
+        OpenSearch::Client.new({
+          url: ENV["OPENSEARCH_URL"],
+          transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
+          retry_on_failure: 2
+        }.deep_merge(client_options)) do |f|
+          f.use Searchkick::Middleware
+          f.request :aws_sigv4, signer_middleware_aws_params if aws_credentials
+        end
+      else
+        raise Error, "The `elasticsearch` gem must be 7+" if Elasticsearch::VERSION.to_i < 7
+
+        Elasticsearch::Client.new({
+          url: ENV["ELASTICSEARCH_URL"],
+          transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
+          retry_on_failure: 2
+        }.deep_merge(client_options)) do |f|
+          f.use Searchkick::Middleware
+          f.request :aws_sigv4, signer_middleware_aws_params if aws_credentials
+        end
       end
     end
   end
@@ -96,14 +139,6 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
-  # memoize for performance
-  def self.server_below7?
-    unless defined?(@server_below7)
-      @server_below7 = server_below?("7.0.0")
-    end
-    @server_below7
-  end
-
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
@@ -129,17 +164,27 @@ module Searchkick
       end
     end
 
-    options = options.merge(block: block) if block
-    query = Searchkick::Query.new(klass, term, **options)
+    # TODO remove in Searchkick 6
     if options[:execute] == false
-      query
-    else
-      query.execute
+      Searchkick.warn("The execute option is no longer needed")
+      options.delete(:execute)
     end
+
+    options = options.merge(block: block) if block
+    Searchkick::Relation.new(klass, term, **options)
   end
 
   def self.multi_search(queries)
-    Searchkick::MultiSearch.new(queries).perform
+    return if queries.empty?
+
+    queries = queries.map { |q| q.send(:query) }
+    event = {
+      name: "Multi Search",
+      body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
+    }
+    ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
+      Searchkick::MultiSearch.new(queries).perform
+    end
   end
 
   # callbacks
@@ -160,13 +205,25 @@ module Searchkick
     end
   end
 
-  def self.callbacks(value = nil)
+  # message is private
+  def self.callbacks(value = nil, message: nil)
     if block_given?
       previous_value = callbacks_value
       begin
         self.callbacks_value = value
         result = yield
-        indexer.perform if callbacks_value == :bulk
+        if callbacks_value == :bulk && indexer.queued_items.any?
+          event = {}
+          if message
+            message.call(event)
+          else
+            event[:name] = "Bulk"
+            event[:count] = indexer.queued_items.size
+          end
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            indexer.perform
+          end
+        end
         result
       ensure
         self.callbacks_value = previous_value
@@ -177,12 +234,8 @@ module Searchkick
   end
 
   def self.aws_credentials=(creds)
-    begin
-      # TODO remove in Searchkick 5 (just use aws_sigv4)
-      require "faraday_middleware/aws_signers_v4"
-    rescue LoadError
-      require "faraday_middleware/aws_sigv4"
-    end
+    require "faraday_middleware/aws_sigv4"
+
     @aws_credentials = creds
     @client = nil # reset client
   end
@@ -197,7 +250,6 @@ module Searchkick
     }
   end
 
-  # TODO use ConnectionPool::Wrapper when redis is set so this is no longer needed
   def self.with_redis
     if redis
       if redis.respond_to?(:with)
@@ -215,29 +267,41 @@ module Searchkick
   end
 
   # private
-  def self.load_records(records, ids)
-    records =
-      if records.respond_to?(:primary_key)
-        # ActiveRecord
-        records.where(records.primary_key => ids) if records.primary_key
-      elsif records.respond_to?(:queryable)
-        # Mongoid 3+
-        records.queryable.for_ids(ids)
-      elsif records.respond_to?(:unscoped) && :id.respond_to?(:in)
-        # Nobrainer
-        records.unscoped.where(:id.in => ids)
-      elsif records.respond_to?(:key_column_names)
-        records.where(records.key_column_names.first => ids)
+  def self.load_records(relation, ids)
+    relation =
+      if relation.respond_to?(:primary_key)
+        primary_key = relation.primary_key
+        raise Error, "Need primary key to load records" if !primary_key
+
+        relation.where(primary_key => ids)
+      elsif relation.respond_to?(:queryable)
+        relation.queryable.for_ids(ids)
       end
 
-    raise Searchkick::Error, "Not sure how to load records" if !records
+    raise Error, "Not sure how to load records" if !relation
 
-    records
+    relation
+  end
+
+  # private
+  def self.load_model(class_name, allow_child: false)
+    model = class_name.safe_constantize
+    raise Error, "Could not find class: #{class_name}" unless model
+    if allow_child
+      unless model.respond_to?(:searchkick_klass)
+        raise Error, "#{class_name} is not a searchkick model"
+      end
+    else
+      unless Searchkick.models.include?(model)
+        raise Error, "#{class_name} is not a searchkick model"
+      end
+    end
+    model
   end
 
   # private
   def self.indexer
-    Thread.current[:searchkick_indexer] ||= Searchkick::Indexer.new
+    Thread.current[:searchkick_indexer] ||= Indexer.new
   end
 
   # private
@@ -251,21 +315,8 @@ module Searchkick
   end
 
   # private
-  def self.signer_middleware_key
-    defined?(FaradayMiddleware::AwsSignersV4) ? :aws_signers_v4 : :aws_sigv4
-  end
-
-  # private
   def self.signer_middleware_aws_params
-    if signer_middleware_key == :aws_sigv4
-      {service: "es", region: "us-east-1"}.merge(aws_credentials)
-    else
-      {
-        credentials: aws_credentials[:credentials] || Aws::Credentials.new(aws_credentials[:access_key_id], aws_credentials[:secret_access_key]),
-        service_name: "es",
-        region: aws_credentials[:region] || "us-east-1"
-      }
-    end
+    {service: "es", region: "us-east-1"}.merge(aws_credentials)
   end
 
   # private
@@ -275,31 +326,55 @@ module Searchkick
   def self.relation?(klass)
     if klass.respond_to?(:current_scope)
       !klass.current_scope.nil?
-    elsif defined?(Mongoid::Threaded)
-      !Mongoid::Threaded.current_scope(klass).nil?
+    else
+      klass.is_a?(Mongoid::Criteria) || !Mongoid::Threaded.current_scope(klass).nil?
+    end
+  end
+
+  # private
+  def self.scope(model)
+    # safety check to make sure used properly in code
+    raise Error, "Cannot scope relation" if relation?(model)
+
+    if model.searchkick_options[:unscope]
+      model.unscoped
+    else
+      model
     end
   end
 
   # private
   def self.not_found_error?(e)
-    (defined?(Elasticsearch) && e.is_a?(Elasticsearch::Transport::Transport::Errors::NotFound)) ||
+    (defined?(Elastic::Transport) && e.is_a?(Elastic::Transport::Transport::Errors::NotFound)) ||
+    (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Errors::NotFound)) ||
     (defined?(OpenSearch) && e.is_a?(OpenSearch::Transport::Transport::Errors::NotFound))
   end
 
   # private
   def self.transport_error?(e)
-    (defined?(Elasticsearch) && e.is_a?(Elasticsearch::Transport::Transport::Error)) ||
+    (defined?(Elastic::Transport) && e.is_a?(Elastic::Transport::Transport::Error)) ||
+    (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Error)) ||
     (defined?(OpenSearch) && e.is_a?(OpenSearch::Transport::Transport::Error))
   end
-end
 
-require "active_model/callbacks"
-ActiveModel::Callbacks.include(Searchkick::Model)
-# TODO use
-# ActiveSupport.on_load(:mongoid) do
-#   Mongoid::Document::ClassMethods.include Searchkick::Model
-# end
+  # private
+  def self.not_allowed_error?(e)
+    (defined?(Elastic::Transport) && e.is_a?(Elastic::Transport::Transport::Errors::MethodNotAllowed)) ||
+    (defined?(Elasticsearch::Transport) && e.is_a?(Elasticsearch::Transport::Transport::Errors::MethodNotAllowed)) ||
+    (defined?(OpenSearch) && e.is_a?(OpenSearch::Transport::Transport::Errors::MethodNotAllowed))
+  end
+end
 
 ActiveSupport.on_load(:active_record) do
   extend Searchkick::Model
 end
+
+ActiveSupport.on_load(:mongoid) do
+  Mongoid::Document::ClassMethods.include Searchkick::Model
+end
+
+ActiveSupport.on_load(:action_controller) do
+  include Searchkick::ControllerRuntime
+end
+
+Searchkick::LogSubscriber.attach_to :searchkick

@@ -2,7 +2,7 @@ Mongoid.logger = $logger
 Mongo::Logger.logger = $logger if defined?(Mongo::Logger)
 
 Mongoid.configure do |config|
-  config.connect_to "searchkick_test"
+  config.connect_to "searchkick_test", server_selection_timeout: 1
 end
 
 class Product
@@ -71,6 +71,17 @@ class Band
   include Mongoid::Document
 
   field :name
+  field :active, type: Mongoid::Boolean
 
-  default_scope -> { where(name: "Test") }
+  default_scope -> { where(active: true).order(name: 1) }
+end
+
+class Artist
+  include Mongoid::Document
+
+  field :name
+  field :active, type: Mongoid::Boolean
+  field :should_index, type: Mongoid::Boolean
+
+  default_scope -> { where(active: true).order(name: 1) }
 end

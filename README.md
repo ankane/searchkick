@@ -20,7 +20,7 @@ Plus:
 - autocomplete
 - “Did you mean” suggestions
 - supports many languages
-- works with Active Record, Mongoid, and NoBrainer
+- works with Active Record and Mongoid
 
 Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Autosuggest](https://github.com/ankane/autosuggest) for query suggestions
 
@@ -43,22 +43,30 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 - [Reference](#reference)
 - [Contributing](#contributing)
 
+Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
+
 ## Getting Started
 
 Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html). For Homebrew, use:
 
 ```sh
-brew install elasticsearch # or opensearch
-brew services start elasticsearch # or opensearch
+brew install elasticsearch
+brew services start elasticsearch
+# or
+brew install opensearch
+brew services start opensearch
 ```
 
-Add this line to your application’s Gemfile:
+Add these lines to your application’s Gemfile:
 
 ```ruby
 gem "searchkick"
+
+gem "elasticsearch"   # select one
+gem "opensearch-ruby" # select one
 ```
 
-The latest version works with Elasticsearch 6 and 7 and OpenSearch 1. For Elasticsearch 5, use version 3.1.3 and [this readme](https://github.com/ankane/searchkick/blob/v3.1.3/README.md).
+The latest version works with Elasticsearch 7 and 8 and OpenSearch 1. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -83,7 +91,7 @@ products.each do |product|
 end
 ```
 
-Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html). As your search becomes more advanced, we recommend you use the [Elasticsearch DSL](#advanced) for maximum flexibility.
+Searchkick supports the complete [Elasticsearch Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html) and [OpenSearch Search API](https://opensearch.org/docs/latest/opensearch/rest-api/search/). As your search becomes more advanced, we recommend you use the [search server DSL](#advanced) for maximum flexibility.
 
 ## Querying
 
@@ -144,7 +152,7 @@ select: [:name]
 
 ### Results
 
-Searches return a `Searchkick::Results` object. This responds like an array to most methods.
+Searches return a `Searchkick::Relation` object. This responds like an array to most methods.
 
 ```ruby
 results = Product.search("milk")
@@ -177,7 +185,7 @@ Get the full response from the search server
 results.response
 ```
 
-**Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. With Elasticsearch 7 and OpenSearch, this applies to the total count as well.
+**Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. This applies to the total count as well.
 
 ### Boosting
 
@@ -613,6 +621,28 @@ class Image < ApplicationRecord
   def reindex_product
     product.reindex
   end
+end
+```
+
+### Default Scopes
+
+If you have a default scope that filters records, use the `should_index?` method to exclude them from indexing:
+
+```ruby
+class Product < ApplicationRecord
+  default_scope { where(deleted_at: nil) }
+
+  def should_index?
+    deleted_at.nil?
+  end
+end
+```
+
+If you want to index and search filtered records, set:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick unscope: true
 end
 ```
 
@@ -1221,7 +1251,7 @@ And [setup-opensearch](https://github.com/ankane/setup-opensearch) for an easy w
 
 ## Deployment
 
-Searchkick uses `ENV["ELASTICSEARCH_URL"]` for the search server. This defaults to `http://localhost:9200`.
+For the search server, Searchkick uses `ENV["ELASTICSEARCH_URL"]` for Elasticsearch and `ENV["OPENSEARCH_URL"]` for OpenSearch. This defaults to `http://localhost:9200`.
 
 - [Elastic Cloud](#elastic-cloud)
 - [Heroku](#heroku)
@@ -1246,11 +1276,18 @@ rake searchkick:reindex:all
 
 Choose an add-on: [Bonsai](https://elements.heroku.com/addons/bonsai), [SearchBox](https://elements.heroku.com/addons/searchbox), or [Elastic Cloud](https://elements.heroku.com/addons/foundelasticsearch).
 
-For Bonsai:
+For Elasticsearch on Bonsai:
 
 ```sh
-heroku addons:create bonsai # use --engine=opensearch for OpenSearch
+heroku addons:create bonsai
 heroku config:set ELASTICSEARCH_URL=`heroku config:get BONSAI_URL`
+```
+
+For OpenSearch on Bonsai:
+
+```sh
+heroku addons:create bonsai --engine=opensearch
+heroku config:set OPENSEARCH_URL=`heroku config:get BONSAI_URL`
 ```
 
 For SearchBox:
@@ -1287,10 +1324,10 @@ heroku run rake searchkick:reindex:all
 
 ### Amazon OpenSearch Service
 
-Create an initializer `config/initializers/elasticsearch.rb` with:
+Create an initializer `config/initializers/opensearch.rb` with:
 
 ```ruby
-ENV["ELASTICSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
+ENV["OPENSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
 ```
 
 To use signed requests, include in your Gemfile:
@@ -1317,10 +1354,12 @@ rake searchkick:reindex:all
 
 ### Self-Hosted and Other
 
-Create an initializer `config/initializers/elasticsearch.rb` with:
+Create an initializer with:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
+# or
+ENV["OPENSEARCH_URL"] = "https://user:password@host:port"
 ```
 
 Then deploy and reindex:
@@ -1616,7 +1655,7 @@ ReindexConversionsJob.perform_later("Product")
 
 ## Advanced
 
-Searchkick makes it easy to use the Elasticsearch DSL on its own.
+Searchkick makes it easy to use the Elasticsearch or OpenSearch DSL on its own.
 
 ### Advanced Mapping
 
@@ -1683,8 +1722,8 @@ Searchkick.client
 To batch search requests for performance, use:
 
 ```ruby
-products = Product.search("snacks", execute: false)
-coupons = Coupon.search("snacks", execute: false)
+products = Product.search("snacks")
+coupons = Coupon.search("snacks")
 Searchkick.multi_search([products, coupons])
 ```
 
@@ -1743,7 +1782,7 @@ class Product < ApplicationRecord
 end
 ```
 
-If you just need an accurate total count with Elasticsearch 7 and OpenSearch, you can instead use:
+If you just need an accurate total count, you can instead use:
 
 ```ruby
 Product.search("pears", body_options: {track_total_hits: true})
@@ -1958,13 +1997,6 @@ class Product < ApplicationRecord
 end
 ```
 
-Lazy searching
-
-```ruby
-products = Product.search("carrots", execute: false)
-products.each { ... } # search not executed until here
-```
-
 Add [request parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-search-api-query-params) like `search_type`
 
 ```ruby
@@ -2008,11 +2040,6 @@ Product.search "api", misspellings: {prefix_length: 2} # api, apt, no ahi
 Product.search "ah", misspellings: {prefix_length: 2} # ah, no aha
 ```
 
-## Elasticsearch 6 to 7 Upgrade
-
-1. Install Searchkick 4
-2. Upgrade your Elasticsearch cluster
-
 ## Gotchas
 
 ### Consistency
@@ -2035,6 +2062,34 @@ end
 ```
 
 For convenience, this is set by default in the test environment.
+
+## Upgrading
+
+### 5.0
+
+Searchkick 5 supports both the `elasticsearch` and `opensearch-ruby` gems. Add the one you want to use to your Gemfile:
+
+```ruby
+gem "elasticsearch"
+# or
+gem "opensearch-ruby"
+```
+
+If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
+
+Also, searches now use lazy loading:
+
+```ruby
+# search not executed
+Product.search("milk")
+
+# search executed
+Product.search("milk").to_a
+```
+
+And there’s a [new option](#default-scopes) for models with default scopes.
+
+Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md) for the full list of changes.
 
 ## History
 

@@ -3,11 +3,12 @@ module Searchkick
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, index_name: nil, inline: false)
-      model = class_name.constantize
+      model = Searchkick.load_model(class_name)
+      index = model.searchkick_index(name: index_name)
       limit = model.searchkick_options[:batch_size] || 1000
 
       loop do
-        record_ids = model.searchkick_index(name: index_name).reindex_queue.reserve(limit: limit)
+        record_ids = index.reindex_queue.reserve(limit: limit)
         if record_ids.any?
           batch_options = {
             class_name: class_name,

@@ -24,7 +24,13 @@ class Product
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 
+  class << self
+    attr_accessor :dynamic_data
+  end
+
   def search_data
+    return self.class.dynamic_data.call if self.class.dynamic_data
+
     serializable_hash.except("id", "_id").merge(
       conversions: conversions,
       user_ids: user_ids,

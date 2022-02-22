@@ -45,7 +45,7 @@ if ENV["SETUP"]
   puts "Reindexed"
 end
 
-query = Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, limit: 10000, load: false, execute: false)
+query = Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, limit: 10000, load: false)
 
 require "pp"
 pp query.body.as_json
