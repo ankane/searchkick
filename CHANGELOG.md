@@ -26,7 +26,7 @@
 ## 4.6.3 (2021-11-19)
 
 - Added support for reloadable synonyms for OpenSearch
-- Added experimental support for `opensearch` gem
+- Added experimental support for `opensearch-ruby` gem
 - Removed `elasticsearch-xpack` dependency for reloadable synonyms
 
 ## 4.6.2 (2021-11-15)
