@@ -400,7 +400,7 @@ module Searchkick
       if Searchkick.callbacks_value == :bulk
         yield
       else
-        name = "#{record.searchkick_klass.name} #{name}" if record && record.searchkick_klass
+        name = "#{record.class.searchkick_klass.name} #{name}" if record && record.class.searchkick_klass
         event = {
           name: name,
           id: search_id(record)
@@ -416,7 +416,7 @@ module Searchkick
         yield
       else
         event = {
-          name: "#{records.first.searchkick_klass.name} #{name}",
+          name: "#{records.first.class.searchkick_klass.name} #{name}",
           count: records.size
         }
         ActiveSupport::Notifications.instrument("request.searchkick", event) do

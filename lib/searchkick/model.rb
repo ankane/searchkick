@@ -51,7 +51,7 @@ module Searchkick
       end
 
       class_eval do
-        cattr_reader :searchkick_options, :searchkick_klass
+        cattr_reader :searchkick_options, :searchkick_klass, instance_reader: false
 
         class_variable_set :@@searchkick_options, options.dup
         class_variable_set :@@searchkick_klass, self

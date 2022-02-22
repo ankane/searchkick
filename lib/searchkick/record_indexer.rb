@@ -115,7 +115,7 @@ module Searchkick
             single ? "Store" : "Import"
           end
         record = index_records.first || delete_records.first
-        name = record.searchkick_klass.name
+        name = record.class.searchkick_klass.name
         message = lambda do |event|
           event[:name] = "#{name} #{action}"
           if single
