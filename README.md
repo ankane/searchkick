@@ -2087,6 +2087,14 @@ Product.search("milk")
 Product.search("milk").to_a
 ```
 
+You can reindex relations in the background:
+
+```ruby
+store.products.reindex(mode: :async)
+# or
+store.products.reindex(mode: :queue)
+```
+
 And there’s a [new option](#default-scopes) for models with default scopes.
 
 Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md#500-2022-02-21) for the full list of changes.
