@@ -211,16 +211,8 @@ module Searchkick
 
     def reindex(object, method_name: nil, full: false, **options)
       if object.is_a?(Array)
-        mode = options.delete(:mode)
-        mode ||= Searchkick.callbacks_value || @options[:callbacks] || true
-        mode = :inline if mode == :bulk
-
-        refresh = options.delete(:refresh)
-
-        # note: always want full to be false here
-        result = RecordIndexer.new(self).reindex(object, mode: mode, method_name: method_name, full: false, **options)
-        self.refresh if refresh
-        return result
+        # note: purposefully skip full
+        return reindex_records(object, method_name: method_name, **options)
       end
 
       if !object.respond_to?(:searchkick_klass)
@@ -328,6 +320,15 @@ module Searchkick
 
     def import_before_promotion(index, relation, **import_options)
       index.import_scope(relation, **import_options)
+    end
+
+    def reindex_records(object, mode: nil, refresh: false, **options)
+      mode ||= Searchkick.callbacks_value || @options[:callbacks] || true
+      mode = :inline if mode == :bulk
+
+      result = RecordIndexer.new(self).reindex(object, mode: mode, full: false, **options)
+      self.refresh if refresh
+      result
     end
 
     # https://gist.github.com/jarosan/3124884
