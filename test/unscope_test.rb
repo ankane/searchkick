@@ -1,6 +1,6 @@
 require_relative "test_helper"
 
-class UnscopeTest < ActiveSupport::TestCase
+class UnscopeTest < Minitest::Test
   def setup
     @@once ||= Artist.reindex
 
