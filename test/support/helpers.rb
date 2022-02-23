@@ -2,6 +2,19 @@ class Minitest::Test
   include ActiveJob::TestHelper
 
   def setup
+    $setup_once ||= begin
+      # TODO improve
+      Product.searchkick_index.delete if Product.searchkick_index.exists?
+      Product.reindex
+      Product.reindex # run twice for both index paths
+      Product.create!(name: "Set mapping")
+
+      Store.reindex
+      Animal.reindex
+      Speaker.reindex
+      Region.reindex
+    end
+
     Product.destroy_all
     Store.destroy_all
     Animal.destroy_all

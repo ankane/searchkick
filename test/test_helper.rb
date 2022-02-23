@@ -51,14 +51,4 @@ Dir["#{__dir__}/models/*"].each do |file|
   require file
 end
 
-Product.searchkick_index.delete if Product.searchkick_index.exists?
-Product.reindex
-Product.reindex # run twice for both index paths
-Product.create!(name: "Set mapping")
-
-Store.reindex
-Animal.reindex
-Speaker.reindex
-Region.reindex
-
 require_relative "support/helpers"
