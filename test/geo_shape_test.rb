@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class GeoShapeTest < Minitest::Test
   def setup
-    Region.destroy_all
+    setup_region
     store [
       {
         name: "Region A",

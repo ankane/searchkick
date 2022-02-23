@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class MultiIndicesTest < Minitest::Test
+  def setup
+    super
+    setup_speaker
+  end
+
   def test_basic
     store_names ["Product A"]
     store_names ["Product B"], Speaker

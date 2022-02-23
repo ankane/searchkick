@@ -11,17 +11,24 @@ class Minitest::Test
 
       Store.reindex
       Animal.reindex
-      Speaker.reindex
-      Region.reindex
     end
 
     Product.destroy_all
     Store.destroy_all
     Animal.destroy_all
-    Speaker.destroy_all
   end
 
   protected
+
+  def setup_region
+    $setup_region ||= (Region.reindex || true)
+    Region.destroy_all
+  end
+
+  def setup_speaker
+    $setup_speaker ||= (Speaker.reindex || true)
+    Speaker.destroy_all
+  end
 
   def store(documents, model = default_model, reindex: true)
     if reindex

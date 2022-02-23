@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class MatchTest < Minitest::Test
+  def setup
+    super
+    setup_speaker
+  end
+
   # exact
 
   def test_match

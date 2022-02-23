@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class ConversionsTest < Minitest::Test
+  def setup
+    super
+    setup_speaker
+  end
+
   def test_conversions
     store [
       {name: "Tomato A", conversions: {"tomato" => 1}},

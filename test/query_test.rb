@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class QueryTest < Minitest::Test
+  def setup
+    super
+    setup_speaker
+  end
+
   def test_basic
     store_names ["Milk", "Apple"]
     query = Product.search("milk", body: {query: {match_all: {}}})

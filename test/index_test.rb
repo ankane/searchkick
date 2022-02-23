@@ -3,7 +3,7 @@ require_relative "test_helper"
 class IndexTest < Minitest::Test
   def setup
     super
-    Region.destroy_all
+    setup_region
   end
 
   def test_tokens

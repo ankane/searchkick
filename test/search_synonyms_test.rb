@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class SearchSynonymsTest < Minitest::Test
+  def setup
+    super
+    setup_speaker
+  end
+
   def test_bleach
     store_names ["Clorox Bleach", "Kroger Bleach"]
     assert_search "clorox", ["Clorox Bleach", "Kroger Bleach"]
