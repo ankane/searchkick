@@ -321,4 +321,10 @@ class ReindexTest < Minitest::Test
     end
     assert_search "*", []
   end
+
+  def test_both_paths
+    Product.searchkick_index.delete if Product.searchkick_index.exists?
+    Product.reindex
+    Product.reindex # run twice for both index paths
+  end
 end

@@ -1,6 +1,11 @@
 require_relative "test_helper"
 
 class InheritanceTest < Minitest::Test
+  def setup
+    super
+    setup_animal
+  end
+
   def test_child_reindex
     store_names ["Max"], Cat
     assert Dog.reindex

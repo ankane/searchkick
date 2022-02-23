@@ -1,11 +1,6 @@
 require_relative "test_helper"
 
 class MatchTest < Minitest::Test
-  def setup
-    super
-    setup_speaker
-  end
-
   # exact
 
   def test_match
@@ -230,6 +225,7 @@ class MatchTest < Minitest::Test
   end
 
   def test_dynamic_fields
+    setup_speaker
     store_names ["Red Bull"], Speaker
     assert_search "redbull", ["Red Bull"], {fields: [:name]}, Speaker
   end

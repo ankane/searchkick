@@ -7,7 +7,7 @@ class ShouldIndexTest < Minitest::Test
   end
 
   def test_default_true
-    assert Animal.new.should_index?
+    assert Store.new.should_index?
   end
 
   def test_change_to_true

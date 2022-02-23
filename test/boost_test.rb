@@ -171,6 +171,7 @@ class BoostTest < Minitest::Test
   end
 
   def test_boost_by_indices
+    setup_animal
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
 

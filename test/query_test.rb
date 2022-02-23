@@ -1,11 +1,6 @@
 require_relative "test_helper"
 
 class QueryTest < Minitest::Test
-  def setup
-    super
-    setup_speaker
-  end
-
   def test_basic
     store_names ["Milk", "Apple"]
     query = Product.search("milk", body: {query: {match_all: {}}})
@@ -54,6 +49,7 @@ class QueryTest < Minitest::Test
   # nested
 
   def test_nested_search
+    setup_speaker
     store [{name: "Product A", aisle: {"id" => 1, "name" => "Frozen"}}], Speaker
     assert_search "frozen", ["Product A"], {fields: ["aisle.name"]}, Speaker
   end

@@ -2,32 +2,31 @@ class Minitest::Test
   include ActiveJob::TestHelper
 
   def setup
-    $setup_once ||= begin
-      # TODO improve
-      Product.searchkick_index.delete if Product.searchkick_index.exists?
-      Product.reindex
-      Product.reindex # run twice for both index paths
-      Product.create!(name: "Set mapping")
-
-      Store.reindex
-      Animal.reindex
+    [Product, Store].each do |model|
+      setup_model(model)
     end
-
-    Product.destroy_all
-    Store.destroy_all
-    Animal.destroy_all
   end
 
   protected
 
+  def setup_animal
+    setup_model(Animal)
+  end
+
   def setup_region
-    $setup_region ||= (Region.reindex || true)
-    Region.destroy_all
+    setup_model(Region)
   end
 
   def setup_speaker
-    $setup_speaker ||= (Speaker.reindex || true)
-    Speaker.destroy_all
+    setup_model(Speaker)
+  end
+
+  def setup_model(model)
+    # reindex once
+    ($setup_model ||= {})[model] ||= (model.reindex || true)
+
+    # clear every time
+    model.destroy_all
   end
 
   def store(documents, model = default_model, reindex: true)
