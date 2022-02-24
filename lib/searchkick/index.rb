@@ -339,7 +339,7 @@ module Searchkick
     end
 
     def reindex_records(object, mode: nil, refresh: false, **options)
-      mode ||= Searchkick.callbacks_value || @options[:callbacks] || true
+      mode ||= Searchkick.callbacks_value || @options[:callbacks] || :inline
       mode = :inline if mode == :bulk
 
       result = RecordIndexer.new(self).reindex(object, mode: mode, full: false, **options)
