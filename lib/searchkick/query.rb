@@ -187,11 +187,11 @@ module Searchkick
       end
 
       # set execute for multi search
-      @execute = Searchkick::Results.new(searchkick_klass, response, opts)
+      @execute = Results.new(searchkick_klass, response, opts)
     end
 
     def retry_misspellings?(response)
-      @misspellings_below && Searchkick::Results.new(searchkick_klass, response).total_count < @misspellings_below
+      @misspellings_below && Results.new(searchkick_klass, response).total_count < @misspellings_below
     end
 
     private

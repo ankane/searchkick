@@ -513,7 +513,7 @@ module Searchkick
         else
           [:searchkick_search2, :searchkick_word_search].each do |analyzer|
             unless settings[:analysis][:analyzer][analyzer].key?(:filter)
-              raise Searchkick::Error, "Search synonyms are not supported yet for language"
+              raise Error, "Search synonyms are not supported yet for language"
             end
 
             settings[:analysis][:analyzer][analyzer][:filter].insert(2, "searchkick_synonym_graph")

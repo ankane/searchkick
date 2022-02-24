@@ -141,7 +141,7 @@ module Searchkick
 
     def hits
       if error
-        raise Searchkick::Error, "Query error - use the error method to view it"
+        raise Error, "Query error - use the error method to view it"
       else
         @response["hits"]["hits"]
       end
@@ -178,7 +178,7 @@ module Searchkick
     end
 
     def scroll
-      raise Searchkick::Error, "Pass `scroll` option to the search method for scrolling" unless scroll_id
+      raise Error, "Pass `scroll` option to the search method for scrolling" unless scroll_id
 
       if block_given?
         records = self
@@ -191,10 +191,10 @@ module Searchkick
       else
         begin
           # TODO Active Support notifications for this scroll call
-          Searchkick::Results.new(@klass, Searchkick.client.scroll(scroll: options[:scroll], body: {scroll_id: scroll_id}), @options)
+          Results.new(@klass, Searchkick.client.scroll(scroll: options[:scroll], body: {scroll_id: scroll_id}), @options)
         rescue => e
           if Searchkick.not_found_error?(e) && e.message =~ /search_context_missing_exception/i
-            raise Searchkick::Error, "Scroll id has expired"
+            raise Error, "Scroll id has expired"
           else
             raise e
           end
@@ -232,7 +232,7 @@ module Searchkick
                 index_alias = index.split("_")[0..-2].join("_")
                 Array((options[:index_mapping] || {})[index_alias])
               end
-            raise Searchkick::Error, "Unknown model for index: #{index}. Pass the `models` option to the search method." unless models.any?
+            raise Error, "Unknown model for index: #{index}. Pass the `models` option to the search method." unless models.any?
             index_models[index] = models
           end
 

@@ -14,7 +14,7 @@ module Searchkick
       case mode
       when :async
         unless defined?(ActiveJob)
-          raise Searchkick::Error, "Active Job not found"
+          raise Error, "Active Job not found"
         end
 
         # we could likely combine ReindexV2Job, BulkReindexJob, and ProcessBatchJob
@@ -45,7 +45,7 @@ module Searchkick
         end
       when :queue
         if method_name
-          raise Searchkick::Error, "Partial reindex not supported with queue option"
+          raise Error, "Partial reindex not supported with queue option"
         end
 
         index.reindex_queue.push_records(records)

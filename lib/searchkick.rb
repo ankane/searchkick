@@ -171,7 +171,7 @@ module Searchkick
     end
 
     options = options.merge(block: block) if block
-    Searchkick::Relation.new(klass, term, **options)
+    Relation.new(klass, term, **options)
   end
 
   def self.multi_search(queries)
@@ -183,7 +183,7 @@ module Searchkick
       body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
     }
     ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
-      Searchkick::MultiSearch.new(queries).perform
+      MultiSearch.new(queries).perform
     end
   end
 
@@ -241,9 +241,9 @@ module Searchkick
   end
 
   def self.reindex_status(index_name)
-    raise Searchkick::Error, "Redis not configured" unless redis
+    raise Error, "Redis not configured" unless redis
 
-    batches_left = Searchkick::Index.new(index_name).batches_left
+    batches_left = Index.new(index_name).batches_left
     {
       completed: batches_left == 0,
       batches_left: batches_left
