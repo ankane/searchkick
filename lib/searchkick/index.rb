@@ -350,7 +350,7 @@ module Searchkick
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     # TODO deprecate async in favor of mode: :async, wait: true/false
-    def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
+    def full_reindex(relation, import: true, resume: false, retain: false, mode: :inline, refresh_interval: nil, scope: nil, wait: nil)
       raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
 
       if resume
