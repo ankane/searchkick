@@ -349,7 +349,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def full_reindex(relation, import: true, resume: false, retain: false, mode: :inline, refresh_interval: nil, scope: nil, wait: nil)
+    def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
       raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
 
       if resume
@@ -365,7 +365,7 @@ module Searchkick
       end
 
       import_options = {
-        mode: mode,
+        mode: (mode || :inline),
         full: true,
         resume: resume,
         scope: scope
