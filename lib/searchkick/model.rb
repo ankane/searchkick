@@ -60,10 +60,10 @@ module Searchkick
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index(name: nil)
-            index = name || searchkick_index_name
-            index = index.call if index.respond_to?(:call)
+            index_name = name || searchkick_index_name
+            index_name = index_name.call if index_name.respond_to?(:call)
             index_cache = class_variable_get(:@@searchkick_index_cache)
-            index_cache.fetch(index) { Searchkick::Index.new(index, searchkick_options) }
+            index_cache.fetch(index_name) { Searchkick::Index.new(index_name, searchkick_options) }
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
