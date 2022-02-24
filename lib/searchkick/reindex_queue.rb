@@ -5,7 +5,7 @@ module Searchkick
     def initialize(name)
       @name = name
 
-      raise Searchkick::Error, "Searchkick.redis not set" unless Searchkick.redis
+      raise Error, "Searchkick.redis not set" unless Searchkick.redis
     end
 
     # supports single and multiple ids
