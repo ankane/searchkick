@@ -1,3 +1,7 @@
+## 5.0.1 (unreleased)
+
+- Prefer `mode: :async` over `async: true` for full reindex
+
 ## 5.0.0 (2022-02-21)
 
 - Searches now use lazy loading (similar to Active Record)

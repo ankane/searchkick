@@ -237,6 +237,19 @@ module Searchkick
         self.refresh if refresh
         true
       else
+        async = options.delete(:async)
+        if async
+          if async.is_a?(Hash) && async[:wait]
+            # TODO warn in 5.1
+            # Searchkick.warn "async option is deprecated - use mode: :async, wait: true instead"
+            options[:wait] = true unless options.key?(:wait)
+          else
+            # TODO warn in 5.1
+            # Searchkick.warn "async option is deprecated - use mode: :async instead"
+          end
+          options[:mode] ||= :async
+        end
+
         full_reindex(relation, **options)
       end
     end
@@ -337,7 +350,9 @@ module Searchkick
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     # TODO deprecate async in favor of mode: :async, wait: true/false
-    def full_reindex(relation, import: true, resume: false, retain: false, async: false, refresh_interval: nil, scope: nil)
+    def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
+      raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
+
       if resume
         index_name = all_indices.sort.last
         raise Searchkick::Error, "No index to resume" unless index_name
@@ -351,7 +366,7 @@ module Searchkick
       end
 
       import_options = {
-        mode: (async ? :async : :inline),
+        mode: mode,
         full: true,
         resume: resume,
         scope: scope
@@ -365,7 +380,7 @@ module Searchkick
         import_before_promotion(index, relation, **import_options) if import
 
         # get existing indices to remove
-        unless async
+        unless mode == :async
           check_uuid(uuid, index.uuid)
           promote(index.name, update_refresh_interval: !refresh_interval.nil?)
           clean_indices unless retain
@@ -378,8 +393,8 @@ module Searchkick
         index.import_scope(relation, **import_options) if import
       end
 
-      if async
-        if async.is_a?(Hash) && async[:wait]
+      if mode == :async
+        if wait
           puts "Created index: #{index.name}"
           puts "Jobs queued. Waiting..."
           loop do
