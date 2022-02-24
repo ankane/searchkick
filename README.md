@@ -596,7 +596,7 @@ You can also do bulk updates.
 
 ```ruby
 Searchkick.callbacks(:bulk) do
-  User.find_each(&:update_fields)
+  Product.find_each(&:update_fields)
 end
 ```
 
@@ -604,7 +604,7 @@ Or temporarily skip updates.
 
 ```ruby
 Searchkick.callbacks(false) do
-  User.find_each(&:update_fields)
+  Product.find_each(&:update_fields)
 end
 ```
 
