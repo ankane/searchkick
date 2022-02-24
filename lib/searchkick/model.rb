@@ -55,10 +55,6 @@ module Searchkick
 
         class << self
           def searchkick_search(term = "*", **options, &block)
-            if Searchkick.relation?(self)
-              raise Searchkick::Error, "search must be called on model, not relation"
-            end
-
             Searchkick.search(term, model: self, **options, &block)
           end
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
