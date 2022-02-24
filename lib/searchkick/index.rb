@@ -71,12 +71,12 @@ module Searchkick
           }
         )
 
-      Searchkick::Results.new(nil, response).total_count
+      Results.new(nil, response).total_count
     end
 
     def promote(new_name, update_refresh_interval: false)
       if update_refresh_interval
-        new_index = Searchkick::Index.new(new_name, @options)
+        new_index = Index.new(new_name, @options)
         settings = options[:settings] || {}
         refresh_interval = (settings[:index] && settings[:index][:refresh_interval]) || "1s"
         new_index.update_settings(index: {refresh_interval: refresh_interval})
@@ -123,7 +123,7 @@ module Searchkick
     def clean_indices
       indices = all_indices(unaliased: true)
       indices.each do |index|
-        Searchkick::Index.new(index).delete
+        Index.new(index).delete
       end
       indices
     end
@@ -204,7 +204,7 @@ module Searchkick
     # queue
 
     def reindex_queue
-      Searchkick::ReindexQueue.new(name)
+      ReindexQueue.new(name)
     end
 
     # reindex
@@ -256,7 +256,7 @@ module Searchkick
 
     def create_index(index_options: nil)
       index_options ||= self.index_options
-      index = Searchkick::Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
+      index = Index.new("#{name}_#{Time.now.strftime('%Y%m%d%H%M%S%L')}", @options)
       index.create(index_options)
       index
     end
@@ -354,8 +354,8 @@ module Searchkick
 
       if resume
         index_name = all_indices.sort.last
-        raise Searchkick::Error, "No index to resume" unless index_name
-        index = Searchkick::Index.new(index_name, @options)
+        raise Error, "No index to resume" unless index_name
+        index = Index.new(index_name, @options)
       else
         clean_indices unless retain
 
@@ -431,7 +431,7 @@ module Searchkick
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#index-creation
     def check_uuid(old_uuid, new_uuid)
       if old_uuid != new_uuid
-        raise Searchkick::Error, "Safety check failed - only run one Model.reindex per model at a time"
+        raise Error, "Safety check failed - only run one Model.reindex per model at a time"
       end
     end
 
