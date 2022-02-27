@@ -140,10 +140,6 @@ module Searchkick
   end
 
   def self.search(term = "*", model: nil, **options, &block)
-    if relation?(model)
-      raise Error, "search must be called on model, not relation"
-    end
-
     options = options.dup
     klass = model
 
