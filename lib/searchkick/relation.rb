@@ -10,6 +10,9 @@ module Searchkick
       @model = model
       @term = term
       @options = options
+
+      # generate query to validate options
+      query
     end
 
     # same as Active Record
@@ -51,6 +54,9 @@ module Searchkick
 
     def check_loaded
       raise Error, "Relation loaded" if loaded?
+
+      # reset query since options will change
+      @query = nil
     end
   end
 end
