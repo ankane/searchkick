@@ -1793,7 +1793,7 @@ Product.search("pears", body_options: {track_total_hits: true})
 To query nested data, use dot notation.
 
 ```ruby
-User.search("san", fields: ["address.city"], where: {"address.zip_code" => 12345})
+Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345})
 ```
 
 ## Reference
