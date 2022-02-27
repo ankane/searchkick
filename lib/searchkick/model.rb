@@ -22,16 +22,18 @@ module Searchkick
         raise ArgumentError, "Invalid value for callbacks"
       end
 
+      base = self
+
       mod = Module.new
       include(mod)
       mod.module_eval do
         def reindex(method_name = nil, mode: nil, refresh: false)
           self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true)
-        end
+        end unless base.method_defined?(:reindex)
 
         def similar(**options)
           self.class.searchkick_index.similar_record(self, **options)
-        end
+        end unless base.method_defined?(:similar)
 
         def search_data
           data = respond_to?(:to_hash) ? to_hash : serializable_hash
@@ -39,11 +41,11 @@ module Searchkick
           data.delete("_id")
           data.delete("_type")
           data
-        end
+        end unless base.method_defined?(:search_data)
 
         def should_index?
           true
-        end
+        end unless base.method_defined?(:should_index?)
       end
 
       class_eval do
