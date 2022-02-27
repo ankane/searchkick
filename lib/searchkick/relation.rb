@@ -80,6 +80,14 @@ module Searchkick
       self
     end
 
+    def only(*keys)
+      Relation.new(@model, @term, **@options.slice(*keys))
+    end
+
+    def except(*keys)
+      Relation.new(@model, @term, **@options.except(*keys))
+    end
+
     def loaded?
       !@execute.nil?
     end
