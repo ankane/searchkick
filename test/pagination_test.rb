@@ -6,6 +6,23 @@ class PaginationTest < Minitest::Test
     assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
   end
 
+  def test_limit_relation
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    assert_equal ["Product A", "Product B"], Product.search("product", order: {name: :asc}).limit(2).map(&:name)
+  end
+
+  def test_limit_relation_loaded
+    Product.search_index.refresh
+    products = Product.search("*")
+    refute products.loaded?
+    assert_equal 0, products.count
+    assert products.loaded?
+    error = assert_raises(Searchkick::Error) do
+      products.limit!(2)
+    end
+    assert_equal "Relation loaded", error.message
+  end
+
   def test_no_limit
     names = 20.times.map { |i| "Product #{i}" }
     store_names names
