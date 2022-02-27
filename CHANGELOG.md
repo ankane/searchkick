@@ -1,4 +1,4 @@
-## 5.0.1 (unreleased)
+## 5.0.1 (2022-02-27)
 
 - Prefer `mode: :async` over `async: true` for full reindex
 - Fixed instance method overriding with concerns
