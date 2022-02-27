@@ -23,6 +23,12 @@ class PaginationTest < Minitest::Test
     assert_equal "Relation loaded", error.message
   end
 
+  def test_limit_relation_clone
+    products = Product.search("*")
+    assert_equal 10, products.limit(10).limit_value
+    assert_equal 10000, products.limit_value
+  end
+
   def test_no_limit
     names = 20.times.map { |i| "Product #{i}" }
     store_names names
