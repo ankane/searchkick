@@ -34,6 +34,11 @@ class PaginationTest < Minitest::Test
     assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2, limit: 100
   end
 
+  def test_offset_relation
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    assert_equal ["Product C", "Product D"], Product.search("product", order: {name: :asc}).offset(2).limit(100).map(&:name)
+  end
+
   def test_pagination
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2, padding: 1)

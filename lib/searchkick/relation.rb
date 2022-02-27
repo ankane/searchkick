@@ -38,6 +38,16 @@ module Searchkick
       self
     end
 
+    def offset(value)
+      clone.offset!(value)
+    end
+
+    def offset!(value)
+      check_loaded
+      @options[:offset] = value
+      self
+    end
+
     def loaded?
       !@execute.nil?
     end
