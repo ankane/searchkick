@@ -1453,7 +1453,7 @@ end
 For large data sets, you can use background jobs to parallelize reindexing.
 
 ```ruby
-Product.reindex(async: true)
+Product.reindex(mode: :async)
 # {index_name: "products_production_20170111210018065"}
 ```
 
@@ -1478,7 +1478,7 @@ Searchkick.reindex_status(index_name)
 You can also have Searchkick wait for reindexing to complete
 
 ```ruby
-Product.reindex(async: {wait: true})
+Product.reindex(mode: :async, wait: true)
 ```
 
 You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
@@ -1504,7 +1504,7 @@ This will allow only 3 jobs to run at once.
 You can specify a longer refresh interval while reindexing to increase performance.
 
 ```ruby
-Product.reindex(async: true, refresh_interval: "30s")
+Product.reindex(mode: :async, refresh_interval: "30s")
 ```
 
 **Note:** This only makes a noticable difference with parallel reindexing.

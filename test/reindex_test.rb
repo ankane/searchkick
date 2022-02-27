@@ -161,7 +161,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A"], reindex: false
     reindex = nil
     perform_enqueued_jobs do
-      reindex = Product.reindex(async: true)
+      reindex = Product.reindex(mode: :async)
       assert_search "product", [], conversions: false
     end
 
@@ -180,7 +180,7 @@ class ReindexTest < Minitest::Test
 
     reindex = nil
     perform_enqueued_jobs do
-      reindex = Product.reindex(async: true)
+      reindex = Product.reindex(mode: :async)
     end
 
     index = Searchkick::Index.new(reindex[:index_name])
@@ -194,7 +194,7 @@ class ReindexTest < Minitest::Test
     store_names ["Product A"], reindex: false
 
     capture_io do
-      Product.reindex(async: {wait: true})
+      Product.reindex(mode: :async, wait: true)
     end
 
     assert_search "product", ["Product A"]
@@ -205,7 +205,7 @@ class ReindexTest < Minitest::Test
 
     reindex = nil
     perform_enqueued_jobs do
-      reindex = Sku.reindex(async: true)
+      reindex = Sku.reindex(mode: :async)
       assert_search "sku", [], conversions: false
     end
 
@@ -217,7 +217,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_full_refresh_interval
-    reindex = Product.reindex(refresh_interval: "30s", async: true, import: false)
+    reindex = Product.reindex(refresh_interval: "30s", mode: :async, import: false)
     index = Searchkick::Index.new(reindex[:index_name])
     assert_nil Product.search_index.refresh_interval
     assert_equal "30s", index.refresh_interval
@@ -244,10 +244,15 @@ class ReindexTest < Minitest::Test
 
   def test_full_partial_async
     store_names ["Product A"]
+    Product.reindex(:search_name, mode: :async)
+    assert_search "product", ["Product A"]
+  end
+
+  def test_wait_not_async
     error = assert_raises(ArgumentError) do
-      Product.reindex(:search_name, async: true)
+      Product.reindex(wait: false)
     end
-    assert_match "unsupported keywords: :async", error.message
+    assert_equal "wait only available in :async mode", error.message
   end
 
   def test_callbacks_false
