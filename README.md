@@ -878,7 +878,7 @@ Product.search("orange", body_options: {aggs: {price: {histogram: {field: :price
 Specify which fields to index with highlighting.
 
 ```ruby
-class Product < ApplicationRecord
+class Band < ApplicationRecord
   searchkick highlight: [:name]
 end
 ```
