@@ -1,5 +1,7 @@
 module Searchkick
   class Relation
+    NO_DEFAULT_VALUE = Object.new
+
     # note: modifying body directly is not supported
     # and has no impact on query after being executed
     # TODO freeze body object?
@@ -38,8 +40,13 @@ module Searchkick
       self
     end
 
-    def offset(value)
-      clone.offset!(value)
+    def offset(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.offset
+      else
+        clone.offset!(value)
+      end
     end
 
     def offset!(value)
