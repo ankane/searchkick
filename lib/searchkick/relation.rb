@@ -55,6 +55,31 @@ module Searchkick
       self
     end
 
+    def page(value)
+      clone.page!(value)
+    end
+
+    def page!(value)
+      check_loaded
+      @options[:page] = value
+      self
+    end
+
+    def per_page(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.per_page
+      else
+        clone.per_page!(value)
+      end
+    end
+
+    def per_page!(value)
+      check_loaded
+      @options[:per_page] = value
+      self
+    end
+
     def loaded?
       !@execute.nil?
     end
