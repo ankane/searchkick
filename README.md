@@ -1380,6 +1380,8 @@ Create an initializer with multiple hosts:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
+# or
+ENV["OPENSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
 See [elastic-transport](https://github.com/elastic/elastic-transport-ruby) or [opensearch-transport](https://github.com/opensearch-project/opensearch-ruby/tree/main/opensearch-transport) for a complete list of options.
