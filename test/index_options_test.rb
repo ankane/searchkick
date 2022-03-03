@@ -3,6 +3,7 @@ require_relative "test_helper"
 class IndexOptionsTest < Minitest::Test
   def setup
     Song.destroy_all
+    Song.instance_variable_set(:@searchkick_index_name, nil)
   end
 
   def test_case_sensitive
@@ -63,6 +64,30 @@ class IndexOptionsTest < Minitest::Test
     with_options({special_characters: false}) do
       store_names ["jalapeño"]
       assert_search "jalapeno", [], {misspellings: false}
+    end
+  end
+
+  def test_index_name
+    with_options({index_name: "songs_v2"}) do
+      assert_equal "songs_v2", Song.search_index.name
+    end
+  end
+
+  def test_index_name_callable
+    with_options({index_name: -> { "songs_v2" }}) do
+      assert_equal "songs_v2", Song.search_index.name
+    end
+  end
+
+  def test_index_prefix
+    with_options({index_prefix: "hello"}) do
+      assert_equal "hello_songs_test", Song.search_index.name
+    end
+  end
+
+  def test_index_prefix_callable
+    with_options({index_prefix: -> { "hello" }}) do
+      assert_equal "hello_songs_test", Song.search_index.name
     end
   end
 
