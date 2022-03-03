@@ -3,7 +3,6 @@ require_relative "test_helper"
 class IndexOptionsTest < Minitest::Test
   def setup
     Song.destroy_all
-    Song.instance_variable_set(:@searchkick_index_name, nil)
   end
 
   def test_case_sensitive

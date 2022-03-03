@@ -83,10 +83,12 @@ class Minitest::Test
   def with_options(options, model = default_model)
     previous_options = model.searchkick_options.dup
     begin
+      model.instance_variable_set(:@searchkick_index_name, nil)
       model.searchkick_options.merge!(options)
       model.reindex
       yield
     ensure
+      model.instance_variable_set(:@searchkick_index_name, nil)
       model.searchkick_options.clear
       model.searchkick_options.merge!(previous_options)
     end
