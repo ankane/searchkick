@@ -30,16 +30,19 @@ module Searchkick
       self
     end
 
+    # experimental
     def limit(value)
       clone.limit!(value)
     end
 
+    # experimental
     def limit!(value)
       check_loaded
       @options[:limit] = value
       self
     end
 
+    # experimental
     def offset(value = NO_DEFAULT_VALUE)
       # TODO remove in Searchkick 6
       if value == NO_DEFAULT_VALUE
@@ -49,22 +52,26 @@ module Searchkick
       end
     end
 
+    # experimental
     def offset!(value)
       check_loaded
       @options[:offset] = value
       self
     end
 
+    # experimental
     def page(value)
       clone.page!(value)
     end
 
+    # experimental
     def page!(value)
       check_loaded
       @options[:page] = value
       self
     end
 
+    # experimental
     def per_page(value = NO_DEFAULT_VALUE)
       # TODO remove in Searchkick 6
       if value == NO_DEFAULT_VALUE
@@ -74,16 +81,19 @@ module Searchkick
       end
     end
 
+    # experimental
     def per_page!(value)
       check_loaded
       @options[:per_page] = value
       self
     end
 
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
 
+    # experimental
     def except(*keys)
       Relation.new(@model, @term, **@options.except(*keys))
     end
