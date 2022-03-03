@@ -1,4 +1,4 @@
-## 5.0.2 (unreleased)
+## 5.0.2 (2022-03-03)
 
 - Fixed index name for inherited models
 
