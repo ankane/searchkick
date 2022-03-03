@@ -1,3 +1,7 @@
+## 5.0.2 (unreleased)
+
+- Fixed index name for inherited models
+
 ## 5.0.1 (2022-02-27)
 
 - Prefer `mode: :async` over `async: true` for full reindex

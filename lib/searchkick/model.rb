@@ -88,9 +88,9 @@ module Searchkick
               if options[:index_name]
                 options[:index_name]
               elsif options[:index_prefix].respond_to?(:call)
-                -> { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
+                -> { [options[:index_prefix].call, searchkick_klass.model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
               else
-                [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+                [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, searchkick_klass.model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
               end
             end
           end
