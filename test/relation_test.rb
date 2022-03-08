@@ -28,6 +28,7 @@ class RelationTest < Minitest::Test
   end
 
   # TODO call pluck on Active Record query
+  # currently uses pluck from Active Support enumerable
   def test_pluck
     store_names ["Product A", "Product B"]
     assert_equal ["Product A", "Product B"], Product.search("product").pluck(:name).sort
