@@ -43,13 +43,13 @@ class ParametersTest < Minitest::Test
   def test_where_permitted_relation
     store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
     params = ActionController::Parameters.new({store_id: 1})
-    assert_equal ["Product A"], Product.search("product").where(params.permit(:store_id)).map(&:name)
+    assert_search_relation ["Product A"], Product.search("product").where(params.permit(:store_id))
   end
 
   def test_rewhere_permitted_relation
     store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
     params = ActionController::Parameters.new({store_id: 1})
-    assert_equal ["Product A"], Product.search("product").rewhere(params.permit(:store_id)).map(&:name)
+    assert_search_relation ["Product A"], Product.search("product").rewhere(params.permit(:store_id))
   end
 
   def test_where_value
@@ -61,13 +61,13 @@ class ParametersTest < Minitest::Test
   def test_where_value_relation
     store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
     params = ActionController::Parameters.new({store_id: 1})
-    assert_equal ["Product A"], Product.search("product").where(store_id: params[:store_id]).map(&:name)
+    assert_search_relation ["Product A"], Product.search("product").where(store_id: params[:store_id])
   end
 
   def test_rewhere_value_relation
     store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
     params = ActionController::Parameters.new({store_id: 1})
-    assert_equal ["Product A"], Product.search("product").where(store_id: params[:store_id]).map(&:name)
+    assert_search_relation ["Product A"], Product.search("product").where(store_id: params[:store_id])
   end
 
   def test_where_hash

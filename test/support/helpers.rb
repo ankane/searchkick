@@ -53,6 +53,10 @@ class Minitest::Test
     assert_equal expected.sort, model.search(term, **options).map(&:name).sort
   end
 
+  def assert_search_relation(expected, relation)
+    assert_equal expected.sort, relation.map(&:name).sort
+  end
+
   def assert_order(term, expected, options = {}, model = default_model)
     assert_equal expected, model.search(term, **options).map(&:name)
   end
