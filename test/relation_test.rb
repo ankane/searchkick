@@ -26,4 +26,10 @@ class RelationTest < Minitest::Test
   def test_except
     assert_equal 10000, Product.search("*").limit(10).except(:limit).limit_value
   end
+
+  # TODO call pluck on Active Record query
+  def test_pluck
+    store_names ["Product A", "Product B"]
+    assert_equal ["Product A", "Product B"], Product.search("product").pluck(:name).sort
+  end
 end
