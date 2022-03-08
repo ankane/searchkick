@@ -89,6 +89,34 @@ module Searchkick
     end
 
     # experimental
+    def where(value)
+      clone.where!(value)
+    end
+
+    # experimental
+    def where!(value)
+      check_loaded
+      if @options[:where]
+        @options[:where] = {_and: [@options[:where], ensure_permitted(value)]}
+      else
+        @options[:where] = ensure_permitted(value)
+      end
+      self
+    end
+
+    # experimental
+    def rewhere(value)
+      clone.rewhere!(value)
+    end
+
+    # experimental
+    def rewhere!(value)
+      check_loaded
+      @options[:where] = ensure_permitted(value)
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
@@ -117,6 +145,12 @@ module Searchkick
 
       # reset query since options will change
       @query = nil
+    end
+
+    # provides *very* basic protection from unfiltered parameters
+    # this is not meant to be comprehensive and may be expanded in the future
+    def ensure_permitted(obj)
+      obj.to_h
     end
   end
 end

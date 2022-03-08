@@ -82,6 +82,23 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B"], where: {user_ids: {_not: [3, nil]}}
   end
 
+  def test_where_relation
+    now = Time.now
+    store [
+      {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4, user_ids: [1, 2, 3]},
+      {name: "Product B", store_id: 2, in_stock: true, backordered: false, created_at: now - 1, orders_count: 3, user_ids: [1]},
+      {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2, user_ids: [1, 3]},
+      {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1}
+    ]
+    assert_equal ["Product A", "Product B"], Product.search("product").where(in_stock: true).map(&:name)
+
+    # multiple where
+    assert_equal ["Product A"], Product.search("product").where(in_stock: true).where(backordered: true).map(&:name)
+
+    # rewhere
+    assert_equal ["Product A", "Product C"], Product.search("product").where(in_stock: true).rewhere(backordered: true).map(&:name)
+  end
+
   def test_where_string_operators
     error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
