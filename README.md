@@ -683,7 +683,7 @@ end
 
 Reindex and set up a cron job to add new conversions daily.
 
-```ruby
+```sh
 rake searchkick:reindex CLASS=Product
 ```
 
