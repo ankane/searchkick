@@ -117,6 +117,37 @@ module Searchkick
     end
 
     # experimental
+    def order(value)
+      clone.order!(value)
+    end
+
+    # experimental
+    def order!(value)
+      check_loaded
+      if @options[:order]
+        order = @options[:order]
+        order = [order] unless order.is_a?(Array)
+        order << value
+        @options[:order] = order
+      else
+        @options[:order] = value
+      end
+      self
+    end
+
+    # experimental
+    def reorder(value)
+      clone.reorder!(value)
+    end
+
+    # experimental
+    def reorder!(value)
+      check_loaded
+      @options[:order] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end

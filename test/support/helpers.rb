@@ -61,6 +61,10 @@ class Minitest::Test
     assert_equal expected, model.search(term, **options).map(&:name)
   end
 
+  def assert_order_relation(expected, relation)
+    assert_equal expected, relation.map(&:name)
+  end
+
   def assert_equal_scores(term, options = {}, model = default_model)
     assert_equal 1, model.search(term, **options).hits.map { |a| a["_score"] }.uniq.size
   end
