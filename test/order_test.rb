@@ -21,6 +21,7 @@ class OrderTest < Minitest::Test
     ]
     assert_order "product", ["Product A", "Product B", "Product C"], order: {color: :asc, store_id: :desc}
     assert_order_relation ["Product A", "Product B", "Product C"], Product.search("product").order(color: :asc, store_id: :desc)
+    assert_order_relation ["Product A", "Product B", "Product C"], Product.search("product").order(:color, store_id: :desc)
     assert_order_relation ["Product A", "Product B", "Product C"], Product.search("product").order(color: :asc).order(store_id: :desc)
     assert_order_relation ["Product B", "Product C", "Product A"], Product.search("product").order(color: :asc).reorder(store_id: :desc)
   end

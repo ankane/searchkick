@@ -117,33 +117,27 @@ module Searchkick
     end
 
     # experimental
-    def order(value)
-      clone.order!(value)
+    def order(*values)
+      clone.order!(*values)
     end
 
     # experimental
-    def order!(value)
+    def order!(*values)
+      values = values.first if values.size == 1 && values.first.is_a?(Array)
       check_loaded
-      if @options[:order]
-        order = @options[:order]
-        order = [order] unless order.is_a?(Array)
-        order << value
-        @options[:order] = order
-      else
-        @options[:order] = value
-      end
+      (@options[:order] ||= []).concat(values)
       self
     end
 
     # experimental
-    def reorder(value)
-      clone.reorder!(value)
+    def reorder(*values)
+      clone.reorder!(*values)
     end
 
     # experimental
-    def reorder!(value)
+    def reorder!(*values)
       check_loaded
-      @options[:order] = value
+      @options[:order] = values
       self
     end
 
