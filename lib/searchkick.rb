@@ -27,6 +27,7 @@ require "searchkick/relation"
 require "searchkick/relation_indexer"
 require "searchkick/results"
 require "searchkick/version"
+require "searchkick/where"
 
 # integrations
 require "searchkick/railtie" if defined?(Rails)

@@ -97,6 +97,10 @@ class WhereTest < Minitest::Test
 
     # rewhere
     assert_search_relation ["Product A", "Product C"], Product.search("product").where(in_stock: true).rewhere(backordered: true)
+
+    # not
+    assert_search_relation ["Product C", "Product D"], Product.search("product").where.not(in_stock: true)
+    assert_search_relation ["Product C"], Product.search("product").where.not(in_stock: true).where(backordered: true)
   end
 
   def test_where_string_operators

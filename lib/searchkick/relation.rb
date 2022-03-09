@@ -89,8 +89,12 @@ module Searchkick
     end
 
     # experimental
-    def where(value)
-      clone.where!(value)
+    def where(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        Where.new(self)
+      else
+        clone.where!(value)
+      end
     end
 
     # experimental
