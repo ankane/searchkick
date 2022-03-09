@@ -148,6 +148,34 @@ module Searchkick
     end
 
     # experimental
+    def select(*values, &block)
+      if block_given?
+        private_execute.select(*values, &block)
+      else
+        clone.select!(*values)
+      end
+    end
+
+    # experimental
+    def select!(*values)
+      check_loaded
+      (@options[:select] ||= []).concat(values)
+      self
+    end
+
+    # experimental
+    def reselect(*values)
+      clone.reselect!(*values)
+    end
+
+    # experimental
+    def reselect!(*values)
+      check_loaded
+      @options[:select] = values
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end

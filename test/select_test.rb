@@ -9,6 +9,41 @@ class SelectTest < Minitest::Test
     assert_equal 1, result.store_id
   end
 
+  def test_relation
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false).select(:name, :store_id).first
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_equal 1, result.store_id
+  end
+
+  def test_block
+    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+    assert_equal ["Product B"], Product.search("product", load: false).select { |v| v.store_id == 2 }.map(&:name)
+  end
+
+  def test_block_arguments
+    store [{name: "Product A", store_id: 1}, {name: "Product B", store_id: 2}]
+    error = assert_raises(ArgumentError) do
+      Product.search("product", load: false).select(:name) { |v| v.store_id == 2 }
+    end
+    assert_equal "wrong number of arguments (given 1, expected 0)", error.message
+  end
+  def test_multiple
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false).select(:name).select(:store_id).first
+    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal "Product A", result.name
+    assert_equal 1, result.store_id
+  end
+
+  def test_reselect
+    store [{name: "Product A", store_id: 1}]
+    result = Product.search("product", load: false).select(:name).reselect(:store_id).first
+    assert_equal %w(id store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal 1, result.store_id
+  end
+
   def test_array
     store [{name: "Product A", user_ids: [1, 2]}]
     result = Product.search("product", load: false, select: [:user_ids]).first
