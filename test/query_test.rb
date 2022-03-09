@@ -61,6 +61,7 @@ class QueryTest < Minitest::Test
 
     store_names ["Product A"]
     assert Product.search("product", includes: [:store]).first.association(:store).loaded?
+    assert Product.search("product").includes(:store).first.association(:store).loaded?
   end
 
   def test_model_includes

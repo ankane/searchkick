@@ -170,6 +170,18 @@ module Searchkick
     end
 
     # experimental
+    def includes(*values)
+      clone.includes!(*values)
+    end
+
+    # experimental
+    def includes!(*values)
+      check_loaded
+      (@options[:includes] ||= []).concat(values)
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
