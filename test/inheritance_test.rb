@@ -13,7 +13,7 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_child_index_name
-    assert_equal "animals_test#{ENV["TEST_ENV_NUMBER"]}", Dog.searchkick_index.name
+    assert_equal "animals_test#{ENV["TEST_ENV_NUMBER"]}", Dog.search_index.name
   end
 
   def test_child_search
@@ -116,7 +116,7 @@ class InheritanceTest < Minitest::Test
   def test_index_name_string
     store_names ["Product A"]
     error = assert_raises Searchkick::Error do
-      Searchkick.search("product", index_name: [Product.searchkick_index.name]).map(&:name)
+      Searchkick.search("product", index_name: [Product.search_index.name]).map(&:name)
     end
     assert_includes error.message, "Unknown model"
   end

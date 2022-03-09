@@ -16,7 +16,7 @@ class ShouldIndexTest < Minitest::Test
     product = Product.first
     product.name = "INDEX"
     product.save!
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "index", ["INDEX"]
   end
 
@@ -26,7 +26,7 @@ class ShouldIndexTest < Minitest::Test
     product = Product.first
     product.name = "DO NOT INDEX"
     product.save!
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "index", []
   end
 
@@ -38,7 +38,7 @@ class ShouldIndexTest < Minitest::Test
       product.save!
     end
     Product.where(id: product.id).reindex
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "index", []
   end
 end

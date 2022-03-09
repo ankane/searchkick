@@ -15,7 +15,7 @@ class PartialReindexTest < Minitest::Test
     Searchkick.callbacks(false) do
       product.save!
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
 
     # index not updated
     assert_search "hi", ["Hi"], fields: [:name], load: false
@@ -43,7 +43,7 @@ class PartialReindexTest < Minitest::Test
     Searchkick.callbacks(false) do
       product.save!
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
 
     # index not updated
     assert_search "hi", ["Hi"], fields: [:name], load: false

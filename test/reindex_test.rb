@@ -30,7 +30,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_record_queue
-    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue = Product.search_index.reindex_queue
     reindex_queue.clear
 
     store_names ["Product A", "Product B"], reindex: false
@@ -133,7 +133,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_relation_queue
-    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue = Product.search_index.reindex_queue
     reindex_queue.clear
 
     store_names ["Product A"]
@@ -171,7 +171,7 @@ class ReindexTest < Minitest::Test
 
     assert Searchkick.reindex_status(reindex[:name])
 
-    Product.searchkick_index.promote(reindex[:index_name])
+    Product.search_index.promote(reindex[:index_name])
     assert_search "product", ["Product A"]
   end
 
@@ -274,20 +274,20 @@ class ReindexTest < Minitest::Test
     # TODO figure out which earlier test leaves records in index
     Product.reindex
 
-    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue = Product.search_index.reindex_queue
     reindex_queue.clear
 
     Searchkick.callbacks(:queue) do
       store_names ["Product A", "Product B"]
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "product", [], load: false, conversions: false
     assert_equal 2, reindex_queue.length
 
     perform_enqueued_jobs do
       Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "product", ["Product A", "Product B"], load: false
     assert_equal 0, reindex_queue.length
 
@@ -295,14 +295,14 @@ class ReindexTest < Minitest::Test
       Product.where(name: "Product B").destroy_all
       Product.create!(name: "Product C")
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "product", ["Product A", "Product B"], load: false
     assert_equal 2, reindex_queue.length
 
     perform_enqueued_jobs do
       Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     end
-    Product.searchkick_index.refresh
+    Product.search_index.refresh
     assert_search "product", ["Product A", "Product C"], load: false
     assert_equal 0, reindex_queue.length
 
@@ -328,7 +328,7 @@ class ReindexTest < Minitest::Test
   end
 
   def test_both_paths
-    Product.searchkick_index.delete if Product.searchkick_index.exists?
+    Product.search_index.delete if Product.search_index.exists?
     Product.reindex
     Product.reindex # run twice for both index paths
   end
