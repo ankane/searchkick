@@ -50,8 +50,8 @@ Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
 Install [Elasticsearch](https://www.elastic.co/downloads/elasticsearch) or [OpenSearch](https://opensearch.org/downloads.html). For Homebrew, use:
 
 ```sh
-brew install elasticsearch
-brew services start elasticsearch
+brew install elastic/tap/elasticsearch-full
+brew services start elasticsearch-full
 # or
 brew install opensearch
 brew services start opensearch
