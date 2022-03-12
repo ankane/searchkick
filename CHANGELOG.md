@@ -1,3 +1,7 @@
+## 5.0.3 (unreleased)
+
+- Fixed context for index name for inherited models
+
 ## 5.0.2 (2022-03-03)
 
 - Fixed index name for inherited models

@@ -66,7 +66,7 @@ module Searchkick
           alias_method Searchkick.search_method_name, :searchkick_search if Searchkick.search_method_name
 
           def searchkick_index(name: nil)
-            index_name = name || searchkick_index_name
+            index_name = name || searchkick_klass.searchkick_index_name
             index_name = index_name.call if index_name.respond_to?(:call)
             index_cache = class_variable_get(:@@searchkick_index_cache)
             index_cache.fetch(index_name) { Searchkick::Index.new(index_name, searchkick_options) }
@@ -88,9 +88,9 @@ module Searchkick
               if options[:index_name]
                 options[:index_name]
               elsif options[:index_prefix].respond_to?(:call)
-                -> { [options[:index_prefix].call, searchkick_klass.model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
+                -> { [options[:index_prefix].call, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_") }
               else
-                [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, searchkick_klass.model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
+                [options.key?(:index_prefix) ? options[:index_prefix] : Searchkick.index_prefix, model_name.plural, Searchkick.env, Searchkick.index_suffix].compact.join("_")
               end
             end
           end
