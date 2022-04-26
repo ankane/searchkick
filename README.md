@@ -687,6 +687,8 @@ Reindex and set up a cron job to add new conversions daily.
 rake searchkick:reindex CLASS=Product
 ```
 
+**Note:** For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
+
 This can make a huge difference on the quality of your search.
 
 For a more performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
