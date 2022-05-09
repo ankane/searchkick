@@ -1630,16 +1630,16 @@ Create a job to update the column and reindex records with new conversions.
 class ReindexConversionsJob < ApplicationJob
   def perform(class_name, since)
     # get records that have a recent conversion
-    recently_converted_ids = Searchjoy::Search
-      .where(convertable_type: class_name).where(converted_at: since..)
+    recently_converted_ids =
+      Searchjoy::Search.where(convertable_type: class_name).where(converted_at: since..)
       .order(:convertable_id).distinct.pluck(:convertable_id)
 
     # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
-      conversions = Searchjoy::Search
-        .where(convertable_id: ids, convertable_type: class_name).where.not(user_id: nil)
-        .group(:convertable_id, :query).distinct.count(:user_id)
+      conversions =
+        Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
+        .where.not(user_id: nil).group(:convertable_id, :query).distinct.count(:user_id)
 
       # group conversions by record
       conversions_by_record = {}
