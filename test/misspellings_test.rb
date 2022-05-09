@@ -13,7 +13,7 @@ class MisspellingsTest < Minitest::Test
 
   def test_prefix_length
     store_names ["ap", "api", "apt", "any", "nap", "ah", "ahi"]
-    if Searchkick.server_below?("8.0.0")
+    if prefix_length_misspellings_off?
       assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
     else
       assert_search "ap", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
@@ -23,7 +23,7 @@ class MisspellingsTest < Minitest::Test
 
   def test_prefix_length_operator
     store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
-    if Searchkick.server_below?("8.0.0")
+    if prefix_length_misspellings_off?
       assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
     else
       assert_search "ap ah", ["ap", "ah", "api", "apt", "aha"], operator: "or", misspellings: {prefix_length: 2}
@@ -109,5 +109,11 @@ class MisspellingsTest < Minitest::Test
   def test_field_word_start
     store_names ["Sriracha"]
     assert_search "siracha", ["Sriracha"], fields: [{name: :word_middle}], misspellings: {fields: [:name]}
+  end
+
+  private
+
+  def prefix_length_misspellings_off?
+    Searchkick.opensearch? ? Searchkick.server_below?("2.0.0", true) : Searchkick.server_below?("8.0.0")
   end
 end

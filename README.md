@@ -2038,7 +2038,7 @@ Turn on misspellings after a certain number of characters
 Product.search("api", misspellings: {prefix_length: 2}) # api, apt, no ahi
 ```
 
-**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off with Elasticsearch 7 and OpenSearch
+**Note:** With this option, if the query length is the same as `prefix_length`, misspellings are turned off with Elasticsearch 7 and OpenSearch 1
 
 ```ruby
 Product.search("ah", misspellings: {prefix_length: 2}) # ah, no aha
