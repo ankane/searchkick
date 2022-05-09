@@ -1606,7 +1606,7 @@ add_column :products, :search_conversions, :jsonb
 
 For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
 
-Next, create a separate method so you can use partial reindexing.
+Create a separate method so you can use partial reindexing.
 
 ```ruby
 class Product < ApplicationRecord
