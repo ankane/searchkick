@@ -1624,7 +1624,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Create a job to update the cache and reindex records with new conversions.
+Create a job to update the column and reindex records with new conversions.
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
@@ -1647,7 +1647,7 @@ class ReindexConversionsJob < ApplicationJob
         (conversions_by_record[id] ||= {})[query] = count
       end
 
-      # write to cache
+      # update column
       model = class_name.constantize
       model.transaction do
         conversions_by_record.each do |id, conversions|
