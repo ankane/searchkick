@@ -1598,19 +1598,27 @@ Product.reindex(:search_prices)
 
 ### Performant Conversions
 
-Split out conversions into a separate method so you can use partial reindexing, and cache conversions to prevent N+1 queries. Be sure to use a centralized cache store like Memcached or Redis.
+Cache conversions to prevent N+1 queries. For Postgres, create a migration with:
+
+```ruby
+add_column :products, :search_conversions, :jsonb
+```
+
+For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
+
+Next, create a separate method so you can use partial reindexing.
 
 ```ruby
 class Product < ApplicationRecord
   def search_data
     {
       name: name
-    }.merge(search_conversions)
+    }.merge(search_conversions_data)
   end
 
-  def search_conversions
+  def search_conversions_data
     {
-      conversions: Rails.cache.read("search_conversions:#{self.class.name}:#{id}") || {}
+      conversions: search_conversions || {}
     }
   end
 end
@@ -1620,17 +1628,17 @@ Create a job to update the cache and reindex records with new conversions.
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
-  def perform(class_name)
+  def perform(class_name, since)
     # get records that have a recent conversion
     recently_converted_ids =
-      Searchjoy::Search.where("convertable_type = ? AND converted_at > ?", class_name, 1.day.ago)
+      Searchjoy::Search.where(convertable_type: class_name).where(converted_at: since..)
       .order(:convertable_id).distinct.pluck(:convertable_id)
 
     # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
       conversions =
-        Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
+        Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name).where.not(user_id: nil)
         .group(:convertable_id, :query).distinct.count(:user_id)
 
       # group conversions by record
@@ -1640,12 +1648,11 @@ class ReindexConversionsJob < ApplicationJob
       end
 
       # write to cache
-      conversions_by_record.each do |id, conversions|
-        Rails.cache.write("search_conversions:#{class_name}:#{id}", conversions)
-      end
+      attributes = conversions_by_record.map { |k, v| {id: k, search_conversions: v} }
+      class_name.constantize.upsert_all(attributes)
 
       # partial reindex
-      class_name.constantize.where(id: ids).reindex(:search_conversions)
+      class_name.constantize.where(id: ids).reindex(:search_conversions_data)
     end
   end
 end
@@ -1654,7 +1661,7 @@ end
 Run the job with:
 
 ```ruby
-ReindexConversionsJob.perform_later("Product")
+ReindexConversionsJob.perform_later("Product", 1.day.ago)
 ```
 
 ## Advanced
