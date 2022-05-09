@@ -1578,10 +1578,10 @@ class Product < ApplicationRecord
   def search_data
     {
       name: name
-    }.merge(search_prices)
+    }.merge(prices_data)
   end
 
-  def search_prices
+  def prices_data
     {
       price: price,
       sale_price: sale_price
@@ -1593,7 +1593,7 @@ end
 And use:
 
 ```ruby
-Product.reindex(:search_prices)
+Product.reindex(:prices_data)
 ```
 
 ### Performant Conversions
@@ -1613,10 +1613,10 @@ class Product < ApplicationRecord
   def search_data
     {
       name: name
-    }.merge(search_conversions_data)
+    }.merge(conversions_data)
   end
 
-  def search_conversions_data
+  def conversions_data
     {
       conversions: search_conversions || {}
     }
@@ -1656,7 +1656,7 @@ class ReindexConversionsJob < ApplicationJob
       end
 
       # partial reindex
-      model.where(id: ids).reindex(:search_conversions_data)
+      model.where(id: ids).reindex(:conversions_data)
     end
   end
 end
