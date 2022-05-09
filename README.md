@@ -1648,11 +1648,15 @@ class ReindexConversionsJob < ApplicationJob
       end
 
       # write to cache
-      attributes = conversions_by_record.map { |k, v| {id: k, search_conversions: v} }
-      class_name.constantize.upsert_all(attributes)
+      model = class_name.constantize
+      model.transaction do
+        conversions_by_record.each do |id, conversions|
+          model.where(id: id).update_all(search_conversions: conversions)
+        end
+      end
 
       # partial reindex
-      class_name.constantize.where(id: ids).reindex(:search_conversions_data)
+      model.where(id: ids).reindex(:search_conversions_data)
     end
   end
 end
