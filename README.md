@@ -1638,10 +1638,8 @@ class ReindexConversionsJob < ApplicationJob
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
       conversions = Searchjoy::Search
-        .where(convertable_id: ids, convertable_type: class_name)
-        .where.not(user_id: nil)
-        .group(:convertable_id, :query)
-        .distinct.count(:user_id)
+        .where(convertable_id: ids, convertable_type: class_name).where.not(user_id: nil)
+        .group(:convertable_id, :query).distinct.count(:user_id)
 
       # group conversions by record
       conversions_by_record = {}
