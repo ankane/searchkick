@@ -654,9 +654,7 @@ The best starting point to improve your search **by far** is to track searches a
 Product.search("apple", track: {user_id: current_user.id})
 ```
 
-[See the docs](https://github.com/ankane/searchjoy) for how to install and use.
-
-Focus on top searches with a low conversion rate.
+[See the docs](https://github.com/ankane/searchjoy) for how to install and use. Focus on top searches with a low conversion rate.
 
 Searchkick can then use the conversion data to learn what users are looking for. If a user searches for “ice cream” and adds Ben & Jerry’s Chunky Monkey to the cart (our conversion metric at Instacart), that item gets a little more weight for similar searches. This can make a huge difference on the quality of your search.
 
@@ -679,13 +677,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Reindex and set up a cron job to add new conversions daily.
-
-```sh
-rake searchkick:reindex CLASS=Product
-```
-
-**Note:** For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
+Reindex and set up a cron job to add new conversions daily. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
 For a more performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
 
