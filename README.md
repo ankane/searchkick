@@ -667,7 +667,8 @@ Add conversion data with:
 
 ```ruby
 class Product < ApplicationRecord
-  has_many :searches, class_name: "Searchjoy::Search", as: :convertable
+  has_many :conversions, class_name: "Searchjoy::Conversion", as: :convertable
+  has_many :searches, class_name: "Searchjoy::Search", through: :conversions
 
   searchkick conversions: [:conversions] # name of field
 
@@ -1631,15 +1632,16 @@ class ReindexConversionsJob < ApplicationJob
   def perform(class_name, since)
     # get records that have a recent conversion
     recently_converted_ids =
-      Searchjoy::Search.where(convertable_type: class_name).where(converted_at: since..)
+      Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
       .order(:convertable_id).distinct.pluck(:convertable_id)
 
     # split into groups
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
       conversions =
-        Searchjoy::Search.where(convertable_id: ids, convertable_type: class_name)
-        .where.not(user_id: nil).group(:convertable_id, :query).distinct.count(:user_id)
+        Searchjoy::Conversion.where(convertable_id: ids, convertable_type: class_name)
+        .joins(:search).where.not(searchjoy_searches: {user_id: nil})
+        .group(:convertable_id, :query).distinct.count(:user_id)
 
       # group conversions by record
       conversions_by_record = {}
