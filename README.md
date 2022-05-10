@@ -1618,7 +1618,7 @@ end
 
 Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
-Create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
+Then, create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
@@ -1657,7 +1657,7 @@ class ReindexConversionsJob < ApplicationJob
 end
 ```
 
-Run the job with:
+Run the job:
 
 ```ruby
 ReindexConversionsJob.perform_now("Product")
