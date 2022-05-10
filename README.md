@@ -679,7 +679,7 @@ end
 
 Reindex and set up a cron job to add new conversions daily. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
-For a more performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
+For a performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
 
 ## Personalized Results
 
@@ -1616,7 +1616,7 @@ end
 
 Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
-To populate conversions, create a job to update the column and reindex records with new conversions.
+Create a job to update the conversions column and reindex records with new conversions.
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
@@ -1658,7 +1658,7 @@ end
 Run the job with:
 
 ```ruby
-ReindexConversionsJob.perform_later("Product")
+ReindexConversionsJob.perform_now("Product")
 ```
 
 And set it up to run daily.
