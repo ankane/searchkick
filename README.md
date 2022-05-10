@@ -1602,10 +1602,12 @@ add_column :products, :search_conversions, :jsonb
 
 For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
 
-Create a separate method so you can use partial reindexing.
+Next, update your model, Create a separate method for conversion data so you can use [partial reindexing](#partial-reindexing).
 
 ```ruby
 class Product < ApplicationRecord
+  searchkick conversions: [:conversions]
+
   def search_data
     {
       name: name
@@ -1620,11 +1622,13 @@ class Product < ApplicationRecord
 end
 ```
 
-Create a job to update the column and reindex records with new conversions.
+Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
+
+To populate conversions, create a job to update the column and reindex records with new conversions.
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
-  def perform(class_name, since)
+  def perform(class_name, since: nil, reindex: true)
     # get records that have a recent conversion
     recently_converted_ids =
       Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
@@ -1652,8 +1656,8 @@ class ReindexConversionsJob < ApplicationJob
         end
       end
 
-      # partial reindex
-      model.where(id: ids).reindex(:conversions_data)
+      # reindex conversions data
+      model.where(id: ids).reindex(:conversions_data) if reindex
     end
   end
 end
@@ -1662,7 +1666,13 @@ end
 Run the job with:
 
 ```ruby
-ReindexConversionsJob.perform_later("Product", 1.day.ago)
+ReindexConversionsJob.perform_later("Product")
+```
+
+And set it up to run daily.
+
+```ruby
+ReindexConversionsJob.perform_later("Product", since: 1.day.ago)
 ```
 
 ## Advanced
