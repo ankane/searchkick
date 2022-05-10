@@ -1645,7 +1645,7 @@ class ReindexConversionsJob < ApplicationJob
       end
 
       # update column
-      model = class_name.constantize
+      model = Searchkick.load_model(class_name)
       model.transaction do
         conversions_by_record.each do |id, conversions|
           model.where(id: id).update_all(search_conversions: conversions)

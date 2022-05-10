@@ -285,7 +285,7 @@ module Searchkick
     relation
   end
 
-  # private
+  # public (for reindexing conversions)
   def self.load_model(class_name, allow_child: false)
     model = class_name.safe_constantize
     raise Error, "Could not find class: #{class_name}" unless model
