@@ -1594,7 +1594,7 @@ add_column :products, :search_conversions, :jsonb
 
 For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
 
-Next, update your model, Create a separate method for conversion data so you can use [partial reindexing](#partial-reindexing).
+Next, update your model. Create a separate method for conversion data so you can use [partial reindexing](#partial-reindexing).
 
 ```ruby
 class Product < ApplicationRecord
@@ -1616,7 +1616,7 @@ end
 
 Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
-Create a job to update the conversions column and reindex records with new conversions.
+Create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
 
 ```ruby
 class ReindexConversionsJob < ApplicationJob
