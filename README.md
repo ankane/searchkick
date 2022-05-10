@@ -1565,7 +1565,8 @@ Reindex a subset of attributes to reduce time spent generating search data and c
 class Product < ApplicationRecord
   def search_data
     {
-      name: name
+      name: name,
+      category: category
     }.merge(prices_data)
   end
 
@@ -1602,7 +1603,8 @@ class Product < ApplicationRecord
 
   def search_data
     {
-      name: name
+      name: name,
+      category: category
     }.merge(conversions_data)
   end
 
