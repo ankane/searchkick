@@ -1626,7 +1626,7 @@ class ReindexConversionsJob < ApplicationJob
       Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
       .order(:convertable_id).distinct.pluck(:convertable_id)
 
-    # split into groups
+    # split into batches
     recently_converted_ids.in_groups_of(1000, false) do |ids|
       # fetch conversions
       conversions =
@@ -1634,13 +1634,13 @@ class ReindexConversionsJob < ApplicationJob
         .joins(:search).where.not(searchjoy_searches: {user_id: nil})
         .group(:convertable_id, :query).distinct.count(:user_id)
 
-      # group conversions by record
+      # group by record
       conversions_by_record = {}
       conversions.each do |(id, query), count|
         (conversions_by_record[id] ||= {})[query] = count
       end
 
-      # update column
+      # update conversions column
       model = Searchkick.load_model(class_name)
       model.transaction do
         conversions_by_record.each do |id, conversions|
