@@ -719,7 +719,7 @@ Product.reindex
 Then, create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
 
 ```ruby
-class ReindexConversionsJob < ApplicationJob
+class UpdateConversionsJob < ApplicationJob
   def perform(class_name, since: nil, reindex: true)
     # get records that have a recent conversion
     recently_converted_ids =
@@ -758,13 +758,13 @@ end
 Run the job:
 
 ```ruby
-ReindexConversionsJob.perform_now("Product")
+UpdateConversionsJob.perform_now("Product")
 ```
 
 And set it up to run daily.
 
 ```ruby
-ReindexConversionsJob.perform_later("Product", since: 1.day.ago)
+UpdateConversionsJob.perform_later("Product", since: 1.day.ago)
 ```
 
 ## Personalized Results
