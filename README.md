@@ -720,7 +720,9 @@ Then, create a job to update the conversions column and reindex records with new
 
 ```ruby
 class UpdateConversionsJob < ApplicationJob
-  def perform(class_name, since: nil, reindex: true)
+  def perform(class_name, since: nil, update: true, reindex: true)
+    model = Searchkick.load_model(class_name)
+
     # get records that have a recent conversion
     recently_converted_ids =
       Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
@@ -728,28 +730,31 @@ class UpdateConversionsJob < ApplicationJob
 
     # split into batches
     recently_converted_ids.in_groups_of(1000, false) do |ids|
-      # fetch conversions
-      conversions =
-        Searchjoy::Conversion.where(convertable_id: ids, convertable_type: class_name)
-        .joins(:search).where.not(searchjoy_searches: {user_id: nil})
-        .group(:convertable_id, :query).distinct.count(:user_id)
+      if update
+        # fetch conversions
+        conversions =
+          Searchjoy::Conversion.where(convertable_id: ids, convertable_type: class_name)
+          .joins(:search).where.not(searchjoy_searches: {user_id: nil})
+          .group(:convertable_id, :query).distinct.count(:user_id)
 
-      # group by record
-      conversions_by_record = {}
-      conversions.each do |(id, query), count|
-        (conversions_by_record[id] ||= {})[query] = count
-      end
+        # group by record
+        conversions_by_record = {}
+        conversions.each do |(id, query), count|
+          (conversions_by_record[id] ||= {})[query] = count
+        end
 
-      # update conversions column
-      model = Searchkick.load_model(class_name)
-      model.transaction do
-        conversions_by_record.each do |id, conversions|
-          model.where(id: id).update_all(search_conversions: conversions)
+        # update conversions column
+        model.transaction do
+          conversions_by_record.each do |id, conversions|
+            model.where(id: id).update_all(search_conversions: conversions)
+          end
         end
       end
 
-      # reindex conversions data
-      model.where(id: ids).reindex(:conversions_data) if reindex
+      if reindex
+        # reindex conversions data
+        model.where(id: ids).reindex(:conversions_data)
+      end
     end
   end
 end
