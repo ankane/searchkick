@@ -679,7 +679,93 @@ end
 
 Reindex and set up a cron job to add new conversions daily. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
 
-For a performant way to reindex conversion data, check out [performant conversions](#performant-conversions).
+### Performant Conversions
+
+A performant way to do conversions is to cache them to prevent N+1 queries. For Postgres, create a migration with:
+
+```ruby
+add_column :products, :search_conversions, :jsonb
+```
+
+For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
+
+Next, update your model. Create a separate method for conversion data so you can use [partial reindexing](#partial-reindexing).
+
+```ruby
+class Product < ApplicationRecord
+  searchkick conversions: [:conversions]
+
+  def search_data
+    {
+      name: name,
+      category: category
+    }.merge(conversions_data)
+  end
+
+  def conversions_data
+    {
+      conversions: search_conversions || {}
+    }
+  end
+end
+```
+
+Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
+
+```ruby
+Product.reindex
+```
+
+Then, create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
+
+```ruby
+class ReindexConversionsJob < ApplicationJob
+  def perform(class_name, since: nil, reindex: true)
+    # get records that have a recent conversion
+    recently_converted_ids =
+      Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
+      .order(:convertable_id).distinct.pluck(:convertable_id)
+
+    # split into batches
+    recently_converted_ids.in_groups_of(1000, false) do |ids|
+      # fetch conversions
+      conversions =
+        Searchjoy::Conversion.where(convertable_id: ids, convertable_type: class_name)
+        .joins(:search).where.not(searchjoy_searches: {user_id: nil})
+        .group(:convertable_id, :query).distinct.count(:user_id)
+
+      # group by record
+      conversions_by_record = {}
+      conversions.each do |(id, query), count|
+        (conversions_by_record[id] ||= {})[query] = count
+      end
+
+      # update conversions column
+      model = Searchkick.load_model(class_name)
+      model.transaction do
+        conversions_by_record.each do |id, conversions|
+          model.where(id: id).update_all(search_conversions: conversions)
+        end
+      end
+
+      # reindex conversions data
+      model.where(id: ids).reindex(:conversions_data) if reindex
+    end
+  end
+end
+```
+
+Run the job:
+
+```ruby
+ReindexConversionsJob.perform_now("Product")
+```
+
+And set it up to run daily.
+
+```ruby
+ReindexConversionsJob.perform_later("Product", since: 1.day.ago)
+```
 
 ## Personalized Results
 
@@ -1583,94 +1669,6 @@ And use:
 
 ```ruby
 Product.reindex(:prices_data)
-```
-
-### Performant Conversions
-
-Cache conversions to prevent N+1 queries. For Postgres, create a migration with:
-
-```ruby
-add_column :products, :search_conversions, :jsonb
-```
-
-For MySQL, use `:json`, and for others, use `:text` with a [JSON serializer](https://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods/Serialization/ClassMethods.html).
-
-Next, update your model. Create a separate method for conversion data so you can use [partial reindexing](#partial-reindexing).
-
-```ruby
-class Product < ApplicationRecord
-  searchkick conversions: [:conversions]
-
-  def search_data
-    {
-      name: name,
-      category: category
-    }.merge(conversions_data)
-  end
-
-  def conversions_data
-    {
-      conversions: search_conversions || {}
-    }
-  end
-end
-```
-
-Deploy and reindex your data. For zero downtime deployment, temporarily set `conversions: false` in your search calls until the data is reindexed.
-
-```ruby
-Product.reindex
-```
-
-Then, create a job to update the conversions column and reindex records with new conversions. Here’s one you can use for Searchjoy:
-
-```ruby
-class ReindexConversionsJob < ApplicationJob
-  def perform(class_name, since: nil, reindex: true)
-    # get records that have a recent conversion
-    recently_converted_ids =
-      Searchjoy::Conversion.where(convertable_type: class_name).where(created_at: since..)
-      .order(:convertable_id).distinct.pluck(:convertable_id)
-
-    # split into batches
-    recently_converted_ids.in_groups_of(1000, false) do |ids|
-      # fetch conversions
-      conversions =
-        Searchjoy::Conversion.where(convertable_id: ids, convertable_type: class_name)
-        .joins(:search).where.not(searchjoy_searches: {user_id: nil})
-        .group(:convertable_id, :query).distinct.count(:user_id)
-
-      # group by record
-      conversions_by_record = {}
-      conversions.each do |(id, query), count|
-        (conversions_by_record[id] ||= {})[query] = count
-      end
-
-      # update conversions column
-      model = Searchkick.load_model(class_name)
-      model.transaction do
-        conversions_by_record.each do |id, conversions|
-          model.where(id: id).update_all(search_conversions: conversions)
-        end
-      end
-
-      # reindex conversions data
-      model.where(id: ids).reindex(:conversions_data) if reindex
-    end
-  end
-end
-```
-
-Run the job:
-
-```ruby
-ReindexConversionsJob.perform_now("Product")
-```
-
-And set it up to run daily.
-
-```ruby
-ReindexConversionsJob.perform_later("Product", since: 1.day.ago)
 ```
 
 ## Advanced
