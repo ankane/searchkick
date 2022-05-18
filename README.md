@@ -592,6 +592,14 @@ There are four strategies for keeping the index synced with your database.
   end
   ```
 
+  And reindex a record or relation manually.
+
+  ```ruby
+  product.reindex
+  # or
+  store.products.reindex(mode: :async)
+  ```
+
 You can also do bulk updates.
 
 ```ruby
@@ -606,6 +614,12 @@ Or temporarily skip updates.
 Searchkick.callbacks(false) do
   Product.find_each(&:update_fields)
 end
+```
+
+Or override the model’s strategy.
+
+```ruby
+product.reindex(mode: :async) # :inline or :queue
 ```
 
 ### Associations
