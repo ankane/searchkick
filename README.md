@@ -2063,6 +2063,18 @@ Product.search("api", misspellings: {prefix_length: 2}) # api, apt, no ahi
 Product.search("ah", misspellings: {prefix_length: 2}) # ah, no aha
 ```
 
+BigDecimal values are indexed as floats by default so they can be used for boosting. Convert them to strings to keep full precision.
+
+```ruby
+class Product < ApplicationRecord
+  def search_data
+    {
+      units: units.to_s("F")
+    }
+  end
+end
+```
+
 ## Gotchas
 
 ### Consistency
