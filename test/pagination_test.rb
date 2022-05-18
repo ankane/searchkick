@@ -125,4 +125,18 @@ class PaginationTest < Minitest::Test
     store_names ["Product B"]
     assert_equal "Displaying <b>all 2</b> products", view.page_entries_info(Product.search("product"))
   end
+
+  def test_deep_paging
+    with_options({deep_paging: true}, Song) do
+      assert_empty Song.search("*", offset: 10000, limit: 1).to_a
+    end
+  end
+
+  def test_no_deep_paging
+    Song.reindex
+    error = assert_raises(Searchkick::InvalidQueryError) do
+      Song.search("*", offset: 10000, limit: 1).to_a
+    end
+    assert_match "Result window is too large", error.message
+  end
 end
