@@ -1,3 +1,7 @@
+## 5.0.4 (unreleased)
+
+- Added `max_result_window` option
+
 ## 5.0.3 (2022-03-13)
 
 - Fixed context for index name for inherited models

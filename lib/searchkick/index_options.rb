@@ -19,7 +19,7 @@ module Searchkick
         mappings = generate_mappings.deep_symbolize_keys.deep_merge(custom_mappings)
       end
 
-      set_deep_paging(settings) if options[:deep_paging]
+      set_deep_paging(settings) if options[:deep_paging] || options[:max_result_window]
 
       {
         settings: settings,
@@ -525,7 +525,7 @@ module Searchkick
     def set_deep_paging(settings)
       if !settings.dig(:index, :max_result_window) && !settings[:"index.max_result_window"]
         settings[:index] ||= {}
-        settings[:index][:max_result_window] = 1_000_000_000
+        settings[:index][:max_result_window] = options[:max_result_window] || 1_000_000_000
       end
     end
 

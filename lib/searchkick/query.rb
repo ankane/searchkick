@@ -254,6 +254,12 @@ module Searchkick
       offset = options[:offset] || (page - 1) * per_page + padding
       scroll = options[:scroll]
 
+      max_result_window = searchkick_options[:max_result_window]
+      if max_result_window
+        offset = max_result_window if offset > max_result_window
+        per_page = max_result_window - offset if offset + per_page > max_result_window
+      end
+
       # model and eager loading
       load = options[:load].nil? ? true : options[:load]
 

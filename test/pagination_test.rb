@@ -139,4 +139,10 @@ class PaginationTest < Minitest::Test
     end
     assert_match "Result window is too large", error.message
   end
+
+  def test_max_result_window
+    with_options({max_result_window: 10000}, Song) do
+      assert_empty Song.search("*", offset: 10000, limit: 1).to_a
+    end
+  end
 end
