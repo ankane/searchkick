@@ -489,7 +489,7 @@ class Product
       ["saran wrap", "plastic wrap"],
       ["qtip", "cottonswab"],
       ["burger", "hamburger"],
-      ["bandaid", "bandag"],
+      ["bandaid", "bandages"],
       ["UPPERCASE", "lowercase"],
       "lightbulb => led,lightbulb",
       "lightbulb => halogenlamp"
@@ -540,8 +540,9 @@ class Store
   searchkick \
     routing: true,
     merge_mappings: true,
-    mappings: {
-      store: {
+    mappings: Searchkick.unified_mappings(
+      :store,
+      {
         properties: {
           nested_field: {
             type: 'nested',
@@ -567,7 +568,7 @@ class Store
           }
         }
       }
-    }
+    )
 
   def search_document_id
     id
@@ -612,14 +613,15 @@ class Review
   searchkick \
     routing: true,
     merge_mappings: true,
-    mappings: {
-      review: {
+    mappings: Searchkick.unified_mappings(
+      :review,
+      {
         properties: {
           name: {type: "keyword"},
           stars: {type: "keyword"}
         }
       }
-    }
+    )
 
   def search_document_id
     id
@@ -641,14 +643,15 @@ class Comment
   searchkick \
     routing: true,
     merge_mappings: true,
-    mappings: {
-      comment: {
+    mappings: Searchkick.unified_mappings(
+      :comment,
+      {
         properties: {
           status: {type: "keyword"},
           message: {type: "keyword"}
         }
       }
-    }
+    )
 
   def search_document_id
     id
@@ -670,8 +673,9 @@ class Employee
   searchkick \
     routing: true,
     merge_mappings: true,
-    mappings: {
-      employee: {
+    mappings: Searchkick.unified_mappings(
+      :employee,
+      {
         properties: {
           name: {type: "keyword"},
           age: {type: "keyword"},
@@ -683,7 +687,7 @@ class Employee
           }
         }
       }
-    }
+    )
 
 
   def search_document_id
@@ -711,13 +715,14 @@ class TimeCard
   searchkick \
     routing: true,
     merge_mappings: true,
-    mappings: {
-      time_card: {
+    mappings: Searchkick.unified_mappings(
+      :time_card,
+      {
         properties: {
           hours: {type: 'keyword'}
         }
       }
-    }
+    )
 
 
   def search_document_id

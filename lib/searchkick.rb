@@ -270,6 +270,12 @@ module Searchkick
       }
     end
   end
+
+  def self.unified_mappings(name, mappings)
+    return mappings unless Searchkick.server_below?("7.0.0")
+
+    { name => mappings }
+  end
 end
 
 # TODO find better ActiveModel hook

@@ -40,14 +40,17 @@ module Searchkick
     def record_data
       data = {
         _index: index.name,
-        _id: search_id,
-        _type: document_type
+        _id: search_id
       }
-      data[:_routing] = record.search_routing if record.respond_to?(:search_routing)
+      data[:_type] = document_type if Searchkick.server_below?("7.0.0")
+
+      key_prefix = Searchkick.server_below?("7.0.0") ? '_' : ''
+
+      data[:"#{key_prefix}routing"] = record.search_routing if record.respond_to?(:search_routing)
 
       if external_version
-        data[:_version] = external_version
-        data[:_version_type] = 'external'
+        data[:"#{key_prefix}version"] = external_version
+        data[:"#{key_prefix}version_type"] = 'external'
       end
 
       data
