@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    searchkick (3.1.1.pre.everfi.2.2.1)
+    searchkick (3.1.1.pre.everfi.2.3.0)
       activemodel (>= 4.2)
       elasticsearch (>= 5, < 7)
       hashie
@@ -101,6 +101,8 @@ GEM
     minitest (5.14.4)
     multi_json (1.15.0)
     multipart-post (2.1.1)
+    nokogiri (1.12.5-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.12.5-x86_64-darwin)
       racc (~> 1.4)
     racc (1.6.0)
@@ -123,6 +125,7 @@ GEM
     zeitwerk (2.5.1)
 
 PLATFORMS
+  arm64-darwin-21
   x86_64-darwin-18
   x86_64-darwin-20
 

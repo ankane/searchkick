@@ -168,7 +168,7 @@ module Searchkick
     end
 
     def retry_misspellings?(response)
-      @misspellings_below && response["hits"]["total"] < @misspellings_below
+      @misspellings_below && Searchkick::Results.new(searchkick_klass, response).total_count < @misspellings_below
     end
 
     private
