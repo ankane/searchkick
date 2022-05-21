@@ -1,6 +1,6 @@
 module Searchkick
   class BulkReindexJob < ActiveJob::Base
-    queue_as { Searchkick.queue_name }
+    queue_as { Searchkick.bulk_queue_name }
 
     # TODO remove min_id and max_id in Searchkick 6
     def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil)

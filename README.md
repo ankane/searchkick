@@ -1957,6 +1957,12 @@ Change search queue name
 Searchkick.queue_name = :search_reindex
 ```
 
+Change queue name for bulk reindexing
+
+```ruby
+Searchkick.bulk_queue_name = :bulk_search_reindex
+```
+
 Eager load associations
 
 ```ruby
