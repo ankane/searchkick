@@ -26,19 +26,23 @@ class Minitest::Test
     ($setup_model ||= {})[model] ||= (model.reindex || true)
 
     # clear every time
-    model.destroy_all
+    Searchkick.callbacks(:bulk) do
+      model.destroy_all
+    end
   end
 
   def store(documents, model = default_model, reindex: true)
     if reindex
-      documents.shuffle.each do |document|
-        model.create!(document)
+      Searchkick.callbacks(:bulk) do
+        with_transaction(model) do
+          model.create!(documents.shuffle)
+        end
       end
       model.searchkick_index.refresh
     else
       Searchkick.callbacks(false) do
-        documents.shuffle.each do |document|
-          model.create!(document)
+        with_transaction(model) do
+          model.create!(documents.shuffle)
         end
       end
     end
@@ -99,6 +103,14 @@ class Minitest::Test
       model.instance_variable_set(:@searchkick_index_name, nil)
       model.searchkick_options.clear
       model.searchkick_options.merge!(previous_options)
+    end
+  end
+
+  def with_transaction(model, &block)
+    if model.respond_to?(:transaction)
+      model.transaction(&block)
+    else
+      yield
     end
   end
 
