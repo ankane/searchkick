@@ -33,7 +33,7 @@ class Minitest::Test
 
   def store(documents, model = default_model, reindex: true)
     if reindex
-      Searchkick.callbacks(:bulk) do
+      with_callbacks(:bulk) do
         with_transaction(model) do
           model.create!(documents.shuffle)
         end
@@ -103,6 +103,14 @@ class Minitest::Test
       model.instance_variable_set(:@searchkick_index_name, nil)
       model.searchkick_options.clear
       model.searchkick_options.merge!(previous_options)
+    end
+  end
+
+  def with_callbacks(value, &block)
+    if Searchkick.callbacks?(default: nil).nil?
+      Searchkick.callbacks(value, &block)
+    else
+      yield
     end
   end
 
