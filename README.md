@@ -66,7 +66,7 @@ gem "elasticsearch"   # select one
 gem "opensearch-ruby" # select one
 ```
 
-The latest version works with Elasticsearch 7 and 8 and OpenSearch 1. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
+The latest version works with Elasticsearch 7 and 8 and OpenSearch 1 and 2. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
 
 Add searchkick to models you want to search.
 
