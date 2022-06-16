@@ -14,7 +14,8 @@ module Searchkick
       relation = Searchkick.load_records(relation, record_ids)
       relation = relation.search_import if relation.respond_to?(:search_import)
 
-      RecordIndexer.new(index).reindex(relation, mode: :inline, method_name: method_name, full: false)
+      # TODO support allow_missing
+      RecordIndexer.new(index).reindex(relation, mode: :inline, method_name: method_name, allow_missing: false, full: false)
       RelationIndexer.new(index).batch_completed(batch_id) if batch_id
     end
   end

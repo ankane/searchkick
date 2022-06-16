@@ -71,4 +71,17 @@ class PartialReindexTest < Minitest::Test
     end
     assert_match "document missing", error.message
   end
+
+  def test_allow_missing
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    product.reindex(:search_name, allow_missing: true)
+    Product.where(id: product.id).reindex(:search_name, allow_missing: true)
+    Searchkick.callbacks(:bulk) do
+      product.reindex(:search_name, allow_missing: true)
+    end
+  end
 end
