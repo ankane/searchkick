@@ -60,4 +60,15 @@ class PartialReindexTest < Minitest::Test
     product = Product.create!(name: "Hi")
     product.reindex(:search_data, mode: :async)
   end
+
+  def test_missing
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+    error = assert_raises(Searchkick::ImportError) do
+      product.reindex(:search_name)
+    end
+    assert_match "document missing", error.message
+  end
 end
