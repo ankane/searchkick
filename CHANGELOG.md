@@ -1,4 +1,4 @@
-## 5.0.4 (unreleased)
+## 5.0.4 (2022-06-16)
 
 - Added `max_result_window` option
 - Improved error message for unsupported versions of Elasticsearch
