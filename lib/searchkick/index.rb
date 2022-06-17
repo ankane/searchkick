@@ -418,7 +418,7 @@ module Searchkick
         true
       end
     rescue => e
-      if Searchkick.transport_error?(e) && e.message.include?("No handler for type [text]")
+      if Searchkick.transport_error?(e) && (e.message.include?("No handler for type [text]") || e.message.include?("class java.util.ArrayList cannot be cast to class java.util.Map"))
         raise UnsupportedVersionError
       end
 
