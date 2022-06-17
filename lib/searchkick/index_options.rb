@@ -7,8 +7,6 @@ module Searchkick
     end
 
     def index_options
-      raise UnsupportedVersionError if below70?
-
       # mortal symbols are garbage collected in Ruby 2.2+
       custom_settings = (options[:settings] || {}).deep_symbolize_keys
       custom_mappings = (options[:mappings] || {}).deep_symbolize_keys
@@ -549,10 +547,6 @@ module Searchkick
 
     def below73?
       Searchkick.server_below?("7.3.0")
-    end
-
-    def below70?
-      Searchkick.server_below?("7.0.0")
     end
   end
 end
