@@ -17,7 +17,7 @@ module Searchkick
       :with_score, :misspellings?, :scroll_id, :clear_scroll, :missing_records, :with_hit
 
     def initialize(klass, term = "*", **options)
-      unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
+      unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost, :boost_and,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
@@ -412,6 +412,17 @@ module Searchkick
                     }
                   },
                   should: {match_type => {field.sub(/\.word_(start|middle|end)\z/, ".analyzed") => qs.first}}
+                }
+              }
+            elsif options[:boost_and] && operator.to_s == "or"
+              queries_to_add << {
+                bool: {
+                  must: {
+                    bool: {
+                      should: q2
+                    }
+                  },
+                  should: qs.map { |q| {match_type => {field => q.merge({ operator: "and"})}} } 
                 }
               }
             else
