@@ -63,10 +63,10 @@ module Searchkick
     end
 
     def in_batches(relation)
-      if relation.respond_to?(:find_in_batches)
+      if relation.respond_to?(:in_batches)
         klass = relation.klass
         # remove order to prevent possible warnings
-        relation.except(:order).find_in_batches(batch_size: batch_size) do |batch|
+        relation.except(:order).in_batches(of: batch_size).each do |batch|
           # prevent scope from affecting search_data as well as inline jobs
           # Active Record runs relation calls in scoping block
           # https://github.com/rails/rails/blob/main/activerecord/lib/active_record/relation/delegation.rb
@@ -77,12 +77,12 @@ module Searchkick
           if previous_scope
             begin
               klass.current_scope = nil
-              yield batch
+              yield batch.pluck(:id)
             ensure
               klass.current_scope = previous_scope
             end
           else
-            yield batch
+            yield batch.pluck(:id)
           end
         end
       else
@@ -109,7 +109,7 @@ module Searchkick
       # https://github.com/karmi/tire/blob/master/lib/tire/model/import.rb
       # use cursor for Mongoid
       items = []
-      relation.all.each do |item|
+      relation.all.pluck(:_id).each do |item|
         items << item
         if items.length == batch_size
           yield items
@@ -128,7 +128,7 @@ module Searchkick
       class_name = relation.searchkick_options[:class_name]
 
       in_batches(relation) do |items|
-        batch_job(class_name, batch_id, items.map(&:id))
+        batch_job(class_name, batch_id, items)
         batch_id += 1
       end
     end
