@@ -292,12 +292,18 @@ Option | Matches | Example
 
 The default is `:word`. The most matches will happen with `:word_middle`.
 
+To specify different matching for different fields, use:
+
+```ruby
+Product.search(query, fields: [{name: :word_start}, {brand: :word_middle}])
+```
+
 ### Exact Matches
 
 To match a field exactly (case-sensitive), use:
 
 ```ruby
-Product.search(query, fields: [{email: :exact}, :name])
+Product.search(query, fields: [{name: :exact}])
 ```
 
 ### Phrase Matches
