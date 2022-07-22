@@ -24,6 +24,10 @@ jobs:
         - ruby: 2.6
           gemfile: gemfiles/activerecord52.gemfile
           elasticsearch: 7.0.0
+        - ruby: 3.1
+          gemfile: gemfiles/mongoid8.gemfile
+          elasticsearch: 8
+          mongodb: true
         - ruby: 2.7
           gemfile: gemfiles/mongoid7.gemfile
           elasticsearch: 8
