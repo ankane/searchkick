@@ -805,41 +805,7 @@ module Searchkick
 
       aggs = aggs.to_h { |f| [f, {}] } if aggs.is_a?(Array) # convert to more advanced syntax
       aggs.each do |field, agg_options|
-        size = agg_options[:limit] ? agg_options[:limit] : 1_000
-        shared_agg_options = agg_options.except(:limit, :field, :ranges, :date_ranges, :where)
-
-        if agg_options[:ranges]
-          payload[:aggs][field] = {
-            range: {
-              field: agg_options[:field] || field,
-              ranges: agg_options[:ranges]
-            }.merge(shared_agg_options)
-          }
-        elsif agg_options[:date_ranges]
-          payload[:aggs][field] = {
-            date_range: {
-              field: agg_options[:field] || field,
-              ranges: agg_options[:date_ranges]
-            }.merge(shared_agg_options)
-          }
-        elsif (histogram = agg_options[:date_histogram])
-          payload[:aggs][field] = {
-            date_histogram: histogram
-          }.merge(shared_agg_options)
-        elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
-          payload[:aggs][field] = {
-            metric => {
-              field: agg_options[metric][:field] || field
-            }
-          }.merge(shared_agg_options)
-        else
-          payload[:aggs][field] = {
-            terms: {
-              field: agg_options[:field] || field,
-              size: size
-            }.merge(shared_agg_options)
-          }
-        end
+        payload[:aggs][field] = build_aggregation(field, agg_options)
 
         where = {}
         where = ensure_permitted(options[:where] || {}).reject { |k| k == field } unless options[:smart_aggs] == false
@@ -869,6 +835,56 @@ module Searchkick
           }
         end
       end
+    end
+
+    def build_aggregation(field, agg_options)
+      size = agg_options[:limit] ? agg_options[:limit] : 1_000
+      shared_agg_options = agg_options.except(:aggs, :date_ranges, :field, :limit, :ranges, :where)
+
+      aggregation =
+        if agg_options[:ranges]
+          {
+            range: {
+              field: agg_options[:field] || field,
+              ranges: agg_options[:ranges]
+            }.merge(shared_agg_options)
+          }
+        elsif agg_options[:date_ranges]
+          {
+            date_range: {
+              field: agg_options[:field] || field,
+              ranges: agg_options[:date_ranges]
+            }.merge(shared_agg_options)
+          }
+        elsif (histogram = agg_options[:date_histogram])
+          {
+            date_histogram: histogram
+          }.merge(shared_agg_options)
+        elsif (metric = @@metric_aggs.find { |k| agg_options.has_key?(k) })
+          {
+            metric => {
+              field: agg_options[metric][:field] || field
+            }
+          }.merge(shared_agg_options)
+        else
+          {
+            terms: {
+              field: agg_options[:field] || field,
+              size: size
+            }.merge(shared_agg_options)
+          }
+        end
+
+      # nested aggregations
+      if agg_options[:aggs].present?
+        aggregation[:aggs] = {}
+
+        agg_options[:aggs].each do |field, nested_agg_options|
+          aggregation[:aggs][field] = build_aggregation(field, nested_agg_options)
+        end
+      end
+
+      aggregation
     end
 
     def set_post_filters(payload, post_filters)

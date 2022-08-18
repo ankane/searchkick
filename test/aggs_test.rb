@@ -230,6 +230,35 @@ class AggsTest < Minitest::Test
     assert_equal products.aggs["price"]["buckets"], expected
   end
 
+  def test_nested_aggregations
+    products = Product.search("*",
+      aggs: {
+        stores: {
+          field: :store_id,
+          size: 10,
+          order: {
+            "_key" => "asc"
+          },
+          aggs: {
+            sum_price: {
+              sum: {
+                field: :price
+              }
+            }
+          }
+        }
+      },
+      limit: 0
+    )
+
+    expected = [
+      { "key" => 1, "doc_count" => 1, "sum_price" => { "value" => 21.0 } },
+      { "key" => 2, "doc_count" => 2, "sum_price" => { "value" => 30.0 } },
+      { "key" => 3, "doc_count" => 1, "sum_price" => { "value" => 15.0 } }
+    ]
+    assert_equal products.aggs["stores"]["buckets"], expected
+  end
+
   protected
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
