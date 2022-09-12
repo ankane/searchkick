@@ -302,7 +302,7 @@ module Searchkick
     def build_hits
       @build_hits ||= begin
         if missing_records.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
+          Searchkick.warn("#{@klass} records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
         end
         with_hit_and_missing_records[0]
       end
