@@ -26,13 +26,6 @@ Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 
 puts "Running against #{Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"} #{Searchkick.server_version}"
 
-Searchkick.redis =
-  if defined?(ConnectionPool)
-    ConnectionPool.new { Redis.new(logger: $logger) }
-  else
-    Redis.new(logger: $logger)
-  end
-
 I18n.config.enforce_available_locales = true
 
 ActiveJob::Base.logger = $logger
@@ -45,6 +38,8 @@ if defined?(Mongoid)
 else
   require_relative "support/activerecord"
 end
+
+require_relative "support/redis"
 
 # models
 Dir["#{__dir__}/models/*"].each do |file|
