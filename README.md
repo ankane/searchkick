@@ -2058,10 +2058,11 @@ Reindex conditionally
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick callbacks: false
+  searchkick
 
-  # add the callbacks manually
-  after_commit :reindex, if: -> (model) { model.previous_changes.key?("name") } # use your own condition
+  def skip_searchkick_reindex?
+    persisted? && saved_changes.keys == ['updated_at']
+  end
 end
 ```
 
