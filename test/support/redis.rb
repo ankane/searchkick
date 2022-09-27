@@ -1,8 +1,11 @@
+options = {}
+options[:logger] = $logger if Redis::VERSION.to_i < 5
+
 Searchkick.redis =
   if defined?(ConnectionPool)
-    ConnectionPool.new { Redis.new }
+    ConnectionPool.new { Redis.new(**options) }
   else
-    Redis.new
+    Redis.new(**options)
   end
 
 module RedisInstrumentation
@@ -16,4 +19,4 @@ module RedisInstrumentation
     super
   end
 end
-RedisClient.register(RedisInstrumentation)
+RedisClient.register(RedisInstrumentation) if Redis::VERSION.to_i >= 5

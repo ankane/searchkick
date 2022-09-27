@@ -9,7 +9,7 @@ gem "activerecord", "~> 5.2.0"
 gem "actionpack", "~> 5.2.0"
 gem "activejob", "~> 5.2.0", require: "active_job"
 gem "elasticsearch", "~> 7"
-gem "redis"
+gem "redis", "< 4.8" # before sadd return value deprecation
 gem "connection_pool"
 gem "kaminari"
 gem "gemoji-parser"
