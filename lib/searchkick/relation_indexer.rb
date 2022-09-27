@@ -46,7 +46,7 @@ module Searchkick
     end
 
     def batch_completed(batch_id)
-      Searchkick.with_redis { |r| r.srem(batches_key, batch_id) }
+      Searchkick.with_redis { |r| r.srem(batches_key, [batch_id]) }
     end
 
     private
