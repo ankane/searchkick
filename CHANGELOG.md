@@ -1,3 +1,7 @@
+## 5.0.5 (unreleased)
+
+- Fixed deprecation warning with `redis` gem
+
 ## 5.0.4 (2022-06-16)
 
 - Added `max_result_window` option
