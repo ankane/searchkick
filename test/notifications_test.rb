@@ -2,6 +2,8 @@ require_relative "test_helper"
 
 class NotificationsTest < Minitest::Test
   def test_search
+    Product.search_index.refresh
+
     notifications = capture_notifications do
       Product.search("product").to_a
     end
