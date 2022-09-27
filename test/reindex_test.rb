@@ -189,12 +189,12 @@ class ReindexTest < Minitest::Test
   end
 
   def test_full_async_wait
-    skip "Need to fix for test adapter"
-
     store_names ["Product A"], reindex: false
 
-    capture_io do
-      Product.reindex(mode: :async, wait: true)
+    perform_enqueued_jobs do
+      capture_io do
+        Product.reindex(mode: :async, wait: true)
+      end
     end
 
     assert_search "product", ["Product A"]
