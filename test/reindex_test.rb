@@ -255,61 +255,6 @@ class ReindexTest < Minitest::Test
     assert_equal "wait only available in :async mode", error.message
   end
 
-  def test_callbacks_false
-    Searchkick.callbacks(false) do
-      store_names ["Product A", "Product B"]
-    end
-    assert_search "product", []
-  end
-
-  def test_callbacks_bulk
-    Searchkick.callbacks(:bulk) do
-      store_names ["Product A", "Product B"]
-    end
-    Product.search_index.refresh
-    assert_search "product", ["Product A", "Product B"]
-  end
-
-  def test_callbacks_queue
-    # TODO figure out which earlier test leaves records in index
-    Product.reindex
-
-    reindex_queue = Product.search_index.reindex_queue
-    reindex_queue.clear
-
-    Searchkick.callbacks(:queue) do
-      store_names ["Product A", "Product B"]
-    end
-    Product.search_index.refresh
-    assert_search "product", [], load: false, conversions: false
-    assert_equal 2, reindex_queue.length
-
-    perform_enqueued_jobs do
-      Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
-    end
-    Product.search_index.refresh
-    assert_search "product", ["Product A", "Product B"], load: false
-    assert_equal 0, reindex_queue.length
-
-    Searchkick.callbacks(:queue) do
-      Product.where(name: "Product B").destroy_all
-      Product.create!(name: "Product C")
-    end
-    Product.search_index.refresh
-    assert_search "product", ["Product A", "Product B"], load: false
-    assert_equal 2, reindex_queue.length
-
-    perform_enqueued_jobs do
-      Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
-    end
-    Product.search_index.refresh
-    assert_search "product", ["Product A", "Product C"], load: false
-    assert_equal 0, reindex_queue.length
-
-    # ensure no error with empty queue
-    Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
-  end
-
   def test_object_index
     error = assert_raises(Searchkick::Error) do
       Product.search_index.reindex(Object.new)
