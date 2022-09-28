@@ -1,0 +1,145 @@
+PATH
+  remote: .
+  specs:
+    searchkick (5.0.4)
+      activemodel (>= 5.2)
+      hashie
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    actionpack (7.0.4)
+      actionview (= 7.0.4)
+      activesupport (= 7.0.4)
+      rack (~> 2.0, >= 2.2.0)
+      rack-test (>= 0.6.3)
+      rails-dom-testing (~> 2.0)
+      rails-html-sanitizer (~> 1.0, >= 1.2.0)
+    actionview (7.0.4)
+      activesupport (= 7.0.4)
+      builder (~> 3.1)
+      erubi (~> 1.4)
+      rails-dom-testing (~> 2.0)
+      rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    activejob (7.0.4)
+      activesupport (= 7.0.4)
+      globalid (>= 0.3.6)
+    activemodel (7.0.4)
+      activesupport (= 7.0.4)
+    activerecord (7.0.4)
+      activemodel (= 7.0.4)
+      activesupport (= 7.0.4)
+    activesupport (7.0.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+    builder (3.2.4)
+    concurrent-ruby (1.1.10)
+    connection_pool (2.3.0)
+    crass (1.0.6)
+    elasticsearch (7.17.1)
+      elasticsearch-api (= 7.17.1)
+      elasticsearch-transport (= 7.17.1)
+    elasticsearch-api (7.17.1)
+      multi_json
+    elasticsearch-transport (7.17.1)
+      faraday (~> 1)
+      multi_json
+    erubi (1.11.0)
+    ethon (0.15.0)
+      ffi (>= 1.15.0)
+    faraday (1.10.2)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
+      faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0)
+      faraday-multipart (~> 1.0)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.0)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
+      faraday-retry (~> 1.0)
+      ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
+    faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
+    faraday-net_http (1.0.1)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday-retry (1.0.3)
+    ffi (1.15.5)
+    gemoji (3.0.1)
+    gemoji-parser (1.3.1)
+      gemoji (>= 2.1.0)
+    globalid (1.0.0)
+      activesupport (>= 5.0)
+    hashie (5.0.0)
+    i18n (1.12.0)
+      concurrent-ruby (~> 1.0)
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
+    loofah (2.19.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.5.9)
+    minitest (5.16.3)
+    multi_json (1.15.0)
+    multipart-post (2.2.3)
+    nokogiri (1.13.8-arm64-darwin)
+      racc (~> 1.4)
+    parallel (1.22.1)
+    parallel_tests (3.13.0)
+      parallel
+    racc (1.6.0)
+    rack (2.2.4)
+    rack-test (2.0.2)
+      rack (>= 1.3)
+    rails-dom-testing (2.0.3)
+      activesupport (>= 4.2.0)
+      nokogiri (>= 1.6)
+    rails-html-sanitizer (1.4.3)
+      loofah (~> 2.3)
+    rake (13.0.6)
+    redis (4.8.0)
+    ruby2_keywords (0.0.5)
+    sqlite3 (1.5.0-arm64-darwin)
+    typhoeus (1.4.0)
+      ethon (>= 0.9.0)
+    tzinfo (2.0.5)
+      concurrent-ruby (~> 1.0)
+
+PLATFORMS
+  arm64-darwin-21
+
+DEPENDENCIES
+  actionpack (~> 7.0.0)
+  activejob (~> 7.0.0)
+  activerecord (~> 7.0.0)
+  connection_pool
+  elasticsearch (~> 7)
+  gemoji-parser
+  kaminari
+  minitest (>= 5)
+  parallel_tests
+  rake
+  redis (~> 4)
+  searchkick!
+  sqlite3
+  typhoeus
+
+BUNDLED WITH
+   2.2.32

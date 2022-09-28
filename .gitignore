@@ -3,7 +3,6 @@
 .bundle
 .config
 .yardoc
-*.lock
 InstalledFiles
 _yardoc
 coverage
@@ -17,6 +16,5 @@ test/version_tmp
 tmp
 *.log
 .DS_Store
-.ruby-*
 .idea/
 *.sqlite3
