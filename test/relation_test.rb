@@ -33,4 +33,10 @@ class RelationTest < Minitest::Test
     store_names ["Product A", "Product B"]
     assert_equal ["Product A", "Product B"], Product.search("product").pluck(:name).sort
   end
+
+  # TODO uncomment in 6.0
+  # def test_to_yaml
+  #   store_names ["Product A", "Product B"]
+  #   assert_equal Product.all.to_yaml, Product.search("product").to_yaml
+  # end
 end

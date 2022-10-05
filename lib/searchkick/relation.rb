@@ -199,6 +199,11 @@ module Searchkick
       !@execute.nil?
     end
 
+    # TODO uncomment in 6.0
+    # def to_yaml
+    #   private_execute.to_a.to_yaml
+    # end
+
     private
 
     def private_execute
