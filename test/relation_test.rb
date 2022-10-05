@@ -34,6 +34,16 @@ class RelationTest < Minitest::Test
     assert_equal ["Product A", "Product B"], Product.search("product").pluck(:name).sort
   end
 
+  def test_model
+    assert_equal Product, Product.search("product").model
+    assert_nil Searchkick.search("product").model
+  end
+
+  def test_klass
+    assert_equal Product, Product.search("product").klass
+    assert_nil Searchkick.search("product").klass
+  end
+
   # TODO uncomment in 6.0
   # def test_to_yaml
   #   store_names ["Product A", "Product B"]

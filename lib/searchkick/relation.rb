@@ -8,6 +8,9 @@ module Searchkick
     delegate :body, :params, to: :query
     delegate_missing_to :private_execute
 
+    attr_reader :model
+    alias_method :klass, :model
+
     def initialize(model, term = "*", **options)
       @model = model
       @term = term
