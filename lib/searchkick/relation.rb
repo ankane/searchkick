@@ -197,13 +197,14 @@ module Searchkick
       Relation.new(@model, @term, **@options.except(*keys))
     end
 
-    def loaded?
-      !@execute.nil?
-    end
-
+    # experimental
     def load
       private_execute
       self
+    end
+
+    def loaded?
+      !@execute.nil?
     end
 
     def respond_to_missing?(method_name, include_all)
