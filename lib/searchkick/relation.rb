@@ -233,5 +233,10 @@ module Searchkick
     def ensure_permitted(obj)
       obj.to_h
     end
+
+    def initialize_copy(other)
+      super
+      @execute = nil
+    end
   end
 end

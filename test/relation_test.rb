@@ -7,6 +7,9 @@ class RelationTest < Minitest::Test
     refute products.loaded?
     assert_equal 0, products.count
     assert products.loaded?
+    refute products.clone.loaded?
+    refute products.dup.loaded?
+    refute products.limit(2).loaded?
     error = assert_raises(Searchkick::Error) do
       products.limit!(2)
     end

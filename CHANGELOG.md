@@ -3,6 +3,7 @@
 - Added `model` method to `Searchkick::Relation`
 - Fixed deprecation warning with `redis` gem
 - Fixed `respond_to?` method on relation loading relation
+- Fixed `Relation loaded` error for non-mutating methods on relation
 
 ## 5.0.4 (2022-06-16)
 
