@@ -16,6 +16,13 @@ class RelationTest < Minitest::Test
     assert_equal "Relation loaded", error.message
   end
 
+  def test_mutating
+    store_names ["Product A", "Product B"]
+    products = Product.search("*").order(:name)
+    products.limit!(1)
+    assert_equal ["Product A"], products.map(&:name)
+  end
+
   def test_clone
     products = Product.search("*")
     assert_equal 10, products.limit(10).limit_value
