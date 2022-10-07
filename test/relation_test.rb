@@ -24,7 +24,6 @@ class RelationTest < Minitest::Test
   end
 
   def test_load
-    Product.search_index.refresh
     products = Product.search("*")
     refute products.loaded?
     assert products.load.loaded?
