@@ -202,6 +202,10 @@ module Searchkick
       !@execute.nil?
     end
 
+    def respond_to_missing?(method_name, include_all)
+      Results.new(nil, nil, nil).respond_to?(method_name, include_all) || super
+    end
+
     # TODO uncomment in 6.0
     # def to_yaml
     #   private_execute.to_a.to_yaml

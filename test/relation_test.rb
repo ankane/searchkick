@@ -44,6 +44,15 @@ class RelationTest < Minitest::Test
     assert_nil Searchkick.search("product").klass
   end
 
+  def test_respond_to
+    relation = Product.search("product")
+    assert relation.respond_to?(:page)
+    assert relation.respond_to?(:response)
+    assert relation.respond_to?(:size)
+    refute relation.respond_to?(:hello)
+    refute relation.loaded?
+  end
+
   # TODO uncomment in 6.0
   # def test_to_yaml
   #   store_names ["Product A", "Product B"]
