@@ -173,6 +173,46 @@ Searchkick.refresh(true) do # accepts `true`, 'false' or `:wait_for`
 end
 ```
 
+## Upgrade to v5
+
+1. `Searchkick.unified_mappings` method has been removed, define the Searchkick mappkings accordingly to your ElasticSearch version:
+
+```ruby
+class User
+  searchkick mappings: { user: { properties: { ... } } } # ElasticSearch v6
+  searchkick mappings: { properties: { ... } } # ElasticSearch v7
+end
+```
+
+2. `Model.reindex(true_refresh: foo)` has been removed in favor of
+
+```ruby
+Searchkick.refresh(foo) do
+  Model.reindex
+end
+```
+
+## How to upgrade to upstream edge version
+
+It was decided that merging the upstream Searchkick sources into our fork is wrong approach,
+which leads to increasing volume of errors and overall garbage across the soources.
+The things become to be dramatically complex when upstream repo gets a hude refactoring like it happened with v5.
+The only reasonable way to keep our fork being at the top of upstream sources is:
+
+1. we have to group our commits per feature and squash them accordingly, which is already done and looks like following:
+
+* 5a6eafd - ! EVERFI CUSTOM STUFF ENDS HERE !
+* 3c9e44e - FC-894 Global refresh mode
+* aa277db - ECA-7969 FC-923 ECA-8600 ECA-8731  thread_safe mode
+* e4ee28a - ECA-7969 Support after_reindex callback
+* f508d87 - ECA-7969 Support the block as callbacks mode
+* d9cd91e - ECA-5119 indexed_at within search data
+* 8839734 - ECA-2245 ASMT-547 CS-3329 Nested queries
+* 0b76c47 - ! EVERFI CUSTOM STUFF STARTS HERE !
+
+2. Each time when we want to upgdare to the edge upstream version we have to `git rebase` these commits at the top of remote upstream sources.
+(as an option lets cherry-pick them one by one). This way we will keep the sources in clean and no-bugs state.
+
 ---
 
 **Searchkick learns what your users are looking for.** As more people search, it gets smarter and the results get better. It’s friendly for developers - and magical for your users.

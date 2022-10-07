@@ -274,7 +274,16 @@ module Searchkick
     if redis
       if redis.respond_to?(:with)
         redis.with do |r|
-          yield r
+          # Needed if you're using redis-namespace
+          #
+          # Without this running certain redis commands
+          # (like info, which we do do in Searchkick::ReindexQueue)
+          # will throw a warning.
+          if r.respond_to?(:redis)
+            yield r.redis
+          else
+            yield r
+          end
         end
       else
         yield redis
