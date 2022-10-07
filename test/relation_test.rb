@@ -23,6 +23,14 @@ class RelationTest < Minitest::Test
     assert_equal ["Product A"], products.map(&:name)
   end
 
+  def test_load
+    Product.search_index.refresh
+    products = Product.search("*")
+    refute products.loaded?
+    assert products.load.loaded?
+    assert products.load.load.loaded?
+  end
+
   def test_clone
     products = Product.search("*")
     assert_equal 10, products.limit(10).limit_value
