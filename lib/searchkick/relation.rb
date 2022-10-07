@@ -29,8 +29,7 @@ module Searchkick
 
     def execute
       Searchkick.warn("The execute method is no longer needed")
-      private_execute
-      self
+      load
     end
 
     # experimental
