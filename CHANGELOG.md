@@ -1,4 +1,4 @@
-## 5.0.5 (unreleased)
+## 5.0.5 (2022-10-09)
 
 - Added `model` method to `Searchkick::Relation`
 - Fixed deprecation warning with `redis` gem
