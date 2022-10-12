@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    searchkick (5.0.4.pre.everfi.1.0.0)
+    searchkick (5.0.4.pre.everfi.1.0.1)
       activemodel (>= 5.2)
       hashie
 

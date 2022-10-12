@@ -364,8 +364,10 @@ module Searchkick
   def self.relation?(klass)
     if klass.respond_to?(:current_scope)
       !klass.current_scope.nil?
-    else
+    elsif defined?(Mongoid) # Should be fixed in upstream by https://github.com/ankane/searchkick/issues/1592
       klass.is_a?(Mongoid::Criteria) || !Mongoid::Threaded.current_scope(klass).nil?
+    else
+      false
     end
   end
 
