@@ -1,5 +1,6 @@
 ## 5.1.0 (unreleased)
 
+- Added support for fractional search timeout
 - Fixed search timeout with `elasticsearch` 8+ and `opensearch-ruby` gems
 - Fixed search timeout not applying to `multi_search`
 
