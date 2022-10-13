@@ -40,14 +40,14 @@ jobs:
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - run: bundle update
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       if: ${{ matrix.elasticsearch }}
       with:
         path: ~/elasticsearch
@@ -62,7 +62,7 @@ jobs:
           analysis-stempel
           analysis-ukrainian
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       if: ${{ matrix.opensearch }}
       with:
         path: ~/opensearch
