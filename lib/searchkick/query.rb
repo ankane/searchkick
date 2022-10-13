@@ -509,8 +509,7 @@ module Searchkick
           if Searchkick.search_timeout.is_a?(Integer)
             "#{Searchkick.search_timeout + 1}s"
           else
-            # ensure at least 1 ms
-            "#{(Searchkick.search_timeout * 1000).ceil}ms"
+            "#{((Searchkick.search_timeout + 1) * 1000).round}ms"
           end
 
         # An empty array will cause only the _id and _type for each hit to be returned
