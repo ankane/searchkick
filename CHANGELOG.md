@@ -1,4 +1,4 @@
-## 5.1.0 (unreleased)
+## 5.1.0 (2022-10-12)
 
 - Added support for fractional search timeout
 - Fixed search timeout with `elasticsearch` 8+ and `opensearch-ruby` gems
