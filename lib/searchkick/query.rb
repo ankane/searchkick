@@ -505,12 +505,7 @@ module Searchkick
         set_highlights(payload, fields) if options[:highlight]
 
         # timeout shortly after client times out
-        payload[:timeout] ||=
-          if Searchkick.search_timeout.is_a?(Integer)
-            "#{Searchkick.search_timeout + 1}s"
-          else
-            "#{((Searchkick.search_timeout + 1) * 1000).round}ms"
-          end
+        payload[:timeout] ||= "#{((Searchkick.search_timeout + 1) * 1000).round}ms"
 
         # An empty array will cause only the _id and _type for each hit to be returned
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
