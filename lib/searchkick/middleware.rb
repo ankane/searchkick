@@ -3,8 +3,13 @@ require "faraday"
 module Searchkick
   class Middleware < Faraday::Middleware
     def call(env)
-      if env[:url].path.to_s.end_with?("/_search")
+      path = env[:url].path.to_s
+      if path.end_with?("/_search")
         env[:request][:timeout] = Searchkick.search_timeout
+      elsif path.end_with?("/_msearch")
+        # assume no concurrent searches for timeout for now
+        searches = env[:request_body].count("\n") / 2
+        env[:request][:timeout] = Searchkick.search_timeout * searches
       end
       @app.call(env)
     end

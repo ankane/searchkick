@@ -1,6 +1,7 @@
 ## 5.1.0 (unreleased)
 
 - Fixed search timeout with `elasticsearch` 8+ and `opensearch-ruby` gems
+- Fixed search timeout not applying to `multi_search`
 
 ## 5.0.5 (2022-10-09)
 
