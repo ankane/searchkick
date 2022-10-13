@@ -9,7 +9,9 @@ module Searchkick
       elsif path.end_with?("/_msearch")
         # assume no concurrent searches for timeout for now
         searches = env[:request_body].count("\n") / 2
-        env[:request][:timeout] = Searchkick.search_timeout * searches
+        # do not allow timeout to exceed Searchkick.timeout
+        timeout = [Searchkick.search_timeout * searches, Searchkick.timeout].min
+        env[:request][:timeout] = timeout
       end
       @app.call(env)
     end
