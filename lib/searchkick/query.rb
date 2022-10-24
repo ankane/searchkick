@@ -17,6 +17,8 @@ module Searchkick
       :with_score, :misspellings?, :scroll_id, :clear_scroll, :missing_records, :with_hit
 
     def initialize(klass, term = "*", **options)
+      options.transform_keys!(&:to_sym)
+
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
@@ -251,7 +253,7 @@ module Searchkick
       default_limit = searchkick_options[:deep_paging] ? 1_000_000_000 : 10_000
       per_page = (options[:limit] || options[:per_page] || default_limit).to_i
       padding = [options[:padding].to_i, 0].max
-      offset = options[:offset] || (page - 1) * per_page + padding
+      offset = (options[:offset] || (page - 1) * per_page + padding).to_i
       scroll = options[:scroll]
 
       max_result_window = searchkick_options[:max_result_window]
