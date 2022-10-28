@@ -76,6 +76,13 @@ class SearchSynonymsTest < Minitest::Test
   end
 
   def test_reload_synonyms_better
+    # this test is skipped for our CircleCI builds since the Elasticsearch container is unable to read the required
+    # synonyms.txt file without mounting Docker volumes, which is not currently possible within CircleCI Docker containers.
+    # More info here:
+    # https://discuss.elastic.co/t/is-it-possible-to-point-out-to-a-synonm-file-outside-a-docker-image/161719/2
+    # https://support.circleci.com/hc/en-us/articles/360007324514-How-can-I-use-Docker-volume-mounting-on-CircleCI-
+    # TODO find solutions for Docker volume mounting or consider switching to a machine configuration in CircleCI
+    skip if ci?
     skip unless ENV["ES_PATH"] && !Searchkick.server_below?("7.3.0")
 
     write_synonyms("test,hello")
