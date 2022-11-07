@@ -1,3 +1,7 @@
+## 5.1.1 (unreleased)
+
+- Added support for strings for `offset` and `per_page`
+
 ## 5.1.0 (2022-10-12)
 
 - Added support for fractional search timeout
