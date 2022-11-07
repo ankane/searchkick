@@ -251,7 +251,7 @@ module Searchkick
       default_limit = searchkick_options[:deep_paging] ? 1_000_000_000 : 10_000
       per_page = (options[:limit] || options[:per_page] || default_limit).to_i
       padding = [options[:padding].to_i, 0].max
-      offset = options[:offset] || (page - 1) * per_page + padding
+      offset = (options[:offset] || (page - 1) * per_page + padding).to_i
       scroll = options[:scroll]
 
       max_result_window = searchkick_options[:max_result_window]
