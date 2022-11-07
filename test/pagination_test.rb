@@ -105,6 +105,16 @@ class PaginationTest < Minitest::Test
     assert products.first_page?
   end
 
+  def test_strings
+    store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
+
+    products = Product.search("product", order: {name: :asc}, page: "2", per_page: "2", padding: "1")
+    assert_equal ["Product D", "Product E"], products.map(&:name)
+
+    products = Product.search("product", order: {name: :asc}, limit: "2", offset: "3")
+    assert_equal ["Product D", "Product E"], products.map(&:name)
+  end
+
   def test_total_entries
     products = Product.search("product", total_entries: 4)
     assert_equal 4, products.total_entries
