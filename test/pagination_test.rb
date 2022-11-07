@@ -45,7 +45,7 @@ class PaginationTest < Minitest::Test
     assert products.any?
   end
 
-  def test_pagination_relation
+  def test_relation
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", padding: 1).order(name: :asc).page(2).per_page(2)
     assert_equal ["Product D", "Product E"], products.map(&:name)
@@ -71,7 +71,7 @@ class PaginationTest < Minitest::Test
     assert products.any?
   end
 
-  def test_pagination_body
+  def test_body
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
     products = Product.search("product", body: {query: {match_all: {}}, sort: [{name: "asc"}]}, page: 2, per_page: 2, padding: 1)
     assert_equal ["Product D", "Product E"], products.map(&:name)
@@ -97,7 +97,7 @@ class PaginationTest < Minitest::Test
     assert products.any?
   end
 
-  def test_pagination_nil_page
+  def test_nil_page
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E"]
     products = Product.search("product", order: {name: :asc}, page: nil, per_page: 2)
     assert_equal ["Product A", "Product B"], products.map(&:name)
