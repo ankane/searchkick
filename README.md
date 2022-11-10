@@ -1112,7 +1112,7 @@ Restaurant.search("soup", where: {bounds: {geo_shape: {type: "polygon", coordina
 Falling entirely within the query shape
 
 ```ruby
-Restaurant.search("salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}})
+Restaurant.search("salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: {lat: 38, lon: -123}, radius: "1km"}}})
 ```
 
 Not touching the query shape
