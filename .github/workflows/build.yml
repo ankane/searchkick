@@ -6,82 +6,82 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby: 3.1
-          gemfile: Gemfile
-          elasticsearch: 8.5.1
-        - ruby: 3.1
-          gemfile: gemfiles/opensearch2.gemfile
-          opensearch: 2.4.0
-        - ruby: "3.0"
-          gemfile: gemfiles/opensearch1.gemfile
-          opensearch: 1.3.6
-        - ruby: "3.0"
-          gemfile: gemfiles/activerecord61.gemfile
-          elasticsearch: 8.0.0
-        - ruby: 2.7
-          gemfile: gemfiles/activerecord60.gemfile
-          elasticsearch: 7.17.7
-        - ruby: 2.6
-          gemfile: gemfiles/activerecord52.gemfile
-          elasticsearch: 7.0.0
-        - ruby: 3.1
-          gemfile: gemfiles/mongoid8.gemfile
-          elasticsearch: 8
-          mongodb: true
-        - ruby: 2.7
-          gemfile: gemfiles/mongoid7.gemfile
-          elasticsearch: 8
-          mongodb: true
-        - ruby: 2.6
-          gemfile: gemfiles/mongoid6.gemfile
-          elasticsearch: 7
-          mongodb: true
+          - ruby: 3.1
+            gemfile: Gemfile
+            elasticsearch: 8.5.1
+          - ruby: 3.1
+            gemfile: gemfiles/opensearch2.gemfile
+            opensearch: 2.4.0
+          - ruby: "3.0"
+            gemfile: gemfiles/opensearch1.gemfile
+            opensearch: 1.3.6
+          - ruby: "3.0"
+            gemfile: gemfiles/activerecord61.gemfile
+            elasticsearch: 8.0.0
+          - ruby: 2.7
+            gemfile: gemfiles/activerecord60.gemfile
+            elasticsearch: 7.17.7
+          - ruby: 2.6
+            gemfile: gemfiles/activerecord52.gemfile
+            elasticsearch: 7.0.0
+          - ruby: 3.1
+            gemfile: gemfiles/mongoid8.gemfile
+            elasticsearch: 8
+            mongodb: true
+          - ruby: 2.7
+            gemfile: gemfiles/mongoid7.gemfile
+            elasticsearch: 8
+            mongodb: true
+          - ruby: 2.6
+            gemfile: gemfiles/mongoid6.gemfile
+            elasticsearch: 7
+            mongodb: true
     runs-on: ubuntu-latest
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - run: bundle update
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle update
 
-    - uses: actions/cache@v3
-      if: ${{ matrix.elasticsearch }}
-      with:
-        path: ~/elasticsearch
-        key: ${{ runner.os }}-elasticsearch-${{ matrix.elasticsearch }}
-    - uses: ankane/setup-elasticsearch@v1
-      if: ${{ matrix.elasticsearch }}
-      with:
-        elasticsearch-version: ${{ matrix.elasticsearch }}
-        plugins: |
-          analysis-kuromoji
-          analysis-smartcn
-          analysis-stempel
-          analysis-ukrainian
+      - uses: actions/cache@v3
+        if: ${{ matrix.elasticsearch }}
+        with:
+          path: ~/elasticsearch
+          key: ${{ runner.os }}-elasticsearch-${{ matrix.elasticsearch }}
+      - uses: ankane/setup-elasticsearch@v1
+        if: ${{ matrix.elasticsearch }}
+        with:
+          elasticsearch-version: ${{ matrix.elasticsearch }}
+          plugins: |
+            analysis-kuromoji
+            analysis-smartcn
+            analysis-stempel
+            analysis-ukrainian
 
-    - uses: actions/cache@v3
-      if: ${{ matrix.opensearch }}
-      with:
-        path: ~/opensearch
-        key: ${{ runner.os }}-opensearch-${{ matrix.opensearch }}
-    - uses: ankane/setup-opensearch@v1
-      if: ${{ matrix.opensearch }}
-      with:
-        opensearch-version: ${{ matrix.opensearch }}
-        plugins: |
-          analysis-kuromoji
-          analysis-smartcn
-          analysis-stempel
-          analysis-ukrainian
+      - uses: actions/cache@v3
+        if: ${{ matrix.opensearch }}
+        with:
+          path: ~/opensearch
+          key: ${{ runner.os }}-opensearch-${{ matrix.opensearch }}
+      - uses: ankane/setup-opensearch@v1
+        if: ${{ matrix.opensearch }}
+        with:
+          opensearch-version: ${{ matrix.opensearch }}
+          plugins: |
+            analysis-kuromoji
+            analysis-smartcn
+            analysis-stempel
+            analysis-ukrainian
 
-    - uses: ankane/setup-mongodb@v1
-      if: ${{ matrix.mongodb }}
+      - uses: ankane/setup-mongodb@v1
+        if: ${{ matrix.mongodb }}
 
-    - run: |
-        sudo apt-get update
-        sudo apt-get install redis-server
-        sudo systemctl start redis-server
-    - run: bundle exec rake test
+      - run: |
+          sudo apt-get update
+          sudo apt-get install redis-server
+          sudo systemctl start redis-server
+      - run: bundle exec rake test
