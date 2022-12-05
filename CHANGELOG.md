@@ -1,4 +1,4 @@
-## 5.1.1 (unreleased)
+## 5.1.1 (2022-12-05)
 
 - Added support for strings for `offset` and `per_page`
 
