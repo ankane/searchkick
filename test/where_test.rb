@@ -254,13 +254,14 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product @Home"], where: {name: {ilike: "%@home%"}}
   end
 
-  # def test_script
-  #   store [
-  #     {name: "Product A", store_id: 1},
-  #     {name: "Product B", store_id: 10}
-  #   ]
-  #   assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
-  # end
+  def test_script
+    store [
+      {name: "Product A", store_id: 1},
+      {name: "Product B", store_id: 10}
+    ]
+    assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
+    assert_search "product", ["Product B"], where: {_script: "doc['name'].value == 'Product B'"}
+  end
 
   def test_where_string
     store [
