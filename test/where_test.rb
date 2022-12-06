@@ -261,6 +261,7 @@ class WhereTest < Minitest::Test
     ]
     assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
     assert_search "product", ["Product B"], where: {_script: "doc['name'].value == 'Product B'"}
+    assert_search "product", ["Product B"], where: {_script: "doc['name'].value.toLowerCase() == 'product b'"}
   end
 
   def test_where_string
