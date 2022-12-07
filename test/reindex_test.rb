@@ -47,6 +47,22 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_record_queue_does_not_grow_on_duplicate_records
+    reindex_queue = Product.search_index.reindex_queue
+    reindex_queue.clear
+
+    store_names ["Product A"], reindex: false
+
+    product = Product.find_by!(name: "Product A")
+    before_length = reindex_queue.length
+    assert_equal true, product.reindex(mode: :queue)
+    after_length = reindex_queue.length
+    assert_equal after_length, before_length + 1, "reindex queue should grow by 1"
+    assert_equal true, product.reindex(mode: :queue)
+    duplicate_length = reindex_queue.length
+    assert_equal duplicate_length, after_length, "reindex queue should not grow with duplicate record"
+  end
+
   def test_record_index
     store_names ["Product A", "Product B"], reindex: false
 
