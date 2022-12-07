@@ -50,14 +50,6 @@ module Searchkick
       "searchkick:reindex_queue:#{name}"
     end
 
-    def supports_rpop_with_count?
-      redis_version >= Gem::Version.new("6.2")
-    end
-
-    def redis_version
-      @redis_version ||= Searchkick.with_redis { |r| Gem::Version.new(r.info["redis_version"]) }
-    end
-
     def escape(value)
       value.gsub("|", "||")
     end
