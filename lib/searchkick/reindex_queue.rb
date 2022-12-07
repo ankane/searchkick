@@ -10,7 +10,7 @@ module Searchkick
 
     # supports single and multiple ids
     def push(record_ids)
-      Searchkick.with_redis { |r| r.lpush(redis_key, record_ids) }
+      Searchkick.with_redis { |r| r.sadd(redis_key, record_ids) }
     end
 
     def push_records(records)
@@ -33,17 +33,7 @@ module Searchkick
 
     # TODO use reliable queuing
     def reserve(limit: 1000)
-      if supports_rpop_with_count?
-        Searchkick.with_redis { |r| r.call("rpop", redis_key, limit) }.to_a
-      else
-        record_ids = []
-        Searchkick.with_redis do |r|
-          while record_ids.size < limit && (record_id = r.rpop(redis_key))
-            record_ids << record_id
-          end
-        end
-        record_ids
-      end
+      Searchkick.with_redis { |r| r.spop(redis_key, limit) }
     end
 
     def clear
@@ -51,7 +41,7 @@ module Searchkick
     end
 
     def length
-      Searchkick.with_redis { |r| r.llen(redis_key) }
+      Searchkick.with_redis { |r| r.scard(redis_key) }
     end
 
     private
