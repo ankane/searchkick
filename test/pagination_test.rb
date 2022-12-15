@@ -185,7 +185,7 @@ class PaginationTest < Minitest::Test
         path = "#{CGI.escape(Product.search_index.name)}/_search/point_in_time"
         Searchkick.client.transport.perform_request("POST", path, {keep_alive: "5s"}).body["pit_id"]
       else
-        Searchkick.client.open_point_in_time(index: Product.search_index.name, keep_alive: "5s").body["id"]
+        Searchkick.client.open_point_in_time(index: Product.search_index.name, keep_alive: "5s")["id"]
       end
 
     store_names ["Product C", "Product F"]
