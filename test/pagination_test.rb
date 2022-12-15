@@ -155,4 +155,64 @@ class PaginationTest < Minitest::Test
       assert_empty Song.search("*", offset: 10000, limit: 1).to_a
     end
   end
+
+  def test_search_after
+    store_names ["Product A", "Product B", "Product C", "Product D"]
+    # ensure different created_at
+    store_names ["Product B"]
+
+    options = {order: {name: :asc, created_at: :asc}, per_page: 2}
+
+    products = Product.search("product", **options)
+    assert_equal ["Product A", "Product B"], products.map(&:name)
+
+    search_after = products.hits.last["sort"]
+    products = Product.search("product", body_options: {search_after: search_after}, **options)
+    assert_equal ["Product B", "Product C"], products.map(&:name)
+
+    search_after = products.hits.last["sort"]
+    products = Product.search("product", body_options: {search_after: search_after}, **options)
+    assert_equal ["Product D"], products.map(&:name)
+  end
+
+  def test_pit
+    skip unless pit_supported?
+
+    store_names ["Product A", "Product B", "Product D", "Product E", "Product G"]
+
+    pit_id =
+      if Searchkick.opensearch?
+        path = "#{CGI.escape(Product.search_index.name)}/_search/point_in_time"
+        Searchkick.client.transport.perform_request("POST", path, {keep_alive: "5s"}).body["pit_id"]
+      else
+        Searchkick.client.open_point_in_time(index: Product.search_index.name, keep_alive: "5s").body["id"]
+      end
+
+    store_names ["Product C", "Product F"]
+
+    options = {
+      order: {name: :asc},
+      per_page: 2,
+      body_options: {pit: {id: pit_id}},
+      index_name: ""
+    }
+
+    products = Product.search("product", **options)
+    assert_equal ["Product A", "Product B"], products.map(&:name)
+
+    products = Product.search("product", page: 2, **options)
+    assert_equal ["Product D", "Product E"], products.map(&:name)
+
+    products = Product.search("product", page: 3, **options)
+    assert_equal ["Product G"], products.map(&:name)
+
+    products = Product.search("product", page: 4, **options)
+    assert_empty products.map(&:name)
+  end
+
+  private
+
+  def pit_supported?
+    Searchkick.opensearch? ? !Searchkick.server_below?("2.4.0", true) : !Searchkick.server_below?("7.10.0")
+  end
 end
