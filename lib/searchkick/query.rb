@@ -199,7 +199,11 @@ module Searchkick
     def handle_error(e)
       status_code = e.message[1..3].to_i
       if status_code == 404
-        raise MissingIndexError, "Index missing - run #{reindex_command}"
+        if e.message.include?("No search context found for id")
+          raise e
+        else
+          raise MissingIndexError, "Index missing - run #{reindex_command}"
+        end
       elsif status_code == 500 && (
         e.message.include?("IllegalArgumentException[minimumSimilarity >= 1]") ||
         e.message.include?("No query registered for [multi_match]") ||

@@ -208,6 +208,17 @@ class PaginationTest < Minitest::Test
 
     products = Product.search("product", page: 4, **options)
     assert_empty products.map(&:name)
+
+    if Searchkick.opensearch?
+      Searchkick.client.transport.perform_request("DELETE", "_search/point_in_time", {}, {pit_id: pit_id})
+    else
+      Searchkick.client.close_point_in_time(body: {id: pit_id})
+    end
+
+    error = assert_raises do
+      Product.search("product", **options).load
+    end
+    assert_match "No search context found for id", error.message
   end
 
   private

@@ -1,3 +1,7 @@
+## 5.1.2 (unreleased)
+
+- Fixed error with missing point in time
+
 ## 5.1.1 (2022-12-05)
 
 - Added support for strings for `offset` and `per_page`
