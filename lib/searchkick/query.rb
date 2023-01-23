@@ -200,7 +200,7 @@ module Searchkick
       status_code = e.message[1..3].to_i
       if status_code == 404
         if e.message.include?("No search context found for id")
-          raise e
+          raise MissingIndexError, "No search context found"
         else
           raise MissingIndexError, "Index missing - run #{reindex_command}"
         end
