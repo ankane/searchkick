@@ -1,4 +1,4 @@
-## 5.1.2 (unreleased)
+## 5.1.2 (2023-01-29)
 
 - Fixed error with missing point in time
 
