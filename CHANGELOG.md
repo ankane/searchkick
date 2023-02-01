@@ -1,6 +1,6 @@
 ## 5.2.0 (unreleased)
 
-- Removed unnecessary loading when reindexing relations with `:queue` mode
+- Fixed unnecessary data loading when reindexing relations with `:async` and `:queue` modes
 
 ## 5.1.2 (2023-01-29)
 
