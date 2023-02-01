@@ -1,3 +1,7 @@
+## 5.2.0 (unreleased)
+
+- Removed unnecessary loading when reindexing relations with `:queue` mode
+
 ## 5.1.2 (2023-01-29)
 
 - Fixed error with missing point in time

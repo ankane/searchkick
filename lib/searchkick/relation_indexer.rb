@@ -14,8 +14,8 @@ module Searchkick
         relation = relation.search_import
       end
 
-      # remove unneeded loading for async
-      if mode == :async
+      # remove unneeded loading for async and queue
+      if mode == :async || mode == :queue
         if relation.respond_to?(:primary_key)
           relation = relation.select(relation.primary_key).except(:includes, :preload)
         elsif relation.respond_to?(:only)
