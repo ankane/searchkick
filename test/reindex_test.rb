@@ -132,6 +132,15 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A"]
   end
 
+  def test_relation_async_routing
+    store_names ["Store A"], Store, reindex: false
+    perform_enqueued_jobs do
+      Store.where(name: "Store A").reindex(mode: :async)
+    end
+    Store.search_index.refresh
+    assert_search "*", ["Store A"], {routing: "Store A"}, Store
+  end
+
   def test_relation_queue
     reindex_queue = Product.search_index.reindex_queue
     reindex_queue.clear
@@ -148,6 +157,22 @@ class ReindexTest < Minitest::Test
     end
     Product.search_index.refresh
     assert_search "product", ["Product A", "Product B"]
+  end
+
+  def test_relation_queue_routing
+    reindex_queue = Store.search_index.reindex_queue
+    reindex_queue.clear
+
+    store_names ["Store A"], Store, reindex: false
+    Store.where(name: "Store A").reindex(mode: :queue)
+    Store.search_index.refresh
+    assert_search "*", [], {}, Store
+
+    perform_enqueued_jobs do
+      Searchkick::ProcessQueueJob.perform_now(class_name: "Store")
+    end
+    Store.search_index.refresh
+    assert_search "*", ["Store A"], {routing: "Store A"}, Store
   end
 
   def test_relation_index

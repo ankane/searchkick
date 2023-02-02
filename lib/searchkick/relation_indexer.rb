@@ -17,9 +17,14 @@ module Searchkick
       # remove unneeded loading for async and queue
       if mode == :async || mode == :queue
         if relation.respond_to?(:primary_key)
-          relation = relation.except(:includes, :preload, :select).select(relation.primary_key)
+          relation = relation.except(:includes, :preload)
+          unless mode == :queue && relation.klass.method_defined?(:search_routing)
+            relation = relation.except(:select).select(relation.primary_key)
+          end
         elsif relation.respond_to?(:only)
-          relation = relation.only(:_id)
+          unless mode == :queue && relation.klass.method_defined?(:search_routing)
+            relation = relation.only(:_id)
+          end
         end
       end
 
