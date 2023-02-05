@@ -32,7 +32,7 @@ class SearchTest < Minitest::Test
     store_names ["Product A", "Product B"]
     product = Product.find_by(name: "Product A")
     product.delete
-    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database/ do
+    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database: Product \d+/ do
       result = Product.search("product")
       assert_equal ["Product B"], result.map(&:name)
       assert_equal [product.id.to_s], result.missing_records.map { |v| v[:id] }

@@ -1,5 +1,6 @@
 ## 5.2.0 (unreleased)
 
+- Added model name to warning about missing records
 - Fixed unnecessary data loading when reindexing relations with `:async` and `:queue` modes
 
 ## 5.1.2 (2023-01-29)
