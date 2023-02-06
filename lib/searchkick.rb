@@ -26,6 +26,7 @@ require_relative "searchkick/record_indexer"
 require_relative "searchkick/relation"
 require_relative "searchkick/relation_indexer"
 require_relative "searchkick/results"
+require_relative "searchkick/utils"
 require_relative "searchkick/version"
 require_relative "searchkick/where"
 

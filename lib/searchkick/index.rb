@@ -163,11 +163,11 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name)
+    def bulk_update(records, method_name, allow_missing: false)
       return if records.empty?
 
       notify_bulk(records, "Update") do
-        queue_update(records, method_name)
+        queue_update(records, method_name, allow_missing: allow_missing)
       end
     end
 
@@ -230,10 +230,11 @@ module Searchkick
 
       if method_name || (scoped && !full)
         mode = options.delete(:mode) || :inline
+        allow_missing = options.delete(:allow_missing)
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, mode: mode)
+        import_scope(relation, method_name: method_name, mode: mode, allow_missing: allow_missing)
         self.refresh if refresh
         true
       else
@@ -322,8 +323,10 @@ module Searchkick
       Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
-    def queue_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
+    def queue_update(records, method_name, allow_missing:)
+      items = records.map { |r| RecordData.new(self, r).update_data(method_name) }
+      items.each { |i| i.instance_variable_set(:@allow_missing, true) } if allow_missing
+      Searchkick.indexer.queue(items)
     end
 
     def relation_indexer

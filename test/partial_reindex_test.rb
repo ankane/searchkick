@@ -71,4 +71,39 @@ class PartialReindexTest < Minitest::Test
     end
     assert_match "document missing", error.message
   end
+
+  def test_allow_missing_inline
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    error = assert_raises(Searchkick::ImportError) do
+      Product.reindex(:search_name)
+    end
+    assert_match "document_missing_exception", error.message
+
+    Product.reindex(:search_name, allow_missing: true)
+  end
+
+  def test_allow_missing_record
+    error = assert_raises(ArgumentError) do
+      Product.create!.reindex(:search_name, allow_missing: true)
+    end
+    assert_equal "unknown keyword: :allow_missing", error.message
+  end
+
+  def test_allow_missing_async
+    error = assert_raises(Searchkick::Error) do
+      Product.reindex(:search_name, allow_missing: true, mode: :async)
+    end
+    assert_equal "allow_missing only available with :inline mode", error.message
+  end
+
+  def test_allow_missing_full
+    error = assert_raises(ArgumentError) do
+      Product.reindex(allow_missing: true)
+    end
+    assert_equal "unknown keyword: :allow_missing", error.message
+  end
 end
