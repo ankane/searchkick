@@ -24,12 +24,20 @@ module Searchkick
         # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|
           (item["index"] || item["delete"] || item["update"])
-        end.find { |item| item["error"] }
-        raise ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
+        end.find { |item| item["error"] && !ignore_missing?(item["error"]) }
+        if first_with_error
+          raise ImportError, "#{first_with_error["error"]} on item with id '#{first_with_error["_id"]}'"
+        end
       end
 
       # maybe return response in future
       nil
+    end
+
+    private
+
+    def ignore_missing?(error)
+      error["type"] == "document_missing_exception" && Searchkick.ignore_missing
     end
   end
 end

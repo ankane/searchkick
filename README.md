@@ -1694,6 +1694,12 @@ And use:
 Product.reindex(:prices_data)
 ```
 
+To ignore errors about missing documents, create an initializer with:
+
+```ruby
+Searchkick.ignore_missing = true
+```
+
 ## Advanced
 
 Searchkick makes it easy to use the Elasticsearch or OpenSearch DSL on its own.
