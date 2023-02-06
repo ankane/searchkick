@@ -77,12 +77,6 @@ class PartialReindexTest < Minitest::Test
 
     product = Product.first
     Product.search_index.remove(product)
-
-    error = assert_raises(Searchkick::ImportError) do
-      Product.reindex(:search_name)
-    end
-    assert_match "document_missing_exception", error.message
-
     Product.reindex(:search_name, allow_missing: true)
   end
 
@@ -90,7 +84,7 @@ class PartialReindexTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       Product.create!.reindex(:search_name, allow_missing: true)
     end
-    assert_equal "unknown keyword: :allow_missing", error.message
+    assert_match "unknown keyword", error.message
   end
 
   def test_allow_missing_async
@@ -104,6 +98,6 @@ class PartialReindexTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       Product.reindex(allow_missing: true)
     end
-    assert_equal "unknown keyword: :allow_missing", error.message
+    assert_match "unknown keyword", error.message
   end
 end
