@@ -10,27 +10,27 @@ require "hashie"
 require "forwardable"
 
 # modules
-require "searchkick/controller_runtime"
-require "searchkick/index"
-require "searchkick/index_cache"
-require "searchkick/index_options"
-require "searchkick/indexer"
-require "searchkick/hash_wrapper"
-require "searchkick/log_subscriber"
-require "searchkick/model"
-require "searchkick/multi_search"
-require "searchkick/query"
-require "searchkick/reindex_queue"
-require "searchkick/record_data"
-require "searchkick/record_indexer"
-require "searchkick/relation"
-require "searchkick/relation_indexer"
-require "searchkick/results"
-require "searchkick/version"
-require "searchkick/where"
+require_relative "searchkick/controller_runtime"
+require_relative "searchkick/index"
+require_relative "searchkick/index_cache"
+require_relative "searchkick/index_options"
+require_relative "searchkick/indexer"
+require_relative "searchkick/hash_wrapper"
+require_relative "searchkick/log_subscriber"
+require_relative "searchkick/model"
+require_relative "searchkick/multi_search"
+require_relative "searchkick/query"
+require_relative "searchkick/reindex_queue"
+require_relative "searchkick/record_data"
+require_relative "searchkick/record_indexer"
+require_relative "searchkick/relation"
+require_relative "searchkick/relation_indexer"
+require_relative "searchkick/results"
+require_relative "searchkick/version"
+require_relative "searchkick/where"
 
 # integrations
-require "searchkick/railtie" if defined?(Rails)
+require_relative "searchkick/railtie" if defined?(Rails)
 
 module Searchkick
   # requires faraday
