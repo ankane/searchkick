@@ -1,7 +1,7 @@
 require_relative "test_helper"
 
 class PartialReindexTest < Minitest::Test
-  def test_class_method
+  def test_relation_inline
     store [{name: "Hi", color: "Blue"}]
 
     # normal search
@@ -29,7 +29,7 @@ class PartialReindexTest < Minitest::Test
     assert_search "blue", ["Bye"], fields: [:color], load: false
   end
 
-  def test_instance_method
+  def test_record_inline
     store [{name: "Hi", color: "Blue"}]
 
     # normal search
@@ -56,16 +56,29 @@ class PartialReindexTest < Minitest::Test
     assert_search "blue", ["Bye"], fields: [:color], load: false
   end
 
-  def test_instance_method_async
+  def test_record_async
     product = Product.create!(name: "Hi")
     product.reindex(:search_data, mode: :async)
   end
 
-  def test_missing
+  def test_relation_missing
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
     Product.search_index.remove(product)
+
+    error = assert_raises(Searchkick::ImportError) do
+      Product.reindex(:search_name)
+    end
+    assert_match "document missing", error.message
+  end
+
+  def test_record_missing
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
     error = assert_raises(Searchkick::ImportError) do
       product.reindex(:search_name)
     end
