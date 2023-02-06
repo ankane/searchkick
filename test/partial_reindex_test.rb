@@ -81,4 +81,15 @@ class PartialReindexTest < Minitest::Test
       Product.reindex(:search_name)
     end
   end
+
+  # not ideal
+  def test_ignore_missing_record
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+    Searchkick.stub(:ignore_missing, true) do
+      product.reindex(:search_name)
+    end
+  end
 end
