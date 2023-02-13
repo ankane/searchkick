@@ -1,3 +1,7 @@
+## 5.2.1 (unreleased)
+
+- Added support for `redis-client` gem
+
 ## 5.2.0 (2023-02-08)
 
 - Added model name to warning about missing records

@@ -194,7 +194,9 @@ class ReindexTest < Minitest::Test
     index.refresh
     assert_equal 1, index.total_docs
 
-    assert Searchkick.reindex_status(reindex[:name])
+    reindex_status = Searchkick.reindex_status(reindex[:name])
+    assert_equal true, reindex_status[:completed]
+    assert_equal 0, reindex_status[:batches_left]
 
     Product.search_index.promote(reindex[:index_name])
     assert_search "product", ["Product A"]

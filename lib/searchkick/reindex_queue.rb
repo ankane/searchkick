@@ -10,7 +10,7 @@ module Searchkick
 
     # supports single and multiple ids
     def push(record_ids)
-      Searchkick.with_redis { |r| r.lpush(redis_key, record_ids) }
+      Searchkick.with_redis { |r| r.call("LPUSH", redis_key, record_ids) }
     end
 
     def push_records(records)
@@ -34,11 +34,11 @@ module Searchkick
     # TODO use reliable queuing
     def reserve(limit: 1000)
       if supports_rpop_with_count?
-        Searchkick.with_redis { |r| r.call("rpop", redis_key, limit) }.to_a
+        Searchkick.with_redis { |r| r.call("RPOP", redis_key, limit) }.to_a
       else
         record_ids = []
         Searchkick.with_redis do |r|
-          while record_ids.size < limit && (record_id = r.rpop(redis_key))
+          while record_ids.size < limit && (record_id = r.call("RPOP", redis_key))
             record_ids << record_id
           end
         end
@@ -47,11 +47,11 @@ module Searchkick
     end
 
     def clear
-      Searchkick.with_redis { |r| r.del(redis_key) }
+      Searchkick.with_redis { |r| r.call("DEL", redis_key) }
     end
 
     def length
-      Searchkick.with_redis { |r| r.llen(redis_key) }
+      Searchkick.with_redis { |r| r.call("LLEN", redis_key) }
     end
 
     private
@@ -65,7 +65,12 @@ module Searchkick
     end
 
     def redis_version
-      @redis_version ||= Searchkick.with_redis { |r| Gem::Version.new(r.info["redis_version"]) }
+      @redis_version ||=
+        Searchkick.with_redis do |r|
+          info = r.call("INFO")
+          matches = /redis_version:(\S+)/.match(info)
+          Gem::Version.new(matches[1])
+        end
     end
 
     def escape(value)
