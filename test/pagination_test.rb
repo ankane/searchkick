@@ -134,6 +134,9 @@ class PaginationTest < Minitest::Test
 
     store_names ["Product B"]
     assert_equal "Displaying <b>all 2</b> products", view.page_entries_info(Product.search("product"))
+
+    store_names ["Product C"]
+    assert_equal "Displaying products <b>1&nbsp;-&nbsp;2</b> of <b>3</b> in total", view.page_entries_info(Product.search("product").per_page(2))
   end
 
   def test_deep_paging
