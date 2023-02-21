@@ -1839,7 +1839,7 @@ Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345}
 
 ## Nearest Neighbors
 
-You can use custom mapping and searching to index vectors and perform k-nearest nearest neighbor search. See the examples for [Elasticsearch](examples/elasticsearch_knn.rb) and [OpenSearch](examples/opensearch_knn.rb).
+You can use custom mapping and searching to index vectors and perform k-nearest neighbor search. See the examples for [Elasticsearch](examples/elasticsearch_knn.rb) and [OpenSearch](examples/opensearch_knn.rb).
 
 ## Reference
 
