@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+gemspec path: "../"
+
+gem "activerecord"
+gem "disco"
+gem "elasticsearch"
+gem "opensearch-ruby"
+gem "sqlite3"
