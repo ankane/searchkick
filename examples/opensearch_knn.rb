@@ -8,11 +8,13 @@ ActiveRecord::Schema.verbose = false
 ActiveRecord::Schema.define do
   create_table :movies do |t|
     t.string :name
-    t.binary :embedding
+    t.text :embedding
   end
 end
 
 class Movie < ActiveRecord::Base
+  serialize :embedding, JSON
+
   searchkick \
     settings: {
       index: {
@@ -37,7 +39,7 @@ class Movie < ActiveRecord::Base
   def search_data
     {
       name: name,
-      embedding: embedding.unpack("f*")
+      embedding: embedding
     }
   end
 end
@@ -48,7 +50,7 @@ recommender.fit(data)
 
 movies = []
 recommender.item_ids.each do |item_id|
-  movies << {name: item_id, embedding: recommender.item_factors(item_id).to_binary}
+  movies << {name: item_id, embedding: recommender.item_factors(item_id).to_a}
 end
 Movie.insert_all!(movies)
 
@@ -59,7 +61,7 @@ body = {
   query: {
     knn: {
       embedding: {
-        vector: movie.embedding.unpack("f*"),
+        vector: movie.embedding,
         k: 6 # size + 1, since post_filter will remove one
       }
     }
