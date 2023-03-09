@@ -410,6 +410,27 @@ And reload with:
 Product.search_index.reload_synonyms
 ```
 
+#### WordNet
+
+Prepopulate English synonyms with the [WordNet database](https://en.wikipedia.org/wiki/WordNet).
+
+Download [WordNet 3.0](http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz), extract and move `wn_s.pl` file to the search server (in the `config` directory).
+
+```sh
+cd /tmp
+curl -o wordnet.tar.gz https://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz
+tar -zxvf wordnet.tar.gz
+mv prolog/wn_s.pl CONFIG_DIRECTORY/
+```
+
+Tell each model to use it:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick search_synonyms: "wn_s.pl" # .pl extension enables wordnet format
+end
+```
+
 #### Elasticsearch < 7.3
 
 You can use a library like [ActsAsTaggableOn](https://github.com/mbleigh/acts-as-taggable-on) and do:
