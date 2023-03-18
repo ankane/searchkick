@@ -1,0 +1,15 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "rake"
+gem "minitest", ">= 5"
+gem "sqlite3"
+gem "activerecord", github: "rails/rails"
+gem "actionpack", github: "rails/rails"
+gem "activejob", github: "rails/rails", require: "active_job"
+gem "elasticsearch", "~> 8"
+gem "redis-client"
+gem "connection_pool"
+gem "kaminari"
+gem "gemoji-parser"

@@ -1,3 +1,7 @@
+## 5.2.2 (unreleased)
+
+- Fixed deprecation warning with Active Support 7.1
+
 ## 5.2.1 (2023-02-21)
 
 - Added support for `redis-client` gem
