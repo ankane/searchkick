@@ -664,6 +664,16 @@ class Product < ApplicationRecord
 end
 ```
 
+If you would like to only exclude certain default scopes, set:
+```ruby
+class Person
+  searchkick word_start: [:name], unscope: { where: :kind }
+
+  default_scope -> { where(account_id: current_account) }
+  default_scope -> { where.not(kind: 'guest') }
+end
+```
+
 ## Intelligent Search
 
 The best starting point to improve your search **by far** is to track searches and conversions. [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
