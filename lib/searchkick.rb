@@ -338,8 +338,10 @@ module Searchkick
     # safety check to make sure used properly in code
     raise Error, "Cannot scope relation" if relation?(model)
 
-    if model.searchkick_options[:unscope]
+    if model.searchkick_options[:unscope] == true
       model.unscoped
+    elsif model.searchkick_options[:unscope].is_a? Hash
+      model.unscope(model.searchkick_options[:unscope])
     else
       model
     end
