@@ -67,7 +67,8 @@ module Searchkick
           index: name,
           body: {
             query: {match_all: {}},
-            size: 0
+            size: 0,
+            track_total_hits: true
           }
         )
 
