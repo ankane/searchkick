@@ -1,4 +1,4 @@
-## 5.2.2 (unreleased)
+## 5.2.2 (2023-04-01)
 
 - Fixed `total_docs` method
 - Fixed deprecation warning with Active Support 7.1
