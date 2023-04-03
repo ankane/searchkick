@@ -2,10 +2,11 @@
 # used to aggregate bulk callbacks across models
 module Searchkick
   class Indexer
-    attr_reader :queued_items
+    attr_reader :queued_items, :client
 
-    def initialize
+    def initialize(client)
       @queued_items = []
+      @client = client
     end
 
     def queue(items)
@@ -19,7 +20,7 @@ module Searchkick
 
       return if items.empty?
 
-      response = Searchkick.client.bulk(body: items)
+      response = client.bulk(body: items)
       if response["errors"]
         # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|

@@ -303,7 +303,7 @@ module Searchkick
 
   # private
   def self.indexer
-    Thread.current[:searchkick_indexer] ||= Indexer.new
+    Thread.current[:searchkick_indexer] ||= Indexer.new(self.client)
   end
 
   # private

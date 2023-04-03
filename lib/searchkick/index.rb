@@ -315,16 +315,20 @@ module Searchkick
       Searchkick.client
     end
 
+    def indexer
+      Searchkick.indexer
+    end
+
     def queue_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
+      indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
     end
 
     def queue_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
+      indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
     def queue_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
+      indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
     end
 
     def relation_indexer
