@@ -1,3 +1,7 @@
+## 5.2.3 (unreleased)
+
+- Fixed error with missing records and multiple models
+
 ## 5.2.2 (2023-04-01)
 
 - Fixed `total_docs` method

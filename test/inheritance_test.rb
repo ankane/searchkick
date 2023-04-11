@@ -81,6 +81,23 @@ class InheritanceTest < Minitest::Test
     assert_equal 2, Searchkick.search("bear", models: [Cat, Dog]).size
   end
 
+  def test_missing_records
+    store_names ["Bear A"], Cat
+    store_names ["Bear B"], Dog
+    Animal.reindex
+    record = Animal.find_by(name: "Bear A")
+    record.delete
+    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database: Cat\/Dog \d+/ do
+      result = Searchkick.search("bear", models: [Cat, Dog])
+      assert_equal ["Bear B"], result.map(&:name)
+      assert_equal [record.id.to_s], result.missing_records.map { |v| v[:id] }
+      assert_equal [[Cat, Dog]], result.missing_records.map { |v| v[:model].sort_by(&:model_name) }
+    end
+    assert_empty Product.search("bear", load: false).missing_records
+  ensure
+    Animal.reindex
+  end
+
   def test_inherited_and_non_inherited_models
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog
