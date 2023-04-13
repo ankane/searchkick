@@ -1,4 +1,4 @@
-## 5.2.3 (unreleased)
+## 5.2.3 (2023-04-12)
 
 - Fixed error with missing records and multiple models
 
