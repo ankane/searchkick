@@ -74,7 +74,7 @@ module Searchkick
     end
 
     def escape(value)
-      value.gsub("|", "||")
+      value.to_s.gsub("|", "||")
     end
   end
 end
