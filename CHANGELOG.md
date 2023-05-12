@@ -1,4 +1,4 @@
-## 5.2.4 (unreleased)
+## 5.2.4 (2023-05-11)
 
 - Fixed error with non-string routing and `:async` mode
 
