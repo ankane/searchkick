@@ -373,7 +373,7 @@ module Searchkick
             field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(base_field(field)))
 
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false || (!below73? && !track_total_hits?)
+              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false || (!below73? && !track_total_hits?) || !below80? || (Searchkick.opensearch? && !Searchkick.server_below?("2.0.0", true) && match_type == :match_phrase)
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for some languages
@@ -1169,6 +1169,10 @@ module Searchkick
 
     def below710?
       Searchkick.server_below?("7.10.0")
+    end
+
+    def below80?
+      Searchkick.server_below?("8.0.0")
     end
   end
 end

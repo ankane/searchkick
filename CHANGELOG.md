@@ -1,5 +1,6 @@
 ## 5.3.0 (unreleased)
 
+- Fixed error with `cutoff_frequency`
 - Dropped support for Ruby < 3 and Active Record < 6.1
 - Dropped support for Mongoid < 7
 
