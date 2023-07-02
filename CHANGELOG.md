@@ -1,4 +1,4 @@
-## 5.3.0 (unreleased)
+## 5.3.0 (2023-07-02)
 
 - Fixed error with `cutoff_frequency`
 - Dropped support for Ruby < 3 and Active Record < 6.1
