@@ -317,7 +317,7 @@ module Searchkick
           end
 
           if misspellings != false
-            edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 1
+            edit_distance = (misspellings.is_a?(Hash) && (misspellings[:edit_distance] || misspellings[:distance])) || 'AUTO'
             transpositions =
               if misspellings.is_a?(Hash) && misspellings.key?(:transpositions)
                 {fuzzy_transpositions: misspellings[:transpositions]}

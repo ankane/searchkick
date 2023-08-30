@@ -14,21 +14,21 @@ class MisspellingsTest < Minitest::Test
   def test_prefix_length
     store_names ["ap", "api", "apt", "any", "nap", "ah", "ahi"]
     if prefix_length_misspellings_off?
-      assert_search "ap", ["ap"], misspellings: {prefix_length: 2}
+      assert_search "ap", ["ap"], misspellings: {prefix_length: 2, distance: 1}
     else
-      assert_search "ap", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
+      assert_search "ap", ["ap", "api", "apt"], misspellings: {prefix_length: 2, distance: 1}
     end
-    assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2}
+    assert_search "api", ["ap", "api", "apt"], misspellings: {prefix_length: 2, distance: 1}
   end
 
   def test_prefix_length_operator
     store_names ["ap", "api", "apt", "any", "nap", "ah", "aha"]
     if prefix_length_misspellings_off?
-      assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2}
+      assert_search "ap ah", ["ap", "ah"], operator: "or", misspellings: {prefix_length: 2, distance: 1}
     else
-      assert_search "ap ah", ["ap", "ah", "api", "apt", "aha"], operator: "or", misspellings: {prefix_length: 2}
+      assert_search "ap ah", ["ap", "ah", "api", "apt", "aha"], operator: "or", misspellings: {prefix_length: 2, distance: 1}
     end
-    assert_search "api ahi", ["ap", "api", "apt", "ah", "aha"], operator: "or", misspellings: {prefix_length: 2}
+    assert_search "api ahi", ["ap", "api", "apt", "ah", "aha"], operator: "or", misspellings: {prefix_length: 2, distance: 1}
   end
 
   def test_fields_operator

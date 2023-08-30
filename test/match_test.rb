@@ -82,22 +82,35 @@ class MatchTest < Minitest::Test
 
   def test_edit_distance_two
     store_names ["Bingo"]
-    assert_search "bin", []
-    assert_search "bingooo", []
-    assert_search "mango", []
+    assert_search "bin", [], misspellings: {distance: 1}
+    assert_search "bingooo", [], misspellings: {distance: 1}
+    assert_search "mango", [], misspellings: {distance: 1}
   end
 
   def test_edit_distance_one
     store_names ["Bingo"]
-    assert_search "bing", ["Bingo"]
-    assert_search "bingoo", ["Bingo"]
-    assert_search "ringo", ["Bingo"]
+    assert_search "bing", ["Bingo"], misspellings: {distance: 1}
+    assert_search "bingoo", ["Bingo"], misspellings: {distance: 1}
+    assert_search "ringo", ["Bingo"], misspellings: {distance: 1}
+  end
+
+  def test_edit_distance_auto
+    store_names ["this is a really long sentence"]
+    # 0..2: must match exactly
+    assert_search "is", ["this is a really long sentence"] # edit distance = 0
+    assert_search "iz", [] # edit distance = 1
+    # 3..5: one edit allowed
+    assert_search "thiz", ["this is a really long sentence"] # edit distance = 1
+    assert_search "yhiz", [] # edit distance = 2
+    # >5: two edits allowed
+    assert_search "semrence", ["this is a really long sentence"] # edit distance = 2
+    assert_search "zemrence", [] # edit distance = 3
   end
 
   def test_edit_distance_long_word
     store_names ["thisisareallylongword"]
-    assert_search "thisisareallylongwor", ["thisisareallylongword"] # missing letter
-    assert_search "thisisareelylongword", [] # edit distance = 2
+    assert_search "thisisareallylongwor", ["thisisareallylongword"], misspellings: {distance: 1} # missing letter
+    assert_search "thisisareelylongword", [], misspellings: {distance: 1} # edit distance = 2
   end
 
   def test_misspelling_tabasco
@@ -122,15 +135,15 @@ class MatchTest < Minitest::Test
     # need to specify field
     # as transposition option isn't supported for multi_match queries
     # until Elasticsearch 6.1
-    assert_search "zuccihni", [], misspellings: {transpositions: false}, fields: [:name]
+    assert_search "zuccihni", [], misspellings: {transpositions: false, distance: 1}, fields: [:name]
   end
 
   def test_misspelling_lasagna
     store_names ["lasagna"]
-    assert_search "lasanga", ["lasagna"], misspellings: {transpositions: true}
-    assert_search "lasgana", ["lasagna"], misspellings: {transpositions: true}
-    assert_search "lasaang", [], misspellings: {transpositions: true} # triple transposition, shouldn't work
-    assert_search "lsagana", [], misspellings: {transpositions: true} # triple transposition, shouldn't work
+    assert_search "lasanga", ["lasagna"], misspellings: {transpositions: true, distance: 1}
+    assert_search "lasgana", ["lasagna"], misspellings: {transpositions: true, distance: 1}
+    assert_search "lasaang", [], misspellings: {transpositions: true, distance: 1} # triple transposition, shouldn't work
+    assert_search "lsagana", [], misspellings: {transpositions: true, distance: 1} # triple transposition, shouldn't work
   end
 
   def test_misspelling_lasagna_pasta
