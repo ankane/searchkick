@@ -1483,7 +1483,15 @@ ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@ho
 ENV["OPENSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
-See [elastic-transport](https://github.com/elastic/elastic-transport-ruby) or [opensearch-transport](https://github.com/opensearch-project/opensearch-ruby/tree/main/opensearch-transport) for a complete list of options.
+### Client Options
+
+Create an initializer with:
+
+```ruby
+Searchkick.client_options[:reload_connections] = true
+```
+
+See the docs for [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/current/advanced-config.html) or [Opensearch](https://rubydoc.info/gems/opensearch-transport#configuration) for a complete list of options.
 
 ### Lograge
 
