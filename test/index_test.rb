@@ -112,7 +112,9 @@ class IndexTest < Minitest::Test
   end
 
   def test_very_large_value
-    large_value = 10000.times.map { "hello" }.join(" ")
+    # terms must be < 32 KB with Elasticsearch 8.10.3+
+    # https://github.com/elastic/elasticsearch/pull/99818
+    large_value = 5400.times.map { "hello" }.join(" ")
     store [{name: "Product A", text: large_value}], Region
     assert_search "product", ["Product A"], {}, Region
     assert_search "hello", ["Product A"], {fields: [:name, :text]}, Region
