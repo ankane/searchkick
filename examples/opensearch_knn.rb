@@ -13,7 +13,8 @@ ActiveRecord::Schema.define do
 end
 
 class Movie < ActiveRecord::Base
-  serialize :embedding, JSON
+  # remove "coder: " for Active Record < 7.1
+  serialize :embedding, coder: JSON
 
   searchkick \
     settings: {
