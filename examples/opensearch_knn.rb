@@ -13,7 +13,8 @@ ActiveRecord::Schema.define do
 end
 
 class Movie < ActiveRecord::Base
-  serialize :embedding, JSON
+  # remove "coder: " for Active Record < 7.1
+  serialize :embedding, coder: JSON
 
   searchkick \
     settings: {
@@ -57,16 +58,17 @@ Movie.insert_all!(movies)
 Movie.reindex
 
 movie = Movie.find_by!(name: "Star Wars (1977)")
+# uses efficient filtering available in OpenSearch 2.4+
+# https://opensearch.org/docs/latest/search-plugins/knn/filter-search-knn/
 body = {
   query: {
     knn: {
       embedding: {
+        filter:  {bool: {must_not: {term: {_id: movie.id}}}},
         vector: movie.embedding,
-        k: 6 # size + 1, since post_filter will remove one
+        k: 5
       }
     }
-  },
-  size: 5,
-  post_filter: {bool: {must_not: {term: {_id: movie.id}}}}
+  }
 }
 pp Movie.search(body: body).map(&:name)
