@@ -34,7 +34,7 @@ class MultiSearchTest < Minitest::Test
   end
 
   def test_misspellings_below_with_errored_query
-    products = Product.search("abc", order: {bad_column: :asc}, misspellings: {below: 1})
+    products = Product.search("abc", order: [:bad_field], misspellings: {below: 1})
     Searchkick.multi_search([products])
     assert products.error
   end
