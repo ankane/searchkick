@@ -191,7 +191,7 @@ module Searchkick
     end
 
     def retry_misspellings?(response)
-      @misspellings_below && Results.new(searchkick_klass, response).total_count < @misspellings_below
+      @misspellings_below && response["error"].nil? && Results.new(searchkick_klass, response).total_count < @misspellings_below
     end
 
     private
