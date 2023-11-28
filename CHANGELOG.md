@@ -1,4 +1,4 @@
-## 5.3.1 (unreleased)
+## 5.3.1 (2023-11-28)
 
 - Fixed error with misspellings below and failed queries
 
