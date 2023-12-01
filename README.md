@@ -26,7 +26,7 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
-[![Build Status](https://github.com/ankane/searchkick/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/ankane/searchkick/actions)
+[![Build Status](https://github.com/ankane/searchkick/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/searchkick/actions)
 
 ## Contents
 
