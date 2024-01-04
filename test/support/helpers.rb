@@ -92,6 +92,13 @@ class Minitest::Test
     assert_match "[searchkick] WARNING: #{message}", stderr
   end
 
+  def refute_warns
+    _, stderr = capture_io do
+      yield
+    end
+    refute_includes stderr, "[searchkick] WARNING:"
+  end
+
   def with_options(options, model = default_model)
     previous_options = model.searchkick_options.dup
     begin

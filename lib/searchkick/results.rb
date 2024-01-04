@@ -269,7 +269,7 @@ module Searchkick
                   # not ideal to return different types
                   # but this situation shouldn't be common
                   model: models.size == 1 ? models.first : models
-                }
+                } unless options[:scope_results]
               end
               result
             end
