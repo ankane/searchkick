@@ -8,7 +8,7 @@ jobs:
         include:
           - ruby: 3.3
             gemfile: Gemfile
-            elasticsearch: 8.11.3
+            elasticsearch: 8.12.0
           - ruby: 3.2
             gemfile: gemfiles/opensearch3.gemfile
             opensearch: 2.11.1
