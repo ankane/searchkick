@@ -78,13 +78,13 @@ class SearchSynonymsTest < Minitest::Test
   def test_reload_synonyms_better
     skip unless ENV["ES_PATH"] && !Searchkick.server_below?("7.3.0")
 
-    write_synonyms("test,hello")
+    write_synonyms("test,hello", filename: "synonyms.txt")
 
     with_options({search_synonyms: "synonyms.txt"}, Speaker) do
       store_names ["Hello", "Goodbye"]
       assert_search "test", ["Hello"]
 
-      write_synonyms("test,goodbye")
+      write_synonyms("test,goodbye", filename: "synonyms.txt")
       assert_search "test", ["Hello"]
 
       Speaker.search_index.reload_synonyms
@@ -94,8 +94,24 @@ class SearchSynonymsTest < Minitest::Test
     Speaker.reindex
   end
 
-  def write_synonyms(contents)
-    File.write("#{ENV.fetch("ES_PATH")}/config/synonyms.txt", contents)
+  def test_wordnet_synonyms
+    skip unless ENV["ES_PATH"] && !Searchkick.server_below?("7.3.0")
+
+    write_synonyms(<<~WORDNET, filename: "synonyms.pl")
+      s(100000001,1,'test',v,1,0).
+      s(100000001,2,'hello',v,1,0).
+    WORDNET
+
+    with_options({search_synonyms: "synonyms.pl"}, Speaker) do
+      store_names ["Hello", "Goodbye"]
+      assert_search "test", ["Hello"]
+    end
+  ensure
+    Speaker.reindex
+  end
+
+  def write_synonyms(contents, filename:)
+    File.write("#{ENV.fetch("ES_PATH")}/config/#{filename}", contents)
   end
 
   def default_model

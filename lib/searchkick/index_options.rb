@@ -496,6 +496,7 @@ module Searchkick
             type: "synonym_graph",
             synonyms_path: search_synonyms
           }
+          synonym_graph[:format] = "wordnet" if search_synonyms.end_with?(".pl")
           synonym_graph[:updateable] = true unless below73?
         else
           synonym_graph = {
