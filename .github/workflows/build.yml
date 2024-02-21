@@ -11,7 +11,7 @@ jobs:
             elasticsearch: 8.12.0
           - ruby: 3.2
             gemfile: gemfiles/opensearch3.gemfile
-            opensearch: 2.11.1
+            opensearch: 2.12.0
           - ruby: 3.1
             gemfile: gemfiles/opensearch2.gemfile
             opensearch: 2.0.0
