@@ -101,6 +101,10 @@ GEM
     multipart-post (2.2.3)
     nokogiri (1.13.8-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.13.8-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.13.8-x86_64-linux)
+      racc (~> 1.4)
     parallel (1.22.1)
     parallel_tests (3.13.0)
       parallel
@@ -117,6 +121,8 @@ GEM
     redis (4.8.0)
     ruby2_keywords (0.0.5)
     sqlite3 (1.5.0-arm64-darwin)
+    sqlite3 (1.5.0-x86_64-darwin)
+    sqlite3 (1.5.0-x86_64-linux)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
     tzinfo (2.0.5)
@@ -124,6 +130,8 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  x86_64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   actionpack (~> 7.0.0)

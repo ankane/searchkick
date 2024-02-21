@@ -1,0 +1,76 @@
+name: Test and Build
+on:
+  push:
+
+jobs:
+  verify_gemfile_lock:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4.1.0
+      - name: setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.3
+          bundler-cache: true # runs 'bundle install' and caches installed gems
+      - name: bundler
+        shell: bash
+        run: |-
+          gem install bundler -v $(grep 'BUNDLED WITH' Gemfile.lock -A 1|tail -1)
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Verify Gemfile.lock
+        shell: bash
+        run: |-
+          if git diff-index --quiet HEAD -- Gemfile.lock
+            then
+              exit 0
+            else
+              echo "Please ensure that you have bundled and committed any"
+              echo "resulting changes to the Gemfile.lock file in this repo."
+              git --no-pager diff -- Gemfile.lock
+              exit 128
+            fi
+
+  test_and_build:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.GITHUB_TOKEN }}
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4.1.0
+      - uses: ankane/setup-elasticsearch@v1
+        with:
+          elasticsearch-version: 7.10.2
+          plugins: |
+            analysis-kuromoji
+            analysis-smartcn
+            analysis-stempel
+            analysis-ukrainian
+      - name: setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.3
+          bundler-cache: true # runs 'bundle install' and caches installed gems
+      - name: bundler
+        shell: bash
+        run: |-
+          gem install bundler -v $(grep 'BUNDLED WITH' Gemfile.lock -A 1|tail -1)
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: specs
+        shell: bash
+        run: |-
+          # Run specs to ensure build is passing
+          bundle exec rake test
+
+          # Run rake build to ensure gem will build
+          bundle exec rake build
