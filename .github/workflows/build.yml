@@ -40,7 +40,7 @@ jobs:
           bundler-cache: true
       - run: bundle update
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         if: ${{ matrix.elasticsearch }}
         with:
           path: ~/elasticsearch
@@ -55,7 +55,7 @@ jobs:
             analysis-stempel
             analysis-ukrainian
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         if: ${{ matrix.opensearch }}
         with:
           path: ~/opensearch
