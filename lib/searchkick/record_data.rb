@@ -80,7 +80,7 @@ module Searchkick
       end
 
       if index.options[:inheritance]
-        if !TYPE_KEYS.any? { |tk| source.key?(tk) }
+        if !partial_reindex || TYPE_KEYS.any? { |tk| source.key?(tk) }
           source[:type] = document_type(true)
         end
       end
