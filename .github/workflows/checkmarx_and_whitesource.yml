@@ -1,0 +1,59 @@
+# This workflow is to automate Checkmarx SAST scans.  It runs on a push to the main branch.
+#
+# The following GitHub Secrets must be first defined:
+#   - CHECKMARX_URL
+#   - CHECKMARX_USER
+#   - CHECKMARX_PASSWORD
+#   - CHECKMARX_CLIENT_SECRET
+#
+# For full documentation, including a list of all inputs, please refer to the README https://github.com/checkmarx-ts/checkmarx-cxflow-github-action
+
+
+name: Checkmarx and Whitesource scans
+on:
+  push:
+    branches:
+      - master
+jobs:
+  mend-scan:
+    name: Mend Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+      - name: Get branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: get_branch_name
+      - name: Mend
+        env:
+          WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
+          WHITESOURCE_API_BASE_URL: ${{ vars.WHITESOURCE_API_BASE_URL }}
+          WHITESOURCE_SERVER_URL: ${{ vars.WHITESOURCE_SERVER_URL }}
+          BRANCH: ${{ steps.get_branch_name.outputs.branch }}
+        shell: bash
+        run: |
+          echo $'\n'projectName=${{ github.event.repository.name }} >>./scripts/whitesource/agent.config
+          echo $'\n'productName=foundry >>./scripts/whitesource/agent.config
+          bash ./scripts/whitesource/mend_scan.sh
+  checkmarx-scan:
+    name: Checkmarx Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.0
+      - name: Checkmarx CxFlow Action
+        uses: checkmarx-ts/checkmarx-cxflow-github-action@v1.4 #Github Action version
+        with:
+          # report-file: checkmarx.json
+          # auth-scopes: access_control_api sast_rest_api
+          # version: '9.4'
+          break_build: false
+          checkmarx_url: ${{ vars.CHECKMARX_URL }} # To be stored in GitHub Secrets.
+          checkmarx_username: ${{ vars.CHECKMARX_USERNAME }} # To be stored in GitHub Secrets.
+          checkmarx_password: ${{ secrets.CHECKMARX_PASSWORD }} # To be stored in GitHub Secrets.
+          checkmarx_client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }} # To be stored in GitHub Secrets.
+          params: --namespace=${{ github.repository_owner }} --checkmarx.settings-override=true --repo-name=${{ github.event.repository.name }} --branch=${{ github.ref_name }} --cx-flow.filterSeverity --cx-flow.filterCategory  --checkmarx.disable-clubbing=true
+          preset: Blackbaud SAST
+          project: ${{ github.event.repository.name }} # <-- Insert Checkmarx SAST Project Name
+          team: /CxServer/SP/Company/Everfi
+          scanners: sast
