@@ -9,11 +9,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4.1.0
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          ## If no one connects after 5 minutes, shut down server.
-          wait-timeout-minutes: 5
       - name: setup ruby
         uses: ruby/setup-ruby@v1
         with:
