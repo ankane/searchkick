@@ -1,6 +1,5 @@
 name: Test and Build
-on:
-  push:
+on: [push]
 
 jobs:
   verify_gemfile_lock:
@@ -10,6 +9,12 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4.1.0
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        if: ${{ failure() }}
+        with:
+          ## If no one connects after 5 minutes, shut down server.
+          wait-timeout-minutes: 5
       - name: setup ruby
         uses: ruby/setup-ruby@v1
         with:
