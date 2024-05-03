@@ -4,9 +4,9 @@ gemspec
 
 gem "rake"
 gem "minitest", ">= 5"
-gem "activerecord", "~> 7.0.0"
-gem "activejob", "~> 7.0.0", require: "active_job"
-gem "actionpack", "~> 7.0.0"
+gem "activerecord", "~> 7.0.5"
+gem "activejob", "~> 7.0.5", require: "active_job"
+gem "actionpack", "~> 7.0.5"
 gem "elasticsearch", "~> 7"
 gem "sqlite3"
 gem "gemoji-parser"
