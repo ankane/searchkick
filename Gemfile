@@ -4,7 +4,7 @@ gemspec
 
 gem "rake"
 gem "minitest", ">= 5"
-gem "sqlite3"
+gem "sqlite3", "< 2"
 gem "activerecord", "~> 7.1.0"
 gem "actionpack", "~> 7.1.0"
 gem "activejob", "~> 7.1.0", require: "active_job"
