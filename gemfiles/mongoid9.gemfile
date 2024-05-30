@@ -1,0 +1,13 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "rake"
+gem "minitest", ">= 5"
+gem "mongoid", "~> 9"
+gem "activejob", require: "active_job"
+gem "redis"
+gem "elasticsearch", "~> 8"
+gem "actionpack"
+gem "kaminari"
+gem "gemoji-parser"
