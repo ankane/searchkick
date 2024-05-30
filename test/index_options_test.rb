@@ -24,8 +24,8 @@ class IndexOptionsTest < Minitest::Test
       store_names ["animals", "anime"]
       assert_search "animals", ["animals", "anime"], {misspellings: false}
       assert_search "anime", ["animals", "anime"], {misspellings: false}
-      assert_equal ["anim"], Song.search_index.tokens("anime", analyzer: "searchkick_index")
-      assert_equal ["anim"], Song.search_index.tokens("anime", analyzer: "searchkick_search2")
+      assert_equal ["anim"], Song.searchkick_index.tokens("anime", analyzer: "searchkick_index")
+      assert_equal ["anim"], Song.searchkick_index.tokens("anime", analyzer: "searchkick_search2")
     end
   end
 
@@ -34,8 +34,8 @@ class IndexOptionsTest < Minitest::Test
       store_names ["animals", "anime"]
       assert_search "animals", ["animals"], {misspellings: false}
       assert_search "anime", ["anime"], {misspellings: false}
-      assert_equal ["anime"], Song.search_index.tokens("anime", analyzer: "searchkick_index")
-      assert_equal ["anime"], Song.search_index.tokens("anime", analyzer: "searchkick_search2")
+      assert_equal ["anime"], Song.searchkick_index.tokens("anime", analyzer: "searchkick_index")
+      assert_equal ["anime"], Song.searchkick_index.tokens("anime", analyzer: "searchkick_search2")
     end
   end
 
@@ -44,8 +44,8 @@ class IndexOptionsTest < Minitest::Test
       store_names ["animals", "animations"]
       assert_search "animals", ["animals", "animations"], {misspellings: false}
       assert_search "animations", ["animals", "animations"], {misspellings: false}
-      assert_equal ["anim"], Song.search_index.tokens("animations", analyzer: "searchkick_index")
-      assert_equal ["anim"], Song.search_index.tokens("animations", analyzer: "searchkick_search2")
+      assert_equal ["anim"], Song.searchkick_index.tokens("animations", analyzer: "searchkick_index")
+      assert_equal ["anim"], Song.searchkick_index.tokens("animations", analyzer: "searchkick_search2")
     end
   end
 
@@ -54,8 +54,8 @@ class IndexOptionsTest < Minitest::Test
       store_names ["animals", "animations"]
       assert_search "animals", ["animals"], {misspellings: false}
       assert_search "animations", ["animations"], {misspellings: false}
-      assert_equal ["animat"], Song.search_index.tokens("animations", analyzer: "searchkick_index")
-      assert_equal ["animat"], Song.search_index.tokens("animations", analyzer: "searchkick_search2")
+      assert_equal ["animat"], Song.searchkick_index.tokens("animations", analyzer: "searchkick_index")
+      assert_equal ["animat"], Song.searchkick_index.tokens("animations", analyzer: "searchkick_search2")
     end
   end
 
@@ -68,25 +68,25 @@ class IndexOptionsTest < Minitest::Test
 
   def test_index_name
     with_options({index_name: "songs_v2"}) do
-      assert_equal "songs_v2", Song.search_index.name
+      assert_equal "songs_v2", Song.searchkick_index.name
     end
   end
 
   def test_index_name_callable
     with_options({index_name: -> { "songs_v2" }}) do
-      assert_equal "songs_v2", Song.search_index.name
+      assert_equal "songs_v2", Song.searchkick_index.name
     end
   end
 
   def test_index_prefix
     with_options({index_prefix: "hello"}) do
-      assert_equal "hello_songs_test", Song.search_index.name
+      assert_equal "hello_songs_test", Song.searchkick_index.name
     end
   end
 
   def test_index_prefix_callable
     with_options({index_prefix: -> { "hello" }}) do
-      assert_equal "hello_songs_test", Song.search_index.name
+      assert_equal "hello_songs_test", Song.searchkick_index.name
     end
   end
 

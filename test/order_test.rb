@@ -27,7 +27,7 @@ class OrderTest < Minitest::Test
   end
 
   def test_unmapped_type
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_order "product", [], order: {not_mapped: {unmapped_type: "long"}}
     assert_order_relation [], Product.search("product").order(not_mapped: {unmapped_type: "long"})
   end

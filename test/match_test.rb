@@ -59,8 +59,8 @@ class MatchTest < Minitest::Test
   end
 
   def test_stemming_tokens
-    assert_equal ["milk"], Product.search_index.tokens("milks", analyzer: "searchkick_search")
-    assert_equal ["milk"], Product.search_index.tokens("milks", analyzer: "searchkick_search2")
+    assert_equal ["milk"], Product.searchkick_index.tokens("milks", analyzer: "searchkick_search")
+    assert_equal ["milk"], Product.searchkick_index.tokens("milks", analyzer: "searchkick_search2")
   end
 
   # fuzzy

@@ -7,7 +7,7 @@ class RoutingTest < Minitest::Test
   end
 
   def test_mappings
-    mappings = Store.search_index.index_options[:mappings]
+    mappings = Store.searchkick_index.index_options[:mappings]
     assert_equal mappings[:_routing], required: true
   end
 
