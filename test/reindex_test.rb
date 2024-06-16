@@ -159,6 +159,24 @@ class ReindexTest < Minitest::Test
     assert_search "product", ["Product A", "Product B"]
   end
 
+  def test_relation_queue_all
+    reindex_queue = Product.searchkick_index.reindex_queue
+    reindex_queue.clear
+
+    store_names ["Product A"]
+    store_names ["Product B", "Product C"], reindex: false
+
+    Product.all.reindex(mode: :queue)
+    Product.searchkick_index.refresh
+    assert_search "product", ["Product A"]
+
+    perform_enqueued_jobs do
+      Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
+    end
+    Product.searchkick_index.refresh
+    assert_search "product", ["Product A", "Product B", "Product C"]
+  end
+
   def test_relation_queue_routing
     reindex_queue = Store.searchkick_index.reindex_queue
     reindex_queue.clear
@@ -241,6 +259,12 @@ class ReindexTest < Minitest::Test
     assert_equal 1, index.total_docs
   ensure
     Sku.destroy_all
+  end
+
+  def test_full_queue
+    assert_warns "Full reindex does not support :queue mode - use :async mode instead" do
+      Product.reindex(mode: :queue)
+    end
   end
 
   def test_full_refresh_interval

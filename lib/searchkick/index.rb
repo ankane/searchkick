@@ -352,6 +352,8 @@ module Searchkick
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
       raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
+      # TODO raise ArgumentError in Searchkick 6
+      Searchkick.warn("Full reindex does not support :queue mode - use :async mode instead") if mode == :queue
 
       if resume
         index_name = all_indices.sort.last
