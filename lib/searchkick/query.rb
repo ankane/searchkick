@@ -884,7 +884,8 @@ module Searchkick
     end
 
     def set_order(payload)
-      payload[:sort] = options[:order].is_a?(Enumerable) ? options[:order] : {options[:order] => :asc}
+      value = options[:order]
+      payload[:sort] = value.is_a?(Enumerable) ? value : {value => :asc}
     end
 
     # provides *very* basic protection from unfiltered parameters
