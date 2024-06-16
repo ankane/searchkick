@@ -1,6 +1,7 @@
 ## 5.4.0 (unreleased)
 
 - Added warning for full reindex and `:queue` mode
+- Dropped support for Ruby < 3.1
 
 ## 5.3.1 (2023-11-28)
 
