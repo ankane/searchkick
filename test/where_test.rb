@@ -39,15 +39,9 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A", "Product B", "Product C", "Product D"], where: {store_id: -Float::INFINITY..Float::INFINITY}
     assert_search "product", ["Product C", "Product D"], where: {store_id: 3..Float::INFINITY}
     assert_search "product", ["Product A", "Product B"], where: {store_id: -Float::INFINITY..2}
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.6.0")
-      # use eval to prevent parse error
-      assert_search "product", ["Product C", "Product D"], where: {store_id: eval("3..")}
-    end
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
-      # use eval to prevent parse error
-      assert_search "product", ["Product A", "Product B"], where: {store_id: eval("..2")}
-      assert_search "product", ["Product A", "Product B"], where: {store_id: eval("...3")}
-    end
+    assert_search "product", ["Product C", "Product D"], where: {store_id: 3..}
+    assert_search "product", ["Product A", "Product B"], where: {store_id: ..2}
+    assert_search "product", ["Product A", "Product B"], where: {store_id: ...3}
 
     # or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
