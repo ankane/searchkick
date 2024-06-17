@@ -37,4 +37,11 @@ class OrderTest < Minitest::Test
     assert_order "francisco", ["San Francisco"], order: [{_geo_distance: {location: "0,0"}}]
     assert_order_relation ["San Francisco"], Product.search("francisco").order([{_geo_distance: {location: "0,0"}}])
   end
+
+  def test_script
+    store_names ["Red", "Green", "Blue"]
+    order = {_script: {type: "number", script: {source: "doc['name'].value.length() * -1"}}}
+    assert_order "*", ["Green", "Blue", "Red"], order: order
+    assert_order_relation ["Green", "Blue", "Red"], Product.search("*").order(order)
+  end
 end
