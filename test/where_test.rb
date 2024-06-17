@@ -254,13 +254,22 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product @Home"], where: {name: {ilike: "%@home%"}}
   end
 
-  # def test_script
-  #   store [
-  #     {name: "Product A", store_id: 1},
-  #     {name: "Product B", store_id: 10}
-  #   ]
-  #   assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
-  # end
+  def test_script
+    store [
+      {name: "Product A", store_id: 1},
+      {name: "Product B", store_id: 10}
+    ]
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10", lang: "expression")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < params['value']", params: {value: 10})}
+  end
+
+  def test_script_string
+    error = assert_raises(TypeError) do
+      assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
+    end
+    assert_equal "expected Searchkick::Script", error.message
+  end
 
   def test_where_string
     store [

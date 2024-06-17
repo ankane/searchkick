@@ -909,8 +909,12 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-        # elsif field == :_script
-        #   filters << {script: {script: {source: value, lang: "painless"}}}
+        elsif field == :_script
+          unless value.is_a?(Script)
+            raise TypeError, "expected Searchkick::Script"
+          end
+
+          filters << {script: {script: {source: value.source, lang: value.lang, params: value.params}}}
         else
           # expand ranges
           if value.is_a?(Range)

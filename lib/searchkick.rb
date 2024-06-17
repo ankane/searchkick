@@ -26,6 +26,7 @@ require_relative "searchkick/record_indexer"
 require_relative "searchkick/relation"
 require_relative "searchkick/relation_indexer"
 require_relative "searchkick/results"
+require_relative "searchkick/script"
 require_relative "searchkick/version"
 require_relative "searchkick/where"
 
@@ -187,6 +188,12 @@ module Searchkick
     ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
       MultiSearch.new(queries).perform
     end
+  end
+
+  # script
+
+  def self.script(source, **options)
+    Script.new(source, **options)
   end
 
   # callbacks

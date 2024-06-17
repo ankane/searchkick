@@ -1,5 +1,6 @@
 ## 5.4.0 (unreleased)
 
+- Added support for scripting to `where` option
 - Added warning for full reindex and `:queue` mode
 - Dropped support for Ruby < 3.1
 
