@@ -30,7 +30,7 @@ class UnscopeTest < Minitest::Test
     store [
       {name: "Test", active: true, should_index: true},
       {name: "Test 2", active: false, should_index: true},
-      {name: "Test 3", active: false, should_index: false},
+      {name: "Test 3", active: false, should_index: false}
     ], reindex: false
   end
 
