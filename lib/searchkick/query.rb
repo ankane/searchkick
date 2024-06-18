@@ -219,7 +219,7 @@ module Searchkick
         )
 
           raise UnsupportedVersionError
-        elsif e.message =~ /analyzer \[searchkick_.+\] not found/
+        elsif e.message.match?(/analyzer \[searchkick_.+\] not found/)
           raise InvalidQueryError, "Bad mapping - run #{reindex_command}"
         else
           raise InvalidQueryError, e.message
@@ -387,7 +387,7 @@ module Searchkick
               exclude_field = f
               exclude_analyzer = "keyword"
             else
-              analyzer = field =~ /\.word_(start|middle|end)\z/ ? "searchkick_word_search" : "searchkick_autocomplete_search"
+              analyzer = field.match?(/\.word_(start|middle|end)\z/) ? "searchkick_word_search" : "searchkick_autocomplete_search"
               qs << shared_options.merge(analyzer: analyzer)
               exclude_analyzer = analyzer
             end
