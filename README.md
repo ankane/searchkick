@@ -149,6 +149,13 @@ select: [:name]
 
 [These source filtering options are supported](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#source-filtering)
 
+Compound Boolean
+
+```ruby
+# (in_stock: true OR backordered: false) AND (store_id: 1 OR store_id: 2)
+_and: [ { _or: [ {in_stock: true}, {backordered: false} ] }, { _or: [{store_id: 1}, {store_id: 2}] } ]
+```
+
 ### Results
 
 Searches return a `Searchkick::Relation` object. This responds like an array to most methods.
