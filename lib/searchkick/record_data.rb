@@ -9,20 +9,20 @@ module Searchkick
       @record = record
     end
 
-    def index_data
-      data = record_data
+    def index_data(required_version: false)
+      data = record_data(required_version: required_version)
       data[:data] = search_data
       {index: data}
     end
 
-    def update_data(method_name)
-      data = record_data
+    def update_data(method_name, required_version: false)
+      data = record_data(required_version: required_version)
       data[:data] = {doc: search_data(method_name)}
       {update: data}
     end
 
-    def delete_data
-      {delete: record_data}
+    def delete_data(required_version: false)
+      {delete: record_data(required_version: required_version)}
     end
 
     # custom id can be useful for load: false
@@ -35,11 +35,17 @@ module Searchkick
       index.klass_document_type(record.class, ignore_type)
     end
 
-    def record_data
+    def record_data(required_version: false)
       data = {
         _index: index.name,
         _id: search_id
       }
+
+      if required_version && index.options[:version_type]
+        data[:version_type] = index.options[:version_type]
+        data[:version] = record.data_version
+      end
+
       data[:routing] = record.search_routing if record.respond_to?(:search_routing)
       data
     end

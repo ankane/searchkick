@@ -328,4 +328,18 @@ class ReindexTest < Minitest::Test
     Product.reindex
     Product.reindex # run twice for both index paths
   end
+
+  def test_index_version_conflict
+    previous_raise_version_conflict_exception = ENV["RAISE_VERSION_CONFLICT_EXCEPTION"]
+    ENV["RAISE_VERSION_CONFLICT_EXCEPTION"] = '1'
+
+    begin
+      product = Product.create(name: "Product Foobar")
+      product.updated_at = product.updated_at - 1.day
+      error = assert_raises(Searchkick::ImportError) { product.reindex }
+      assert_match 'version_conflict_engine_exception', error.message
+    ensure
+      ENV["RAISE_VERSION_CONFLICT_EXCEPTION"] = previous_raise_version_conflict_exception
+    end
+  end
 end

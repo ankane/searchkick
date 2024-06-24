@@ -316,11 +316,11 @@ module Searchkick
     end
 
     def queue_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
+      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data(required_version: true) })
     end
 
     def queue_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
+      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data(required_version: true) })
     end
 
     def queue_update(records, method_name)

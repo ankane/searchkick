@@ -7,7 +7,7 @@ module Searchkick
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :language,
         :locations, :mappings, :match, :max_result_window, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,
         :special_characters, :stem, :stemmer, :stem_conversions, :stem_exclusion, :stemmer_override, :suggest, :synonyms, :text_end,
-        :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start]
+        :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start, :version_type]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       raise "Only call searchkick once per model" if respond_to?(:searchkick_index)
@@ -20,6 +20,10 @@ module Searchkick
       callbacks = options.key?(:callbacks) ? options[:callbacks] : :inline
       unless [:inline, true, false, :async, :queue].include?(callbacks)
         raise ArgumentError, "Invalid value for callbacks"
+      end
+
+      unless [nil, :external, :external_gt, :external_gte].include?(options[:version_type])
+        raise ArgumentError, "Invalid value for version_type, must be nil, :external, :external_gt, or :external_gte"
       end
 
       base = self
@@ -46,6 +50,34 @@ module Searchkick
         def should_index?
           true
         end unless base.method_defined?(:should_index?)
+
+        if !options[:version_type].nil? && !base.method_defined?(:data_version)
+          if defined?(ActiveRecord) && base.attribute_types.key?("updated_at")
+            def data_version
+              current_time = if persisted?
+                raise "Missing updated_at" unless respond_to?(:updated_at)
+                updated_at
+              else # destroyed
+                Time.current # If soft deletion is used, the time of soft deletion should take priority here
+              end
+
+              (current_time.to_r * 10 ** self.class.attribute_types["updated_at"].precision).to_i
+            end
+          elsif defined?(Mongoid) && base.fields.key?("updated_at")
+            def data_version
+              current_time = if persisted?
+                raise "Missing updated_at" unless respond_to?(:updated_at)
+                updated_at
+              else # destroyed
+                Time.current # If soft deletion is used, the time of soft deletion should take priority here
+              end
+
+              (current_time.to_r * 1_000).to_i # Millisecond
+            end
+          else
+            raise NotImplementedError, "Missing `updated_at` field, version_number must be implemented manually in #{self.class} class"
+          end
+        end
       end
 
       class_eval do

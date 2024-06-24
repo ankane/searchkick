@@ -665,6 +665,35 @@ class Product < ApplicationRecord
 end
 ```
 
+### Versioning
+
+[Elasticsearch Versioning Support](https://www.elastic.co/blog/elasticsearch-versioning-support). Searchkick can enable external version control for Elasticsearch by setting the version_type option. e.g.
+
+```ruby
+class Forbar < ApplicationRecord
+  searchkick version_type: :external_gte # Supported options: external, external_gt, external_gte. (Recommended: external_gte)
+
+
+  def data_version
+    current_time = if persisted?
+      raise "Missing updated_at" unless respond_to?(:updated_at)
+      updated_at
+    else # destroyed
+      Time.current # If soft deletion is used, the time of soft deletion should take priority here
+    end
+
+    # For Mongoid
+    # (time.to_r * 1_000).to_i # Millisecond
+
+    # For ActiveRecord
+    (current_time.to_r * 10 ** self.class.attribute_types["updated_at"].precision).to_i
+  end
+end
+```
+
+**Note: Because the [Elasticsearch document update operation](https://github.com/elastic/elasticsearch/blob/v7.17.22/server/src/main/java/org/elasticsearch/rest/action/document/RestUpdateAction.java#L77-#L85) does not support version control, when using [Partial Reindexing](#partial-reindexing)
+, version control will be ignored.**
+
 ## Intelligent Search
 
 The best starting point to improve your search **by far** is to track searches and conversions. [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.
