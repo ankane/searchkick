@@ -167,6 +167,14 @@ class WhereTest < Minitest::Test
       {name: "Product B"}
     ]
     assert_search "product", ["Product A"], where: {user_ids: {exists: true}}
+    # TODO add support for false in Searchkick 6
+    assert_warns "Passing a value other than true to exists is not supported" do
+      assert_search "product", ["Product A"], where: {user_ids: {exists: false}}
+    end
+    # TODO raise error in Searchkick 6
+    assert_warns "Passing a value other than true to exists is not supported" do
+      assert_search "product", ["Product A"], where: {user_ids: {exists: nil}}
+    end
   end
 
   def test_like
