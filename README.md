@@ -123,7 +123,7 @@ where: {
   _not: {store_id: 1},           # negate a condition
   _or: [{in_stock: true}, {backordered: true}],
   _and: [{in_stock: true}, {backordered: true}],
-  _script: Searchkick.script("doc['a'].value > doc['b'].value") # [unreleased]
+  _script: Searchkick.raw("doc['a'].value > doc['b'].value") # experimental [unreleased]
 }
 ```
 

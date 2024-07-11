@@ -26,7 +26,7 @@ require_relative "searchkick/record_indexer"
 require_relative "searchkick/relation"
 require_relative "searchkick/relation_indexer"
 require_relative "searchkick/results"
-require_relative "searchkick/script"
+require_relative "searchkick/raw"
 require_relative "searchkick/version"
 require_relative "searchkick/where"
 
@@ -190,10 +190,11 @@ module Searchkick
     end
   end
 
-  # script
+  # raw
 
-  def self.script(source, **options)
-    Script.new(source, **options)
+  # experimental
+  def self.raw(value)
+    Raw.new(value)
   end
 
   # callbacks
