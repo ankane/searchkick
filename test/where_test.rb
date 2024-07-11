@@ -270,7 +270,7 @@ class WhereTest < Minitest::Test
     error = assert_raises(TypeError) do
       assert_search "product", ["Product A"], where: {_raw: {script: {script: "doc['store_id'].value < 10"}}}
     end
-    assert_equal "expected Searchkick::Raw", error.message
+    assert_equal "Use Searchkick.raw for raw filters", error.message
   end
 
   def test_where_string

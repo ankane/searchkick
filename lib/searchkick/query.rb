@@ -911,7 +911,7 @@ module Searchkick
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
         elsif field == :_raw
           unless value.is_a?(Raw)
-            raise TypeError, "expected Searchkick::Raw"
+            raise TypeError, "Use Searchkick.raw for raw filters"
           end
 
           filters << value.value
