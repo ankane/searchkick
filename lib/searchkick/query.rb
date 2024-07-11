@@ -909,12 +909,12 @@ module Searchkick
           filters << {bool: {must_not: where_filters(value)}}
         elsif field == :_and
           filters << {bool: {must: value.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
-        elsif field == :_script
+        elsif field == :_raw
           unless value.is_a?(Raw)
             raise TypeError, "expected Searchkick::Raw"
           end
 
-          filters << {script: {script: value.value}}
+          filters << value.value
         else
           # expand ranges
           if value.is_a?(Range)

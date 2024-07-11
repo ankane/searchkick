@@ -1,6 +1,6 @@
 ## 5.4.0 (unreleased)
 
-- Added experimental support for scripting to `where` option
+- Added experimental support for `_raw` to `where` option
 - Added warning for `exists` with non-`true` values
 - Added warning for full reindex and `:queue` mode
 - Dropped support for Ruby < 3.1
