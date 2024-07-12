@@ -153,6 +153,7 @@ class PaginationTest < Minitest::Test
   end
 
   def test_max_result_window
+    Song.delete_all
     with_options({max_result_window: 10000}, Song) do
       relation = Song.search("*", offset: 10000, limit: 1)
       assert_empty relation.to_a
