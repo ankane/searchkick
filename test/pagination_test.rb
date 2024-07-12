@@ -154,7 +154,10 @@ class PaginationTest < Minitest::Test
 
   def test_max_result_window
     with_options({max_result_window: 10000}, Song) do
-      assert_empty Song.search("*", offset: 10000, limit: 1).to_a
+      relation = Song.search("*", offset: 10000, limit: 1)
+      assert_empty relation.to_a
+      assert_equal 1, relation.per_page
+      assert_equal 0, relation.total_pages
     end
   end
 

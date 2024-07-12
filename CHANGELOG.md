@@ -3,6 +3,7 @@
 - Added experimental support for `_raw` to `where` option
 - Added warning for `exists` with non-`true` values
 - Added warning for full reindex and `:queue` mode
+- Fixed `per_page` method when paginating beyond `max_result_window`
 - Dropped support for Ruby < 3.1
 
 ## 5.3.1 (2023-11-28)

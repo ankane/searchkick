@@ -259,6 +259,7 @@ module Searchkick
       scroll = options[:scroll]
 
       max_result_window = searchkick_options[:max_result_window]
+      original_per_page = per_page
       if max_result_window
         offset = max_result_window if offset > max_result_window
         per_page = max_result_window - offset if offset + per_page > max_result_window
@@ -558,7 +559,7 @@ module Searchkick
 
       @body = payload
       @page = page
-      @per_page = per_page
+      @per_page = original_per_page
       @padding = padding
       @load = load
       @scroll = scroll
