@@ -1,5 +1,5 @@
 module Searchkick
-  class BulkReindexJob < ActiveJob::Base
+  class BulkReindexJob < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
     # TODO remove min_id and max_id in Searchkick 6
