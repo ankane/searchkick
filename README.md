@@ -66,6 +66,32 @@ gem "opensearch-ruby" # select one
 
 The latest version works with Elasticsearch 7 and 8 and OpenSearch 1 and 2. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
 
+Store your Elasticsearch credentials somewhere, e.g. in the rails credentials storage or in environment variables. If you'd like do use the rails credentails storage, run:
+
+```shell
+EDITOR=nano rails credentials:edit
+```
+
+The credentials file could look like this:
+
+``` yaml
+elasticsearch:
+  password: "your-password"
+  ca_fingerprint: "your-ca-fingerprint"
+```
+
+Now pass those credentials to Searchkick's `client_options`, e.g. by creating an initializer `initializers/searchkick.rb`:
+
+```ruby
+# Assuming you're using Elasticsearch
+elastic_password = Rails.application.credentials.dig("elasticsearch", "password")
+elastic_ca_fingerprint = Rails.application.credentials.dig("elasticsearch", "ca_fingerprint")
+# Assuming your Elasticsearch user is named "elastic"
+Searchkick.client_options = { host: "https://elastic:#{elastic_password}@localhost:9200",
+                              transport_options: { ssl: { verify: false } },
+                              ca_fingerprint: elastic_ca_fingerprint }
+```
+
 Add searchkick to models you want to search.
 
 ```ruby
