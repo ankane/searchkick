@@ -10,6 +10,7 @@ class Product
     ],
     suggest: [:name, :color],
     conversions: [:conversions],
+    conversions_factor: 100,
     locations: [:location, :multiple_locations],
     text_start: [:name],
     text_middle: [:name],
