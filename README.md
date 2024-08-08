@@ -790,6 +790,21 @@ And set it up to run daily.
 UpdateConversionsJob.perform_later("Product", since: 1.day.ago)
 ```
 
+### Conversions Factor
+By default, conversions are added to the score. To have a greater impact on the score with fewer conversions, you can define a conversion factor to multiply the number of conversions before adding them to the score. See [ElasticSearch docs](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-field-value-factor).
+
+You can set the factor in the `searchkick` method:
+```ruby
+class Product < ApplicationRecord
+  searchkick conversions: :conversions, conversions_factor: 100
+end
+```
+
+Or, call the search method with the `conversions_factor` option:
+```ruby
+Product.search("ice cream", conversions_factor: 100)
+```
+
 ## Personalized Results
 
 Order results differently for each user. For example, show a user’s previously purchased products before other results.
