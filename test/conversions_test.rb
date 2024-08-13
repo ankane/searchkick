@@ -59,4 +59,25 @@ class ConversionsTest < Minitest::Test
     ]
     assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
   end
+
+  def test_conversions_factor
+    Product.reindex
+    store [
+      {name: "Tomato", conversions: {}},
+      {name: "TomatE", conversions: {"tomato" => 1}},
+    ]
+    assert_order "tomato", ["TomatE", "Tomato"]
+    assert_order "tomato", ["Tomato", "TomatE"], conversions: false
+  end
+
+  def test_inline_conversions_factor
+    Speaker.reindex
+    store [
+      {name: "SpeakRE", conversions_a: {"speaker" => 1}},
+      {name: "Speaker"}
+    ], Speaker
+
+    assert_order "speaker", ["Speaker", "SpeakRE"], {conversions: "conversions_a"}, Speaker
+    assert_order "speaker", ["SpeakRE", "Speaker"], {conversions: "conversions_a", conversions_factor: 100}, Speaker
+  end
 end

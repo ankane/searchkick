@@ -18,8 +18,8 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
-        :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :conversions_factor,
+        :debug, :emoji, :exclude, :explain, :fields, :highlight, :includes, :index_name, :indices_boost, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
@@ -626,6 +626,8 @@ module Searchkick
 
     def set_conversions
       conversions_fields = Array(options[:conversions] || searchkick_options[:conversions]).map(&:to_s)
+      conversions_factor = options[:conversions_factor] || searchkick_options[:conversions_factor]
+
       if conversions_fields.present? && options[:conversions] != false
         conversions_fields.map do |conversions_field|
           {
@@ -641,7 +643,8 @@ module Searchkick
                     }
                   },
                   field_value_factor: {
-                    field: "#{conversions_field}.count"
+                    field: "#{conversions_field}.count",
+                    factor: conversions_factor || 1
                   }
                 }
               }
