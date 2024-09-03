@@ -12,7 +12,7 @@ class HybridTest < Minitest::Test
       {name: "Item B", embedding: [1, 2, 3]},
       {name: "Product C", embedding: [-1, -2, -3]}
     ]
-    assert_order "product", ["Product A", "Product C"], knn: {field: :embedding, vector: [1, 2, 3]}
+    assert_order "product", ["Product A", "Product C", "Item B"], knn: {field: :embedding, vector: [1, 2, 3]}
   end
 
   def test_score
