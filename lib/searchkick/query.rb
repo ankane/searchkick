@@ -529,14 +529,10 @@ module Searchkick
       # knn
       knn = options[:knn]
       if knn
-        if term != "*"
-          raise ArgumentError, "Hybrid search not supported yet"
-        end
-
         field = knn[:field]
         vector = knn[:vector]
         k = per_page + offset
-        filter = payload.delete(:query)
+        filter = term == "*" ? payload.delete(:query) : payload[:query]
 
         if Searchkick.opensearch?
           payload[:query] = {
