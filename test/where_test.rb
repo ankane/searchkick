@@ -261,16 +261,16 @@ class WhereTest < Minitest::Test
       {name: "Product A", store_id: 1},
       {name: "Product B", store_id: 10}
     ]
-    assert_search "product", ["Product A"], where: {_raw: Searchkick.raw({script: {script: "doc['store_id'].value < 10"}})}
-    assert_search "product", ["Product A"], where: {_raw: Searchkick.raw({script: {script: {source: "doc['store_id'].value < 10", lang: "expression"}}})}
-    assert_search "product", ["Product A"], where: {_raw: Searchkick.raw({script: {script: {source: "doc['store_id'].value < params['value']", params: {value: 10}}}})}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10", lang: "expression")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < params['value']", params: {value: 10})}
   end
 
   def test_script_string
     error = assert_raises(TypeError) do
-      assert_search "product", ["Product A"], where: {_raw: {script: {script: "doc['store_id'].value < 10"}}}
+      assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
     end
-    assert_equal "Use Searchkick.raw for raw filters", error.message
+    assert_equal "expected Searchkick::Script", error.message
   end
 
   def test_where_string
