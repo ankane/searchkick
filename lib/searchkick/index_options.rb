@@ -442,22 +442,25 @@ module Searchkick
             }
           }
         else
-          similarity =
-            case knn_options[:distance]
-            when "cosine", nil
-              "cosine"
-            when "euclidean"
-              "l2_norm"
-            else
-              raise ArgumentError, "Unknown distance: #{distance}"
-            end
-
-          mapping[field.to_s] = {
+          vector_options = {
             type: "dense_vector",
             dims: knn_options[:dimensions],
-            index: true,
-            similarity: similarity
+            index: !knn_options[:distance].nil?
           }
+
+          if !knn_options[:distance].nil?
+            vector_options[:similarity] =
+              case knn_options[:distance]
+              when "cosine"
+                "cosine"
+              when "euclidean"
+                "l2_norm"
+              else
+                raise ArgumentError, "Unknown distance: #{distance}"
+              end
+          end
+
+          mapping[field.to_s] = vector_options
         end
       end
 
