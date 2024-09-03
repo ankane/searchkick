@@ -1878,7 +1878,7 @@ Searchkick.multi_search([keyword_search, semantic_search])
 To combine the results, use Reciprocal Rank Fusion (RRF)
 
 ```ruby
-Searchkick::Reranking.rrf(keyword_search, semantic_search)
+Searchkick::Reranking.rrf(keyword_search, semantic_search).first(5)
 ```
 
 Or a reranking model
@@ -1886,7 +1886,7 @@ Or a reranking model
 ```ruby
 rerank = Informers.pipeline("reranking", "mixedbread-ai/mxbai-rerank-xsmall-v1")
 results = (keyword_search.to_a + semantic_search.to_a).uniq
-rerank.(query, results.map(&:name), top_k: 5).map { |v| results[v[:doc_id]] }
+rerank.(query, results.map(&:name)).first(5).map { |v| results[v[:doc_id]] }
 ```
 
 See a [full example](examples/hybrid.rb)
