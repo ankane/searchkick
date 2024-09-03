@@ -892,6 +892,7 @@ module Searchkick
 
       if Searchkick.opensearch?
         if knn[:exact]
+          # https://opensearch.org/docs/latest/search-plugins/knn/knn-score-script/#spaces
           space_type =
             case distance
             when "cosine"
@@ -933,6 +934,7 @@ module Searchkick
         end
       else
         if knn[:exact]
+          # https://github.com/elastic/elasticsearch/blob/main/docs/reference/vectors/vector-functions.asciidoc
           source =
             case distance
             when "cosine"
