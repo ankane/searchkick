@@ -39,6 +39,13 @@ class KnnTest < Minitest::Test
     end
   end
 
+  def test_distance
+    error = assert_raises(ArgumentError) do
+      Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine"})
+    end
+    assert_equal "distance must be set on index for approximate search", error.message
+  end
+
   def test_where
     store [
       {name: "A", store_id: 1, embedding: [1, 2, 3]},

@@ -918,8 +918,8 @@ module Searchkick
             }
           }
         else
-          if distance != "cosine"
-            raise ArgumentError, "Unknown distance: #{distance}"
+          if !knn[:distance].nil?
+            raise ArgumentError, "distance must be set on index for approximate search"
           end
 
           payload[:query] = {
@@ -958,8 +958,8 @@ module Searchkick
             }
           }
         else
-          if distance != "cosine"
-            raise ArgumentError, "Unknown distance: #{distance}"
+          if !knn[:distance].nil?
+            raise ArgumentError, "distance must be set on index for approximate search"
           end
 
           payload[:knn] = {
