@@ -539,22 +539,54 @@ module Searchkick
         filter = payload.delete(:query)
 
         if Searchkick.opensearch?
-          payload[:query] = {
-            knn: {
-              field.to_sym => {
-                vector: vector,
-                k: k,
-                filter: filter
+          if knn[:exact]
+            payload[:query] = {
+              script_score: {
+                query: filter,
+                script: {
+                  source: "knn_score",
+                  lang: "knn",
+                  params: {
+                    field: field,
+                    query_value: vector,
+                    space_type: "cosinesimil"
+                  }
+                }
               }
             }
-          }
+          else
+            payload[:query] = {
+              knn: {
+                field.to_sym => {
+                  vector: vector,
+                  k: k,
+                  filter: filter
+                }
+              }
+            }
+          end
         else
-          payload[:knn] = {
-            field: field,
-            query_vector: vector,
-            k: k,
-            filter: filter
-          }
+          if knn[:exact]
+            payload[:query] = {
+              script_score: {
+                query: filter,
+                script: {
+                  source: "cosineSimilarity(params.query_vector, params.field) + 1.0",
+                  params: {
+                    field: field,
+                    query_vector: vector
+                  }
+                }
+              }
+            }
+          else
+            payload[:knn] = {
+              field: field,
+              query_vector: vector,
+              k: k,
+              filter: filter
+            }
+          end
         end
       end
 
