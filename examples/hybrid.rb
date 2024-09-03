@@ -14,7 +14,7 @@ ActiveRecord::Schema.define do
 end
 
 class Product < ActiveRecord::Base
-  searchkick knn: {embedding: {dimensions: 768}}
+  searchkick knn: {embedding: {dimensions: 768, distance: "cosine"}}
 end
 
 Product.reindex

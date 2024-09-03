@@ -1851,7 +1851,7 @@ Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345}
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick knn: {embedding: {dimensions: 3}}
+  searchkick knn: {embedding: {dimensions: 3, distance: "cosine"}}
 end
 ```
 
@@ -1867,7 +1867,7 @@ First, add [nearest neighbor search](#nearest-neighbor-search-unreleased-experim
 
 ```ruby
 class Product < ApplicationRecord
-  searchkick knn: {embedding: {dimensions: 768}}
+  searchkick knn: {embedding: {dimensions: 768, distance: "cosine"}}
 end
 ```
 
