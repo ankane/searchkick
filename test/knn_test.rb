@@ -15,6 +15,25 @@ class KnnTest < Minitest::Test
     assert_in_delta 0, scores[1]
   end
 
+  def test_where
+    store [
+      {name: "A", store_id: 1, embedding: [1, 2, 3]},
+      {name: "B", store_id: 2, embedding: [1, 2, 3]},
+      {name: "C", store_id: 1, embedding: [-1, -2, -3]},
+    ]
+    assert_order "*", ["A", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, where: {store_id: 1}
+  end
+
+  def test_pagination
+    store [
+      {name: "A", embedding: [1, 2, 3]},
+      {name: "B", embedding: [1, 2, 0]},
+      {name: "C", embedding: [-1, -2, 0]},
+      {name: "D", embedding: [-1, -2, -3]}
+    ]
+    assert_order "*", ["B", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, limit: 2, offset: 1
+  end
+
   def test_exact_cosine
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
@@ -44,24 +63,5 @@ class KnnTest < Minitest::Test
       Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine"})
     end
     assert_equal "distance must be set on index for approximate search", error.message
-  end
-
-  def test_where
-    store [
-      {name: "A", store_id: 1, embedding: [1, 2, 3]},
-      {name: "B", store_id: 2, embedding: [1, 2, 3]},
-      {name: "C", store_id: 1, embedding: [-1, -2, -3]},
-    ]
-    assert_order "*", ["A", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, where: {store_id: 1}
-  end
-
-  def test_pagination
-    store [
-      {name: "A", embedding: [1, 2, 3]},
-      {name: "B", embedding: [1, 2, 0]},
-      {name: "C", embedding: [-1, -2, 0]},
-      {name: "D", embedding: [-1, -2, -3]}
-    ]
-    assert_order "*", ["B", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, limit: 2, offset: 1
   end
 end
