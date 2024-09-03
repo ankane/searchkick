@@ -45,7 +45,10 @@ semantic_search = Document.search(knn: {field: :embedding, vector: query_embeddi
 
 Searchkick.multi_search([keyword_search, semantic_search])
 
-# to combine the results, use a reranking model
+# to combine the results, use Reciprocal Rank Fusion (RRF)
+p Searchkick::Reranking.rrf(keyword_search, semantic_search).map { |v| v[:result].content }
+
+# or a reranking model
 rerank = Informers.pipeline("reranking", "mixedbread-ai/mxbai-rerank-xsmall-v1")
 results = (keyword_search.to_a + semantic_search.to_a).uniq
 p rerank.(query, results.map(&:content), top_k: 5).map { |v| results[v[:doc_id]] }.map(&:content)

@@ -1875,7 +1875,13 @@ semantic_search = Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, li
 Searchkick.multi_search([keyword_search, semantic_search])
 ```
 
-To combine the results, use a reranking model
+To combine the results, use Reciprocal Rank Fusion (RRF)
+
+```ruby
+Searchkick::Reranking.rrf(keyword_search, semantic_search)
+```
+
+Or a reranking model
 
 ```ruby
 rerank = Informers.pipeline("reranking", "mixedbread-ai/mxbai-rerank-xsmall-v1")

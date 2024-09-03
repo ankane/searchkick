@@ -1,6 +1,7 @@
 ## 5.4.0 (unreleased)
 
 - Added experimental `knn` option
+- Added experimental `rrf` method
 - Added experimental support for `_raw` to `where` option
 - Added warning for `exists` with non-`true` values
 - Added warning for full reindex and `:queue` mode

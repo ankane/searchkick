@@ -24,8 +24,11 @@ class HybridTest < Minitest::Test
     semantic_search = Product.search(knn: {field: :embedding, vector: [1, 2, 3]})
     Searchkick.multi_search([keyword_search, semantic_search])
 
+    results = Searchkick::Reranking.rrf(keyword_search, semantic_search)
     expected = ["The bear is growling", "The dog is barking", "The cat is purring"]
-    assert_equal expected.first(1), keyword_search.map(&:name)
-    assert_equal expected, semantic_search.map(&:name)
+    assert_equal expected, results.map { |v| v[:result].name }
+    assert_in_delta 0.03279, results[0][:score]
+    assert_in_delta 0.01612, results[1][:score]
+    assert_in_delta 0.01587, results[2][:score]
   end
 end
