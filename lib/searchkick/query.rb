@@ -527,68 +527,7 @@ module Searchkick
       end
 
       # knn
-      knn = options[:knn]
-      if knn
-        if term != "*"
-          raise ArgumentError, "Use Searchkick.multi_search for hybrid search"
-        end
-
-        field = knn[:field]
-        vector = knn[:vector]
-        k = per_page + offset
-        filter = payload.delete(:query)
-
-        if Searchkick.opensearch?
-          if knn[:exact]
-            payload[:query] = {
-              script_score: {
-                query: filter,
-                script: {
-                  source: "knn_score",
-                  lang: "knn",
-                  params: {
-                    field: field,
-                    query_value: vector,
-                    space_type: "cosinesimil"
-                  }
-                }
-              }
-            }
-          else
-            payload[:query] = {
-              knn: {
-                field.to_sym => {
-                  vector: vector,
-                  k: k,
-                  filter: filter
-                }
-              }
-            }
-          end
-        else
-          if knn[:exact]
-            payload[:query] = {
-              script_score: {
-                query: filter,
-                script: {
-                  source: "cosineSimilarity(params.query_vector, params.field) + 1.0",
-                  params: {
-                    field: field,
-                    query_vector: vector
-                  }
-                }
-              }
-            }
-          else
-            payload[:knn] = {
-              field: field,
-              query_vector: vector,
-              k: k,
-              filter: filter
-            }
-          end
-        end
-      end
+      set_knn(payload, options[:knn], per_page, offset) if options[:knn]
 
       # pagination
       pagination_options = options[:page] || options[:limit] || options[:per_page] || options[:offset] || options[:padding]
@@ -935,6 +874,68 @@ module Searchkick
             aggs: {
               field => payload[:aggs][field]
             }
+          }
+        end
+      end
+    end
+
+    def set_knn(payload, knn, per_page, offset)
+      if term != "*"
+        raise ArgumentError, "Use Searchkick.multi_search for hybrid search"
+      end
+
+      field = knn[:field]
+      vector = knn[:vector]
+      k = per_page + offset
+      filter = payload.delete(:query)
+
+      if Searchkick.opensearch?
+        if knn[:exact]
+          payload[:query] = {
+            script_score: {
+              query: filter,
+              script: {
+                source: "knn_score",
+                lang: "knn",
+                params: {
+                  field: field,
+                  query_value: vector,
+                  space_type: "cosinesimil"
+                }
+              }
+            }
+          }
+        else
+          payload[:query] = {
+            knn: {
+              field.to_sym => {
+                vector: vector,
+                k: k,
+                filter: filter
+              }
+            }
+          }
+        end
+      else
+        if knn[:exact]
+          payload[:query] = {
+            script_score: {
+              query: filter,
+              script: {
+                source: "cosineSimilarity(params.query_vector, params.field) + 1.0",
+                params: {
+                  field: field,
+                  query_vector: vector
+                }
+              }
+            }
+          }
+        else
+          payload[:knn] = {
+            field: field,
+            query_vector: vector,
+            k: k,
+            filter: filter
           }
         end
       end
