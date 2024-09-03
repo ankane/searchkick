@@ -39,5 +39,8 @@ Document.insert_all!(documents)
 Document.reindex
 
 query = "puppy"
-query_embedding = embed.(query, **embed_options)
+
+# the query prefix is specific to the embedding model (https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5)
+query_prefix = "Represent this sentence for searching relevant passages: "
+query_embedding = embed.(query_prefix + query, **embed_options)
 pp Document.search(knn: {field: :embedding, vector: query_embedding}).map(&:content)
