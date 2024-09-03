@@ -32,6 +32,7 @@ ActiveRecord::Schema.define do
     t.decimal :longitude, precision: 10, scale: 7
     t.text :description
     t.text :alt_description
+    t.text :embedding
     t.timestamps null: true
   end
 
@@ -75,6 +76,12 @@ end
 
 class Product < ActiveRecord::Base
   belongs_to :store
+
+  if ActiveRecord::VERSION::STRING.to_f >= 7.1
+    serialize :embedding, coder: JSON
+  else
+    serialize :embedding, JSON
+  end
 end
 
 class Store < ActiveRecord::Base

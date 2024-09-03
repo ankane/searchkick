@@ -169,6 +169,20 @@ module Searchkick
         max_shingle_diff: 4
       }
 
+      if options[:knn]
+        unless Searchkick.knn_support?
+          if Searchkick.opensearch?
+            raise Error, "knn requires OpenSearch 2.4+"
+          else
+            raise Error, "knn requires Elasticsearch 8.6+"
+          end
+        end
+
+        if Searchkick.opensearch?
+          settings[:index][:knn] = true
+        end
+      end
+
       if options[:case_sensitive]
         settings[:analysis][:analyzer].each do |_, analyzer|
           analyzer[:filter].delete("lowercase")
@@ -404,6 +418,27 @@ module Searchkick
       options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
       (options[:geo_shape] || {}).each do |field, shape_options|
         mapping[field] = shape_options.merge(type: "geo_shape")
+      end
+
+      (options[:knn] || []).each do |field, knn_options|
+        if Searchkick.opensearch?
+          mapping[field.to_s] = {
+            type: "knn_vector",
+            dimension: knn_options[:dimensions],
+            method: {
+              name: "hnsw",
+              space_type: "cosinesimil",
+              engine: "lucene"
+            }
+          }
+        else
+          mapping[field.to_s] = {
+            type: "dense_vector",
+            dims: knn_options[:dimensions],
+            index: true,
+            similarity: "cosine"
+          }
+        end
       end
 
       if options[:inheritance]

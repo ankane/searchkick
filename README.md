@@ -1845,9 +1845,21 @@ To query nested data, use dot notation.
 Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345})
 ```
 
-## Nearest Neighbors
+## Nearest Neighbors [experimental]
 
-You can use custom mapping and searching to index vectors and perform k-nearest neighbor search. See the examples for [Elasticsearch](examples/elasticsearch_knn.rb) and [OpenSearch](examples/opensearch_knn.rb).
+*Available for Elasticsearch 8.6+ and OpenSearch 2.4+*
+
+```ruby
+class Product < ApplicationRecord
+  searchkick knn: {embedding: {dimensions: 3}}
+end
+```
+
+Reindex and search with:
+
+```ruby
+Product.search(knn: {field: :embedding, vector: [1, 2, 3]})
+```
 
 ## Reference
 

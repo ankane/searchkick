@@ -21,6 +21,7 @@ class Product
   field :longitude, type: BigDecimal
   field :description
   field :alt_description
+  field :embedding, type: Array
 end
 
 class Store

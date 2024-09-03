@@ -142,6 +142,15 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
+  # private
+  def self.knn_support?
+    if opensearch?
+      !server_below?("2.4.0", true)
+    else
+      !server_below?("8.6.0")
+    end
+  end
+
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
