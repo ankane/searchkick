@@ -1845,7 +1845,7 @@ To query nested data, use dot notation.
 Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345})
 ```
 
-## Nearest Neighbors [experimental]
+## Nearest Neighbors [unreleased, experimental]
 
 *Available for Elasticsearch 8.6+ and OpenSearch 2.4+*
 
