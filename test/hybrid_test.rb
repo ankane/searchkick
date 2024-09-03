@@ -21,6 +21,7 @@ class HybridTest < Minitest::Test
       {name: "The cat is purring", embedding: [1, 0, 0]},
       {name: "The bear is growling", embedding: [1, 2, 3]}
     ]
+    assert_order "growling bear", ["The bear is growling", "The dog is barking", "The cat is purring"], knn: {field: :embedding, vector: [1, 2, 3]}
     pp Product.search("growling bear", knn: {field: :embedding, vector: [1, 2, 3]}).hits
   end
 end
