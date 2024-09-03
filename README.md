@@ -1863,6 +1863,14 @@ Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 
 ## Semantic Search [unreleased, experimental]
 
+First, add [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental) to your model
+
+```ruby
+class Product < ApplicationRecord
+  searchkick knn: {embedding: {dimensions: 768}}
+end
+```
+
 Generate an embedding for each record (you can use an external service or a library like [Informers](https://github.com/ankane/informers))
 
 ```ruby
@@ -1887,7 +1895,7 @@ query_prefix = "Represent this sentence for searching relevant passages: "
 query_embedding = embed.(query_prefix + query, **embed_options)
 ```
 
-And perform [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental)
+And perform nearest neighbor search
 
 ```ruby
 Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
