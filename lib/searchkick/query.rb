@@ -886,11 +886,22 @@ module Searchkick
 
       field = knn[:field]
       vector = knn[:vector]
+      distance = knn[:distance] || "cosine"
       k = per_page + offset
       filter = payload.delete(:query)
 
       if Searchkick.opensearch?
         if knn[:exact]
+          space_type =
+            case distance
+            when "cosine"
+              "cosinesimil"
+            when "euclidean"
+              "l2"
+            else
+              raise ArgumentError, "Unknown distance: #{distance}"
+            end
+
           payload[:query] = {
             script_score: {
               query: filter,
@@ -900,12 +911,16 @@ module Searchkick
                 params: {
                   field: field,
                   query_value: vector,
-                  space_type: "cosinesimil"
+                  space_type: space_type
                 }
               }
             }
           }
         else
+          if distance != "cosine"
+            raise ArgumentError, "Unknown distance: #{distance}"
+          end
+
           payload[:query] = {
             knn: {
               field.to_sym => {
@@ -918,11 +933,21 @@ module Searchkick
         end
       else
         if knn[:exact]
+          source =
+            case distance
+            when "cosine"
+              "cosineSimilarity(params.query_vector, params.field) + 1.0"
+            when "euclidean"
+              "1 / (1 + l2norm(params.query_vector, params.field))"
+            else
+              raise ArgumentError, "Unknown distance: #{distance}"
+            end
+
           payload[:query] = {
             script_score: {
               query: filter,
               script: {
-                source: "cosineSimilarity(params.query_vector, params.field) + 1.0",
+                source: source,
                 params: {
                   field: field,
                   query_vector: vector
@@ -931,6 +956,10 @@ module Searchkick
             }
           }
         else
+          if distance != "cosine"
+            raise ArgumentError, "Unknown distance: #{distance}"
+          end
+
           payload[:knn] = {
             field: field,
             query_vector: vector,

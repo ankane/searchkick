@@ -15,7 +15,7 @@ class KnnTest < Minitest::Test
     assert_in_delta 0, scores[1]
   end
 
-  def test_exact
+  def test_exact_cosine
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
 
@@ -23,6 +23,20 @@ class KnnTest < Minitest::Test
     # TODO match approximate
     assert_in_delta 2, scores[0]
     assert_in_delta 0, scores[1]
+  end
+
+  def test_exact_euclidean
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}
+
+    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}).hits.map { |v| v["_score"] }
+    # TODO return distance
+    assert_in_delta 1.0 / (1 + 0), scores[0]
+    if Searchkick.opensearch?
+      assert_in_delta 1.0 / (1 + 5**2), scores[1]
+    else
+      assert_in_delta 1.0 / (1 + 5), scores[1]
+    end
   end
 
   def test_where
