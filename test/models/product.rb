@@ -21,7 +21,7 @@ class Product
     filterable: [:name, :color, :description],
     similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
-    knn: Searchkick.knn_support? ? {embedding: {dimensions: 3, distance: "cosine"}, factors: {dimensions: 3, distance: "euclidean"}} : nil
+    knn: Searchkick.knn_support? ? {embedding: {dimensions: 3, distance: "cosine"}, factors: {dimensions: 3, distance: "euclidean"}, vector: {dimensions: 3}} : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 

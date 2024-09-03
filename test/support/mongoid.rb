@@ -23,6 +23,7 @@ class Product
   field :alt_description
   field :embedding, type: Array
   field :factors, type: Array
+  field :vector, type: Array
 end
 
 class Store

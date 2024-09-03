@@ -74,4 +74,19 @@ class KnnTest < Minitest::Test
     end
     assert_equal "distance must be set on index for approximate search", error.message
   end
+
+  def test_unindexed
+    store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}]
+    assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}
+
+    scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}).hits.map { |v| v["_score"] }
+    # TODO match approximate
+    assert_in_delta 2, scores[0]
+    assert_in_delta 0, scores[1]
+
+    error = assert_raises(Searchkick::InvalidQueryError) do
+      Product.search(knn: {field: :vector, vector: [1, 2, 3]}).to_a
+    end
+    assert_match "to perform knn search on field [vector], its mapping must have [index] set to [true]", error.message
+  end
 end
