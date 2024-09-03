@@ -1863,15 +1863,45 @@ Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 
 ## Semantic Search [unreleased, experimental]
 
-Generate embeddings for documents and queries and use [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental). See an [example](examples/semantic.rb) with [Informers](https://github.com/ankane/informers).
+Generate an embedding for each record (you can use an external service or a library like [Informers](https://github.com/ankane/informers))
+
+```ruby
+embed = Informers.pipeline("embedding", "Snowflake/snowflake-arctic-embed-m-v1.5")
+embed_options = {model_output: "sentence_embedding", pooling: "none"} # specific to embedding model
+
+Product.where(embedding: nil).find_in_batches(batch_size: 16) do |products|
+  embeddings = embed.(products.map(&:name), **embed_options)
+
+  Searchkick.callbacks(:bulk) do
+    products.zip(embeddings) do |product, embedding|
+      product.update!(embedding: embedding)
+    end
+  end
+end
+```
+
+For search, generate an embedding for the query (the query prefix is specific to the [embedding model](https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5))
+
+```ruby
+query_prefix = "Represent this sentence for searching relevant passages: "
+query_embedding = embed.(query_prefix + query, **embed_options)
+```
+
+And perform [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental)
+
+```ruby
+Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
+```
+
+See a [full example](examples/semantic.rb)
 
 ## Hybrid Search [unreleased, experimental]
 
 Perform keyword search and semantic search in parallel
 
 ```ruby
-keyword_search = Product.search("apples", limit: 20)
-semantic_search = Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 20)
+keyword_search = Product.search(query, limit: 20)
+semantic_search = Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
 Searchkick.multi_search([keyword_search, semantic_search])
 ```
 
