@@ -886,12 +886,24 @@ module Searchkick
 
       field = knn[:field]
       vector = knn[:vector]
-      distance = knn[:distance] || "cosine"
+      distance = knn[:distance]
+      exact = knn[:exact]
       k = per_page + offset
       filter = payload.delete(:query)
 
+      if exact && distance.nil?
+        # get distance from options
+        distance = searchkick_options.dig(:knn, field.to_sym, :distance)
+
+        if distance.nil?
+          raise ArgumentError, "distance required for exact search"
+        end
+      elsif !exact && !distance.nil?
+        raise ArgumentError, "distance must be set on index for approximate search"
+      end
+
       if Searchkick.opensearch?
-        if knn[:exact]
+        if exact
           # https://opensearch.org/docs/latest/search-plugins/knn/knn-score-script/#spaces
           space_type =
             case distance
@@ -918,10 +930,6 @@ module Searchkick
             }
           }
         else
-          if !knn[:distance].nil?
-            raise ArgumentError, "distance must be set on index for approximate search"
-          end
-
           payload[:query] = {
             knn: {
               field.to_sym => {
@@ -933,7 +941,7 @@ module Searchkick
           }
         end
       else
-        if knn[:exact]
+        if exact
           # https://github.com/elastic/elasticsearch/blob/main/docs/reference/vectors/vector-functions.asciidoc
           source =
             case distance
@@ -958,10 +966,6 @@ module Searchkick
             }
           }
         else
-          if !knn[:distance].nil?
-            raise ArgumentError, "distance must be set on index for approximate search"
-          end
-
           payload[:knn] = {
             field: field,
             query_vector: vector,
