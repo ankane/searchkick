@@ -530,7 +530,7 @@ module Searchkick
       knn = options[:knn]
       if knn
         if term != "*"
-          raise ArgumentError, "Hybrid search not supported yet"
+          raise ArgumentError, "Use Searchkick.multi_search for hybrid search"
         end
 
         field = knn[:field]
