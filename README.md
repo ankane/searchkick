@@ -1858,7 +1858,7 @@ end
 Reindex and search with:
 
 ```ruby
-Product.search(knn: {field: :embedding, vector: [1, 2, 3]})
+Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 ```
 
 ## Semantic Search [unreleased, experimental]
