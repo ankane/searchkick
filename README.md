@@ -1861,13 +1861,13 @@ Reindex and search with:
 Product.search(knn: {field: :embedding, vector: [1, 2, 3]})
 ```
 
-## Semantic Search
+## Semantic Search [unreleased, experimental]
 
 Generate embeddings for documents and queries and use [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental).
 
-## Hybrid Search
+## Hybrid Search [unreleased, experimental]
 
-Pass a query along with [semantic search](#semantic-search):
+Pass a query along with [semantic search](#semantic-search-unreleased-experimental):
 
 ```ruby
 Product.search("apples", knn: {field: :embedding, vector: [1, 2, 3]})
