@@ -14,4 +14,13 @@ class HybridTest < Minitest::Test
     ]
     assert_order "product", ["Product A", "Product C"], knn: {field: :embedding, vector: [1, 2, 3]}
   end
+
+  def test_score
+    store [
+      {name: "The dog is barking", embedding: [1, 2, 0]},
+      {name: "The cat is purring", embedding: [1, 0, 0]},
+      {name: "The bear is growling", embedding: [1, 2, 3]}
+    ]
+    pp Product.search("growling bear", knn: {field: :embedding, vector: [1, 2, 3]}).hits
+  end
 end
