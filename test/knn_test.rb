@@ -76,6 +76,8 @@ class KnnTest < Minitest::Test
   end
 
   def test_unindexed
+    skip if Searchkick.opensearch?
+
     store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}]
     assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}
 

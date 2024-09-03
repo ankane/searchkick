@@ -422,25 +422,35 @@ module Searchkick
 
       (options[:knn] || []).each do |field, knn_options|
         if Searchkick.opensearch?
-          space_type =
-            case knn_options[:distance]
-            when "cosine", nil
-              "cosinesimil"
-            when "euclidean"
-              "l2"
-            else
-              raise ArgumentError, "Unknown distance: #{distance}"
-            end
+          if knn_options[:distance].nil?
+            # avoid server crash if method not specified
+            raise ArgumentError, "Must specify a distance for OpenSearch"
+          end
 
-          mapping[field.to_s] = {
+          vector_options = {
             type: "knn_vector",
-            dimension: knn_options[:dimensions],
-            method: {
+            dimension: knn_options[:dimensions]
+          }
+
+          if !knn_options[:distance].nil?
+            space_type =
+              case knn_options[:distance]
+              when "cosine"
+                "cosinesimil"
+              when "euclidean"
+                "l2"
+              else
+                raise ArgumentError, "Unknown distance: #{distance}"
+              end
+
+            vector_options[:method] = {
               name: "hnsw",
               space_type: space_type,
               engine: "lucene"
             }
-          }
+          end
+
+          mapping[field.to_s] = vector_options
         else
           vector_options = {
             type: "dense_vector",
