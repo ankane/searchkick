@@ -22,6 +22,7 @@ class Product
   field :description
   field :alt_description
   field :embedding, type: Array
+  field :factors, type: Array
 end
 
 class Store

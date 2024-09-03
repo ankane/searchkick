@@ -422,21 +422,41 @@ module Searchkick
 
       (options[:knn] || []).each do |field, knn_options|
         if Searchkick.opensearch?
+          space_type =
+            case knn_options[:distance]
+            when "cosine", nil
+              "cosinesimil"
+            when "euclidean"
+              "l2"
+            else
+              raise ArgumentError, "Unknown distance: #{distance}"
+            end
+
           mapping[field.to_s] = {
             type: "knn_vector",
             dimension: knn_options[:dimensions],
             method: {
               name: "hnsw",
-              space_type: "cosinesimil",
+              space_type: space_type,
               engine: "lucene"
             }
           }
         else
+          similarity =
+            case knn_options[:distance]
+            when "cosine", nil
+              "cosine"
+            when "euclidean"
+              "l2_norm"
+            else
+              raise ArgumentError, "Unknown distance: #{distance}"
+            end
+
           mapping[field.to_s] = {
             type: "dense_vector",
             dims: knn_options[:dimensions],
             index: true,
-            similarity: "cosine"
+            similarity: similarity
           }
         end
       end

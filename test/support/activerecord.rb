@@ -33,6 +33,7 @@ ActiveRecord::Schema.define do
     t.text :description
     t.text :alt_description
     t.text :embedding
+    t.text :factors
     t.timestamps null: true
   end
 
@@ -79,8 +80,10 @@ class Product < ActiveRecord::Base
 
   if ActiveRecord::VERSION::STRING.to_f >= 7.1
     serialize :embedding, coder: JSON
+    serialize :factors, coder: JSON
   else
     serialize :embedding, JSON
+    serialize :factors, JSON
   end
 end
 

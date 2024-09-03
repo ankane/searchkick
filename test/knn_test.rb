@@ -34,6 +34,16 @@ class KnnTest < Minitest::Test
     assert_order "*", ["B", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, limit: 2, offset: 1
   end
 
+  def test_euclidean
+    store [{name: "A", factors: [1, 2, 3]}, {name: "B", factors: [1, 5, 7]}]
+    assert_order "*", ["A", "B"], knn: {field: :factors, vector: [1, 2, 3]}
+
+    scores = Product.search(knn: {field: :factors, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
+    # TODO return distance
+    assert_in_delta 1.0 / (1 + 0), scores[0]
+    assert_in_delta 1.0 / (1 + 5**2), scores[1]
+  end
+
   def test_exact_cosine
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
