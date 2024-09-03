@@ -9,14 +9,11 @@ ActiveRecord::Schema.verbose = false
 ActiveRecord::Schema.define do
   create_table :documents do |t|
     t.string :content
-    t.text :embedding
+    t.json :embedding
   end
 end
 
 class Document < ActiveRecord::Base
-  # remove "coder: " for Active Record < 7.1
-  serialize :embedding, coder: JSON
-
   searchkick knn: {embedding: {dimensions: 768}}
 end
 
