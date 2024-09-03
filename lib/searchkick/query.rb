@@ -533,6 +533,7 @@ module Searchkick
         vector = knn[:vector]
         k = per_page + offset
         filter = options[:where] ? payload[:query][:bool][:filter] : {match_all: {}}
+        query = payload.delete(:query)
 
         if Searchkick.opensearch?
           payload[:query] = {
@@ -544,6 +545,17 @@ module Searchkick
               }
             }
           }
+
+          if term != "*"
+            payload[:query] = {
+              hybrid: {
+                queries: [
+                  query,
+                  payload.delete(:query)
+                ]
+              }
+            }
+          end
         else
           payload[:knn] = {
             field: field,
@@ -558,7 +570,7 @@ module Searchkick
                 retrievers: [
                   {
                     standard: {
-                      query: payload.delete(:query)
+                      query: query
                     }
                   },
                   {
