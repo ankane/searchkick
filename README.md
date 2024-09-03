@@ -1877,14 +1877,9 @@ Generate an embedding for each record (you can use an external service or a libr
 embed = Informers.pipeline("embedding", "Snowflake/snowflake-arctic-embed-m-v1.5")
 embed_options = {model_output: "sentence_embedding", pooling: "none"} # specific to embedding model
 
-Product.where(embedding: nil).find_in_batches(batch_size: 16) do |products|
-  embeddings = embed.(products.map(&:name), **embed_options)
-
-  Searchkick.callbacks(:bulk) do
-    products.zip(embeddings) do |product, embedding|
-      product.update!(embedding: embedding)
-    end
-  end
+Product.find_each do |product|
+  embedding = embed.(product.name, **embed_options)
+  product.update!(embedding: embedding)
 end
 ```
 
