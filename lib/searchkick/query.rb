@@ -885,22 +885,20 @@ module Searchkick
       end
 
       field = knn[:field]
+      field_options = searchkick_options.dig(:knn, field.to_sym) || searchkick_options.dig(:knn, field.to_s) || {}
       vector = knn[:vector]
-      distance = knn[:distance]
+      distance = knn[:distance] || field_options[:distance]
       exact = knn[:exact]
+      exact = field_options[:distance].nil? || distance != field_options[:distance] if exact.nil?
       k = per_page + offset
       filter = payload.delete(:query)
 
       if exact && distance.nil?
-        # get distance from options
-        field_options = searchkick_options.dig(:knn, field.to_sym) || searchkick_options.dig(:knn, field.to_s) || {}
-        distance = field_options[:distance]
-
-        if distance.nil?
-          raise ArgumentError, "distance required for exact search"
-        end
-      elsif !exact && !distance.nil?
-        raise ArgumentError, "distance must be set on index for approximate search"
+        raise ArgumentError, "distance required for exact search"
+      elsif !exact && distance.nil?
+        raise ArgumentError, "distance required"
+      elsif !exact && distance != field_options[:distance]
+        raise ArgumentError, "distance must match searchkick options for approximate search"
       end
 
       if Searchkick.opensearch?

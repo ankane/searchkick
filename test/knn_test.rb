@@ -79,9 +79,9 @@ class KnnTest < Minitest::Test
 
   def test_euclidean_exact
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}
 
-    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}).hits.map { |v| v["_score"] }
     # TODO return distance
     assert_in_delta 1.0 / (1 + 0), scores[0]
     if Searchkick.opensearch?
@@ -92,26 +92,35 @@ class KnnTest < Minitest::Test
   end
 
   def test_distance
+    store []
+    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine"}).to_a
+    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}).to_a
+    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine", exact: false}).to_a
     error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine"})
+      Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean", exact: false})
     end
-    assert_equal "distance must be set on index for approximate search", error.message
+    assert_equal "distance must match searchkick options for approximate search", error.message
   end
 
   def test_unindexed
     skip if Searchkick.opensearch?
 
     store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}
+    assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}
 
-    scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}).hits.map { |v| v["_score"] }
     # TODO match approximate
     assert_in_delta 2, scores[0]
     assert_in_delta 0, scores[1]
 
-    error = assert_raises(Searchkick::InvalidQueryError) do
+    error = assert_raises(ArgumentError) do
       Product.search(knn: {field: :vector, vector: [1, 2, 3]}).to_a
     end
-    assert_match "to perform knn search on field [vector], its mapping must have [index] set to [true]", error.message
+    assert_match "distance required for exact search", error.message
+
+    error = assert_raises(ArgumentError) do
+      Product.search(knn: {field: :vector, vector: [1, 2, 3], exact: false}).to_a
+    end
+    assert_match "distance required", error.message
   end
 end
