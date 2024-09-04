@@ -893,7 +893,8 @@ module Searchkick
 
       if exact && distance.nil?
         # get distance from options
-        distance = searchkick_options.dig(:knn, field.to_sym, :distance)
+        field_options = searchkick_options.dig(:knn, field.to_sym) || searchkick_options.dig(:knn, field.to_s) || {}
+        distance = field_options[:distance]
 
         if distance.nil?
           raise ArgumentError, "distance required for exact search"
