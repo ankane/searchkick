@@ -1855,6 +1855,8 @@ class Product < ApplicationRecord
 end
 ```
 
+Also supports `euclidean` and `inner_product`
+
 Reindex and search with:
 
 ```ruby
