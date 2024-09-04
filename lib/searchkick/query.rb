@@ -912,6 +912,8 @@ module Searchkick
               "l1"
             when "inner_product"
               "innerproduct"
+            when "chebyshev"
+              "linf"
             else
               raise ArgumentError, "Unknown distance: #{distance}"
             end

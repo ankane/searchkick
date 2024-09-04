@@ -93,6 +93,17 @@ class KnnTest < Minitest::Test
     assert_in_delta 1.0 / (1 + 7), scores[1]
   end
 
+  def test_chebyshev_exact
+    skip unless Searchkick.opensearch?
+
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "chebyshev"}
+
+    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "chebyshev"}).hits.map { |v| v["_score"] }
+    assert_in_delta 1.0 / (1 + 0), scores[0]
+    assert_in_delta 1.0 / (1 + 4), scores[1]
+  end
+
   def test_inner_product
     store [{name: "A", embedding2: [-1, -2, -3]}, {name: "B", embedding2: [1, 5, 7]}, {name: "C"}]
     assert_order "*", ["B", "A"], knn: {field: :embedding2, vector: [1, 2, 3], distance: "inner_product"}
