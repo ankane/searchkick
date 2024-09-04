@@ -14,19 +14,19 @@ jobs:
             elasticsearch: 8.15.0
           - ruby: 3.3
             gemfile: gemfiles/opensearch3.gemfile
-            opensearch: 2.14.0
+            opensearch: 2.16.0
           - ruby: 3.2
             gemfile: gemfiles/opensearch2.gemfile
             opensearch: 2.0.0
           - ruby: 3.1
             gemfile: gemfiles/opensearch1.gemfile
-            opensearch: 1.3.16
+            opensearch: 1.3.19
           - ruby: 3.2
             gemfile: gemfiles/activerecord70.gemfile
             elasticsearch: 8
           - ruby: 3.1
             gemfile: gemfiles/activerecord61.gemfile
-            elasticsearch: 7.17.21
+            elasticsearch: 7.17.22
           - ruby: 3.3
             gemfile: gemfiles/mongoid9.gemfile
             elasticsearch: 8
