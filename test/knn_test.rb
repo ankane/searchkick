@@ -98,11 +98,7 @@ class KnnTest < Minitest::Test
     assert_order "*", ["B", "A"], knn: {field: :embedding2, vector: [1, 2, 3], distance: "inner_product"}
 
     scores = Product.search(knn: {field: :embedding2, vector: [1, 2, 3], distance: "inner_product"}).hits.map { |v| v["_score"] }
-    if Searchkick.opensearch?
-      assert_in_delta 1 + 32, scores[0]
-    else
-      assert_in_delta 1 + 32, scores[0], 0.5
-    end
+    assert_in_delta 1 + 32, scores[0], (!Searchkick.opensearch? ? 0.5 : 0.001)
     assert_in_delta 1 + 14, scores[1]
   end
 
