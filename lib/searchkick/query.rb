@@ -918,7 +918,11 @@ module Searchkick
 
           payload[:query] = {
             script_score: {
-              query: filter,
+              query: {
+                bool: {
+                  must: [filter, {exists: {field: field}}]
+                }
+              },
               script: {
                 source: "knn_score",
                 lang: "knn",
@@ -956,7 +960,11 @@ module Searchkick
 
           payload[:query] = {
             script_score: {
-              query: filter,
+              query: {
+                bool: {
+                  must: [filter, {exists: {field: field}}]
+                }
+              },
               script: {
                 source: source,
                 params: {

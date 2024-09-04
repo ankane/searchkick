@@ -7,7 +7,7 @@ class KnnTest < Minitest::Test
   end
 
   def test_basic
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}]
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3]}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
@@ -20,6 +20,7 @@ class KnnTest < Minitest::Test
       {name: "A", store_id: 1, embedding: [1, 2, 3]},
       {name: "B", store_id: 2, embedding: [1, 2, 3]},
       {name: "C", store_id: 1, embedding: [-1, -2, -3]},
+      {name: "D", store_id: 1}
     ]
     assert_order "*", ["A", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, where: {store_id: 1}
   end
@@ -29,13 +30,14 @@ class KnnTest < Minitest::Test
       {name: "A", embedding: [1, 2, 3]},
       {name: "B", embedding: [1, 2, 0]},
       {name: "C", embedding: [-1, -2, 0]},
-      {name: "D", embedding: [-1, -2, -3]}
+      {name: "D", embedding: [-1, -2, -3]},
+      {name: "E"}
     ]
     assert_order "*", ["B", "C"], knn: {field: :embedding, vector: [1, 2, 3]}, limit: 2, offset: 1
   end
 
   def test_euclidean
-    store [{name: "A", factors: [1, 2, 3]}, {name: "B", factors: [1, 5, 7]}]
+    store [{name: "A", factors: [1, 2, 3]}, {name: "B", factors: [1, 5, 7]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :factors, vector: [1, 2, 3]}
 
     scores = Product.search(knn: {field: :factors, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
@@ -45,7 +47,7 @@ class KnnTest < Minitest::Test
   end
 
   def test_exact_cosine
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}]
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true}).hits.map { |v| v["_score"] }
@@ -55,7 +57,7 @@ class KnnTest < Minitest::Test
   end
 
   def test_exact_euclidean
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}]
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}).hits.map { |v| v["_score"] }
@@ -78,7 +80,7 @@ class KnnTest < Minitest::Test
   def test_unindexed
     skip if Searchkick.opensearch?
 
-    store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}]
+    store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}
 
     scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine", exact: true}).hits.map { |v| v["_score"] }
