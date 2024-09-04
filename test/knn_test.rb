@@ -84,6 +84,15 @@ class KnnTest < Minitest::Test
     assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
 
+  def test_taxicab_exact
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "taxicab"}
+
+    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "taxicab"}).hits.map { |v| v["_score"] }
+    assert_in_delta 1.0 / (1 + 0), scores[0]
+    assert_in_delta 1.0 / (1 + 7), scores[1]
+  end
+
   def test_unindexed
     skip if Searchkick.opensearch?
 
