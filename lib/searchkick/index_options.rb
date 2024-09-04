@@ -421,8 +421,10 @@ module Searchkick
       end
 
       (options[:knn] || []).each do |field, knn_options|
+        distance = knn_options[:distance]
+
         if Searchkick.opensearch?
-          if knn_options[:distance].nil?
+          if distance.nil?
             # avoid server crash if method not specified
             raise ArgumentError, "Must specify a distance for OpenSearch"
           end
@@ -432,9 +434,9 @@ module Searchkick
             dimension: knn_options[:dimensions]
           }
 
-          if !knn_options[:distance].nil?
+          if !distance.nil?
             space_type =
-              case knn_options[:distance]
+              case distance
               when "cosine"
                 "cosinesimil"
               when "euclidean"
@@ -455,12 +457,12 @@ module Searchkick
           vector_options = {
             type: "dense_vector",
             dims: knn_options[:dimensions],
-            index: !knn_options[:distance].nil?
+            index: !distance.nil?
           }
 
-          if !knn_options[:distance].nil?
+          if !distance.nil?
             vector_options[:similarity] =
-              case knn_options[:distance]
+              case distance
               when "cosine"
                 "cosine"
               when "euclidean"
