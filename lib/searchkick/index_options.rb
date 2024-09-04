@@ -178,7 +178,8 @@ module Searchkick
           end
         end
 
-        if Searchkick.opensearch?
+        if Searchkick.opensearch? && options[:knn].any? { |_, v| !v[:distance].nil? }
+          # only enable if doing approximate search
           settings[:index][:knn] = true
         end
       end
