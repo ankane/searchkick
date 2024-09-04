@@ -91,17 +91,6 @@ class KnnTest < Minitest::Test
     end
   end
 
-  def test_distance
-    store []
-    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine"}).to_a
-    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}).to_a
-    Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "cosine", exact: false}).to_a
-    error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean", exact: false})
-    end
-    assert_equal "distance must match searchkick options for approximate search", error.message
-  end
-
   def test_unindexed
     skip if Searchkick.opensearch?
 
@@ -127,5 +116,46 @@ class KnnTest < Minitest::Test
       Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean", exact: false})
     end
     assert_equal "distance must match searchkick options for approximate search", error.message
+  end
+
+  def test_explain
+    store [{name: "A", embedding: [1, 2, 3], factors: [1, 2, 3], vector: [1, 2, 3]}]
+
+    assert_approx true, :embedding, "cosine"
+    assert_approx false, :embedding, "euclidean"
+    assert_approx false, :factors, "cosine"
+    assert_approx true, :factors, "euclidean"
+
+    unless Searchkick.opensearch?
+      assert_approx false, :vector, "cosine"
+      assert_approx false, :vector, "euclidean"
+    end
+
+    assert_approx false, :embedding, "cosine", exact: true
+    assert_approx true, :embedding, "cosine", exact: false
+
+    error = assert_raises(ArgumentError) do
+      assert_approx true, :embedding, "euclidean", exact: false
+    end
+    assert_equal "distance must match searchkick options for approximate search", error.message
+  end
+
+  private
+
+  def assert_approx(approx, field, distance, **knn_options)
+    response = Product.search(knn: {field: field, vector: [1, 2, 3], distance: distance, **knn_options}, explain: true).response.to_s
+    if approx
+      if Searchkick.opensearch?
+        assert_match "within top", response
+      else
+        assert_match "within top k documents", response
+      end
+    else
+      if Searchkick.opensearch?
+        assert_match "knn_score", response
+      else
+        assert_match "params.query_vector", response
+      end
+    end
   end
 end
