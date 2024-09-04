@@ -1,4 +1,4 @@
-## 5.4.0 (unreleased)
+## 5.4.0 (2024-09-04)
 
 - Added `knn` option
 - Added `rrf` method
