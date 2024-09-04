@@ -1845,7 +1845,9 @@ To query nested data, use dot notation.
 Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345})
 ```
 
-## Nearest Neighbor Search [unreleased, experimental]
+## Nearest Neighbor Search
+
+**Note:** This feature is currently unreleased and experimental
 
 *Available for Elasticsearch 8.6+ and OpenSearch 2.4+*
 
@@ -1863,7 +1865,9 @@ Reindex and search with:
 Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 ```
 
-## Semantic Search [unreleased, experimental]
+## Semantic Search
+
+**Note:** This feature is currently unreleased and experimental
 
 First, add [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental) to your model
 
@@ -1900,7 +1904,9 @@ Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
 
 See a [full example](examples/semantic.rb)
 
-## Hybrid Search [unreleased, experimental]
+## Hybrid Search
+
+**Note:** This feature is currently unreleased and experimental
 
 Perform keyword search and semantic search in parallel
 
