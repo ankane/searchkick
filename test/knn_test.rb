@@ -156,6 +156,7 @@ class KnnTest < Minitest::Test
     assert_approx true, :embedding, "cosine"
     assert_approx false, :embedding, "euclidean"
     assert_approx false, :embedding, "inner_product"
+    assert_approx false, :embedding, "taxicab"
 
     if Searchkick.opensearch?
       assert_approx false, :embedding, "chebyshev"
