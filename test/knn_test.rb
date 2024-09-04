@@ -151,17 +151,29 @@ class KnnTest < Minitest::Test
   end
 
   def test_explain
-    store [{name: "A", embedding: [1, 2, 3], factors: [1, 2, 3], vector: [1, 2, 3]}]
+    store [{name: "A", embedding: [1, 2, 3], factors: [1, 2, 3], vector: [1, 2, 3], embedding2: [1, 2, 3]}]
 
     assert_approx true, :embedding, "cosine"
     assert_approx false, :embedding, "euclidean"
+    assert_approx false, :embedding, "inner_product"
+
+    if Searchkick.opensearch?
+      assert_approx false, :embedding, "chebyshev"
+    end
+
     assert_approx false, :factors, "cosine"
     assert_approx true, :factors, "euclidean"
+    assert_approx false, :factors, "inner_product"
 
     unless Searchkick.opensearch?
       assert_approx false, :vector, "cosine"
       assert_approx false, :vector, "euclidean"
+      assert_approx false, :vector, "inner_product"
     end
+
+    assert_approx false, :embedding2, "cosine"
+    assert_approx false, :embedding2, "euclidean"
+    assert_approx true, :embedding2, "inner_product"
 
     assert_approx false, :embedding, "cosine", exact: true
     assert_approx true, :embedding, "cosine", exact: false
