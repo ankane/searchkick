@@ -910,6 +910,8 @@ module Searchkick
               "l2"
             when "taxicab"
               "l1"
+            when "inner_product"
+              "innerproduct"
             else
               raise ArgumentError, "Unknown distance: #{distance}"
             end
@@ -955,6 +957,9 @@ module Searchkick
               "double l2 = l2norm(params.query_vector, params.field); 1 / (1 + l2 * l2)"
             when "taxicab"
               "1 / (1 + l1norm(params.query_vector, params.field))"
+            when "inner_product"
+              # TODO prevent negative
+              "dotProduct(params.query_vector, params.field)"
             else
               raise ArgumentError, "Unknown distance: #{distance}"
             end
