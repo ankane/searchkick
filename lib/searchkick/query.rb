@@ -927,7 +927,8 @@ module Searchkick
                   query_value: vector,
                   space_type: space_type
                 }
-              }
+              },
+              boost: distance == "cosine" ? 0.5 : 1.0
             }
           }
         else
@@ -947,9 +948,9 @@ module Searchkick
           source =
             case distance
             when "cosine"
-              "cosineSimilarity(params.query_vector, params.field) + 1.0"
+              "(cosineSimilarity(params.query_vector, params.field) + 1.0) * 0.5"
             when "euclidean"
-              "1 / (1 + l2norm(params.query_vector, params.field))"
+              "double l2 = l2norm(params.query_vector, params.field); 1 / (1 + l2 * l2)"
             else
               raise ArgumentError, "Unknown distance: #{distance}"
             end

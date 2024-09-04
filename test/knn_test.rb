@@ -20,8 +20,7 @@ class KnnTest < Minitest::Test
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true}).hits.map { |v| v["_score"] }
-    # TODO match approximate
-    assert_in_delta 2, scores[0]
+    assert_in_delta 1, scores[0]
     assert_in_delta 0, scores[1]
   end
 
@@ -72,7 +71,6 @@ class KnnTest < Minitest::Test
     assert_order "*", ["A", "B"], knn: {field: :factors, vector: [1, 2, 3]}
 
     scores = Product.search(knn: {field: :factors, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
-    # TODO return distance
     assert_in_delta 1.0 / (1 + 0), scores[0]
     assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
@@ -82,13 +80,8 @@ class KnnTest < Minitest::Test
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}).hits.map { |v| v["_score"] }
-    # TODO return distance
     assert_in_delta 1.0 / (1 + 0), scores[0]
-    if Searchkick.opensearch?
-      assert_in_delta 1.0 / (1 + 5**2), scores[1]
-    else
-      assert_in_delta 1.0 / (1 + 5), scores[1]
-    end
+    assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
 
   def test_unindexed
@@ -98,8 +91,7 @@ class KnnTest < Minitest::Test
     assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}
 
     scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}).hits.map { |v| v["_score"] }
-    # TODO match approximate
-    assert_in_delta 2, scores[0]
+    assert_in_delta 1, scores[0]
     assert_in_delta 0, scores[1]
 
     error = assert_raises(ArgumentError) do
