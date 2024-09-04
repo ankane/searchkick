@@ -441,6 +441,8 @@ module Searchkick
                 "cosinesimil"
               when "euclidean"
                 "l2"
+              when "inner_product"
+                "innerproduct"
               else
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
@@ -467,6 +469,8 @@ module Searchkick
                 "cosine"
               when "euclidean"
                 "l2_norm"
+              when "inner_product"
+                "max_inner_product"
               else
                 raise ArgumentError, "Unknown distance: #{distance}"
               end

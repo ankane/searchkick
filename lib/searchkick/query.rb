@@ -959,7 +959,7 @@ module Searchkick
               "1 / (1 + l1norm(params.query_vector, params.field))"
             when "inner_product"
               # TODO prevent negative
-              "dotProduct(params.query_vector, params.field)"
+              "dotProduct(params.query_vector, params.field) + 1"
             else
               raise ArgumentError, "Unknown distance: #{distance}"
             end

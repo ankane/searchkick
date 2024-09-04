@@ -93,18 +93,26 @@ class KnnTest < Minitest::Test
     assert_in_delta 1.0 / (1 + 7), scores[1]
   end
 
+  def test_inner_product
+    store [{name: "A", embedding2: [1, 2, 3]}, {name: "B", embedding2: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["B", "A"], knn: {field: :embedding2, vector: [1, 2, 3], distance: "inner_product"}
+
+    scores = Product.search(knn: {field: :embedding2, vector: [1, 2, 3], distance: "inner_product"}).hits.map { |v| v["_score"] }
+    if Searchkick.opensearch?
+      assert_in_delta 1 + 32, scores[0]
+    else
+      assert_in_delta 1 + 32, scores[0], 0.5
+    end
+    assert_in_delta 1 + 14, scores[1]
+  end
+
   def test_inner_product_exact
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
     assert_order "*", ["B", "A"], knn: {field: :embedding, vector: [1, 2, 3], distance: "inner_product"}
 
     scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "inner_product"}).hits.map { |v| v["_score"] }
-    if Searchkick.opensearch?
-      assert_in_delta 1 + 32, scores[0]
-      assert_in_delta 1 + 14, scores[1]
-    else
-      assert_in_delta 32, scores[0]
-      assert_in_delta 14, scores[1]
-    end
+    assert_in_delta 1 + 32, scores[0]
+    assert_in_delta 1 + 14, scores[1]
   end
 
   def test_unindexed
