@@ -893,9 +893,7 @@ module Searchkick
       k = per_page + offset
       filter = payload.delete(:query)
 
-      if exact && distance.nil?
-        raise ArgumentError, "distance required for exact search"
-      elsif !exact && distance.nil?
+      if distance.nil?
         raise ArgumentError, "distance required"
       elsif !exact && distance != field_options[:distance]
         raise ArgumentError, "distance must match searchkick options for approximate search"

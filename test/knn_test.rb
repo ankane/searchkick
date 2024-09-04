@@ -114,13 +114,18 @@ class KnnTest < Minitest::Test
     assert_in_delta 0, scores[1]
 
     error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :vector, vector: [1, 2, 3]}).to_a
-    end
-    assert_match "distance required for exact search", error.message
-
-    error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :vector, vector: [1, 2, 3], exact: false}).to_a
+      Product.search(knn: {field: :vector, vector: [1, 2, 3]})
     end
     assert_match "distance required", error.message
+
+    error = assert_raises(ArgumentError) do
+      Product.search(knn: {field: :vector, vector: [1, 2, 3], exact: false})
+    end
+    assert_match "distance required", error.message
+
+    error = assert_raises(ArgumentError) do
+      Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean", exact: false})
+    end
+    assert_equal "distance must match searchkick options for approximate search", error.message
   end
 end
