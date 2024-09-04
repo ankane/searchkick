@@ -15,6 +15,16 @@ class KnnTest < Minitest::Test
     assert_in_delta 0, scores[1]
   end
 
+  def test_basic_exact
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
+
+    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true}).hits.map { |v| v["_score"] }
+    # TODO match approximate
+    assert_in_delta 2, scores[0]
+    assert_in_delta 0, scores[1]
+  end
+
   def test_where
     store [
       {name: "A", store_id: 1, embedding: [1, 2, 3]},
@@ -67,17 +77,7 @@ class KnnTest < Minitest::Test
     assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
 
-  def test_exact_cosine
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true}
-
-    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], exact: true}).hits.map { |v| v["_score"] }
-    # TODO match approximate
-    assert_in_delta 2, scores[0]
-    assert_in_delta 0, scores[1]
-  end
-
-  def test_exact_euclidean
+  def test_euclidean_exact
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], exact: true, distance: "euclidean"}
 
