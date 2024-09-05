@@ -39,15 +39,9 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A", "Product B", "Product C", "Product D"], where: {store_id: -Float::INFINITY..Float::INFINITY}
     assert_search "product", ["Product C", "Product D"], where: {store_id: 3..Float::INFINITY}
     assert_search "product", ["Product A", "Product B"], where: {store_id: -Float::INFINITY..2}
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.6.0")
-      # use eval to prevent parse error
-      assert_search "product", ["Product C", "Product D"], where: {store_id: eval("3..")}
-    end
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7.0")
-      # use eval to prevent parse error
-      assert_search "product", ["Product A", "Product B"], where: {store_id: eval("..2")}
-      assert_search "product", ["Product A", "Product B"], where: {store_id: eval("...3")}
-    end
+    assert_search "product", ["Product C", "Product D"], where: {store_id: 3..}
+    assert_search "product", ["Product A", "Product B"], where: {store_id: ..2}
+    assert_search "product", ["Product A", "Product B"], where: {store_id: ...3}
 
     # or
     assert_search "product", ["Product A", "Product B", "Product C"], where: {or: [[{in_stock: true}, {store_id: 3}]]}
@@ -173,6 +167,14 @@ class WhereTest < Minitest::Test
       {name: "Product B"}
     ]
     assert_search "product", ["Product A"], where: {user_ids: {exists: true}}
+    # TODO add support for false in Searchkick 6
+    assert_warns "Passing a value other than true to exists is not supported" do
+      assert_search "product", ["Product A"], where: {user_ids: {exists: false}}
+    end
+    # TODO raise error in Searchkick 6
+    assert_warns "Passing a value other than true to exists is not supported" do
+      assert_search "product", ["Product A"], where: {user_ids: {exists: nil}}
+    end
   end
 
   def test_like
@@ -254,13 +256,22 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product @Home"], where: {name: {ilike: "%@home%"}}
   end
 
-  # def test_script
-  #   store [
-  #     {name: "Product A", store_id: 1},
-  #     {name: "Product B", store_id: 10}
-  #   ]
-  #   assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
-  # end
+  def test_script
+    store [
+      {name: "Product A", store_id: 1},
+      {name: "Product B", store_id: 10}
+    ]
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < 10", lang: "expression")}
+    assert_search "product", ["Product A"], where: {_script: Searchkick.script("doc['store_id'].value < params['value']", params: {value: 10})}
+  end
+
+  def test_script_string
+    error = assert_raises(TypeError) do
+      assert_search "product", ["Product A"], where: {_script: "doc['store_id'].value < 10"}
+    end
+    assert_equal "expected Searchkick::Script", error.message
+  end
 
   def test_where_string
     store [

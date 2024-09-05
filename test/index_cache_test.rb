@@ -6,16 +6,16 @@ class IndexCacheTest < Minitest::Test
   end
 
   def test_default
-    object_id = Product.search_index.object_id
+    object_id = Product.searchkick_index.object_id
     3.times do
-      assert_equal object_id, Product.search_index.object_id
+      assert_equal object_id, Product.searchkick_index.object_id
     end
   end
 
   def test_max_size
     starting_ids = object_ids(20)
     assert_equal starting_ids, object_ids(20)
-    Product.search_index(name: "other")
+    Product.searchkick_index(name: "other")
     refute_equal starting_ids, object_ids(20)
   end
 
@@ -34,7 +34,7 @@ class IndexCacheTest < Minitest::Test
   private
 
   def object_ids(count)
-    count.times.map { |i| Product.search_index(name: "index#{i}").object_id }
+    count.times.map { |i| Product.searchkick_index(name: "index#{i}").object_id }
   end
 
   def with_threads

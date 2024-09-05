@@ -126,8 +126,7 @@ class PaginationTest < Minitest::Test
     I18n.load_path = Dir["test/support/kaminari.yml"]
     I18n.backend.load_translations
 
-    view_args = [[], nil] if ActionView::VERSION::STRING.to_f >= 6.1
-    view = ActionView::Base.new(ActionView::LookupContext.new([]), *view_args)
+    view = ActionView::Base.new(ActionView::LookupContext.new([]), [], nil)
 
     store_names ["Product A"]
     assert_equal "Displaying <b>1</b> product", view.page_entries_info(Product.search("product"))
@@ -154,8 +153,12 @@ class PaginationTest < Minitest::Test
   end
 
   def test_max_result_window
+    Song.delete_all
     with_options({max_result_window: 10000}, Song) do
-      assert_empty Song.search("*", offset: 10000, limit: 1).to_a
+      relation = Song.search("*", offset: 10000, limit: 1)
+      assert_empty relation.to_a
+      assert_equal 1, relation.per_page
+      assert_equal 0, relation.total_pages
     end
   end
 
@@ -185,10 +188,10 @@ class PaginationTest < Minitest::Test
 
     pit_id =
       if Searchkick.opensearch?
-        path = "#{CGI.escape(Product.search_index.name)}/_search/point_in_time"
+        path = "#{CGI.escape(Product.searchkick_index.name)}/_search/point_in_time"
         Searchkick.client.transport.perform_request("POST", path, {keep_alive: "5s"}).body["pit_id"]
       else
-        Searchkick.client.open_point_in_time(index: Product.search_index.name, keep_alive: "5s")["id"]
+        Searchkick.client.open_point_in_time(index: Product.searchkick_index.name, keep_alive: "5s")["id"]
       end
 
     store_names ["Product C", "Product F"]

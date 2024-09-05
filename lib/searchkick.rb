@@ -25,7 +25,9 @@ require_relative "searchkick/record_data"
 require_relative "searchkick/record_indexer"
 require_relative "searchkick/relation"
 require_relative "searchkick/relation_indexer"
+require_relative "searchkick/reranking"
 require_relative "searchkick/results"
+require_relative "searchkick/script"
 require_relative "searchkick/version"
 require_relative "searchkick/where"
 
@@ -141,6 +143,15 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
+  # private
+  def self.knn_support?
+    if opensearch?
+      !server_below?("2.4.0", true)
+    else
+      !server_below?("8.6.0")
+    end
+  end
+
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model
@@ -182,11 +193,18 @@ module Searchkick
     queries = queries.map { |q| q.send(:query) }
     event = {
       name: "Multi Search",
-      body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join,
+      body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join
     }
     ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
       MultiSearch.new(queries).perform
     end
+  end
+
+  # script
+
+  # experimental
+  def self.script(source, **options)
+    Script.new(source, **options)
   end
 
   # callbacks

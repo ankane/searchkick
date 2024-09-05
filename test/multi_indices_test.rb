@@ -14,19 +14,19 @@ class MultiIndicesTest < Minitest::Test
 
   def test_index_name
     store_names ["Product A"]
-    assert_equal ["Product A"], Product.search("product", index_name: Product.search_index.name).map(&:name)
+    assert_equal ["Product A"], Product.search("product", index_name: Product.searchkick_index.name).map(&:name)
     assert_equal ["Product A"], Product.search("product", index_name: Product).map(&:name)
 
-    Speaker.search_index.refresh
-    assert_equal [], Product.search("product", index_name: Speaker.search_index.name, conversions: false).map(&:name)
+    Speaker.searchkick_index.refresh
+    assert_equal [], Product.search("product", index_name: Speaker.searchkick_index.name, conversions: false).map(&:name)
   end
 
   def test_models_and_index_name
     store_names ["Product A"]
     store_names ["Product B"], Speaker
-    assert_equal ["Product A"], Searchkick.search("product", models: [Product, Store], index_name: Product.search_index.name).map(&:name)
+    assert_equal ["Product A"], Searchkick.search("product", models: [Product, Store], index_name: Product.searchkick_index.name).map(&:name)
     error = assert_raises(Searchkick::Error) do
-      Searchkick.search("product", models: [Product, Store], index_name: Speaker.search_index.name).map(&:name)
+      Searchkick.search("product", models: [Product, Store], index_name: Speaker.searchkick_index.name).map(&:name)
     end
     assert_includes error.message, "Unknown model"
     # legacy

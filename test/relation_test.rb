@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class RelationTest < Minitest::Test
   def test_loaded
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     products = Product.search("*")
     refute products.loaded?
     assert_equal 0, products.count

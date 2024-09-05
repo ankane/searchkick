@@ -1,4 +1,24 @@
-## 5.2.4 (unreleased)
+## 5.4.0 (2024-09-04)
+
+- Added `knn` option
+- Added `rrf` method
+- Added experimental support for scripting to `where` option
+- Added warning for `exists` with non-`true` values
+- Added warning for full reindex and `:queue` mode
+- Fixed `per_page` method when paginating beyond `max_result_window`
+- Dropped support for Ruby < 3.1
+
+## 5.3.1 (2023-11-28)
+
+- Fixed error with misspellings below and failed queries
+
+## 5.3.0 (2023-07-02)
+
+- Fixed error with `cutoff_frequency`
+- Dropped support for Ruby < 3 and Active Record < 6.1
+- Dropped support for Mongoid < 7
+
+## 5.2.4 (2023-05-11)
 
 - Fixed error with non-string routing and `:async` mode
 

@@ -44,9 +44,6 @@ class LogSubscriberTest < Minitest::Test
   end
 
   def test_reindex_relation
-    # where.not not supported
-    skip if mongoid? && Mongoid::VERSION.to_i < 7
-
     products = create_products
     output = capture_logs do
       Product.where.not(id: products.last.id).reindex

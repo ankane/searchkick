@@ -12,7 +12,7 @@ class CallbacksTest < Minitest::Test
     Searchkick.callbacks(:bulk) do
       store_names ["Product A", "Product B"]
     end
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_search "product", ["Product A", "Product B"]
   end
 
@@ -20,20 +20,20 @@ class CallbacksTest < Minitest::Test
     # TODO figure out which earlier test leaves records in index
     Product.reindex
 
-    reindex_queue = Product.search_index.reindex_queue
+    reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
 
     Searchkick.callbacks(:queue) do
       store_names ["Product A", "Product B"]
     end
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_search "product", [], load: false, conversions: false
     assert_equal 2, reindex_queue.length
 
     perform_enqueued_jobs do
       Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     end
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_search "product", ["Product A", "Product B"], load: false
     assert_equal 0, reindex_queue.length
 
@@ -41,14 +41,14 @@ class CallbacksTest < Minitest::Test
       Product.where(name: "Product B").destroy_all
       Product.create!(name: "Product C")
     end
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_search "product", ["Product A", "Product B"], load: false
     assert_equal 2, reindex_queue.length
 
     perform_enqueued_jobs do
       Searchkick::ProcessQueueJob.perform_now(class_name: "Product")
     end
-    Product.search_index.refresh
+    Product.searchkick_index.refresh
     assert_search "product", ["Product A", "Product C"], load: false
     assert_equal 0, reindex_queue.length
 
