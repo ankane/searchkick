@@ -726,7 +726,7 @@ module Searchkick
           raise TypeError, "expected Searchkick::Script"
         end
         script_score = { script: { source: boost_by.source, lang: boost_by.lang, params: boost_by.params } }
-        custom_filters.concat { script_score: }
+        custom_filters << { script_score: }
       end
     end
 
