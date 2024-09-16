@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+gemspec path: ".."
+
+gem "activerecord"
+gem "elasticsearch"
+gem "informers"
+gem "opensearch-ruby"
+gem "sqlite3"

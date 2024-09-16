@@ -13,7 +13,7 @@ class QueryTest < Minitest::Test
   end
 
   def test_default_timeout
-    assert_equal "6s", Product.search("*").body[:timeout]
+    assert_equal "6000ms", Product.search("*").body[:timeout]
   end
 
   def test_timeout_override

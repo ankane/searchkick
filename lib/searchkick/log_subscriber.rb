@@ -31,7 +31,7 @@ module Searchkick
         params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
       end
 
-      debug "  #{color(name, YELLOW, true)}  #{index}#{type ? "/#{type.join(',')}" : ''}/_search#{params.any? ? '?' + params.join('&') : nil} #{payload[:query][:body].to_json}"
+      debug "  #{color(name, YELLOW, bold: true)}  #{index}#{type ? "/#{type.join(',')}" : ''}/_search#{params.any? ? '?' + params.join('&') : nil} #{payload[:query][:body].to_json}"
     end
 
     def request(event)
@@ -41,7 +41,7 @@ module Searchkick
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
 
-      debug "  #{color(name, YELLOW, true)}  #{payload.except(:name).to_json}"
+      debug "  #{color(name, YELLOW, bold: true)}  #{payload.except(:name).to_json}"
     end
 
     def multi_search(event)
@@ -51,7 +51,7 @@ module Searchkick
       payload = event.payload
       name = "#{payload[:name]} (#{event.duration.round(1)}ms)"
 
-      debug "  #{color(name, YELLOW, true)}  _msearch #{payload[:body]}"
+      debug "  #{color(name, YELLOW, bold: true)}  _msearch #{payload[:body]}"
     end
   end
 end

@@ -67,7 +67,8 @@ module Searchkick
           index: name,
           body: {
             query: {match_all: {}},
-            size: 0
+            size: 0,
+            track_total_hits: true
           }
         )
 
@@ -98,7 +99,7 @@ module Searchkick
       record_data = RecordData.new(self, record).record_data
 
       # remove underscore
-      get_options = record_data.to_h { |k, v| [k.to_s.sub(/\A_/, "").to_sym, v] }
+      get_options = record_data.to_h { |k, v| [k.to_s.delete_prefix("_").to_sym, v] }
 
       client.get(get_options)["_source"]
     end
@@ -351,6 +352,8 @@ module Searchkick
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
     def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
       raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
+      # TODO raise ArgumentError in Searchkick 6
+      Searchkick.warn("Full reindex does not support :queue mode - use :async mode instead") if mode == :queue
 
       if resume
         index_name = all_indices.sort.last
@@ -418,7 +421,7 @@ module Searchkick
         true
       end
     rescue => e
-      if Searchkick.transport_error?(e) && e.message.include?("No handler for type [text]")
+      if Searchkick.transport_error?(e) && (e.message.include?("No handler for type [text]") || e.message.include?("class java.util.ArrayList cannot be cast to class java.util.Map"))
         raise UnsupportedVersionError
       end
 

@@ -169,6 +169,21 @@ module Searchkick
         max_shingle_diff: 4
       }
 
+      if options[:knn]
+        unless Searchkick.knn_support?
+          if Searchkick.opensearch?
+            raise Error, "knn requires OpenSearch 2.4+"
+          else
+            raise Error, "knn requires Elasticsearch 8.6+"
+          end
+        end
+
+        if Searchkick.opensearch? && options[:knn].any? { |_, v| !v[:distance].nil? }
+          # only enable if doing approximate search
+          settings[:index][:knn] = true
+        end
+      end
+
       if options[:case_sensitive]
         settings[:analysis][:analyzer].each do |_, analyzer|
           analyzer[:filter].delete("lowercase")
@@ -404,6 +419,66 @@ module Searchkick
       options[:geo_shape] = options[:geo_shape].product([{}]).to_h if options[:geo_shape].is_a?(Array)
       (options[:geo_shape] || {}).each do |field, shape_options|
         mapping[field] = shape_options.merge(type: "geo_shape")
+      end
+
+      (options[:knn] || []).each do |field, knn_options|
+        distance = knn_options[:distance]
+
+        if Searchkick.opensearch?
+          if distance.nil?
+            # avoid server crash if method not specified
+            raise ArgumentError, "Must specify a distance for OpenSearch"
+          end
+
+          vector_options = {
+            type: "knn_vector",
+            dimension: knn_options[:dimensions]
+          }
+
+          if !distance.nil?
+            space_type =
+              case distance
+              when "cosine"
+                "cosinesimil"
+              when "euclidean"
+                "l2"
+              when "inner_product"
+                "innerproduct"
+              else
+                raise ArgumentError, "Unknown distance: #{distance}"
+              end
+
+            vector_options[:method] = {
+              name: "hnsw",
+              space_type: space_type,
+              engine: "lucene"
+            }
+          end
+
+          mapping[field.to_s] = vector_options
+        else
+          vector_options = {
+            type: "dense_vector",
+            dims: knn_options[:dimensions],
+            index: !distance.nil?
+          }
+
+          if !distance.nil?
+            vector_options[:similarity] =
+              case distance
+              when "cosine"
+                "cosine"
+              when "euclidean"
+                "l2_norm"
+              when "inner_product"
+                "max_inner_product"
+              else
+                raise ArgumentError, "Unknown distance: #{distance}"
+              end
+          end
+
+          mapping[field.to_s] = vector_options
+        end
       end
 
       if options[:inheritance]

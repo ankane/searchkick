@@ -26,7 +26,7 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 
 :tangerine: Battle-tested at [Instacart](https://www.instacart.com/opensource)
 
-[![Build Status](https://github.com/ankane/searchkick/workflows/build/badge.svg?branch=master)](https://github.com/ankane/searchkick/actions)
+[![Build Status](https://github.com/ankane/searchkick/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/searchkick/actions)
 
 ## Contents
 
@@ -42,8 +42,6 @@ Check out [Searchjoy](https://github.com/ankane/searchjoy) for analytics and [Au
 - [Advanced Search](#advanced)
 - [Reference](#reference)
 - [Contributing](#contributing)
-
-Searchkick 5.0 was recently released! See [how to upgrade](#upgrading)
 
 ## Getting Started
 
@@ -66,7 +64,7 @@ gem "elasticsearch"   # select one
 gem "opensearch-ruby" # select one
 ```
 
-The latest version works with Elasticsearch 7 and 8 and OpenSearch 1. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
+The latest version works with Elasticsearch 7 and 8 and OpenSearch 1 and 2. For Elasticsearch 6, use version 4.6.3 and [this readme](https://github.com/ankane/searchkick/blob/v4.6.3/README.md).
 
 Add searchkick to models you want to search.
 
@@ -122,9 +120,9 @@ where: {
   category: /frozen .+/,         # regexp
   category: {prefix: "frozen"},  # prefix
   store_id: {exists: true},      # exists
+  _not: {store_id: 1},           # negate a condition
   _or: [{in_stock: true}, {backordered: true}],
-  _and: [{in_stock: true}, {backordered: true}],
-  _not: {store_id: 1}            # negate a condition
+  _and: [{in_stock: true}, {backordered: true}]
 }
 ```
 
@@ -292,12 +290,18 @@ Option | Matches | Example
 
 The default is `:word`. The most matches will happen with `:word_middle`.
 
+To specify different matching for different fields, use:
+
+```ruby
+Product.search(query, fields: [{name: :word_start}, {brand: :word_middle}])
+```
+
 ### Exact Matches
 
 To match a field exactly (case-sensitive), use:
 
 ```ruby
-Product.search(query, fields: [{email: :exact}, :name])
+Product.search(query, fields: [{name: :exact}])
 ```
 
 ### Phrase Matches
@@ -323,11 +327,11 @@ end
 See the [list of languages](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html#analysis-stemmer-tokenfilter-configure-parms). A few languages require plugins:
 
 - `chinese` - [analysis-ik plugin](https://github.com/medcl/elasticsearch-analysis-ik)
-- `chinese2` - [analysis-smartcn plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-smartcn.html)
-- `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-kuromoji.html)
+- `chinese2` - [analysis-smartcn plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html)
+- `japanese` - [analysis-kuromoji plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html)
 - `korean` - [analysis-openkoreantext plugin](https://github.com/open-korean-text/elasticsearch-analysis-openkoreantext)
-- `korean2` - [analysis-nori plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-nori.html)
-- `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-stempel.html)
+- `korean2` - [analysis-nori plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-nori.html)
+- `polish` - [analysis-stempel plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-stempel.html)
 - `ukrainian` - [analysis-ukrainian plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/7.4/analysis-ukrainian.html)
 - `vietnamese` - [analysis-vietnamese plugin](https://github.com/duydo/elasticsearch-analysis-vietnamese)
 
@@ -811,7 +815,7 @@ Product.search("milk", boost_where: {orderer_ids: current_user.id})
 
 Autocomplete predicts what a user will type, making the search experience faster and easier.
 
-![Autocomplete](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/autocomplete.png)
+![Autocomplete](https://gist.githubusercontent.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/autocomplete.png)
 
 **Note:** To autocomplete on search terms rather than results, check out [Autosuggest](https://github.com/ankane/autosuggest).
 
@@ -877,7 +881,7 @@ Then add the search box and JavaScript code to a view.
 
 ## Suggestions
 
-![Suggest](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/recursion.png)
+![Suggest](https://gist.githubusercontent.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/recursion.png)
 
 ```ruby
 class Product < ApplicationRecord
@@ -896,7 +900,7 @@ products.suggestions # ["peanut butter"]
 
 [Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) provide aggregated search data.
 
-![Aggregations](https://gist.github.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/facets.png)
+![Aggregations](https://gist.githubusercontent.com/ankane/b6988db2802aca68a589b31e41b44195/raw/40febe948427e5bc53ec4e5dc248822855fef76f/facets.png)
 
 ```ruby
 products = Product.search("chuck taylor", aggs: [:product_type, :gender, :brand])
@@ -1106,7 +1110,7 @@ Restaurant.search("soup", where: {bounds: {geo_shape: {type: "polygon", coordina
 Falling entirely within the query shape
 
 ```ruby
-Restaurant.search("salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: [{lat: 38, lon: -123}], radius: "1km"}}})
+Restaurant.search("salad", where: {bounds: {geo_shape: {type: "circle", relation: "within", coordinates: {lat: 38, lon: -123}, radius: "1km"}}})
 ```
 
 Not touching the query shape
@@ -1479,7 +1483,15 @@ ENV["ELASTICSEARCH_URL"] = "https://user:password@host1,https://user:password@ho
 ENV["OPENSEARCH_URL"] = "https://user:password@host1,https://user:password@host2"
 ```
 
-See [elastic-transport](https://github.com/elastic/elastic-transport-ruby) or [opensearch-transport](https://github.com/opensearch-project/opensearch-ruby/tree/main/opensearch-transport) for a complete list of options.
+### Client Options
+
+Create an initializer with:
+
+```ruby
+Searchkick.client_options[:reload_connections] = true
+```
+
+See the docs for [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/client/ruby-api/current/advanced-config.html) or [Opensearch](https://rubydoc.info/gems/opensearch-transport#configuration) for a complete list of options.
 
 ### Lograge
 
@@ -1832,6 +1844,87 @@ To query nested data, use dot notation.
 ```ruby
 Product.search("san", fields: ["store.city"], where: {"store.zip_code" => 12345})
 ```
+
+## Nearest Neighbor Search
+
+*Available for Elasticsearch 8.6+ and OpenSearch 2.4+*
+
+```ruby
+class Product < ApplicationRecord
+  searchkick knn: {embedding: {dimensions: 3, distance: "cosine"}}
+end
+```
+
+Also supports `euclidean` and `inner_product`
+
+Reindex and search with:
+
+```ruby
+Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
+```
+
+## Semantic Search
+
+First, add [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental) to your model
+
+```ruby
+class Product < ApplicationRecord
+  searchkick knn: {embedding: {dimensions: 768, distance: "cosine"}}
+end
+```
+
+Generate an embedding for each record (you can use an external service or a library like [Informers](https://github.com/ankane/informers))
+
+```ruby
+embed = Informers.pipeline("embedding", "Snowflake/snowflake-arctic-embed-m-v1.5")
+embed_options = {model_output: "sentence_embedding", pooling: "none"} # specific to embedding model
+
+Product.find_each do |product|
+  embedding = embed.(product.name, **embed_options)
+  product.update!(embedding: embedding)
+end
+```
+
+For search, generate an embedding for the query (the query prefix is specific to the [embedding model](https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5))
+
+```ruby
+query_prefix = "Represent this sentence for searching relevant passages: "
+query_embedding = embed.(query_prefix + query, **embed_options)
+```
+
+And perform nearest neighbor search
+
+```ruby
+Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
+```
+
+See a [full example](examples/semantic.rb)
+
+## Hybrid Search
+
+Perform keyword search and semantic search in parallel
+
+```ruby
+keyword_search = Product.search(query, limit: 20)
+semantic_search = Product.search(knn: {field: :embedding, vector: query_embedding}, limit: 20)
+Searchkick.multi_search([keyword_search, semantic_search])
+```
+
+To combine the results, use Reciprocal Rank Fusion (RRF)
+
+```ruby
+Searchkick::Reranking.rrf(keyword_search, semantic_search).first(5)
+```
+
+Or a reranking model
+
+```ruby
+rerank = Informers.pipeline("reranking", "mixedbread-ai/mxbai-rerank-xsmall-v1")
+results = (keyword_search.to_a + semantic_search.to_a).uniq
+rerank.(query, results.map(&:name)).first(5).map { |v| results[v[:doc_id]] }
+```
+
+See a [full example](examples/hybrid.rb)
 
 ## Reference
 

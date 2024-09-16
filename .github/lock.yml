@@ -1,6 +1,0 @@
-daysUntilLock: 30
-skipCreatedBefore: false
-exemptLabels: []
-lockLabel: false
-lockComment: false
-setLockReason: true
