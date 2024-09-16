@@ -18,7 +18,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost, :boost_and,
-        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_by_script, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
@@ -273,7 +273,7 @@ module Searchkick
       @json = options[:body]
       if @json
         ignored_options = options.keys & [:aggs, :boost,
-          :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :exclude, :explain,
+          :boost_by, :boost_by_distance, :boost_by_recency, :boost_by_script, :boost_where, :conversions, :conversions_term, :exclude, :explain,
           :fields, :highlight, :indices_boost, :match, :misspellings, :operator, :order,
           :profile, :select, :smart_aggs, :suggest, :where]
         raise ArgumentError, "Options incompatible with body option: #{ignored_options.join(", ")}" if ignored_options.any?
@@ -423,7 +423,7 @@ module Searchkick
                       should: q2
                     }
                   },
-                  should: qs.map { |q| {match_type => {field => q.merge({ operator: "and"})}} } 
+                  should: qs.map { |q| {match_type => {field => q.merge({ operator: "and"})}} }
                 }
               }
             else
@@ -502,6 +502,7 @@ module Searchkick
         set_boost_where(custom_filters)
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
+        set_boost_by_script(custom_filters) if options[:boost_by_script]
 
         payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
 
@@ -715,6 +716,17 @@ module Searchkick
             field => attributes.except(:factor, :function)
           }
         }
+      end
+    end
+
+    def set_boost_by_script(custom_filters)
+      options[:boost_by_script] = [options[:boost_by_script]] if options[:boost_by_script].is_a?(Searchkick::Script)
+      options[:boost_by_script].each do |value|
+        unless value.is_a?(Searchkick::Script)
+          raise TypeError, "expected Searchkick::Script"
+        end
+        script_score = { script: { source: boost_by.source, lang: boost_by.lang, params: boost_by.params } }
+        custom_filters.concat { script_score: }
       end
     end
 
