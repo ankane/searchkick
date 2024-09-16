@@ -17,7 +17,7 @@ module Searchkick
       :with_score, :misspellings?, :scroll_id, :clear_scroll, :missing_records, :with_hit
 
     def initialize(klass, term = "*", **options)
-      unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost, :boost_and,
+      unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost, :boost_mode, :boost_and,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_by_script, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
@@ -499,10 +499,10 @@ module Searchkick
         multiply_filters = []
 
         set_boost_by(multiply_filters, custom_filters)
-        set_boost_where(custom_filters)
+        set_boost_where(multiply_filters, custom_filters)
         set_boost_by_distance(custom_filters) if options[:boost_by_distance]
         set_boost_by_recency(custom_filters) if options[:boost_by_recency]
-        set_boost_by_script(custom_filters) if options[:boost_by_script]
+        set_boost_by_script(multiply_filters) if options[:boost_by_script]
 
         payload[:query] = build_query(query, filters, should, must_not, custom_filters, multiply_filters)
 
@@ -615,7 +615,6 @@ module Searchkick
         bool[:should] = should if should.any?        # conversions
         query = {bool: bool}
       end
-
       if custom_filters.any?
         query = {
           function_score: {
@@ -719,13 +718,13 @@ module Searchkick
       end
     end
 
-    def set_boost_by_script(custom_filters)
+    def set_boost_by_script(multiply_filters)
       options[:boost_by_script] = [options[:boost_by_script]] if options[:boost_by_script].is_a?(Searchkick::Script)
       options[:boost_by_script].each do |value|
         unless value.is_a?(Searchkick::Script)
           raise TypeError, "expected Searchkick::Script"
         end
-        custom_filters << { script_score: { script: value.to_h } }
+        multiply_filters << { script_score: { script: value.to_h } }
       end
     end
 
@@ -742,18 +741,31 @@ module Searchkick
       multiply_filters.concat boost_filters(multiply_by || {})
     end
 
-    def set_boost_where(custom_filters)
+    def boost_where_filter(value = {}, multiply_filters, custom_filters)
+      filters = {
+        multiply: multiply_filters,
+        sum: custom_filters
+      }
+      default = options[:boost_mode]&.to_sym || :sum
+      key = value&.delete(:boost_mode)&.to_sym || default
+      filters[key]
+    end
+
+    def set_boost_where(multiply_filters, custom_filters)
       boost_where = options[:boost_where] || {}
       boost_where.each do |field, value|
         if value.is_a?(Array) && value.first.is_a?(Hash)
           value.each do |value_factor|
-            custom_filters << custom_filter(field, value_factor[:value], value_factor[:factor])
+            filter = boost_where_filter(value_factor, multiply_filters, custom_filters)
+            filter << custom_filter(field, value_factor[:value], value_factor[:factor])
           end
         elsif value.is_a?(Hash)
-          custom_filters << custom_filter(field, value[:value], value[:factor])
+          filter = boost_where_filter(value, multiply_filters, custom_filters)
+          filter << custom_filter(field, value[:value], value[:factor])
         else
           factor = 1000
-          custom_filters << custom_filter(field, value, factor)
+          filter = boost_where_filter(value, multiply_filters, custom_filters)
+          filter << custom_filter(field, value, factor)
         end
       end
     end
