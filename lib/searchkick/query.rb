@@ -725,8 +725,7 @@ module Searchkick
         unless value.is_a?(Searchkick::Script)
           raise TypeError, "expected Searchkick::Script"
         end
-        script_score = { script: { source: boost_by.source, lang: boost_by.lang, params: boost_by.params } }
-        custom_filters << { script_score: }
+        custom_filters << { script_score: { script: value.to_h } }
       end
     end
 
