@@ -1616,7 +1616,7 @@ You can specify a longer refresh interval while reindexing to increase performan
 Product.reindex(mode: :async, refresh_interval: "30s")
 ```
 
-**Note:** This only makes a noticable difference with parallel reindexing.
+**Note:** This only makes a noticeable difference with parallel reindexing.
 
 When promoting, have it restored to the value in your mapping (defaults to `1s`).
 
