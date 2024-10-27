@@ -833,4 +833,22 @@ Breaking changes
 
 ## 0.1.2 (2013-07-30)
 
-- Launch
+- Use conversions by default
+
+## 0.1.1 (2013-07-29)
+
+- Renamed `_source` to `search_data`
+- Renamed `searchkick_import` to `search_import`
+
+## 0.1.0 (2013-07-28)
+
+- Added `_source` method
+- Added `index_name` option
+
+## 0.0.2 (2013-07-17)
+
+- Added `conversions` option
+
+## 0.0.1 (2013-07-14)
+
+- First release
