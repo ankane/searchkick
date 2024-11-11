@@ -1865,7 +1865,7 @@ Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 
 ## Semantic Search
 
-First, add [nearest neighbor search](#nearest-neighbor-search-unreleased-experimental) to your model
+First, add [nearest neighbor search](#nearest-neighbor-search) to your model
 
 ```ruby
 class Product < ApplicationRecord
