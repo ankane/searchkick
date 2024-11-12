@@ -2205,42 +2205,6 @@ end
 
 For convenience, this is set by default in the test environment.
 
-## Upgrading
-
-### 5.0
-
-Searchkick 5 supports both the `elasticsearch` and `opensearch-ruby` gems. Add the one you want to use to your Gemfile:
-
-```ruby
-gem "elasticsearch"
-# or
-gem "opensearch-ruby"
-```
-
-If using the deprecated `faraday_middleware-aws-signers-v4` gem, switch to `faraday_middleware-aws-sigv4`.
-
-Also, searches now use lazy loading:
-
-```ruby
-# search not executed
-Product.search("milk")
-
-# search executed
-Product.search("milk").to_a
-```
-
-You can reindex relations in the background:
-
-```ruby
-store.products.reindex(mode: :async)
-# or
-store.products.reindex(mode: :queue)
-```
-
-And there’s a [new option](#default-scopes) for models with default scopes.
-
-Check out the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md#500-2022-02-21) for the full list of changes.
-
 ## History
 
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
