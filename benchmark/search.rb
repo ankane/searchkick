@@ -3,7 +3,7 @@ Bundler.require(:default)
 require "active_record"
 require "benchmark/ips"
 
-ActiveRecord::Base.default_timezone = :utc
+ActiveRecord.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
 
@@ -46,11 +46,9 @@ if ENV["SETUP"]
 end
 
 query = Product.search("product", fields: [:name], where: {color: "red", store_id: 5}, limit: 10000, load: false)
-
-require "pp"
 pp query.body.as_json
 puts
 
 Benchmark.ips do |x|
-  x.report { query.dup.execute }
+  x.report { query.dup.load }
 end

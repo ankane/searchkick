@@ -14,7 +14,7 @@ ActiveJob::Base.queue_adapter = :sidekiq
 
 Searchkick.redis = Redis.new
 
-ActiveRecord::Base.default_timezone = :utc
+ActiveRecord.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
 # ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
 ActiveRecord::Base.establish_connection "postgresql://localhost/searchkick_demo_development"
