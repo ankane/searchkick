@@ -68,7 +68,7 @@ start_mem = GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
-    # result = RubyProf.profile do
+    # result = RubyProf::Profile.profile do
     # report = MemoryProfiler.report do
     # stats = AllocationStats.trace do
     reindex = Product.reindex #(async: true)
