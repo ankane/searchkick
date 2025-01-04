@@ -67,11 +67,11 @@ class SearchSynonymsTest < Minitest::Test
   def test_reload_synonyms
     if Searchkick.server_below?("7.3.0")
       error = assert_raises(Searchkick::Error) do
-        Speaker.search_index.reload_synonyms
+        Speaker.searchkick_index.reload_synonyms
       end
       assert_equal "Requires Elasticsearch 7.3+", error.message
     else
-      Speaker.search_index.reload_synonyms
+      Speaker.searchkick_index.reload_synonyms
     end
   end
 
@@ -87,7 +87,7 @@ class SearchSynonymsTest < Minitest::Test
       write_synonyms("test,goodbye")
       assert_search "test", ["Hello"]
 
-      Speaker.search_index.reload_synonyms
+      Speaker.searchkick_index.reload_synonyms
       assert_search "test", ["Goodbye"]
     end
   ensure

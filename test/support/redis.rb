@@ -1,8 +1,13 @@
+options = {}
+options[:logger] = $logger if !defined?(RedisClient)
+
 Searchkick.redis =
-  if defined?(ConnectionPool)
-    ConnectionPool.new { Redis.new }
+  if !defined?(Redis)
+    RedisClient.config.new_pool
+  elsif defined?(ConnectionPool)
+    ConnectionPool.new { Redis.new(**options) }
   else
-    Redis.new
+    Redis.new(**options)
   end
 
 module RedisInstrumentation
@@ -16,4 +21,4 @@ module RedisInstrumentation
     super
   end
 end
-RedisClient.register(RedisInstrumentation)
+RedisClient.register(RedisInstrumentation) if defined?(RedisClient)

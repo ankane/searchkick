@@ -1,3 +1,66 @@
+## 5.4.0 (2024-09-04)
+
+- Added `knn` option
+- Added `rrf` method
+- Added experimental support for scripting to `where` option
+- Added warning for `exists` with non-`true` values
+- Added warning for full reindex and `:queue` mode
+- Fixed `per_page` method when paginating beyond `max_result_window`
+- Dropped support for Ruby < 3.1
+
+## 5.3.1 (2023-11-28)
+
+- Fixed error with misspellings below and failed queries
+
+## 5.3.0 (2023-07-02)
+
+- Fixed error with `cutoff_frequency`
+- Dropped support for Ruby < 3 and Active Record < 6.1
+- Dropped support for Mongoid < 7
+
+## 5.2.4 (2023-05-11)
+
+- Fixed error with non-string routing and `:async` mode
+
+## 5.2.3 (2023-04-12)
+
+- Fixed error with missing records and multiple models
+
+## 5.2.2 (2023-04-01)
+
+- Fixed `total_docs` method
+- Fixed deprecation warning with Active Support 7.1
+
+## 5.2.1 (2023-02-21)
+
+- Added support for `redis-client` gem
+
+## 5.2.0 (2023-02-08)
+
+- Added model name to warning about missing records
+- Fixed unnecessary data loading when reindexing relations with `:async` and `:queue` modes
+
+## 5.1.2 (2023-01-29)
+
+- Fixed error with missing point in time
+
+## 5.1.1 (2022-12-05)
+
+- Added support for strings for `offset` and `per_page`
+
+## 5.1.0 (2022-10-12)
+
+- Added support for fractional search timeout
+- Fixed search timeout with `elasticsearch` 8+ and `opensearch-ruby` gems
+- Fixed search timeout not applying to `multi_search`
+
+## 5.0.5 (2022-10-09)
+
+- Added `model` method to `Searchkick::Relation`
+- Fixed deprecation warning with `redis` gem
+- Fixed `respond_to?` method on relation loading relation
+- Fixed `Relation loaded` error for non-mutating methods on relation
+
 ## 5.0.4 (2022-06-16)
 
 - Added `max_result_window` option
@@ -770,4 +833,22 @@ Breaking changes
 
 ## 0.1.2 (2013-07-30)
 
-- Launch
+- Use conversions by default
+
+## 0.1.1 (2013-07-29)
+
+- Renamed `_source` to `search_data`
+- Renamed `searchkick_import` to `search_import`
+
+## 0.1.0 (2013-07-28)
+
+- Added `_source` method
+- Added `index_name` option
+
+## 0.0.2 (2013-07-17)
+
+- Added `conversions` option
+
+## 0.0.1 (2013-07-14)
+
+- First release

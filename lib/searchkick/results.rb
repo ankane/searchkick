@@ -3,6 +3,7 @@ module Searchkick
     include Enumerable
     extend Forwardable
 
+    # TODO remove klass and options in 6.0
     attr_reader :klass, :response, :options
 
     def_delegators :results, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary
@@ -13,6 +14,7 @@ module Searchkick
       @options = options
     end
 
+    # TODO make private in 6.0
     def results
       @results ||= with_hit.map(&:first)
     end
@@ -302,7 +304,7 @@ module Searchkick
     def build_hits
       @build_hits ||= begin
         if missing_records.any?
-          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| v[:id] }.join(", ")}")
+          Searchkick.warn("Records in search index do not exist in database: #{missing_records.map { |v| "#{Array(v[:model]).map(&:model_name).sort.join("/")} #{v[:id]}" }.join(", ")}")
         end
         with_hit_and_missing_records[0]
       end

@@ -14,7 +14,7 @@ ActiveJob::Base.queue_adapter = :sidekiq
 
 Searchkick.redis = Redis.new
 
-ActiveRecord::Base.default_timezone = :utc
+ActiveRecord.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
 # ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
 ActiveRecord::Base.establish_connection "postgresql://localhost/searchkick_demo_development"
@@ -68,7 +68,7 @@ start_mem = GetProcessMem.new.mb
 
 time =
   Benchmark.realtime do
-    # result = RubyProf.profile do
+    # result = RubyProf::Profile.profile do
     # report = MemoryProfiler.report do
     # stats = AllocationStats.trace do
     reindex = Product.reindex #(async: true)

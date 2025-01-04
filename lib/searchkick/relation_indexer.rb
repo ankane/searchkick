@@ -14,12 +14,17 @@ module Searchkick
         relation = relation.search_import
       end
 
-      # remove unneeded loading for async
-      if mode == :async
+      # remove unneeded loading for async and queue
+      if mode == :async || mode == :queue
         if relation.respond_to?(:primary_key)
-          relation = relation.select(relation.primary_key).except(:includes, :preload)
+          relation = relation.except(:includes, :preload)
+          unless mode == :queue && relation.klass.method_defined?(:search_routing)
+            relation = relation.except(:select).select(relation.primary_key)
+          end
         elsif relation.respond_to?(:only)
-          relation = relation.only(:_id)
+          unless mode == :queue && relation.klass.method_defined?(:search_routing)
+            relation = relation.only(:_id)
+          end
         end
       end
 
@@ -42,11 +47,11 @@ module Searchkick
     end
 
     def batches_left
-      Searchkick.with_redis { |r| r.scard(batches_key) }
+      Searchkick.with_redis { |r| r.call("SCARD", batches_key) }
     end
 
     def batch_completed(batch_id)
-      Searchkick.with_redis { |r| r.srem(batches_key, batch_id) }
+      Searchkick.with_redis { |r| r.call("SREM", batches_key, [batch_id]) }
     end
 
     private
@@ -134,7 +139,7 @@ module Searchkick
     end
 
     def batch_job(class_name, batch_id, record_ids)
-      Searchkick.with_redis { |r| r.sadd(batches_key, batch_id) }
+      Searchkick.with_redis { |r| r.call("SADD", batches_key, [batch_id]) }
       Searchkick::BulkReindexJob.perform_later(
         class_name: class_name,
         index_name: index.name,

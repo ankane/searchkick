@@ -22,7 +22,7 @@ class UnscopeTest < Minitest::Test
       Artist.unscoped.reindex(mode: :async)
     end
 
-    Artist.search_index.refresh
+    Artist.searchkick_index.refresh
     assert_search "*", ["Test", "Test 2"]
   end
 
@@ -30,7 +30,7 @@ class UnscopeTest < Minitest::Test
     store [
       {name: "Test", active: true, should_index: true},
       {name: "Test 2", active: false, should_index: true},
-      {name: "Test 3", active: false, should_index: false},
+      {name: "Test 3", active: false, should_index: false}
     ], reindex: false
   end
 

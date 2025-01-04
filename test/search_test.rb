@@ -32,7 +32,7 @@ class SearchTest < Minitest::Test
     store_names ["Product A", "Product B"]
     product = Product.find_by(name: "Product A")
     product.delete
-    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database/ do
+    assert_output nil, /\[searchkick\] WARNING: Records in search index do not exist in database: Product \d+/ do
       result = Product.search("product")
       assert_equal ["Product B"], result.map(&:name)
       assert_equal [product.id.to_s], result.missing_records.map { |v| v[:id] }
@@ -44,7 +44,7 @@ class SearchTest < Minitest::Test
   end
 
   def test_bad_mapping
-    Product.search_index.delete
+    Product.searchkick_index.delete
     store_names ["Product A"]
     error = assert_raises(Searchkick::InvalidQueryError) { Product.search("test").to_a }
     assert_equal "Bad mapping - run Product.reindex", error.message

@@ -115,7 +115,7 @@ class Minitest::Test
   end
 
   def with_transaction(model, &block)
-    if model.respond_to?(:transaction)
+    if model.respond_to?(:transaction) && !mongoid?
       model.transaction(&block)
     else
       yield

@@ -8,6 +8,9 @@ module Searchkick
     delegate :body, :params, to: :query
     delegate_missing_to :private_execute
 
+    attr_reader :model
+    alias_method :klass, :model
+
     def initialize(model, term = "*", **options)
       @model = model
       @term = term
@@ -26,8 +29,7 @@ module Searchkick
 
     def execute
       Searchkick.warn("The execute method is no longer needed")
-      private_execute
-      self
+      load
     end
 
     # experimental
@@ -195,9 +197,24 @@ module Searchkick
       Relation.new(@model, @term, **@options.except(*keys))
     end
 
+    # experimental
+    def load
+      private_execute
+      self
+    end
+
     def loaded?
       !@execute.nil?
     end
+
+    def respond_to_missing?(method_name, include_all)
+      Results.new(nil, nil, nil).respond_to?(method_name, include_all) || super
+    end
+
+    # TODO uncomment in 6.0
+    # def to_yaml
+    #   private_execute.to_a.to_yaml
+    # end
 
     private
 
@@ -220,6 +237,11 @@ module Searchkick
     # this is not meant to be comprehensive and may be expanded in the future
     def ensure_permitted(obj)
       obj.to_h
+    end
+
+    def initialize_copy(other)
+      super
+      @execute = nil
     end
   end
 end

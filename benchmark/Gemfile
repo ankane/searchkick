@@ -4,19 +4,21 @@ gemspec path: "../"
 
 gem "sqlite3"
 gem "pg"
-gem "activerecord", "~> 6.1.0"
+gem "activerecord", "~> 8.0.0"
 gem "activejob"
+gem "elasticsearch"
 gem "redis"
 gem "sidekiq"
 
 # performance
 gem "typhoeus"
 gem "oj"
+# gem "json", "2.9.1"
 
 # profiling
 gem "ruby-prof"
 gem "allocation_stats"
 gem "get_process_mem"
 gem "memory_profiler"
-gem "allocation_tracer"
+# gem "allocation_tracer"
 gem "benchmark-ips"
