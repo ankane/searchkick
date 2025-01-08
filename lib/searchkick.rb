@@ -132,7 +132,8 @@ module Searchkick
 
   def self.opensearch?
     unless defined?(@opensearch)
-      @opensearch = server_info["version"]["distribution"] == "opensearch"
+      @opensearch = server_info["version"]["distribution"] == "opensearch" ||
+        server_info.fetch("tagline", "").match?(/opensearch/i)
     end
     @opensearch
   end
