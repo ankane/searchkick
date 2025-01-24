@@ -243,7 +243,11 @@ module Searchkick
           grouped_hits.each do |index, index_hits|
             results[index] = {}
             index_models[index].each do |model|
-              results[index].merge!(results_query(model, index_hits).to_a.index_by { |r| r.id.to_s })
+              results[index].merge!(
+                results_query(model, index_hits).to_a
+                                                .sort_by { |r| index_hits.find_index { |hit| hit["_id"] == r.id.to_s } }
+                                                .index_by { |r| r.id.to_s }
+              )
             end
           end
 
