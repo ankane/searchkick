@@ -40,7 +40,7 @@ module Searchkick
             class_name: records.first.class.searchkick_options[:class_name],
             record_ids: records.map { |r| r.id.to_s },
             index_name: index.name,
-            method_name: method_name ? method_name.to_s : nil
+            method_name: method_name.is_a?(:Array) ? method_name.map(&:to_s) : method_name&.to_s,
           )
         end
       when :queue

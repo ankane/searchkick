@@ -49,7 +49,16 @@ module Searchkick
     def search_data(method_name = nil)
       partial_reindex = !method_name.nil?
 
-      source = record.send(method_name || :search_data)
+      if method_name.is_a?(Array)
+        source = {}
+        method_name.uniq.each do |method|
+          res = record.send(method)
+          raise "Method #{method} is not a hash" unless res.is_a?(Hash)
+          source.merge!(res)
+        end
+      else
+        source = record.send(method_name || :search_data)
+      end
 
       # conversions
       index.conversions_fields.each do |conversions_field|
