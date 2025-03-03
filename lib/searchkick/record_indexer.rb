@@ -31,7 +31,7 @@ module Searchkick
           Searchkick::ReindexV2Job.perform_later(
             record.class.name,
             record.id.to_s,
-            method_name ? method_name.to_s : nil,
+            method_name.is_a?(Array) ? method_name.map(&:to_s) : method_name&.to_s,
             routing: routing,
             index_name: index.name
           )
