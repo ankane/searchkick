@@ -1134,13 +1134,17 @@ module Searchkick
                 range_query =
                   case op
                   when :gt
-                    {from: op_value, include_lower: false}
+                    # TODO always use gt in Searchkick 6
+                    below90? ? {from: op_value, include_lower: false} : {gt: op_value}
                   when :gte
-                    {from: op_value, include_lower: true}
+                    # TODO always use gte in Searchkick 6
+                    below90? ? {from: op_value, include_lower: true} : {gte: op_value}
                   when :lt
-                    {to: op_value, include_upper: false}
+                    # TODO always use lt in Searchkick 6
+                    below90? ? {to: op_value, include_upper: false} : {lt: op_value}
                   when :lte
-                    {to: op_value, include_upper: true}
+                    # TODO always use lte in Searchkick 6
+                    below90? ? {to: op_value, include_upper: true} : {lte: op_value}
                   else
                     raise ArgumentError, "Unknown where operator: #{op.inspect}"
                   end
@@ -1300,6 +1304,10 @@ module Searchkick
 
     def below80?
       Searchkick.server_below?("8.0.0")
+    end
+
+    def below90?
+      Searchkick.server_below?("9.0.0")
     end
   end
 end
