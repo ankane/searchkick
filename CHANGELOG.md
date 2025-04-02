@@ -1,6 +1,8 @@
-## 5.4.1 (unreleased)
+## 5.5.0 (unreleased)
 
 - Fixed exact cosine distance for OpenSearch 2.19+
+- Dropped support for Ruby < 3.2 and Active Record < 7.1
+- Dropped support for Mongoid < 8
 
 ## 5.4.0 (2024-09-04)
 

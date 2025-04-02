@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["*.{md,txt}", "{lib}/**/*"]
   spec.require_path  = "lib"
 
-  spec.required_ruby_version = ">= 3.1"
+  spec.required_ruby_version = ">= 3.2"
 
-  spec.add_dependency "activemodel", ">= 6.1"
+  spec.add_dependency "activemodel", ">= 7.1"
   spec.add_dependency "hashie"
 end

@@ -8,26 +8,20 @@ jobs:
         include:
           - ruby: 3.4
             gemfile: Gemfile
-            elasticsearch: 8
+            elasticsearch: 8.15.2
           - ruby: 3.3
             gemfile: gemfiles/activerecord72.gemfile
-            elasticsearch: 8
-          - ruby: 3.3
-            gemfile: gemfiles/activerecord71.gemfile
-            elasticsearch: 8.15.0
+            elasticsearch: 8.0.0
           - ruby: 3.2
-            gemfile: gemfiles/activerecord70.gemfile
-            elasticsearch: 8
-          - ruby: 3.1
-            gemfile: gemfiles/activerecord61.gemfile
-            elasticsearch: 7.17.22
-          - ruby: 3.3
+            gemfile: gemfiles/activerecord71.gemfile
+            elasticsearch: 7.17.24
+          - ruby: 3.4
             gemfile: gemfiles/opensearch3.gemfile
             opensearch: 2.19.1
-          - ruby: 3.2
+          - ruby: 3.3
             gemfile: gemfiles/opensearch2.gemfile
             opensearch: 2.0.0
-          - ruby: 3.1
+          - ruby: 3.2
             gemfile: gemfiles/opensearch1.gemfile
             opensearch: 1.3.19
           - ruby: 3.3
@@ -36,10 +30,6 @@ jobs:
             mongodb: true
           - ruby: 3.2
             gemfile: gemfiles/mongoid8.gemfile
-            elasticsearch: 8.0.0
-            mongodb: true
-          - ruby: 3.1
-            gemfile: gemfiles/mongoid7.gemfile
             elasticsearch: 7.0.0
             mongodb: true
     runs-on: ubuntu-latest
