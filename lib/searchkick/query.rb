@@ -934,7 +934,7 @@ module Searchkick
                   space_type: space_type
                 }
               },
-              boost: distance == "cosine" ? 0.5 : 1.0
+              boost: distance == "cosine" && Searchkick.server_below?("2.19.0", true) ? 0.5 : 1.0
             }
           }
         else

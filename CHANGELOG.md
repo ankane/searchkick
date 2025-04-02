@@ -1,3 +1,7 @@
+## 5.4.1 (unreleased)
+
+- Fixed exact cosine distance for OpenSearch 2.19+
+
 ## 5.4.0 (2024-09-04)
 
 - Added `knn` option
