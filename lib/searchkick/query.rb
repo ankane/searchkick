@@ -891,6 +891,7 @@ module Searchkick
       exact = knn[:exact]
       exact = field_options[:distance].nil? || distance != field_options[:distance] if exact.nil?
       k = per_page + offset
+      ef_search = knn[:ef_search]
       filter = payload.delete(:query)
 
       if distance.nil?
@@ -944,7 +945,7 @@ module Searchkick
                 vector: vector,
                 k: k,
                 filter: filter
-              }
+              }.merge(ef_search ? {method_parameters: {ef_search: ef_search}} : {})
             }
           }
         end
@@ -992,7 +993,7 @@ module Searchkick
             query_vector: vector,
             k: k,
             filter: filter
-          }
+          }.merge(ef_search ? {num_candidates: ef_search} : {})
         end
       end
     end

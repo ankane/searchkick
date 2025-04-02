@@ -198,6 +198,13 @@ class KnnTest < Minitest::Test
     assert_equal "distance must match searchkick options for approximate search", error.message
   end
 
+  def test_ef_search
+    skip if Searchkick.opensearch? && Searchkick.server_below?("2.16.0", true)
+
+    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], ef_search: 20}, limit: 10
+  end
+
   private
 
   def assert_approx(approx, field, distance, **knn_options)
