@@ -7,7 +7,7 @@ require "active_support/notifications"
 
 ActiveSupport::Notifications.subscribe "request.searchkick" do |*args|
   event = ActiveSupport::Notifications::Event.new(*args)
-  puts "Import: #{event.duration.round}ms"
+  # puts "Import: #{event.duration.round}ms"
 end
 
 # ActiveJob::Base.queue_adapter = :sidekiq
@@ -19,6 +19,7 @@ class MySerializer
 end
 
 Elasticsearch::API.settings[:serializer] = MySerializer.new
+# OpenSearch::API.settings[:serializer] = MySerializer.new
 
 Searchkick.redis = Redis.new
 
@@ -99,7 +100,6 @@ time =
     # end
   end
 
-puts
 puts "Time: #{time.round(1)}s"
 
 if result
