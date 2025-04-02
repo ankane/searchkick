@@ -30,8 +30,8 @@ ActiveRecord::Schema.define do
     t.text :alt_description
     t.text :embedding
     t.text :embedding2
-    t.text :factors
-    t.text :vector
+    t.text :embedding3
+    t.text :embedding4
     t.timestamps null: true
   end
 
@@ -78,8 +78,8 @@ class Product < ActiveRecord::Base
 
   serialize :embedding, coder: JSON
   serialize :embedding2, coder: JSON
-  serialize :factors, coder: JSON
-  serialize :vector, coder: JSON
+  serialize :embedding3, coder: JSON
+  serialize :embedding4, coder: JSON
 end
 
 class Store < ActiveRecord::Base

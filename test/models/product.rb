@@ -24,8 +24,8 @@ class Product
     knn: Searchkick.knn_support? ? {
       embedding: {dimensions: 3, distance: "cosine"},
       embedding2: {dimensions: 3, distance: "inner_product"},
-      factors: {dimensions: 3, distance: "euclidean"}
-    }.merge(Searchkick.opensearch? ? {} : {vector: {dimensions: 3}}) : nil
+      embedding3: {dimensions: 3, distance: "euclidean"}
+    }.merge(Searchkick.opensearch? ? {} : {embedding4: {dimensions: 3}}) : nil
 
   attr_accessor :conversions, :user_ids, :aisle, :details
 

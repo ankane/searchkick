@@ -67,10 +67,10 @@ class KnnTest < Minitest::Test
   end
 
   def test_euclidean
-    store [{name: "A", factors: [1, 2, 3]}, {name: "B", factors: [1, 5, 7]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :factors, vector: [1, 2, 3]}
+    store [{name: "A", embedding3: [1, 2, 3]}, {name: "B", embedding3: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding3, vector: [1, 2, 3]}
 
-    scores = Product.search(knn: {field: :factors, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding3, vector: [1, 2, 3]}).hits.map { |v| v["_score"] }
     assert_in_delta 1.0 / (1 + 0), scores[0]
     assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
@@ -127,20 +127,20 @@ class KnnTest < Minitest::Test
   def test_unindexed
     skip if Searchkick.opensearch?
 
-    store [{name: "A", vector: [1, 2, 3]}, {name: "B", vector: [-1, -2, -3]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}
+    store [{name: "A", embedding4: [1, 2, 3]}, {name: "B", embedding4: [-1, -2, -3]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding4, vector: [1, 2, 3], distance: "cosine"}
 
-    scores = Product.search(knn: {field: :vector, vector: [1, 2, 3], distance: "cosine"}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding4, vector: [1, 2, 3], distance: "cosine"}).hits.map { |v| v["_score"] }
     assert_in_delta 1, scores[0]
     assert_in_delta 0, scores[1]
 
     error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :vector, vector: [1, 2, 3]})
+      Product.search(knn: {field: :embedding4, vector: [1, 2, 3]})
     end
     assert_match "distance required", error.message
 
     error = assert_raises(ArgumentError) do
-      Product.search(knn: {field: :vector, vector: [1, 2, 3], exact: false})
+      Product.search(knn: {field: :embedding4, vector: [1, 2, 3], exact: false})
     end
     assert_match "distance required", error.message
 
@@ -151,7 +151,7 @@ class KnnTest < Minitest::Test
   end
 
   def test_explain
-    store [{name: "A", embedding: [1, 2, 3], factors: [1, 2, 3], vector: [1, 2, 3], embedding2: [1, 2, 3]}]
+    store [{name: "A", embedding: [1, 2, 3], embedding2: [1, 2, 3], embedding3: [1, 2, 3], embedding4: [1, 2, 3]}]
 
     assert_approx true, :embedding, "cosine"
     assert_approx false, :embedding, "euclidean"
@@ -162,14 +162,14 @@ class KnnTest < Minitest::Test
       assert_approx false, :embedding, "chebyshev"
     end
 
-    assert_approx false, :factors, "cosine"
-    assert_approx true, :factors, "euclidean"
-    assert_approx false, :factors, "inner_product"
+    assert_approx false, :embedding3, "cosine"
+    assert_approx true, :embedding3, "euclidean"
+    assert_approx false, :embedding3, "inner_product"
 
     unless Searchkick.opensearch?
-      assert_approx false, :vector, "cosine"
-      assert_approx false, :vector, "euclidean"
-      assert_approx false, :vector, "inner_product"
+      assert_approx false, :embedding4, "cosine"
+      assert_approx false, :embedding4, "euclidean"
+      assert_approx false, :embedding4, "inner_product"
     end
 
     assert_approx false, :embedding2, "cosine"
