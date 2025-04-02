@@ -1533,8 +1533,6 @@ To reduce log noise, create an initializer with:
 Ethon.logger = Logger.new(nil)
 ```
 
-If you run into issues on Windows, check out [this post](https://www.rastating.com/fixing-issues-in-typhoeus-and-httparty-on-windows/).
-
 ### Searchable Fields
 
 By default, all string fields are searchable (can be used in `fields` option). Speed up indexing and reduce index size by only making some fields searchable.
