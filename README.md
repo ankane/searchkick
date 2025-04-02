@@ -1023,7 +1023,7 @@ Additional options can be specified for each field:
 Band.search("cinema", fields: [:name], highlight: {fields: {name: {fragment_size: 200}}})
 ```
 
-You can find available highlight options in the [Elasticsearch reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html).
+You can find available highlight options in the [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html) or [OpenSearch](https://opensearch.org/docs/latest/search-plugins/searching-data/highlight/) reference.
 
 ## Similar Items
 
