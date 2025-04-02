@@ -12,14 +12,14 @@ end
 
 # ActiveJob::Base.queue_adapter = :sidekiq
 
-class MySerializer
+class SearchSerializer
   def dump(object)
     JSON.generate(object)
   end
 end
 
-Elasticsearch::API.settings[:serializer] = MySerializer.new
-# OpenSearch::API.settings[:serializer] = MySerializer.new
+Elasticsearch::API.settings[:serializer] = SearchSerializer.new
+# OpenSearch::API.settings[:serializer] = SearchSerializer.new
 
 Searchkick.redis = Redis.new
 
