@@ -477,11 +477,10 @@ module Searchkick
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
 
-            index_options = knn_options.slice(:m, :ef_construction)
             # TODO no quantization by default in Searchkick 6
             # this was made the default in 8.14.0
             type = Searchkick.server_below?("8.14.0") ? "hnsw" : "int8_hnsw"
-            vector_options[:index_options] = {type: type}.merge(index_options)
+            vector_options[:index_options] = {type: type}.merge(knn_options.slice(:m, :ef_construction))
           end
 
           mapping[field.to_s] = vector_options
