@@ -42,7 +42,8 @@ jobs:
             gemfile: gemfiles/mongoid7.gemfile
             elasticsearch: 7.0.0
             mongodb: true
-    runs-on: ubuntu-latest
+            os: ubuntu-22.04
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:

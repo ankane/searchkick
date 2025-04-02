@@ -1,4 +1,5 @@
 require "bundler/setup"
+require "logger" # for Rails < 7.1
 Bundler.require(:default)
 require "minitest/autorun"
 require "minitest/pride"
