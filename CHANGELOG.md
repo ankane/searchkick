@@ -1,5 +1,6 @@
 ## 5.5.0 (unreleased)
 
+- Added `m` and `ef_construction` options to `knn`
 - Fixed exact cosine distance for OpenSearch 2.19+
 - Dropped support for Ruby < 3.2 and Active Record < 7.1
 - Dropped support for Mongoid < 8

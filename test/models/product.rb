@@ -22,7 +22,7 @@ class Product
     similarity: "BM25",
     match: ENV["MATCH"] ? ENV["MATCH"].to_sym : nil,
     knn: Searchkick.knn_support? ? {
-      embedding: {dimensions: 3, distance: "cosine"},
+      embedding: {dimensions: 3, distance: "cosine", m: 16, ef_construction: 100},
       embedding2: {dimensions: 3, distance: "inner_product"},
       embedding3: {dimensions: 3, distance: "euclidean"}
     }.merge(Searchkick.opensearch? ? {} : {embedding4: {dimensions: 3}}) : nil

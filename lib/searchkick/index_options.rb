@@ -451,7 +451,8 @@ module Searchkick
             vector_options[:method] = {
               name: "hnsw",
               space_type: space_type,
-              engine: "lucene"
+              engine: "lucene",
+              parameters: knn_options.slice(:m, :ef_construction)
             }
           end
 
@@ -476,8 +477,11 @@ module Searchkick
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
 
+            index_options = knn_options.slice(:m, :ef_construction)
             # TODO no quantization by default in Searchkick 6
-            # vector_options[:index_options] = {type: "hnsw"}
+            # this was made the default in 8.14.0
+            type = Searchkick.server_below?("8.14.0") ? "hnsw" : "int8_hnsw"
+            vector_options[:index_options] = {type: type}.merge(index_options)
           end
 
           mapping[field.to_s] = vector_options
