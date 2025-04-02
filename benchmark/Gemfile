@@ -13,7 +13,7 @@ gem "sidekiq"
 # performance
 gem "typhoeus"
 gem "oj"
-# gem "json", "2.9.1"
+gem "json"
 
 # profiling
 gem "ruby-prof"

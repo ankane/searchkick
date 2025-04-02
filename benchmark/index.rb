@@ -10,14 +10,22 @@ ActiveSupport::Notifications.subscribe "request.searchkick" do |*args|
   puts "Import: #{event.duration.round}ms"
 end
 
-ActiveJob::Base.queue_adapter = :sidekiq
+# ActiveJob::Base.queue_adapter = :sidekiq
+
+class MySerializer
+  def dump(object)
+    JSON.dump(object)
+  end
+end
+
+Elasticsearch::API.settings[:serializer] = MySerializer.new
 
 Searchkick.redis = Redis.new
 
 ActiveRecord.default_timezone = :utc
 ActiveRecord::Base.time_zone_aware_attributes = true
-# ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
-ActiveRecord::Base.establish_connection "postgresql://localhost/searchkick_demo_development"
+ActiveRecord::Base.establish_connection adapter: "sqlite3", database: "/tmp/searchkick"
+# ActiveRecord::Base.establish_connection "postgresql://localhost/searchkick_bench"
 # ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveJob::Base.logger = nil
