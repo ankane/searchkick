@@ -1873,6 +1873,24 @@ Reindex and search with:
 Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 ```
 
+### HNSW Options
+
+Nearest neighbor search uses [HNSW](https://en.wikipedia.org/wiki/Hierarchical_navigable_small_world) for indexing.
+
+Specify `m` and `ef_construction` [unreleased]
+
+```ruby
+class Product < ApplicationRecord
+  searchkick knn: {embedding: {dimensions: 3, distance: "cosine", m: 16, ef_construction: 100}}
+end
+```
+
+Specify `ef_search` [unreleased]
+
+```ruby
+Product.search(knn: {field: :embedding, vector: [1, 2, 3], ef_search: 40}, limit: 10)
+```
+
 ## Semantic Search
 
 First, add [nearest neighbor search](#nearest-neighbor-search) to your model
