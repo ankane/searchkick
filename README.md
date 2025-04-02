@@ -1511,13 +1511,25 @@ See [Production Rails](https://github.com/ankane/production_rails) for other goo
 
 ### JSON Generation
 
-Significantly increase performance with faster JSON generation. Add [Oj](https://github.com/ohler55/oj) to your Gemfile.
+Increase performance with faster JSON generation. Add to your Gemfile:
 
 ```ruby
-gem "oj"
+gem "json", ">= 2.10.2"
 ```
 
-This speeds up all JSON generation and parsing in your application (automatically!)
+And create an initializer with:
+
+```ruby
+class SearchSerializer
+  def dump(object)
+    JSON.generate(object)
+  end
+end
+
+Elasticsearch::API.settings[:serializer] = SearchSerializer.new
+# or
+OpenSearch::API.settings[:serializer] = SearchSerializer.new
+```
 
 ### Persistent HTTP Connections
 
