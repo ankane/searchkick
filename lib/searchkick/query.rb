@@ -950,6 +950,11 @@ module Searchkick
         end
       else
         if exact
+          # prevent incorrect distances/results with Elasticsearch 9.0.0-rc1
+          if !below90? && field_options[:distance] == "cosine" && distance != "cosine"
+            raise ArgumentError, "distance must match searchkick options"
+          end
+
           # https://github.com/elastic/elasticsearch/blob/main/docs/reference/vectors/vector-functions.asciidoc
           source =
             case distance

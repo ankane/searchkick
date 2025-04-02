@@ -4,6 +4,9 @@ class KnnTest < Minitest::Test
   def setup
     skip unless Searchkick.knn_support?
     super
+
+    # prevent null_pointer_exception with OpenSearch 3.0.0-alpha1
+    Product.reindex if Searchkick.opensearch? && !Searchkick.server_below?("3.0.0", true)
   end
 
   def test_basic
@@ -76,19 +79,19 @@ class KnnTest < Minitest::Test
   end
 
   def test_euclidean_exact
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}
+    store [{name: "A", embedding2: [1, 2, 3]}, {name: "B", embedding2: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding2, vector: [1, 2, 3], distance: "euclidean"}
 
-    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding2, vector: [1, 2, 3], distance: "euclidean"}).hits.map { |v| v["_score"] }
     assert_in_delta 1.0 / (1 + 0), scores[0]
     assert_in_delta 1.0 / (1 + 5**2), scores[1]
   end
 
   def test_taxicab_exact
-    store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
-    assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], distance: "taxicab"}
+    store [{name: "A", embedding2: [1, 2, 3]}, {name: "B", embedding2: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding2, vector: [1, 2, 3], distance: "taxicab"}
 
-    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "taxicab"}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding2, vector: [1, 2, 3], distance: "taxicab"}).hits.map { |v| v["_score"] }
     assert_in_delta 1.0 / (1 + 0), scores[0]
     assert_in_delta 1.0 / (1 + 7), scores[1]
   end
@@ -116,10 +119,10 @@ class KnnTest < Minitest::Test
   end
 
   def test_inner_product_exact
-    store [{name: "A", embedding: [-1, -2, -3]}, {name: "B", embedding: [1, 5, 7]}, {name: "C"}]
-    assert_order "*", ["B", "A"], knn: {field: :embedding, vector: [1, 2, 3], distance: "inner_product"}
+    store [{name: "A", embedding3: [-1, -2, -3]}, {name: "B", embedding3: [1, 5, 7]}, {name: "C"}]
+    assert_order "*", ["B", "A"], knn: {field: :embedding3, vector: [1, 2, 3], distance: "inner_product"}
 
-    scores = Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "inner_product"}).hits.map { |v| v["_score"] }
+    scores = Product.search(knn: {field: :embedding3, vector: [1, 2, 3], distance: "inner_product"}).hits.map { |v| v["_score"] }
     assert_in_delta 1 + 32, scores[0]
     assert_in_delta 1.0 / (1 + 14), scores[1]
   end
@@ -148,15 +151,25 @@ class KnnTest < Minitest::Test
       Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean", exact: false})
     end
     assert_equal "distance must match searchkick options for approximate search", error.message
+
+    if !Searchkick.server_below?("9.0.0")
+      error = assert_raises(ArgumentError) do
+        Product.search(knn: {field: :embedding, vector: [1, 2, 3], distance: "euclidean"})
+      end
+      assert_equal "distance must match searchkick options", error.message
+    end
   end
 
   def test_explain
     store [{name: "A", embedding: [1, 2, 3], embedding2: [1, 2, 3], embedding3: [1, 2, 3], embedding4: [1, 2, 3]}]
 
     assert_approx true, :embedding, "cosine"
-    assert_approx false, :embedding, "euclidean"
-    assert_approx false, :embedding, "inner_product"
-    assert_approx false, :embedding, "taxicab"
+
+    if Searchkick.opensearch? || Searchkick.server_below?("9.0.0")
+      assert_approx false, :embedding, "euclidean"
+      assert_approx false, :embedding, "inner_product"
+      assert_approx false, :embedding, "taxicab"
+    end
 
     if Searchkick.opensearch?
       assert_approx false, :embedding, "chebyshev"
