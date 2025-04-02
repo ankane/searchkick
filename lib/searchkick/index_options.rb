@@ -475,6 +475,9 @@ module Searchkick
               else
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
+
+            # TODO no quantization by default in Searchkick 6
+            # vector_options[:index_options] = {type: "hnsw"}
           end
 
           mapping[field.to_s] = vector_options
