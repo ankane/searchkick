@@ -1588,19 +1588,19 @@ You can also have Searchkick wait for reindexing to complete
 Product.reindex(mode: :async, wait: true)
 ```
 
-You can use [ActiveJob::TrafficControl](https://github.com/nickelser/activejob-traffic_control) to control concurrency. Install the gem:
+You can use your background job framework to control concurrency. For Solid Queue, create an initializer with:
 
 ```ruby
-gem "activejob-traffic_control", ">= 0.1.3"
-```
+module SearchkickBulkReindexConcurrency
+  extend ActiveSupport::Concern
 
-And create an initializer with:
+  included do
+    limits_concurrency to: 3, key: ""
+  end
+end
 
-```ruby
-ActiveJob::TrafficControl.client = Searchkick.redis
-
-class Searchkick::BulkReindexJob
-  concurrency 3
+Rails.application.config.after_initialize do
+  Searchkick::BulkReindexJob.include(SearchkickBulkReindexConcurrency)
 end
 ```
 
