@@ -14,7 +14,7 @@ end
 
 class MySerializer
   def dump(object)
-    JSON.dump(object)
+    JSON.generate(object)
   end
 end
 
