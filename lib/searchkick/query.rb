@@ -939,6 +939,10 @@ module Searchkick
             }
           }
         else
+          if ef_search && Searchkick.server_below?("2.16.0", true)
+            raise Error, "ef_search requires OpenSearch 2.16+"
+          end
+
           payload[:query] = {
             knn: {
               field.to_sym => {
