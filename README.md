@@ -821,7 +821,7 @@ Autocomplete predicts what a user will type, making the search experience faster
 
 **Note 2:** If you only have a few thousand records, don’t use Searchkick for autocomplete. It’s *much* faster to load all records into JavaScript and autocomplete there (eliminates network requests).
 
-First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing faster queries.
+First, specify which fields use this feature. This is necessary since autocomplete can increase the index size significantly, but don’t worry - this gives you blazing fast queries.
 
 ```ruby
 class Movie < ApplicationRecord
