@@ -1878,7 +1878,7 @@ Product.search(knn: {field: :embedding, vector: [1, 2, 3]}, limit: 10)
 
 Nearest neighbor search uses [HNSW](https://en.wikipedia.org/wiki/Hierarchical_navigable_small_world) for indexing.
 
-Specify `m` and `ef_construction` [unreleased]
+Specify `m` and `ef_construction`
 
 ```ruby
 class Product < ApplicationRecord
@@ -1886,7 +1886,7 @@ class Product < ApplicationRecord
 end
 ```
 
-Specify `ef_search` [unreleased]
+Specify `ef_search`
 
 ```ruby
 Product.search(knn: {field: :embedding, vector: [1, 2, 3], ef_search: 40}, limit: 10)

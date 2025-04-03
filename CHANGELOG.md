@@ -1,4 +1,4 @@
-## 5.5.0 (unreleased)
+## 5.5.0 (2025-04-03)
 
 - Added `m` and `ef_construction` to `knn` index option
 - Added `ef_search` to `knn` search option
