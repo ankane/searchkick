@@ -835,7 +835,7 @@ Reindex and search with:
 Movie.search("jurassic pa", fields: [:title], match: :word_start)
 ```
 
-Typically, you want to use a JavaScript library like [typeahead.js](https://twitter.github.io/typeahead.js/) or [jQuery UI](https://jqueryui.com/autocomplete/).
+Use a front-end library like [typeahead.js](https://twitter.github.io/typeahead.js/) to show the results.
 
 #### Here’s how to make it work with Rails
 
