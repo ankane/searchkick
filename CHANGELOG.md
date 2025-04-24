@@ -1,3 +1,7 @@
+## 5.5.1 (unreleased)
+
+- Fixed error with `elasticsearch` 9 gem
+
 ## 5.5.0 (2025-04-03)
 
 - Added `m` and `ef_construction` to `knn` index option
