@@ -3,6 +3,8 @@ require "faraday"
 module Searchkick
   class Middleware < Faraday::Middleware
     def call(env)
+      env[:request_headers]["Accept"] = "application/json"
+      env[:request_headers]["Content-Type"] = "application/json"
       path = env[:url].path.to_s
       if path.end_with?("/_search")
         env[:request][:timeout] = Searchkick.search_timeout
