@@ -15,4 +15,4 @@ gem "connection_pool"
 gem "kaminari"
 gem "gemoji-parser"
 gem "parallel_tests"
-gem "typhoeus", platforms: [:mri]
+gem "typhoeus", platform: :mri
