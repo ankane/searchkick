@@ -46,6 +46,10 @@ module Searchkick
         def should_index?
           true
         end unless base.method_defined?(:should_index?)
+
+        def skip_searchkick_reindex?
+          false
+        end
       end
 
       class_eval do
@@ -99,10 +103,10 @@ module Searchkick
         # always add callbacks, even when callbacks is false
         # so Model.callbacks block can be used
         if respond_to?(:after_commit)
-          after_commit :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_commit :reindex, if: proc { Searchkick.callbacks?(default: callbacks) && !skip_searchkick_reindex? }
         elsif respond_to?(:after_save)
-          after_save :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
-          after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_save :reindex, if: proc { Searchkick.callbacks?(default: callbacks) && !skip_searchkick_reindex? }
+          after_destroy :reindex, if: proc { Searchkick.callbacks?(default: callbacks) && !skip_searchkick_reindex? }
         end
       end
     end
