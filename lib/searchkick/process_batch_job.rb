@@ -1,5 +1,5 @@
 module Searchkick
-  class ProcessBatchJob < ActiveJob::Base
+  class ProcessBatchJob < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
     def perform(class_name:, record_ids:, index_name: nil)
