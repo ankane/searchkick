@@ -5,7 +5,7 @@ class KnnTest < Minitest::Test
     skip unless Searchkick.knn_support?
     super
 
-    # prevent null_pointer_exception with OpenSearch 3.0.0-alpha1
+    # prevent null_pointer_exception with OpenSearch 3
     Product.reindex if Searchkick.opensearch? && !Searchkick.server_below?("3.0.0", true)
   end
 
