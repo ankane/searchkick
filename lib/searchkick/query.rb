@@ -18,7 +18,7 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :clusters, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
@@ -67,17 +67,26 @@ module Searchkick
         end
       end
 
-      index =
+      indices =
         if options[:index_name]
-          Array(options[:index_name]).map { |v| v.respond_to?(:searchkick_index) ? v.searchkick_index.name : v }.join(",")
+          Array(options[:index_name]).map { |v| v.respond_to?(:searchkick_index) ? v.searchkick_index.name : v }
         elsif options[:models]
-          @index_mapping.keys.join(",")
+          @index_mapping.keys
         elsif searchkick_index
-          searchkick_index.name
+          [searchkick_index.name]
         else
           # fixes warning about accessing system indices
-          "*,-.*"
+          ["*,-.*"]
         end
+
+      # Handle cross-cluster search if clusters option is provided
+      if options[:clusters] && options[:clusters].any?
+        # For cross-cluster search, we need to prefix each index with its cluster
+        clusters = Array(options[:clusters])
+        index = indices.map { |idx| clusters.map { |cluster| "#{cluster}:#{idx}" } }.flatten.join(",")
+      else
+        index = indices.join(",")
+      end
 
       params = {
         index: index,
@@ -108,7 +117,7 @@ module Searchkick
     def to_curl
       query = params
       type = query[:type]
-      index = query[:index].is_a?(Array) ? query[:index].join(",") : query[:index]
+      index = query[:index]
       request_params = query.except(:index, :type, :body)
 
       # no easy way to tell which host the client will use
@@ -123,7 +132,10 @@ module Searchkick
       request_params.each do |k, v|
         params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
       end
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
+
+      endpoint = "#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search"
+
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{endpoint}?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
     end
 
     def handle_response(response)
