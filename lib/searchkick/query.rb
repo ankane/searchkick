@@ -18,10 +18,11 @@ module Searchkick
 
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
-        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :clusters, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
-        :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
-        :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
-        :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
+        :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :ccs_clusters, :ccs_exclude_local, :conversions,
+        :conversions_term, :debug, :emoji, :exclude, :explain, :fields, :highlight, :includes, :index_name, :indices_boost,
+        :knn, :limit, :load, :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding,
+        :page, :per_page, :profile, :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs,
+        :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
       term = term.to_s
@@ -79,11 +80,14 @@ module Searchkick
           ["*,-.*"]
         end
 
-      # Handle cross-cluster search if clusters option is provided
-      if options[:clusters] && options[:clusters].any?
+      # Handle cross-cluster search if ccs_clusters option is provided
+      if options[:ccs_clusters] && options[:ccs_clusters].any?
         # For cross-cluster search, we need to prefix each index with its cluster
-        clusters = Array(options[:clusters])
+        clusters = Array(options[:ccs_clusters])
         index = indices.map { |idx| clusters.map { |cluster| "#{cluster}:#{idx}" } }.flatten.join(",")
+
+        # Include the indices without any cluster prefix unless ccs_exclude_local is true
+        index = "#{indices.join(',')},#{index}" unless options[:ccs_exclude_local]
       else
         index = indices.join(",")
       end
