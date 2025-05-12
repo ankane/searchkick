@@ -1809,6 +1809,28 @@ indices_boost: {Category => 2, Product => 1}
 
 Check out [this great post](https://www.tiagoamaro.com.br/2014/12/11/multi-tenancy-with-searchkick/) on the [Apartment](https://github.com/influitive/apartment) gem. Follow a similar pattern if you use another gem.
 
+## Cross-Cluster Searches
+
+To perform cross-cluster searches ([Elasticsearch](https://www.elastic.co/docs/solutions/search/cross-cluster-search) | [OpenSearch](https://docs.opensearch.org/docs/latest/search-plugins/cross-cluster-search/)), use the `ccs_clusters` option:
+
+```ruby
+Product.search("boots", ccs_clusters: ["remote_cluster"])
+# or
+Searchkick.search("boots", models: [Product, Category], ccs_clusters: ["remote_cluster"])
+```
+
+This will perform a search using both the local index (or indices) plus the one(s) in the clusters listed in the array. Assuming the index for `Product` is called `products_development`:
+
+```ruby
+Product.search("boots", ccs_clusters: ["remote_cluster"]) # will perform a search using the local products_development index + the remote_cluster:products_development index
+```
+
+If you want to perform a search using only the remote cluster indices, use the `ccs_exclude_local` option:
+
+```ruby
+Product.search("boots", ccs_clusters: ["remote_cluster"], ccs_exclude_local: true) # will perform a search using only the remote_cluster:products_development index
+```
+
 ## Scroll API
 
 Searchkick also supports the [scroll API](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results). Scrolling is not intended for real time user requests, but rather for processing large amounts of data.
