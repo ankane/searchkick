@@ -1,3 +1,7 @@
+## 5.5.2 (unreleased)
+
+- Fixed `scope` option for partial reindex
+
 ## 5.5.1 (2025-04-24)
 
 - Added support for `elasticsearch` 9 gem

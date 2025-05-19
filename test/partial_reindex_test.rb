@@ -27,6 +27,9 @@ class PartialReindexTest < Minitest::Test
     # name updated, but not color
     assert_search "bye", ["Bye"], fields: [:name], load: false
     assert_search "blue", ["Bye"], fields: [:color], load: false
+
+    # scope
+    Product.reindex(:search_name, scope: :all)
   end
 
   def test_record_inline
