@@ -1,4 +1,4 @@
-## 5.5.2 (unreleased)
+## 5.5.2 (2025-05-20)
 
 - Fixed `scope` option for partial reindex
 
