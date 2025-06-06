@@ -122,17 +122,17 @@ module Searchkick
             },
             searchkick_suggest_shingle: {
               type: "shingle",
-              max_shingle_size: 5
+              max_shingle_size: serverless? ? nil : 5
             },
             searchkick_edge_ngram: {
               type: "edge_ngram",
-              min_gram: 1,
-              max_gram: 50
+              min_gram: serverless? ? nil : 1,
+              max_gram: serverless? ? nil : 50
             },
             searchkick_ngram: {
               type: "ngram",
-              min_gram: 1,
-              max_gram: 50
+              min_gram: serverless? ? nil : 1,
+              max_gram: serverless? ? nil : 50
             },
             searchkick_stemmer: {
               # use stemmer if language is lowercase, snowball otherwise
@@ -164,10 +164,12 @@ module Searchkick
         settings[:similarity] = {default: {type: options[:similarity]}}
       end
 
-      settings[:index] = {
-        max_ngram_diff: 49,
-        max_shingle_diff: 4
-      }
+      if !serverless?
+        settings[:index] = {
+          max_ngram_diff: 49,
+          max_shingle_diff: 4
+        }
+      end
 
       if options[:knn]
         unless Searchkick.knn_support?
@@ -631,6 +633,10 @@ module Searchkick
 
     def below73?
       Searchkick.server_below?("7.3.0")
+    end
+
+    def serverless?
+      Searchkick.serverless?
     end
   end
 end

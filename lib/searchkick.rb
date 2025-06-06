@@ -150,6 +150,10 @@ module Searchkick
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
+  def self.serverless?
+    @serverless ||= server_info["version"]["build_flavor"] == "serverless"
+  end
+
   # private
   def self.knn_support?
     if opensearch?

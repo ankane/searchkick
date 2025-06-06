@@ -1145,16 +1145,16 @@ module Searchkick
                   case op
                   when :gt
                     # TODO always use gt in Searchkick 6
-                    below90? ? {from: op_value, include_lower: false} : {gt: op_value}
+                    below90? && !serverless? ? {from: op_value, include_lower: false} : {gt: op_value}
                   when :gte
                     # TODO always use gte in Searchkick 6
-                    below90? ? {from: op_value, include_lower: true} : {gte: op_value}
+                    below90? && !serverless? ? {from: op_value, include_lower: true} : {gte: op_value}
                   when :lt
                     # TODO always use lt in Searchkick 6
-                    below90? ? {to: op_value, include_upper: false} : {lt: op_value}
+                    below90? && !serverless? ? {to: op_value, include_upper: false} : {lt: op_value}
                   when :lte
                     # TODO always use lte in Searchkick 6
-                    below90? ? {to: op_value, include_upper: true} : {lte: op_value}
+                    below90? && !serverless? ? {to: op_value, include_upper: true} : {lte: op_value}
                   else
                     raise ArgumentError, "Unknown where operator: #{op.inspect}"
                   end
@@ -1318,6 +1318,10 @@ module Searchkick
 
     def below90?
       Searchkick.server_below?("9.0.0")
+    end
+
+    def serverless?
+      Searchkick.serverless?
     end
   end
 end
