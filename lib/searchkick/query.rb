@@ -554,7 +554,7 @@ module Searchkick
       # run block
       options[:block].call(payload) if options[:block]
 
-      # scroll optimization when interating over all docs
+      # scroll optimization when iterating over all docs
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
       if options[:scroll] && payload[:query] == {match_all: {}}
         payload[:sort] ||= ["_doc"]
