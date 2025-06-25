@@ -293,7 +293,8 @@ module Searchkick
               end
 
               result["id"] ||= result["_id"] # needed for legacy reasons
-              [HashWrapper.new(result), hit]
+              result_wrapper_class = options[:result_wrapper_class] || HashWrapper
+              [result_wrapper_class.new(result), hit]
             end
         end
 

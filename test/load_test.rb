@@ -21,6 +21,11 @@ class LoadTest < Minitest::Test
     assert_kind_of Searchkick::HashWrapper, Product.search("product", load: false, includes: [:store]).first
   end
 
+  def test_false_with_result_wrapper_class
+    store_names ["Product A"]
+    assert_kind_of Hashie::Mash, Product.search("product", load: false, result_wrapper_class: Hashie::Mash).first
+  end
+
   def test_false_nested_object
     aisle = {"id" => 1, "name" => "Frozen"}
     store [{name: "Product A", aisle: aisle}]
