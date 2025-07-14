@@ -1,11 +1,16 @@
 module Searchkick
   class Index
-    attr_reader :name, :options
+    attr_reader :name, :options, :backup_index_name
 
     def initialize(name, options = {})
       @name = name
       @options = options
       @klass_document_type = {} # cache
+
+      @backup_index_name = @options.delete(:backup_index_name)
+      if @backup_index_name && !client.indices.exists(index: @backup_index_name)
+        raise Error, "Backup index #{@backup_index_name} does not exist, please create it first"
+      end
     end
 
     def index_options
@@ -317,15 +322,38 @@ module Searchkick
     end
 
     def queue_index(records)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).index_data })
+      Searchkick.indexer.queue(construct_queue_data(records, :index))
     end
 
     def queue_delete(records)
-      Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
+      Searchkick.indexer.queue(construct_queue_data(records.reject { |r| r.id.blank? }, :delete))
     end
 
     def queue_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
+      Searchkick.indexer.queue(construct_queue_data(records, :update, method_name))
+    end
+
+    def construct_queue_data(records, action, method_name = nil)
+      data =  case action
+              when :index
+                records.map { |r| RecordData.new(self, r).index_data }
+              when :update
+                records.map { |r| RecordData.new(self, r).update_data(method_name) }
+              when :delete
+                records.map { |r| RecordData.new(self, r).delete_data }
+              else
+                raise ArgumentError, "Unknown action: #{action}"
+              end
+
+      # TODO: The backup_index supports customized data construction
+      if backup_index_name
+        data.deep_dup.each do |d|
+          d[action][:_index] = backup_index_name
+          data << d
+        end
+      end
+
+      data
     end
 
     def relation_indexer
