@@ -2,8 +2,9 @@ module Searchkick
   class MultiSearch
     attr_reader :queries
 
-    def initialize(queries)
+    def initialize(queries, opaque_id: nil)
       @queries = queries
+      @opaque_id = opaque_id
     end
 
     def perform
@@ -15,7 +16,7 @@ module Searchkick
     private
 
     def perform_search(search_queries, perform_retry: true)
-      responses = client.msearch(body: search_queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
+      responses = client.msearch(opaque_id: @opaque_id, body: search_queries.flat_map { |q| [q.params.except(:body), q.body] })["responses"]
 
       retry_queries = []
       search_queries.each_with_index do |query, i|

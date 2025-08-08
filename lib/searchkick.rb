@@ -194,7 +194,7 @@ module Searchkick
     Relation.new(klass, term, **options)
   end
 
-  def self.multi_search(queries)
+  def self.multi_search(queries, opaque_id: nil)
     return if queries.empty?
 
     queries = queries.map { |q| q.send(:query) }
@@ -203,7 +203,7 @@ module Searchkick
       body: queries.flat_map { |q| [q.params.except(:body).to_json, q.body.to_json] }.map { |v| "#{v}\n" }.join
     }
     ActiveSupport::Notifications.instrument("multi_search.searchkick", event) do
-      MultiSearch.new(queries).perform
+      MultiSearch.new(queries, opaque_id: opaque_id).perform
     end
   end
 

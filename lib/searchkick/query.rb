@@ -19,7 +19,7 @@ module Searchkick
     def initialize(klass, term = "*", **options)
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_term, :debug, :emoji, :exclude, :explain,
-        :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
+        :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load, :opaque_id,
         :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
@@ -123,7 +123,7 @@ module Searchkick
       request_params.each do |k, v|
         params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
       end
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json'#{" -H 'X-Opaque-Id: #{options[:opaque_id]}'" if options[:opaque_id]} -d '#{query[:body].to_json}'"
     end
 
     def handle_response(response)
@@ -144,7 +144,8 @@ module Searchkick
         total_entries: options[:total_entries],
         index_mapping: @index_mapping,
         suggest: options[:suggest],
-        scroll: options[:scroll]
+        scroll: options[:scroll],
+        opaque_id: options[:opaque_id]
       }
 
       if options[:debug]
@@ -240,7 +241,7 @@ module Searchkick
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
-        Searchkick.client.search(params)
+        Searchkick.client.search(params.merge!(opaque_id: options[:opaque_id]))
       end
     end
 

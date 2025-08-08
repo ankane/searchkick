@@ -1832,6 +1832,26 @@ end
 products.clear_scroll
 ```
 
+## Search slow log location
+
+Pass an `opaque_id` to track queries location.
+The `elasticsearch.slowlog.id` field record `opaque_id` in [Elasticsearch's slow logs](https://www.elastic.co/docs/reference/elasticsearch/index-settings/slow-log#slow-log-format).
+
+```ruby
+Product.search("pears", opaque_id: "xxx")
+```
+
+This sends the `X-Opaque-Id: xxx` header with the request.
+
+It also works with `multi_search`:
+
+```ruby
+Searchkick.multi_search([
+  Product.search("apples"),
+  Product.search("pears")
+], opaque_id: "xxx")
+```
+
 ## Deep Paging
 
 By default, Elasticsearch and OpenSearch limit paging to the first 10,000 results. [Here’s why](https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html). We don’t recommend changing this, but if you really need all results, you can use:
