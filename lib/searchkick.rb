@@ -352,7 +352,7 @@ module Searchkick
   # it's a bit tricky, but this seems to work
   def self.relation?(klass)
     if klass.respond_to?(:current_scope)
-      !klass.current_scope.nil?
+      !(klass.current_scope.nil? || klass.send(:scope_attributes) == {})
     else
       klass.is_a?(Mongoid::Criteria) || !Mongoid::Threaded.current_scope(klass).nil?
     end

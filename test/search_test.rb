@@ -8,6 +8,16 @@ class SearchTest < Minitest::Test
     assert_equal "search must be called on model, not relation", error.message
   end
 
+  def test_search_unscoped
+    skip unless activerecord?
+    
+    Product.where(name: "Test").unscoped do
+      assert_nothing_raised do
+        Product.search("*", load: false)
+      end
+    end
+  end
+
   def test_body
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}, load: false).map(&:name)
