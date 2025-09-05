@@ -7,8 +7,11 @@ jobs:
       matrix:
         include:
           - ruby: 3.4
+            gemfile: gemfiles/activerecord81.gemfile
+            elasticsearch: 9.1.3
+          - ruby: 3.4
             gemfile: Gemfile
-            elasticsearch: 9.0.3
+            elasticsearch: 9.0.0
           - ruby: 3.3
             gemfile: gemfiles/activerecord72.gemfile
             elasticsearch: 8.18.3
