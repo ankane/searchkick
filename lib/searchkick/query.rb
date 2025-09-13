@@ -5,7 +5,7 @@ module Searchkick
 
     @@metric_aggs = [:avg, :cardinality, :max, :min, :sum]
 
-    attr_reader :klass, :term, :options
+    attr_reader :klass, :term, :options, :cache_hit
     attr_accessor :body
 
     def_delegators :execute, :map, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary,
@@ -42,6 +42,7 @@ module Searchkick
       @misspellings_below = nil
       @highlighted_fields = nil
       @index_mapping = nil
+      @cache_hit = false
 
       prepare
     end
@@ -95,9 +96,13 @@ module Searchkick
         if Searchkick.cache_store
           cache_key = generate_cache_key
           cached_result = Searchkick.cache_store.read(cache_key)
-          return cached_result if cached_result
+          if cached_result
+            @cache_hit = true
+            return cached_result
+          end
         end
 
+        @cache_hit = false
         begin
           response = execute_search
           if retry_misspellings?(response)
