@@ -92,6 +92,12 @@ module Searchkick
 
     def execute
       @execute ||= begin
+        if Searchkick.cache_store
+          cache_key = generate_cache_key
+          cached_result = Searchkick.cache_store.read(cache_key)
+          return cached_result if cached_result
+        end
+
         begin
           response = execute_search
           if retry_misspellings?(response)
@@ -101,7 +107,16 @@ module Searchkick
         rescue => e # TODO rescue type
           handle_error(e)
         end
-        handle_response(response)
+        
+        result = handle_response(response)
+        
+        if Searchkick.cache_store
+          cache_options = {}
+          cache_options[:expires_in] = Searchkick.cache_expires_in if Searchkick.cache_expires_in
+          Searchkick.cache_store.write(cache_key, result, cache_options)
+        end
+        
+        result
       end
     end
 
@@ -195,6 +210,13 @@ module Searchkick
     end
 
     private
+
+    def generate_cache_key
+      require "digest"
+      params_json = params.to_json
+      params_hash = Digest::MD5.hexdigest(params_json)
+      "searchkick:query:#{params_hash}"
+    end
 
     def handle_error(e)
       status_code = e.message[1..3].to_i
