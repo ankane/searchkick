@@ -5,7 +5,7 @@ module Searchkick
     # note: modifying body directly is not supported
     # and has no impact on query after being executed
     # TODO freeze body object?
-    delegate :body, :params, to: :query
+    delegate :body, :params, :cache_hit, to: :query
     delegate_missing_to :private_execute
 
     attr_reader :model
