@@ -355,6 +355,8 @@ module Searchkick
       !klass.current_scope.nil?
     elsif defined?(Mongoid)
       klass.is_a?(Mongoid::Criteria) || !Mongoid::Threaded.current_scope(klass).nil?
+    else
+      false
     end
   end
 
