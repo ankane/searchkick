@@ -68,7 +68,6 @@ class BoostTest < Minitest::Test
       {name: "Tomato A"},
       {name: "Tomato B", orders_count: 10}
     ]
-
     assert_order "tomato", ["Tomato A", "Tomato B"], boost_by: {orders_count: {missing: 100}}
   end
 
@@ -78,7 +77,6 @@ class BoostTest < Minitest::Test
       {name: "Tomato B"},
       {name: "Tomato C", found_rate: 0.5}
     ]
-
     assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], boost_by: {found_rate: {boost_mode: "multiply"}}
   end
 
@@ -165,7 +163,6 @@ class BoostTest < Minitest::Test
       {name: "San Antonio", latitude: 29.4167, longitude: -98.5000, found_rate: 0.99},
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667, found_rate: 0.2}
     ]
-
     assert_order "san", ["San Antonio", "San Francisco", "San Marino"], boost_by: {found_rate: {factor: 100}}, boost_by_distance: {location: {origin: [37, -122], scale: "1000mi"}}
     assert_order "san", ["San Francisco", "San Antonio", "San Marino"], boost_by: {found_rate: {factor: 100}}, boost_by_distance: {location: {origin: [37, -122], scale: "1000mi", factor: 100}}
   end
@@ -174,7 +171,6 @@ class BoostTest < Minitest::Test
     setup_animal
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
-
     assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
   end
 end
