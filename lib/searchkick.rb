@@ -3,6 +3,8 @@ require "active_support"
 require "active_support/core_ext/hash/deep_merge"
 require "active_support/core_ext/module/attr_internal"
 require "active_support/core_ext/module/delegation"
+require "active_support/deprecation"
+require "active_support/log_subscriber"
 require "active_support/notifications"
 require "hashie"
 

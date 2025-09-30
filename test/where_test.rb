@@ -369,7 +369,7 @@ class WhereTest < Minitest::Test
       {lat: 27.122789, lon: -94.125535},
       {lat: 27.12278, lon: -125.496146}
     ]
-    _, stderr = capture_io do
+    _, _stderr = capture_io do
       assert_search "san", ["San Francisco", "San Antonio"], where: {location: {geo_polygon: {points: polygon}}}
     end
     # only warns for elasticsearch gem < 8

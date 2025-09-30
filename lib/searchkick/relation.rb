@@ -207,6 +207,8 @@ module Searchkick
       !@execute.nil?
     end
 
+    undef_method :respond_to_missing?
+
     def respond_to_missing?(method_name, include_all)
       Results.new(nil, nil, nil).respond_to?(method_name, include_all) || super
     end
