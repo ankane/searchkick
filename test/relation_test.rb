@@ -72,6 +72,10 @@ class RelationTest < Minitest::Test
 
   def test_to_yaml
     store_names ["Product A", "Product B"]
-    assert_equal Product.all.to_yaml, Product.search("product").to_yaml
+    if mongoid?
+      assert_equal Product.all.to_a.to_yaml, Product.search("product").to_yaml
+    else
+      assert_equal Product.all.to_yaml, Product.search("product").to_yaml
+    end
   end
 end
