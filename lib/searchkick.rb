@@ -173,12 +173,6 @@ module Searchkick
       end
     end
 
-    # TODO remove in Searchkick 6
-    if options[:execute] == false
-      Searchkick.warn("The execute option is no longer needed")
-      options.delete(:execute)
-    end
-
     options = options.merge(block: block) if block
     Relation.new(klass, term, **options)
   end

@@ -1,6 +1,7 @@
 ## 6.0.0 (unreleased)
 
 - Added support for `exists: false`
+- Removed `execute` option (no longer needed)
 - Dropped support for Elasticsearch 7 and OpenSearch 1
 - Dropped support for Active Record < 7.2
 
