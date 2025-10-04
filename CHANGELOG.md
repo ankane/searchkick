@@ -1,3 +1,7 @@
+## 6.0.0 (unreleased)
+
+- Dropped support for Elasticsearch 7 and OpenSearch 1
+
 ## 5.5.2 (2025-05-20)
 
 - Fixed `scope` option for partial reindex

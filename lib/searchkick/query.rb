@@ -374,7 +374,6 @@ module Searchkick
             field_misspellings = misspellings && (!misspellings_fields || misspellings_fields.include?(base_field(field)))
 
             if field == "_all" || field.end_with?(".analyzed")
-              shared_options[:cutoff_frequency] = 0.001 unless operator.to_s == "and" || field_misspellings == false || (!below73? && !track_total_hits?) || match_type == :match_phrase || !below80? || Searchkick.opensearch?
               qs << shared_options.merge(analyzer: "searchkick_search")
 
               # searchkick_search and searchkick_search2 are the same for some languages
@@ -457,20 +456,14 @@ module Searchkick
 
         models = Array(options[:models])
         if models.any? { |m| m != m.searchkick_klass }
-          # aliases are not supported with _index in ES below 7.5
-          # see https://github.com/elastic/elasticsearch/pull/46640
-          if below75?
-            Searchkick.warn("Passing child models to models option throws off hits and pagination - use type option instead")
-          else
-            index_type_or =
-              models.map do |m|
-                v = {_index: m.searchkick_index.name}
-                v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
-                v
-              end
+          index_type_or =
+            models.map do |m|
+              v = {_index: m.searchkick_index.name}
+              v[:type] = m.searchkick_index.klass_document_type(m, true) if m != m.searchkick_klass
+              v
+            end
 
-            where[:or] = Array(where[:or]) + [index_type_or]
-          end
+          where[:or] = Array(where[:or]) + [index_type_or]
         end
 
         # start everything as efficient filters
@@ -1113,11 +1106,7 @@ module Searchkick
                 regex = regex.gsub(/(?<!\\)%/, ".*").gsub(/(?<!\\)_/, ".").gsub("\\%", "%").gsub("\\_", "_")
 
                 if op == :ilike
-                  if below710?
-                    raise ArgumentError, "ilike requires Elasticsearch 7.10+"
-                  else
-                    filters << {regexp: {field => {value: regex, flags: "NONE", case_insensitive: true}}}
-                  end
+                  filters << {regexp: {field => {value: regex, flags: "NONE", case_insensitive: true}}}
                 else
                   filters << {regexp: {field => {value: regex, flags: "NONE"}}}
                 end
@@ -1201,14 +1190,7 @@ module Searchkick
           source = "#{source}.*"
         end
 
-        if below710?
-          if value.casefold?
-            raise ArgumentError, "Case-insensitive flag does not work with Elasticsearch < 7.10"
-          end
-          {regexp: {field => {value: source, flags: "NONE"}}}
-        else
-          {regexp: {field => {value: source, flags: "NONE", case_insensitive: value.casefold?}}}
-        end
+        {regexp: {field => {value: source, flags: "NONE", case_insensitive: value.casefold?}}}
       else
         # TODO add this for other values
         if value.as_json.is_a?(Enumerable)
@@ -1298,22 +1280,6 @@ module Searchkick
 
     def body_options
       options[:body_options] || {}
-    end
-
-    def below73?
-      Searchkick.server_below?("7.3.0")
-    end
-
-    def below75?
-      Searchkick.server_below?("7.5.0")
-    end
-
-    def below710?
-      Searchkick.server_below?("7.10.0")
-    end
-
-    def below80?
-      Searchkick.server_below?("8.0.0")
     end
 
     def below90?

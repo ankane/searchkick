@@ -578,9 +578,9 @@ module Searchkick
         if search_synonyms.is_a?(String)
           synonym_graph = {
             type: "synonym_graph",
-            synonyms_path: search_synonyms
+            synonyms_path: search_synonyms,
+            updateable: true
           }
-          synonym_graph[:updateable] = true unless below73?
         else
           synonym_graph = {
             type: "synonym_graph",
@@ -627,10 +627,6 @@ module Searchkick
 
     def default_analyzer
       :searchkick_index
-    end
-
-    def below73?
-      Searchkick.server_below?("7.3.0")
     end
   end
 end

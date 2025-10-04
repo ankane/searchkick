@@ -192,7 +192,6 @@ module Searchkick
       if Searchkick.opensearch?
         client.transport.perform_request "POST", "_plugins/_refresh_search_analyzers/#{CGI.escape(name)}"
       else
-        raise Error, "Requires Elasticsearch 7.3+" if Searchkick.server_below?("7.3.0")
         begin
           client.transport.perform_request("GET", "#{CGI.escape(name)}/_reload_search_analyzers")
         rescue => e
