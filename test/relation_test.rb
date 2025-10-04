@@ -70,9 +70,8 @@ class RelationTest < Minitest::Test
     refute relation.loaded?
   end
 
-  # TODO uncomment in 6.0
-  # def test_to_yaml
-  #   store_names ["Product A", "Product B"]
-  #   assert_equal Product.all.to_yaml, Product.search("product").to_yaml
-  # end
+  def test_to_yaml
+    store_names ["Product A", "Product B"]
+    assert_equal Product.all.to_yaml, Product.search("product").to_yaml
+  end
 end
