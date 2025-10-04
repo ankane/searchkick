@@ -85,12 +85,6 @@ module Searchkick
           raise Error, "No client found - install the `elasticsearch` or `opensearch-ruby` gem"
         end
 
-      # check after client to ensure faraday is installed
-      # TODO remove in Searchkick 6
-      if defined?(Typhoeus) && Gem::Version.new(Faraday::VERSION) < Gem::Version.new("0.14.0")
-        require "typhoeus/adapters/faraday"
-      end
-
       if client_type == :opensearch
         OpenSearch::Client.new({
           url: ENV["OPENSEARCH_URL"],
