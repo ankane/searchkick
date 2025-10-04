@@ -88,8 +88,7 @@ module Searchkick
       if client_type == :opensearch
         OpenSearch::Client.new({
           url: ENV["OPENSEARCH_URL"],
-          # TODO remove headers in Searchkick 6
-          transport_options: {request: {timeout: timeout}, headers: {content_type: "application/json"}},
+          transport_options: {request: {timeout: timeout}},
           retry_on_failure: 2
         }.deep_merge(client_options)) do |f|
           f.use Searchkick::Middleware
@@ -98,15 +97,9 @@ module Searchkick
       else
         raise Error, "The `elasticsearch` gem must be 7+" if Elasticsearch::VERSION.to_i < 7
 
-        transport_options = {request: {timeout: timeout}}
-        # TODO remove headers in Searchkick 6
-        if Elasticsearch::VERSION.to_i < 9
-          transport_options[:headers] = {content_type: "application/json"}
-        end
-
         Elasticsearch::Client.new({
           url: ENV["ELASTICSEARCH_URL"],
-          transport_options: transport_options,
+          transport_options: {request: {timeout: timeout}},
           retry_on_failure: 2
         }.deep_merge(client_options)) do |f|
           f.use Searchkick::Middleware
