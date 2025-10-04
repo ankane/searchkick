@@ -262,9 +262,10 @@ class ReindexTest < Minitest::Test
   end
 
   def test_full_queue
-    assert_warns "Full reindex does not support :queue mode - use :async mode instead" do
+    error = assert_raises(ArgumentError) do
       Product.reindex(mode: :queue)
     end
+    assert_equal "Full reindex does not support :queue mode - use :async mode instead", error.message
   end
 
   def test_full_refresh_interval
