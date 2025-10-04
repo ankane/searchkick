@@ -1123,12 +1123,14 @@ module Searchkick
               when :in
                 filters << term_filters(field, op_value)
               when :exists
-                # TODO add support for false in Searchkick 6
-                if op_value != true
-                  # TODO raise error in Searchkick 6
-                  Searchkick.warn("Passing a value other than true to exists is not supported")
+                case op_value
+                when true
+                  filters << {exists: {field: field}}
+                when false
+                  filters << {bool: {must_not: {exists: {field: field}}}}
+                else
+                  raise ArgumentError, "Passing a value other than true or false to exists is not supported"
                 end
-                filters << {exists: {field: field}}
               else
                 range_query =
                   case op
