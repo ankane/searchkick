@@ -58,6 +58,12 @@ module Searchkick
         end
       end
 
+      index.conversions_v2_fields.each do |conversions_field|
+        key = source.key?(conversions_field) ? conversions_field : conversions_field.to_sym
+        source[key] ||= {}
+        source[key] = source[key].transform_keys { |k| k.to_s.gsub(".", "*") }
+      end
+
       # hack to prevent generator field doesn't exist error
       if !partial_reindex
         index.suggest_fields.each do |field|

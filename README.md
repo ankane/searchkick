@@ -2231,6 +2231,42 @@ end
 
 For convenience, this is set by default in the test environment.
 
+## Upgrading
+
+### 6.0
+
+#### Upgrading Conversions
+
+Upgrade conversions without downtime. Add `conversions_v2` to your model and an additional field to `search_data`:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick conversions: [:conversions], conversions_v2: [:conversions_v2]
+
+  def search_data
+    conversions = searches.group(:query).distinct.count(:user_id)
+    {
+      conversions: conversions,
+      conversions_v2: conversions
+    }
+  end
+end
+```
+
+Reindex, then remove `conversions`:
+
+```ruby
+class Product < ApplicationRecord
+  searchkick conversions_v2: [:conversions_v2]
+
+  def search_data
+    {
+      conversions_v2: searches.group(:query).distinct.count(:user_id)
+    }
+  end
+end
+```
+
 ## History
 
 View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
