@@ -104,7 +104,7 @@ class PartialReindexTest < Minitest::Test
   end
 
   def test_relation_queue
-    product = Product.create!(name: "Hi")
+    Product.create!(name: "Hi")
     error = assert_raises(Searchkick::Error) do
       Product.reindex(:search_name, mode: :queue)
     end
