@@ -241,12 +241,10 @@ module Searchkick
         async = options.delete(:async)
         if async
           if async.is_a?(Hash) && async[:wait]
-            # TODO warn in 5.1
-            # Searchkick.warn "async option is deprecated - use mode: :async, wait: true instead"
+            Searchkick.warn "async option is deprecated - use mode: :async, wait: true instead"
             options[:wait] = true unless options.key?(:wait)
           else
-            # TODO warn in 5.1
-            # Searchkick.warn "async option is deprecated - use mode: :async instead"
+            Searchkick.warn "async option is deprecated - use mode: :async instead"
           end
           options[:mode] ||= :async
         end
