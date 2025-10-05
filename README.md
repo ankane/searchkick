@@ -2038,15 +2038,13 @@ class Product < ApplicationRecord
     {
       name: name,
       unique_conversions: searches.group(:query).distinct.count(:user_id),
-      # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
       total_conversions: searches.group(:query).count
-      # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
     }
   end
 end
 ```
 
-and during query time:
+And during query time
 
 ```ruby
 Product.search("banana") # boost by both fields (default)
