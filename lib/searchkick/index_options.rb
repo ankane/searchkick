@@ -479,10 +479,7 @@ module Searchkick
 
             vector_index_options = knn_options.slice(:m, :ef_construction)
             if vector_index_options.any?
-              # TODO no quantization by default in Searchkick 6
-              # int8_hnsw was made the default in Elasticsearch 8.14.0
-              type = Searchkick.server_below?("8.14.0") ? "hnsw" : "int8_hnsw"
-              vector_options[:index_options] = {type: type}.merge(vector_index_options)
+              vector_options[:index_options] = {type: "hnsw"}.merge(vector_index_options)
             end
           end
 
