@@ -6,7 +6,7 @@
 - Removed `execute` option (no longer needed)
 - Dropped support for Elasticsearch 7 and OpenSearch 1
 - Dropped support for Active Record < 7.2
-- Dropped support for Redis < 7.2
+- Dropped support for Redis < 6.2
 
 ## 5.5.2 (2025-05-20)
 
