@@ -7,5 +7,13 @@ module Searchkick
       @lang = lang
       @params = params
     end
+
+    def to_h
+      {
+        source:,
+        lang:,
+        params:
+      }
+    end
   end
 end
