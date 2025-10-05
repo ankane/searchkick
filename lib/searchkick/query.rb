@@ -162,7 +162,7 @@ module Searchkick
         puts
 
         if searchkick_index
-          puts "Model Record Data"
+          puts "Record Data"
           begin
             pp klass.limit(3).map { |r| RecordData.new(searchkick_index, r).index_data }
           rescue => e
