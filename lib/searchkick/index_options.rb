@@ -423,6 +423,7 @@ module Searchkick
 
       (options[:knn] || []).each do |field, knn_options|
         distance = knn_options[:distance]
+        quantization = knn_options[:quantization]
 
         if Searchkick.opensearch?
           if distance.nil?
@@ -447,6 +448,10 @@ module Searchkick
               else
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
+
+            if !quantization.nil?
+              raise ArgumentError, "Quantization not supported yet for OpenSearch"
+            end
 
             vector_options[:method] = {
               name: "hnsw",
@@ -477,10 +482,18 @@ module Searchkick
                 raise ArgumentError, "Unknown distance: #{distance}"
               end
 
+            type =
+              case quantization
+              when "int8", "int4", "bbq"
+                "#{quantization}_hnsw"
+              when nil
+                "hnsw"
+              else
+                raise ArgumentError, "Unknown quantization: #{quantization}"
+              end
+
             vector_index_options = knn_options.slice(:m, :ef_construction)
-            if vector_index_options.any?
-              vector_options[:index_options] = {type: "hnsw"}.merge(vector_index_options)
-            end
+            vector_options[:index_options] = {type: type}.merge(vector_index_options)
           end
 
           mapping[field.to_s] = vector_options
