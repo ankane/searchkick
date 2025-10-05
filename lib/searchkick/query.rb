@@ -949,7 +949,7 @@ module Searchkick
       else
         if exact
           # prevent incorrect distances/results with Elasticsearch 9.0.0-rc1
-          if !below90? && field_options[:distance] == "cosine" && distance != "cosine"
+          if !Searchkick.server_below?("9.0.0") && field_options[:distance] == "cosine" && distance != "cosine"
             raise ArgumentError, "distance must match searchkick options"
           end
 
@@ -1278,10 +1278,6 @@ module Searchkick
 
     def body_options
       options[:body_options] || {}
-    end
-
-    def below90?
-      Searchkick.server_below?("9.0.0")
     end
   end
 end
