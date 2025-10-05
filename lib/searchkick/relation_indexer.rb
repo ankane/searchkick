@@ -134,7 +134,6 @@ module Searchkick
       starting_id = false
 
       if relation.respond_to?(:primary_key)
-        # TODO expire Redis key
         primary_key = relation.primary_key
 
         starting_id =
@@ -165,6 +164,7 @@ module Searchkick
     end
 
     def batch_job(class_name, batch_id, **options)
+      # TODO expire Redis key
       Searchkick.with_redis { |r| r.call("SADD", batches_key, [batch_id]) }
       Searchkick::BulkReindexJob.perform_later(
         class_name: class_name,
