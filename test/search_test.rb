@@ -8,6 +8,19 @@ class SearchTest < Minitest::Test
     assert_equal "search must be called on model, not relation", error.message
   end
 
+  def test_unscoped
+    error = assert_raises(Searchkick::Error) do
+      Product.unscoped do
+        Product.search("*")
+      end
+    end
+    assert_equal "search must be called on model, not relation", error.message
+
+    Product.unscoped do
+      Searchkick.search("*", models: [Product])
+    end
+  end
+
   def test_body
     store_names ["Dollar Tree"], Store
     assert_equal ["Dollar Tree"], Store.search(body: {query: {match: {name: "dollar"}}}, load: false).map(&:name)
