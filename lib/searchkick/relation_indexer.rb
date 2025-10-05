@@ -131,6 +131,7 @@ module Searchkick
     def full_reindex_async(relation)
       batch_id = 1
       class_name = relation.searchkick_options[:class_name]
+      starting_id = false
 
       if relation.respond_to?(:primary_key)
         # TODO expire Redis key
@@ -142,23 +143,18 @@ module Searchkick
           rescue ActiveRecord::StatementInvalid
             false
           end
+      end
 
-        if starting_id.nil?
-          # no records, do nothing
-        elsif starting_id.is_a?(Numeric)
-          max_id = relation.maximum(primary_key)
-          batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
+      if starting_id.nil?
+        # no records, do nothing
+      elsif starting_id.is_a?(Numeric)
+        max_id = relation.maximum(primary_key)
+        batches_count = ((max_id - starting_id + 1) / batch_size.to_f).ceil
 
-          batches_count.times do |i|
-            min_id = starting_id + (i * batch_size)
-            batch_job(class_name, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
-            batch_id += 1
-          end
-        else
-          in_batches(relation) do |items|
-            batch_job(class_name, batch_id, record_ids: items.map(&:id).map { |v| v.instance_of?(Integer) ? v : v.to_s })
-            batch_id += 1
-          end
+        batches_count.times do |i|
+          min_id = starting_id + (i * batch_size)
+          batch_job(class_name, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
+          batch_id += 1
         end
       else
         in_batches(relation) do |items|
