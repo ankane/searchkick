@@ -150,7 +150,7 @@ module Searchkick
       if options[:debug]
         server = Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"
         puts "Searchkick Version: #{Searchkick::VERSION}"
-        puts "#{server} Version: #{Searchkick.server_version}"
+        puts "Server Version: #{server} #{Searchkick.server_version}"
         puts
 
         puts "Model Searchkick Options"
@@ -170,21 +170,21 @@ module Searchkick
           end
           puts
 
-          puts "Elasticsearch Mapping"
+          puts "Mapping"
           puts JSON.pretty_generate(searchkick_index.mapping)
           puts
 
-          puts "Elasticsearch Settings"
+          puts "Settings"
           puts JSON.pretty_generate(searchkick_index.settings)
           puts
         end
 
-        puts "Elasticsearch Query"
+        puts "Query"
         puts to_curl
         puts
 
-        puts "Elasticsearch Results"
-        puts JSON.pretty_generate(response)
+        puts "Results"
+        puts JSON.pretty_generate(response.to_h)
       end
 
       # set execute for multi search
