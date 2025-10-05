@@ -11,7 +11,6 @@ class PartialReindexTest < Minitest::Test
     Searchkick.callbacks(false) do
       product.save!
     end
-    Product.searchkick_index.refresh
 
     # partial reindex
     product.reindex(:search_name, refresh: true)
@@ -65,7 +64,6 @@ class PartialReindexTest < Minitest::Test
     Searchkick.callbacks(false) do
       product.save!
     end
-    Product.searchkick_index.refresh
 
     # partial reindex
     Product.reindex(:search_name)
