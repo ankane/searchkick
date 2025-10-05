@@ -42,6 +42,14 @@ class PartialReindexTest < Minitest::Test
     assert_search "blue", ["Bye"], fields: [:color], load: false
   end
 
+  def test_record_queue
+    product = Product.create!(name: "Hi")
+    error = assert_raises(Searchkick::Error) do
+      product.reindex(:search_name, mode: :queue)
+    end
+    assert_equal "Partial reindex not supported with queue option", error.message
+  end
+
   def test_record_missing
     store [{name: "Hi", color: "Blue"}]
 
@@ -95,6 +103,14 @@ class PartialReindexTest < Minitest::Test
     # name updated, but not color
     assert_search "bye", ["Bye"], fields: [:name], load: false
     assert_search "blue", ["Bye"], fields: [:color], load: false
+  end
+
+  def test_relation_queue
+    product = Product.create!(name: "Hi")
+    error = assert_raises(Searchkick::Error) do
+      Product.reindex(:search_name, mode: :queue)
+    end
+    assert_equal "Partial reindex not supported with queue option", error.message
   end
 
   def test_relation_missing
