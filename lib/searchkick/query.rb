@@ -928,11 +928,11 @@ module Searchkick
                   space_type: space_type
                 }
               },
-              boost: distance == "cosine" && Searchkick.server_below?("2.19.0", true) ? 0.5 : 1.0
+              boost: distance == "cosine" && Searchkick.server_below?("2.19.0") ? 0.5 : 1.0
             }
           }
         else
-          if ef_search && Searchkick.server_below?("2.16.0", true)
+          if ef_search && Searchkick.server_below?("2.16.0")
             raise Error, "ef_search requires OpenSearch 2.16+"
           end
 

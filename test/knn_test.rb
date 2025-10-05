@@ -6,7 +6,7 @@ class KnnTest < Minitest::Test
     super
 
     # prevent null_pointer_exception with OpenSearch 3
-    Product.reindex if Searchkick.opensearch? && !Searchkick.server_below?("3.0.0", true)
+    Product.reindex if Searchkick.opensearch? && !Searchkick.server_below?("3.0.0")
   end
 
   def test_basic
@@ -199,7 +199,7 @@ class KnnTest < Minitest::Test
   end
 
   def test_ef_search
-    skip if Searchkick.opensearch? && Searchkick.server_below?("2.16.0", true)
+    skip if Searchkick.opensearch? && Searchkick.server_below?("2.16.0")
 
     store [{name: "A", embedding: [1, 2, 3]}, {name: "B", embedding: [-1, -2, -3]}, {name: "C"}]
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], ef_search: 20}, limit: 10

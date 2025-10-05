@@ -133,16 +133,14 @@ module Searchkick
     @opensearch
   end
 
-  # TODO always check true version in Searchkick 6
-  def self.server_below?(version, true_version = false)
-    server_version = !true_version && opensearch? ? "7.10.2" : self.server_version
+  def self.server_below?(version)
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
 
   # private
   def self.knn_support?
     if opensearch?
-      !server_below?("2.4.0", true)
+      !server_below?("2.4.0")
     else
       !server_below?("8.6.0")
     end

@@ -230,6 +230,6 @@ class PaginationTest < Minitest::Test
   private
 
   def pit_supported?
-    Searchkick.opensearch? ? !Searchkick.server_below?("2.4.0", true) : true
+    Searchkick.opensearch? ? !Searchkick.server_below?("2.4.0") : true
   end
 end
