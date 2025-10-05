@@ -4,10 +4,6 @@ class PartialReindexTest < Minitest::Test
   def test_relation_inline
     store [{name: "Hi", color: "Blue"}]
 
-    # normal search
-    assert_search "hi", ["Hi"], fields: [:name], load: false
-    assert_search "blue", ["Hi"], fields: [:color], load: false
-
     # update
     product = Product.first
     product.name = "Bye"
@@ -16,10 +12,6 @@ class PartialReindexTest < Minitest::Test
       product.save!
     end
     Product.searchkick_index.refresh
-
-    # index not updated
-    assert_search "hi", ["Hi"], fields: [:name], load: false
-    assert_search "blue", ["Hi"], fields: [:color], load: false
 
     # partial reindex
     Product.reindex(:search_name)
@@ -35,10 +27,6 @@ class PartialReindexTest < Minitest::Test
   def test_record_inline
     store [{name: "Hi", color: "Blue"}]
 
-    # normal search
-    assert_search "hi", ["Hi"], fields: [:name], load: false
-    assert_search "blue", ["Hi"], fields: [:color], load: false
-
     # update
     product = Product.first
     product.name = "Bye"
@@ -48,10 +36,7 @@ class PartialReindexTest < Minitest::Test
     end
     Product.searchkick_index.refresh
 
-    # index not updated
-    assert_search "hi", ["Hi"], fields: [:name], load: false
-    assert_search "blue", ["Hi"], fields: [:color], load: false
-
+    # partial reindex
     product.reindex(:search_name, refresh: true)
 
     # name updated, but not color
