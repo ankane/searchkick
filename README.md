@@ -1354,8 +1354,8 @@ And [setup-opensearch](https://github.com/ankane/setup-opensearch) for an easy w
 For the search server, Searchkick uses `ENV["ELASTICSEARCH_URL"]` for Elasticsearch and `ENV["OPENSEARCH_URL"]` for OpenSearch. This defaults to `http://localhost:9200`.
 
 - [Elastic Cloud](#elastic-cloud)
-- [Heroku](#heroku)
 - [Amazon OpenSearch Service](#amazon-opensearch-service)
+- [Heroku](#heroku)
 - [Self-Hosted and Other](#self-hosted-and-other)
 
 ### Elastic Cloud
@@ -1364,6 +1364,36 @@ Create an initializer `config/initializers/elasticsearch.rb` with:
 
 ```ruby
 ENV["ELASTICSEARCH_URL"] = "https://user:password@host:port"
+```
+
+Then deploy and reindex:
+
+```sh
+rake searchkick:reindex:all
+```
+
+### Amazon OpenSearch Service
+
+Create an initializer `config/initializers/opensearch.rb` with:
+
+```ruby
+ENV["OPENSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
+```
+
+To use signed requests, include in your Gemfile:
+
+```ruby
+gem "faraday_middleware-aws-sigv4"
+```
+
+and add to your initializer:
+
+```ruby
+Searchkick.aws_credentials = {
+  access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+  secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+  region: "us-east-1"
+}
 ```
 
 Then deploy and reindex:
@@ -1420,36 +1450,6 @@ Then deploy and reindex:
 
 ```sh
 heroku run rake searchkick:reindex:all
-```
-
-### Amazon OpenSearch Service
-
-Create an initializer `config/initializers/opensearch.rb` with:
-
-```ruby
-ENV["OPENSEARCH_URL"] = "https://es-domain-1234.us-east-1.es.amazonaws.com:443"
-```
-
-To use signed requests, include in your Gemfile:
-
-```ruby
-gem "faraday_middleware-aws-sigv4"
-```
-
-and add to your initializer:
-
-```ruby
-Searchkick.aws_credentials = {
-  access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-  secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
-  region: "us-east-1"
-}
-```
-
-Then deploy and reindex:
-
-```sh
-rake searchkick:reindex:all
 ```
 
 ### Self-Hosted and Other
