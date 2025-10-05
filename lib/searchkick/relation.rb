@@ -27,11 +27,6 @@ module Searchkick
       "#<#{self.class.name} [#{entries.join(', ')}]>"
     end
 
-    def execute
-      Searchkick.warn("The execute method is no longer needed")
-      load
-    end
-
     # experimental
     def limit(value)
       clone.limit!(value)
