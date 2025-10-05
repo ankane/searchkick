@@ -2026,7 +2026,7 @@ Use a different term for boosting by conversions
 Product.search("banana", conversions_term: "organic banana")
 ```
 
-Multiple conversion fields
+Define multiple conversion fields
 
 ```ruby
 class Product < ApplicationRecord
@@ -2044,7 +2044,7 @@ class Product < ApplicationRecord
 end
 ```
 
-And during query time
+And specify which to use
 
 ```ruby
 Product.search("banana") # boost by both fields (default)
