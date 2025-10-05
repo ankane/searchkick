@@ -4,15 +4,11 @@ class PartialReindexTest < Minitest::Test
   def test_record_inline
     store [{name: "Hi", color: "Blue"}]
 
-    # update
     product = Product.first
-    product.name = "Bye"
-    product.color = "Red"
     Searchkick.callbacks(false) do
-      product.save!
+      product.update!(name: "Bye", color: "Red")
     end
 
-    # partial reindex
     product.reindex(:search_name, refresh: true)
 
     # name updated, but not color
@@ -23,15 +19,11 @@ class PartialReindexTest < Minitest::Test
   def test_record_async
     store [{name: "Hi", color: "Blue"}]
 
-    # update
     product = Product.first
-    product.name = "Bye"
-    product.color = "Red"
     Searchkick.callbacks(false) do
-      product.save!
+      product.update!(name: "Bye", color: "Red")
     end
 
-    # partial reindex
     perform_enqueued_jobs do
       product.reindex(:search_name, mode: :async)
     end
@@ -79,15 +71,11 @@ class PartialReindexTest < Minitest::Test
   def test_relation_inline
     store [{name: "Hi", color: "Blue"}]
 
-    # update
     product = Product.first
-    product.name = "Bye"
-    product.color = "Red"
     Searchkick.callbacks(false) do
-      product.save!
+      product.update!(name: "Bye", color: "Red")
     end
 
-    # partial reindex
     Product.reindex(:search_name)
 
     # name updated, but not color
@@ -101,15 +89,11 @@ class PartialReindexTest < Minitest::Test
   def test_relation_async
     store [{name: "Hi", color: "Blue"}]
 
-    # update
     product = Product.first
-    product.name = "Bye"
-    product.color = "Red"
     Searchkick.callbacks(false) do
-      product.save!
+      product.update!(name: "Bye", color: "Red")
     end
 
-    # partial reindex
     perform_enqueued_jobs do
       Product.reindex(:search_name, mode: :async)
     end

@@ -11,3 +11,4 @@ gem "elasticsearch", "~> 8"
 gem "actionpack"
 gem "kaminari"
 gem "gemoji-parser"
+gem "ostruct" # for mongoid
