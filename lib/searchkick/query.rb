@@ -153,7 +153,7 @@ module Searchkick
         puts "Server Version: #{server} #{Searchkick.server_version}"
         puts
 
-        puts "Model Searchkick Options"
+        puts "Model Options"
         pp searchkick_options
         puts
 
