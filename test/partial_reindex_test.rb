@@ -81,8 +81,25 @@ class PartialReindexTest < Minitest::Test
   end
 
   def test_record_async
-    product = Product.create!(name: "Hi")
-    product.reindex(:search_data, mode: :async)
+    store [{name: "Hi", color: "Blue"}]
+
+    # update
+    product = Product.first
+    product.name = "Bye"
+    product.color = "Red"
+    Searchkick.callbacks(false) do
+      product.save!
+    end
+
+    # partial reindex
+    perform_enqueued_jobs do
+      product.reindex(:search_name, mode: :async)
+    end
+    Product.searchkick_index.refresh
+
+    # name updated, but not color
+    assert_search "bye", ["Bye"], fields: [:name], load: false
+    assert_search "blue", ["Bye"], fields: [:color], load: false
   end
 
   def test_relation_missing
