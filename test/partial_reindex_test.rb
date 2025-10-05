@@ -50,7 +50,7 @@ class PartialReindexTest < Minitest::Test
     assert_equal "Partial reindex not supported with queue option", error.message
   end
 
-  def test_record_missing
+  def test_record_missing_inline
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
@@ -60,6 +60,20 @@ class PartialReindexTest < Minitest::Test
       product.reindex(:search_name)
     end
     assert_match "document missing", error.message
+  end
+
+  def test_record_missing_async
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.searchkick_index.remove(product)
+
+    perform_enqueued_jobs do
+      error = assert_raises(Searchkick::ImportError) do
+        product.reindex(:search_name, mode: :async)
+      end
+      assert_match "document missing", error.message
+    end
   end
 
   def test_relation_inline
@@ -113,7 +127,7 @@ class PartialReindexTest < Minitest::Test
     assert_equal "Partial reindex not supported with queue option", error.message
   end
 
-  def test_relation_missing
+  def test_relation_missing_inline
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
@@ -123,5 +137,19 @@ class PartialReindexTest < Minitest::Test
       Product.reindex(:search_name)
     end
     assert_match "document missing", error.message
+  end
+
+  def test_relation_missing_async
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.searchkick_index.remove(product)
+
+    perform_enqueued_jobs do
+      error = assert_raises(Searchkick::ImportError) do
+        Product.reindex(:search_name, mode: :async)
+      end
+      assert_match "document missing", error.message
+    end
   end
 end
