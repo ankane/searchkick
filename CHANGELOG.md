@@ -1,5 +1,6 @@
 ## 6.0.0 (unreleased)
 
+- Added `allow_missing` option for partial reindex
 - Added support for `exists: false`
 - Added `quantization` to `knn` option for Elasticsearch
 - Removed default quantization for `knn` option for Elasticsearch 8.14+
