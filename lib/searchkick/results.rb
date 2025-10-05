@@ -216,6 +216,8 @@ module Searchkick
 
     private
 
+    attr_reader :klass, :options
+
     def with_hit_and_missing_records
       @with_hit_and_missing_records ||= begin
         missing_records = []
