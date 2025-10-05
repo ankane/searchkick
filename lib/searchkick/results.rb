@@ -193,7 +193,7 @@ module Searchkick
       else
         begin
           # TODO Active Support notifications for this scroll call
-          Results.new(@klass, Searchkick.client.scroll(scroll: options[:scroll], body: {scroll_id: scroll_id}), @options)
+          Results.new(@klass, Searchkick.client.scroll(opaque_id: options[:opaque_id], scroll: options[:scroll], body: {scroll_id: scroll_id}), options)
         rescue => e
           if Searchkick.not_found_error?(e) && e.message =~ /search_context_missing_exception/i
             raise Error, "Scroll id has expired"
