@@ -3,8 +3,7 @@ module Searchkick
     include Enumerable
     extend Forwardable
 
-    # TODO remove klass and options in 6.0
-    attr_reader :klass, :response, :options
+    attr_reader :response
 
     def_delegators :results, :each, :any?, :empty?, :size, :length, :slice, :[], :to_ary
 
