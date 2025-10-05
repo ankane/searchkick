@@ -2032,13 +2032,12 @@ Multiple conversion fields
 class Product < ApplicationRecord
   has_many :searches, class_name: "Searchjoy::Search"
 
-  # searchkick also supports multiple "conversions" fields
-  searchkick conversions: ["unique_user_conversions", "total_conversions"]
+  searchkick conversions: ["unique_conversions", "total_conversions"]
 
   def search_data
     {
       name: name,
-      unique_user_conversions: searches.group(:query).distinct.count(:user_id),
+      unique_conversions: searches.group(:query).distinct.count(:user_id),
       # {"ice cream" => 234, "chocolate" => 67, "cream" => 2}
       total_conversions: searches.group(:query).count
       # {"ice cream" => 412, "chocolate" => 117, "cream" => 6}
