@@ -45,8 +45,13 @@ module Searchkick
     end
 
     # experimental
-    def offset(value)
-      clone.offset!(value)
+    def offset(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.offset
+      else
+        clone.offset!(value)
+      end
     end
 
     # experimental
@@ -69,8 +74,13 @@ module Searchkick
     end
 
     # experimental
-    def per_page(value)
-      clone.per_page!(value)
+    def per_page(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.per_page
+      else
+        clone.per_page!(value)
+      end
     end
 
     # experimental
