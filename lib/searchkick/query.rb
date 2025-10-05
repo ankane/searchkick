@@ -148,8 +148,9 @@ module Searchkick
       }
 
       if options[:debug]
+        server = Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"
         puts "Searchkick Version: #{Searchkick::VERSION}"
-        puts "Elasticsearch Version: #{Searchkick.server_version}"
+        puts "#{server} Version: #{Searchkick.server_version}"
         puts
 
         puts "Model Searchkick Options"
