@@ -60,8 +60,11 @@ module Searchkick
 
       index.conversions_v2_fields.each do |conversions_field|
         key = source.key?(conversions_field) ? conversions_field : conversions_field.to_sym
-        source[key] ||= {}
-        source[key] = source[key].transform_keys { |k| k.to_s.downcase.gsub(".", "*") }
+        source[key] =
+          (source[key] || {}).reduce(Hash.new(0)) do |memo, (k, v)|
+            memo[k.to_s.downcase.gsub(".", "*")] += v
+            memo
+          end
       end
 
       # hack to prevent generator field doesn't exist error
