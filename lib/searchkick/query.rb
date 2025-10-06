@@ -17,6 +17,14 @@ module Searchkick
       :with_score, :misspellings?, :scroll_id, :clear_scroll, :missing_records, :with_hit
 
     def initialize(klass, term = "*", **options)
+      if options[:conversions]
+        Searchkick.warn("The `conversions` option is deprecated in favor of `conversions_v2`, which provides much better search performance. Upgrade to `conversions_v2` or rename `conversions` to `conversions_v1`")
+      end
+
+      if options.key?(:conversions_v1)
+        options[:conversions] = options.delete(:conversions_v1)
+      end
+
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_v2, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,

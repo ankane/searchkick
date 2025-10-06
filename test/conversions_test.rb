@@ -14,7 +14,7 @@ class ConversionsTest < Minitest::Test
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
     assert_order "TOMATO", ["Tomato C", "Tomato B", "Tomato A"]
-    assert_equal_scores "tomato", conversions: false
+    assert_equal_scores "tomato", conversions_v1: false
   end
 
   def test_v1_case
@@ -41,12 +41,12 @@ class ConversionsTest < Minitest::Test
       {name: "Speaker C", conversions_a: {"speaker" => 3}, conversions_b: {"speaker" => 4}}
     ], Speaker
 
-    assert_equal_scores "speaker", {conversions: false}, Speaker
+    assert_equal_scores "speaker", {conversions_v1: false}, Speaker
     assert_equal_scores "speaker", {}, Speaker
-    assert_equal_scores "speaker", {conversions: ["conversions_a", "conversions_b"]}, Speaker
-    assert_equal_scores "speaker", {conversions: ["conversions_b", "conversions_a"]}, Speaker
-    assert_order "speaker", ["Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a"}, Speaker
-    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C"], {conversions: "conversions_b"}, Speaker
+    assert_equal_scores "speaker", {conversions_v1: ["conversions_a", "conversions_b"]}, Speaker
+    assert_equal_scores "speaker", {conversions_v1: ["conversions_b", "conversions_a"]}, Speaker
+    assert_order "speaker", ["Speaker C", "Speaker B", "Speaker A"], {conversions_v1: "conversions_a"}, Speaker
+    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C"], {conversions_v1: "conversions_b"}, Speaker
   end
 
   def test_v1_multiple_conversions_with_boost_term
@@ -57,8 +57,8 @@ class ConversionsTest < Minitest::Test
       {name: "Speaker D", conversions_a: {"speaker" => 1, "speaker_1" => 4}}
     ], Speaker
 
-    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C", "Speaker D"], {conversions: "conversions_a"}, Speaker
-    assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
+    assert_order "speaker", ["Speaker A", "Speaker B", "Speaker C", "Speaker D"], {conversions_v1: "conversions_a"}, Speaker
+    assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions_v1: "conversions_a", conversions_term: "speaker_1"}, Speaker
   end
 
   def test_v2
@@ -123,7 +123,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}, conversions_v2: {"tomato" => 3}}
     ]
     scores = Product.search("tomato", conversions_v2: false, load: false).map(&:_score)
-    scores_v2 = Product.search("tomato", conversions: false, conversions_v2: "conversions_v2", load: false).map(&:_score)
+    scores_v2 = Product.search("tomato", conversions_v1: false, conversions_v2: "conversions_v2", load: false).map(&:_score)
     assert_equal scores, scores_v2
   end
 
