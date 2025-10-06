@@ -6,7 +6,6 @@ require "active_support/core_ext/module/delegation"
 require "active_support/deprecation"
 require "active_support/log_subscriber"
 require "active_support/notifications"
-require "hashie"
 
 # stdlib
 require "forwardable"

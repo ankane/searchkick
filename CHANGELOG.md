@@ -6,6 +6,7 @@
 - Changed async reindex to use ranges for numeric primary keys with Active Record
 - Removed default quantization for `knn` option for Elasticsearch 8.14+
 - Removed `execute` option and method (no longer needed)
+- Removed dependency on Hashie
 - Deprecated `conversions` option in favor of `conversions_v2`
 - Dropped support for Elasticsearch 7 and OpenSearch 1
 - Dropped support for Active Record < 7.2

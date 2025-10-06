@@ -4,7 +4,7 @@ class SelectTest < Minitest::Test
   def test_basic
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: [:name, :store_id]).first
-    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_equal 1, result.store_id
   end
@@ -12,7 +12,7 @@ class SelectTest < Minitest::Test
   def test_relation
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false).select(:name, :store_id).first
-    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_equal 1, result.store_id
   end
@@ -32,7 +32,7 @@ class SelectTest < Minitest::Test
   def test_multiple
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false).select(:name).select(:store_id).first
-    assert_equal %w(id name store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name store_id), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
     assert_equal 1, result.store_id
   end
@@ -40,7 +40,7 @@ class SelectTest < Minitest::Test
   def test_reselect
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false).select(:name).reselect(:store_id).first
-    assert_equal %w(id store_id), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id store_id), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal 1, result.store_id
   end
 
@@ -53,9 +53,9 @@ class SelectTest < Minitest::Test
   def test_single_field
     store [{name: "Product A", store_id: 1}]
     result = Product.search("product", load: false, select: :name).first
-    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
-    assert_nil result.store_id
+    refute result.respond_to?(:store_id)
   end
 
   def test_all
@@ -76,15 +76,15 @@ class SelectTest < Minitest::Test
   def test_includes
     store [{name: "Product A", user_ids: [1, 2]}]
     result = Product.search("product", load: false, select: {includes: [:name]}).first
-    assert_equal %w(id name), result.keys.reject { |k| k.start_with?("_") }.sort
+    assert_equal %w(id name), result.to_h.keys.reject { |k| k.start_with?("_") }.sort
     assert_equal "Product A", result.name
-    assert_nil result.store_id
+    refute result.respond_to?(:store_id)
   end
 
   def test_excludes
     store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
     result = Product.search("product", load: false, select: {excludes: [:name]}).first
-    assert_nil result.name
+    refute result.respond_to?(:name)
     assert_equal [1, 2], result.user_ids
     assert_equal 1, result.store_id
   end
@@ -94,7 +94,7 @@ class SelectTest < Minitest::Test
     store [{name: "Product A", user_ids: [1, 2], store_id: 1}]
     result = Product.search("product", load: false, select: {includes: [:store_id], excludes: [:name]}).first
     assert_equal 1, result.store_id
-    assert_nil result.name
-    assert_nil result.user_ids
+    refute result.respond_to?(:name)
+    refute result.respond_to?(:user_ids)
   end
 end

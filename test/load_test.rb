@@ -3,12 +3,26 @@ require_relative "test_helper"
 class LoadTest < Minitest::Test
   def test_default
     store_names ["Product A"]
-    assert_kind_of Product, Product.search("product").first
+    product = Product.search("product").first
+    assert_kind_of Product, product
+    assert_match "#<Product id: ", product.inspect
+    assert_equal "Product A", product.name
+    assert_equal "Product A", product[:name]
+    assert_equal "Product A", product["name"]
+    refute product.respond_to?(:missing)
+    assert_nil product[:missing]
   end
 
   def test_false
     store_names ["Product A"]
-    assert_kind_of Searchkick::HashWrapper, Product.search("product", load: false).first
+    product = Product.search("product", load: false).first
+    assert_kind_of Searchkick::HashWrapper, product
+    assert_match "#<Searchkick::HashWrapper id: ", product.inspect
+    assert_equal "Product A", product.name
+    assert_equal "Product A", product[:name]
+    assert_equal "Product A", product["name"]
+    refute product.respond_to?(:missing)
+    assert_nil product[:missing]
   end
 
   def test_false_methods
