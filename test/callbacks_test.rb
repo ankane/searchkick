@@ -16,6 +16,14 @@ class CallbacksTest < Minitest::Test
     assert_search "product", ["Product A", "Product B"]
   end
 
+  def test_async
+    assert_enqueued_jobs 2 do
+      Searchkick.callbacks(:async) do
+        store_names ["Product A", "Product B"]
+      end
+    end
+  end
+
   def test_queue
     # TODO figure out which earlier test leaves records in index
     Product.reindex
