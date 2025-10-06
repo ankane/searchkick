@@ -660,27 +660,34 @@ module Searchkick
     end
 
     def set_conversions_v2
+      conversions_v2 = options[:conversions_v2]
+      return [] if conversions_v2.nil? && !searchkick_options[:conversions_v2]
+      return [] if conversions_v2 == false
+
+      # disable if searchkick_options[:conversions] to make it easy to upgrade without downtime
+      return [] if conversions_v2.nil? && searchkick_options[:conversions]
+
+      unless conversions_v2.is_a?(Hash)
+        conversions_v2 = {field: conversions_v2}
+      end
+
       conversions_fields =
-        case options[:conversions_v2]
+        case conversions_v2[:field]
         when true, nil
-          searchkick_options[:conversions_v2]
+          Array(searchkick_options[:conversions_v2]).map(&:to_s)
         else
-          options[:conversions_v2]
+          [conversions_v2[:field].to_s]
         end
 
-      conversions_fields = Array(conversions_fields).map(&:to_s)
-      # disable if searchkick_options[:conversions] to make it easy to upgrade without downtime
-      if conversions_fields.present? && options[:conversions_v2] != false && !(options[:conversions_v2].nil? && searchkick_options[:conversions])
-        conversions_fields.map do |conversions_field|
-          {
-            rank_feature: {
-              field: "#{conversions_field}.#{(options[:conversions_term] || term).to_s.downcase.gsub(".", "*")}",
-              linear: {}
-            }
+      conversions_term = conversions_v2[:term] || options[:conversions_term] || term
+
+      conversions_fields.map do |conversions_field|
+        {
+          rank_feature: {
+            field: "#{conversions_field}.#{conversions_term.to_s.downcase.gsub(".", "*")}",
+            linear: {}
           }
-        end
-      else
-        []
+        }
       end
     end
 

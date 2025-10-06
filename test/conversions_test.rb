@@ -95,7 +95,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato juice" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato juice" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "tomato juice"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: {term: "tomato juice"}
   end
 
   def test_v2_dot
@@ -104,7 +104,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato.juice" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato.juice" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "tomato.juice"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: {term: "tomato.juice"}
   end
 
   def test_v2_unicode
@@ -113,7 +113,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"喰らう" => 2}},
       {name: "Tomato C", conversions_v2: {"喰らう" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "喰らう"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: {term: "喰らう"}
   end
 
   def test_v2_score
