@@ -5,7 +5,11 @@ class LoadTest < Minitest::Test
     store_names ["Product A"]
     product = Product.search("product").first
     assert_kind_of Product, product
-    assert_match "#<Product id: ", product.inspect
+    if mongoid?
+      assert_match "#<Product _id: ", product.inspect
+    else
+      assert_match "#<Product id: ", product.inspect
+    end
     assert_equal "Product A", product.name
     assert_equal "Product A", product[:name]
     assert_equal "Product A", product["name"]
