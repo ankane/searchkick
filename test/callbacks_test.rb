@@ -88,17 +88,17 @@ class CallbacksTest < Minitest::Test
     # make sure callbacks default to on
     assert Searchkick.callbacks?
 
-    store_names ["product a"]
+    store_names ["Product A"]
 
     Searchkick.disable_callbacks
     assert !Searchkick.callbacks?
 
-    store_names ["product b"]
-    assert_search "product", ["product a"]
+    store_names ["Product B"]
+    assert_search "product", ["Product A"]
 
     Searchkick.enable_callbacks
     Product.reindex
 
-    assert_search "product", ["product a", "product b"]
+    assert_search "product", ["Product A", "Product B"]
   end
 end
