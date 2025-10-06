@@ -660,7 +660,15 @@ module Searchkick
     end
 
     def set_conversions_v2
-      conversions_fields = Array(options[:conversions_v2] || searchkick_options[:conversions_v2]).map(&:to_s)
+      conversions_fields =
+        case options[:conversions_v2]
+        when true, nil
+          searchkick_options[:conversions_v2]
+        else
+          options[:conversions_v2]
+        end
+
+      conversions_fields = Array(conversions_fields).map(&:to_s)
       # disable if searchkick_options[:conversions] to make it easy to upgrade without downtime
       if conversions_fields.present? && options[:conversions_v2] != false && !(options[:conversions_v2].nil? && searchkick_options[:conversions])
         conversions_fields.map do |conversions_field|

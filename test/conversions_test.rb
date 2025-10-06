@@ -67,8 +67,8 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
-    assert_order "TOMATO", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true
+    assert_order "TOMATO", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true
     assert_equal_scores "tomato", conversions_v2: false
   end
 
@@ -77,7 +77,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato A", conversions_v2: {"tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
       {name: "Tomato B", conversions_v2: {"tomato" => 2}}
     ]
-    assert_order "tomato", ["Tomato A", "Tomato B"], conversions_v2: [:conversions_v2]
+    assert_order "tomato", ["Tomato A", "Tomato B"], conversions_v2: true
   end
 
   def test_v2_weight
@@ -86,7 +86,7 @@ class ConversionsTest < Minitest::Test
       {name: "Product Boost", orders_count: 20},
       {name: "Product Conversions", conversions_v2: {"product" => 10}}
     ]
-    assert_order "product", ["Product Conversions", "Product Boost"], conversions_v2: [:conversions_v2], boost: "orders_count"
+    assert_order "product", ["Product Conversions", "Product Boost"], conversions_v2: true, boost: "orders_count"
   end
 
   def test_v2_space
@@ -95,7 +95,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato juice" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato juice" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2], conversions_term: "tomato juice"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "tomato juice"
   end
 
   def test_v2_dot
@@ -104,7 +104,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato.juice" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato.juice" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2], conversions_term: "tomato.juice"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "tomato.juice"
   end
 
   def test_v2_unicode
@@ -113,7 +113,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"喰らう" => 2}},
       {name: "Tomato C", conversions_v2: {"喰らう" => 3}}
     ]
-    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2], conversions_term: "喰らう"
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true, conversions_term: "喰らう"
   end
 
   def test_v2_score
@@ -123,7 +123,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}, conversions_v2: {"tomato" => 3}}
     ]
     scores = Product.search("tomato", conversions_v2: false, load: false).map(&:_score)
-    scores_v2 = Product.search("tomato", conversions_v1: false, conversions_v2: "conversions_v2", load: false).map(&:_score)
+    scores_v2 = Product.search("tomato", conversions_v1: false, conversions_v2: true, load: false).map(&:_score)
     assert_equal scores, scores_v2
   end
 
@@ -133,7 +133,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato juice" => 2}},
       {name: "Tomato C", conversions_v2: {"tomato vine" => 3}}
     ]
-    assert_equal_scores "tomato", conversions_v2: [:conversions_v2]
+    assert_equal_scores "tomato", conversions_v2: true
   end
 
   def test_v2_max_conversions
