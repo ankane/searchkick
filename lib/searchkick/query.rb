@@ -685,7 +685,8 @@ module Searchkick
         {
           rank_feature: {
             field: "#{conversions_field}.#{conversions_term.to_s.downcase.gsub(".", "*")}",
-            linear: {}
+            linear: {},
+            boost: conversions_v2[:factor] || 1
           }
         }
       end

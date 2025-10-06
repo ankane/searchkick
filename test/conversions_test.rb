@@ -127,6 +127,20 @@ class ConversionsTest < Minitest::Test
     assert_equal scores, scores_v2
   end
 
+  def test_v2_factor
+    store [
+      {name: "Tomato A", conversions: {"tomato" => 1}, conversions_v2: {"tomato" => 1}},
+      {name: "Tomato B", conversions: {"tomato" => 2}, conversions_v2: {"tomato" => 2}},
+      {name: "Tomato C", conversions: {"tomato" => 3}, conversions_v2: {"tomato" => 3}}
+    ]
+    scores = Product.search("tomato", conversions_v1: false, conversions_v2: true, load: false).map(&:_score)
+    scores2 = Product.search("tomato", conversions_v1: false, conversions_v2: {factor: 3}, load: false).map(&:_score)
+    diffs = scores.zip(scores2).map { |a, b| b - a }
+    assert_in_delta 6, diffs[0]
+    assert_in_delta 4, diffs[1]
+    assert_in_delta 2, diffs[2]
+  end
+
   def test_v2_no_tokenization
     store [
       {name: "Tomato A"},
