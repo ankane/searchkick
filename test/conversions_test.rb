@@ -174,4 +174,14 @@ class ConversionsTest < Minitest::Test
     end
     assert_match "must be a positive normal float", error.message
   end
+
+  def test_v2_partial_reindex
+    store [
+      {name: "Tomato A", conversions_v2: {"tomato" => 1}},
+      {name: "Tomato B", conversions_v2: {"tomato" => 2}},
+      {name: "Tomato C", conversions_v2: {"tomato" => 3}}
+    ]
+    Product.reindex(:search_name, refresh: true)
+    assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: true
+  end
 end
