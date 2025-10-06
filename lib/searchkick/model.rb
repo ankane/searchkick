@@ -3,6 +3,12 @@ module Searchkick
     def searchkick(**options)
       options = Searchkick.model_options.deep_merge(options)
 
+      if options[:conversions]
+        Searchkick.warn("The `conversions` option is deprecated in favor of `conversions_v2`, which provides much better search performance. Upgrade to `conversions_v2` or rename `conversions` to `conversions_v1`")
+      elsif options[:conversions_v1]
+        options[:conversions] = options.delete(:conversions_v1)
+      end
+
       unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :case_sensitive, :conversions, :conversions_v2, :deep_paging, :default_fields,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :knn, :language,
         :locations, :mappings, :match, :max_result_window, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,

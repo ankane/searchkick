@@ -1,6 +1,6 @@
 class Speaker
   searchkick \
-    conversions: ["conversions_a", "conversions_b"],
+    conversions_v1: ["conversions_a", "conversions_b"],
     search_synonyms: [
       ["clorox", "bleach"],
       ["burger", "hamburger"],

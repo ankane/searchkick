@@ -9,7 +9,7 @@ class Product
       "lightbulb => halogenlamp"
     ],
     suggest: [:name, :color],
-    conversions: [:conversions],
+    conversions_v1: [:conversions],
     conversions_v2: [:conversions_v2],
     locations: [:location, :multiple_locations],
     text_start: [:name],
