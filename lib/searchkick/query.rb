@@ -658,7 +658,7 @@ module Searchkick
         conversions_fields.map do |conversions_field|
           {
             rank_feature: {
-              field: "#{conversions_field}.#{(options[:conversions_term] || term).to_s.gsub(".", "*")}",
+              field: "#{conversions_field}.#{(options[:conversions_term] || term).to_s.downcase.gsub(".", "*")}",
               linear: {}
             }
           }

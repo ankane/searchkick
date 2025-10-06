@@ -13,7 +13,25 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
+    assert_order "Tomato", ["Tomato C", "Tomato B", "Tomato A"]
     assert_equal_scores "tomato", conversions: false
+  end
+
+  def test_v1_case
+    store [
+      {name: "Tomato A", conversions: {"tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
+      {name: "Tomato B", conversions: {"tomato" => 2}}
+    ]
+    assert_order "tomato", ["Tomato A", "Tomato B"]
+  end
+
+  def test_v1_weight
+    Product.reindex
+    store [
+      {name: "Product Boost", orders_count: 20},
+      {name: "Product Conversions", conversions: {"product" => 10}}
+    ]
+    assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
   end
 
   def test_v1_multiple_conversions
@@ -43,23 +61,6 @@ class ConversionsTest < Minitest::Test
     assert_order "speaker", ["Speaker D", "Speaker C", "Speaker B", "Speaker A"], {conversions: "conversions_a", conversions_term: "speaker_1"}, Speaker
   end
 
-  def test_v1_case
-    store [
-      {name: "Tomato A", conversions: {"tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
-      {name: "Tomato B", conversions: {"tomato" => 2}}
-    ]
-    assert_order "tomato", ["Tomato A", "Tomato B"]
-  end
-
-  def test_v1_weight
-    Product.reindex
-    store [
-      {name: "Product Boost", orders_count: 20},
-      {name: "Product Conversions", conversions: {"product" => 10}}
-    ]
-    assert_order "product", ["Product Conversions", "Product Boost"], boost: "orders_count"
-  end
-
   def test_v2
     store [
       {name: "Tomato A", conversions_v2: {"tomato" => 1}},
@@ -67,6 +68,24 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions_v2: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
+    assert_order "Tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
+  end
+
+  def test_v2_case
+    store [
+      {name: "Tomato A", conversions_v2: {"tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
+      {name: "Tomato B", conversions_v2: {"tomato" => 2}}
+    ]
+    assert_order "tomato", ["Tomato A", "Tomato B"], conversions_v2: [:conversions_v2]
+  end
+
+  def test_v2_weight
+    Product.reindex
+    store [
+      {name: "Product Boost", orders_count: 20},
+      {name: "Product Conversions", conversions_v2: {"product" => 10}}
+    ]
+    assert_order "product", ["Product Conversions", "Product Boost"], conversions_v2: [:conversions_v2], boost: "orders_count"
   end
 
   def test_v2_space
