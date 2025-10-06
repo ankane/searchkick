@@ -13,7 +13,7 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"]
-    assert_order "Tomato", ["Tomato C", "Tomato B", "Tomato A"]
+    assert_order "TOMATO", ["Tomato C", "Tomato B", "Tomato A"]
     assert_equal_scores "tomato", conversions: false
   end
 
@@ -68,7 +68,8 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato C", conversions_v2: {"tomato" => 3}}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
-    assert_order "Tomato", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
+    assert_order "TOMATO", ["Tomato C", "Tomato B", "Tomato A"], conversions_v2: [:conversions_v2]
+    assert_equal_scores "tomato", conversions_v2: false
   end
 
   def test_v2_case
