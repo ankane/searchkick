@@ -5,7 +5,9 @@ module Searchkick
 
       if options[:conversions]
         Searchkick.warn("The `conversions` option is deprecated in favor of `conversions_v2`, which provides much better search performance. Upgrade to `conversions_v2` or rename `conversions` to `conversions_v1`")
-      elsif options[:conversions_v1]
+      end
+
+      if options.key?(:conversions_v1)
         options[:conversions] = options.delete(:conversions_v1)
       end
 
