@@ -57,10 +57,21 @@ class CallbacksTest < Minitest::Test
   end
 
   def test_record_async
-    Song.destroy_all
     with_options({callbacks: :async}, Song) do
       assert_enqueued_jobs 1 do
         Song.create!(name: "Product A")
+      end
+
+      assert_enqueued_jobs 1 do
+        Song.first.reindex
+      end
+    end
+  end
+
+  def test_relation_async
+    with_options({callbacks: :async}, Song) do
+      assert_enqueued_jobs 0 do
+        Song.all.reindex
       end
     end
   end
