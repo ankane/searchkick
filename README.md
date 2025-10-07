@@ -664,6 +664,64 @@ class Product < ApplicationRecord
 end
 ```
 
+### Backup Index
+
+The Backup Index feature allows for more reliable zero-downtime reindexing. You can create a new index, populate it with data, test it, and finally promote it to the primary index, all without impacting your production environment.
+
+Here's a typical workflow:
+
+#### Step 1: Create a New Index and Enable Dual-Writing
+
+First, generate a unique name for your backup index. Then, update your model's configuration to set this new index as the `backup_index_name`.
+
+```ruby
+# 1. In your Rails console, generate a unique name for the backup index
+backup_index_name = Product.searchkick_index.create_index_name
+
+# 2. Configure the backup_index_name in your model
+# app/models/product.rb
+class Product < ApplicationRecord
+  searchkick backup_index_name: backup_index_name, # ... other options
+  # ...
+end
+```
+
+Once this is deployed, all data changes (creates, updates, deletes) will be written to both the primary and the backup indices simultaneously. This ensures both indices stay in sync during the reindexing process.
+
+#### Step 2: Fully Reindex the Backup Index
+
+Next, import all existing data into the backup index.
+
+```ruby
+Product.searchkick_index(name: backup_index_name).reindex(Product.all, mode: :async)
+```
+
+This operation only affects the backup index. Production queries and writes continue as normal without any impact.
+
+#### Step 3: Test the Backup Index
+
+Before promoting the backup index, you can search it directly to verify its correctness and performance.
+
+```ruby
+# Search the backup index directly
+Product.searchkick_search("your query", index_name: backup_index_name)
+```
+
+#### Step 4: Promote the Backup Index
+
+Once you've confirmed the backup index is working correctly, you can promote it to become the primary index.
+
+```ruby
+# This atomically switches the alias to the backup index
+Product.searchkick_index.promote(backup_index_name)
+```
+
+All search traffic will now be directed to the new index.
+
+#### Step 5: Clean Up
+
+After a successful promotion, you can remove the `backup_index_name` configuration from your model and delete the old index to free up resources.
+
 ## Intelligent Search
 
 The best starting point to improve your search **by far** is to track searches and conversions. [Searchjoy](https://github.com/ankane/searchjoy) makes it easy.

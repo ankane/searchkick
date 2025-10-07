@@ -123,6 +123,27 @@ class IndexTest < Minitest::Test
     assert_search "*", [], {where: {text: large_value}}, Region
   end
 
+  def test_queue_with_backup_index
+    default_index = Product.searchkick_index
+    backup_index = default_index.create_index
+    default_index.instance_variable_set(:@backup_index_name, backup_index.name)
+    product = Product.new(id: 1, name: "Test")
+
+    indexer = Minitest::Mock.new
+    indexer.expect :queue, nil, [->(records) { records.map { it[:index][:_index] } == [default_index.name, backup_index.name] }]
+    indexer.expect :queue, nil, [->(records) { records.map { it[:update][:_index] } == [default_index.name, backup_index.name] }]
+    indexer.expect :queue, nil, [->(records) { records.map { it[:delete][:_index] } == [default_index.name, backup_index.name] }]
+    Searchkick.stub :indexer, indexer do
+      Product.searchkick_index.send(:queue_index, [product])
+      Product.searchkick_index.send(:queue_update, [product], :search_data)
+      Product.searchkick_index.send(:queue_delete, [product])
+    end
+
+    indexer.verify
+  ensure
+    default_index.instance_variable_set(:@backup_index_name, nil)
+  end
+
   def test_bulk_import_raises_error
     valid_dog = Product.create(name: "2016-01-02")
     invalid_dog = Product.create(name: "Ol' One-Leg")
