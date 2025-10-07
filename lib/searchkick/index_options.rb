@@ -184,18 +184,18 @@ module Searchkick
         end
       end
 
-      if options[:case_sensitive]
-        settings[:analysis][:analyzer].each do |_, analyzer|
-          analyzer[:filter].delete("lowercase")
-        end
-      end
-
       add_synonyms(settings)
       add_search_synonyms(settings)
 
       if options[:special_characters] == false
         settings[:analysis][:analyzer].each_value do |analyzer_settings|
           analyzer_settings[:filter].reject! { |f| f == "asciifolding" }
+        end
+      end
+
+      if options[:case_sensitive]
+        settings[:analysis][:analyzer].each do |_, analyzer|
+          analyzer[:filter].delete("lowercase")
         end
       end
 

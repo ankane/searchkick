@@ -4,6 +4,7 @@
 - Added support for `exists: false`
 - Added `quantization` to `knn` option for Elasticsearch
 - Changed async reindex to use ranges for numeric primary keys with Active Record
+- Fixed error with `case_sensitive` option and synonyms
 - Removed default quantization for `knn` option for Elasticsearch 8.14+
 - Removed `execute` option and method (no longer needed)
 - Removed dependency on Hashie
