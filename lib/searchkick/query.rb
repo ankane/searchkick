@@ -679,12 +679,16 @@ module Searchkick
           [conversions_v2[:field].to_s]
         end
 
-      conversions_term = conversions_v2[:term] || options[:conversions_term] || term
+      conversions_term = (conversions_v2[:term] || options[:conversions_term] || term).to_s
+      unless searchkick_options[:case_sensitive]
+        conversions_term = conversions_term.downcase
+      end
+      conversions_term = conversions_term.gsub(".", "*")
 
       conversions_fields.map do |conversions_field|
         {
           rank_feature: {
-            field: "#{conversions_field}.#{conversions_term.to_s.downcase.gsub(".", "*")}",
+            field: "#{conversions_field}.#{conversions_term}",
             linear: {},
             boost: conversions_v2[:factor] || 1
           }

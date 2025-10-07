@@ -25,6 +25,18 @@ class ConversionsTest < Minitest::Test
     assert_order "tomato", ["Tomato A", "Tomato B"]
   end
 
+  def test_v1_case_sensitive
+    with_options(case_sensitive: true) do
+      store [
+        {name: "Tomato A", conversions: {"Tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
+        {name: "Tomato B", conversions: {"Tomato" => 2}}
+      ]
+      assert_order "Tomato", ["Tomato B", "Tomato A"]
+    end
+  ensure
+    Product.reindex
+  end
+
   def test_v1_weight
     Product.reindex
     store [
@@ -78,6 +90,18 @@ class ConversionsTest < Minitest::Test
       {name: "Tomato B", conversions_v2: {"tomato" => 2}}
     ]
     assert_order "tomato", ["Tomato A", "Tomato B"], conversions_v2: true
+  end
+
+  def test_v2_case_sensitive
+    with_options(case_sensitive: true) do
+      store [
+        {name: "Tomato A", conversions_v2: {"Tomato" => 1, "TOMATO" => 1, "tOmAtO" => 1}},
+        {name: "Tomato B", conversions_v2: {"Tomato" => 2}}
+      ]
+      assert_order "Tomato", ["Tomato B", "Tomato A"], conversions_v2: true
+    end
+  ensure
+    Product.reindex
   end
 
   def test_v2_weight
