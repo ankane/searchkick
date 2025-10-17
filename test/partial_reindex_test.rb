@@ -54,6 +54,18 @@ class PartialReindexTest < Minitest::Test
     assert_match "document missing", error.message
   end
 
+  def test_record_allow_missing_inline
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    product.reindex(:search_name, allow_missing: true)
+    Searchkick.callbacks(:bulk) do
+      product.reindex(:search_name, allow_missing: true)
+    end
+  end
+
   def test_record_missing_async
     store [{name: "Hi", color: "Blue"}]
 
@@ -65,6 +77,17 @@ class PartialReindexTest < Minitest::Test
         product.reindex(:search_name, mode: :async)
       end
       assert_match "document missing", error.message
+    end
+  end
+
+  def test_record_allow_missing_async
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    perform_enqueued_jobs do
+      product.reindex(:search_name, mode: :async, allow_missing: true)
     end
   end
 
@@ -123,6 +146,15 @@ class PartialReindexTest < Minitest::Test
     assert_match "document missing", error.message
   end
 
+  def test_relation_allow_missing_inline
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    Product.where(id: product.id).reindex(:search_name, allow_missing: true)
+  end
+
   def test_relation_missing_async
     store [{name: "Hi", color: "Blue"}]
 
@@ -134,6 +166,17 @@ class PartialReindexTest < Minitest::Test
         Product.reindex(:search_name, mode: :async)
       end
       assert_match "document missing", error.message
+    end
+  end
+
+  def test_relation_allow_missing_async
+    store [{name: "Hi", color: "Blue"}]
+
+    product = Product.first
+    Product.search_index.remove(product)
+
+    perform_enqueued_jobs do
+      Product.where(id: product.id).reindex(:search_name, mode: :async, allow_missing: true)
     end
   end
 end

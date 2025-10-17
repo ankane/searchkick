@@ -35,8 +35,8 @@ module Searchkick
       mod = Module.new
       include(mod)
       mod.module_eval do
-        def reindex(method_name = nil, mode: nil, refresh: false, job_options: nil)
-          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true, job_options: job_options)
+        def reindex(method_name = nil, mode: nil, refresh: false, allow_missing: false, job_options: nil)
+          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, allow_missing: allow_missing, job_options: job_options, single: true)
         end unless base.method_defined?(:reindex)
 
         def similar(**options)

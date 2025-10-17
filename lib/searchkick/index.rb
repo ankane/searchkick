@@ -164,11 +164,11 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name)
+    def bulk_update(records, method_name, allow_missing: false)
       return if records.empty?
 
       notify_bulk(records, "Update") do
-        queue_update(records, method_name)
+        queue_update(records, method_name, allow_missing: allow_missing)
       end
     end
 
@@ -211,12 +211,12 @@ module Searchkick
 
     # note: this is designed to be used internally
     # so it does not check object matches index class
-    def reindex(object, method_name: nil, full: false, **options)
+    def reindex(object, method_name: nil, allow_missing: false, full: false, **options)
       options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
 
       if object.is_a?(Array)
         # note: purposefully skip full
-        return reindex_records(object, method_name: method_name, **options)
+        return reindex_records(object, method_name: method_name, allow_missing: allow_missing, **options)
       end
 
       if !object.respond_to?(:searchkick_klass)
@@ -237,7 +237,7 @@ module Searchkick
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, mode: mode, scope: scope, job_options: job_options)
+        import_scope(relation, method_name: method_name, mode: mode, scope: scope, allow_missing: allow_missing, job_options: job_options)
         self.refresh if refresh
         true
       else
@@ -329,8 +329,10 @@ module Searchkick
       Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
-    def queue_update(records, method_name)
-      Searchkick.indexer.queue(records.map { |r| RecordData.new(self, r).update_data(method_name) })
+    def queue_update(records, method_name, allow_missing:)
+      items = records.map { |r| RecordData.new(self, r).update_data(method_name) }
+      items.each { |i| i.instance_variable_set(:@allow_missing, true) } if allow_missing
+      Searchkick.indexer.queue(items)
     end
 
     def relation_indexer
