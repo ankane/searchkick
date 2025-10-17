@@ -27,7 +27,7 @@ jobs:
             mongodb: true
           - ruby: 3.2
             gemfile: gemfiles/mongoid8.gemfile
-            elasticsearch: 8.0.0
+            elasticsearch: 8
             mongodb: true
     runs-on: ubuntu-latest
     env:

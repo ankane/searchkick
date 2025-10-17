@@ -58,7 +58,7 @@ class PartialReindexTest < Minitest::Test
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
-    Product.search_index.remove(product)
+    Product.searchkick_index.remove(product)
 
     product.reindex(:search_name, allow_missing: true)
     Searchkick.callbacks(:bulk) do
@@ -84,7 +84,7 @@ class PartialReindexTest < Minitest::Test
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
-    Product.search_index.remove(product)
+    Product.searchkick_index.remove(product)
 
     perform_enqueued_jobs do
       product.reindex(:search_name, mode: :async, allow_missing: true)
@@ -150,7 +150,7 @@ class PartialReindexTest < Minitest::Test
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
-    Product.search_index.remove(product)
+    Product.searchkick_index.remove(product)
 
     Product.where(id: product.id).reindex(:search_name, allow_missing: true)
   end
@@ -173,7 +173,7 @@ class PartialReindexTest < Minitest::Test
     store [{name: "Hi", color: "Blue"}]
 
     product = Product.first
-    Product.search_index.remove(product)
+    Product.searchkick_index.remove(product)
 
     perform_enqueued_jobs do
       Product.where(id: product.id).reindex(:search_name, mode: :async, allow_missing: true)
