@@ -27,7 +27,8 @@ jobs:
             mongodb: true
           - ruby: 3.2
             gemfile: gemfiles/mongoid8.gemfile
-            elasticsearch: 8
+            # TODO fix plugin installation for earlier versions
+            elasticsearch: 8.5.0
             mongodb: true
     runs-on: ubuntu-latest
     env:
