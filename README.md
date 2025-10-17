@@ -2076,7 +2076,7 @@ Change search queue name
 Searchkick.queue_name = :search_reindex
 ```
 
-Change the parent job (default to `"ActiveJob::Base"`)
+Change the parent job (defaults to `"ActiveJob::Base"`) [unreleased]
 
 ```ruby
 Searchkick.parent_job = "ApplicationJob"
