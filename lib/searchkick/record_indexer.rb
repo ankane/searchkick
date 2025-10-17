@@ -6,7 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def reindex(records, mode:, method_name:, full: false, single: false)
+    def reindex(records, mode:, method_name:, full: false, single: false, job_options: nil)
       # prevents exists? check if records is a relation
       records = records.to_a
       return if records.empty?
@@ -16,6 +16,8 @@ module Searchkick
         unless defined?(ActiveJob)
           raise Error, "Active Job not found"
         end
+
+        job_options ||= {}
 
         # we could likely combine ReindexV2Job, BulkReindexJob, and ProcessBatchJob
         # but keep them separate for now
@@ -28,7 +30,7 @@ module Searchkick
             routing = record.search_routing
           end
 
-          Searchkick::ReindexV2Job.perform_later(
+          Searchkick::ReindexV2Job.set(**job_options).perform_later(
             record.class.name,
             record.id.to_s,
             method_name ? method_name.to_s : nil,
@@ -36,7 +38,7 @@ module Searchkick
             index_name: index.name
           )
         else
-          Searchkick::BulkReindexJob.perform_later(
+          Searchkick::BulkReindexJob.set(**job_options).perform_later(
             class_name: records.first.class.searchkick_options[:class_name],
             record_ids: records.map { |r| r.id.to_s },
             index_name: index.name,

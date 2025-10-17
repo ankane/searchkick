@@ -6,7 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def reindex(relation, mode:, method_name: nil, full: false, resume: false, scope: nil)
+    def reindex(relation, mode:, method_name: nil, full: false, resume: false, scope: nil, job_options: nil)
       # apply scopes
       if scope
         relation = relation.send(scope)
@@ -29,7 +29,7 @@ module Searchkick
       end
 
       if mode == :async && full
-        return full_reindex_async(relation)
+        return full_reindex_async(relation, job_options: job_options)
       end
 
       relation = resume_relation(relation) if resume
@@ -37,7 +37,8 @@ module Searchkick
       reindex_options = {
         mode: mode,
         method_name: method_name,
-        full: full
+        full: full,
+        job_options: job_options
       }
       record_indexer = RecordIndexer.new(index)
 
@@ -128,7 +129,7 @@ module Searchkick
       @batch_size ||= index.options[:batch_size] || 1000
     end
 
-    def full_reindex_async(relation)
+    def full_reindex_async(relation, job_options: nil)
       batch_id = 1
       class_name = relation.searchkick_options[:class_name]
       starting_id = false
@@ -152,21 +153,21 @@ module Searchkick
 
         batches_count.times do |i|
           min_id = starting_id + (i * batch_size)
-          batch_job(class_name, batch_id, min_id: min_id, max_id: min_id + batch_size - 1)
+          batch_job(class_name, batch_id, job_options, min_id: min_id, max_id: min_id + batch_size - 1)
           batch_id += 1
         end
       else
         in_batches(relation) do |items|
-          batch_job(class_name, batch_id, record_ids: items.map(&:id).map { |v| v.instance_of?(Integer) ? v : v.to_s })
+          batch_job(class_name, batch_id, job_options, record_ids: items.map(&:id).map { |v| v.instance_of?(Integer) ? v : v.to_s })
           batch_id += 1
         end
       end
     end
 
-    def batch_job(class_name, batch_id, **options)
+    def batch_job(class_name, batch_id, job_options, **options)
       # TODO expire Redis key
       Searchkick.with_redis { |r| r.call("SADD", batches_key, [batch_id]) }
-      Searchkick::BulkReindexJob.perform_later(
+      Searchkick::BulkReindexJob.set(**job_options).perform_later(
         class_name: class_name,
         index_name: index.name,
         batch_id: batch_id,

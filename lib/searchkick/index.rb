@@ -212,6 +212,8 @@ module Searchkick
     # note: this is designed to be used internally
     # so it does not check object matches index class
     def reindex(object, method_name: nil, full: false, **options)
+      options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
+
       if object.is_a?(Array)
         # note: purposefully skip full
         return reindex_records(object, method_name: method_name, **options)
@@ -231,10 +233,11 @@ module Searchkick
       if method_name || (scoped && !full)
         mode = options.delete(:mode) || :inline
         scope = options.delete(:scope)
+        job_options = options.delete(:job_options)
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, mode: mode, scope: scope)
+        import_scope(relation, method_name: method_name, mode: mode, scope: scope, job_options: job_options)
         self.refresh if refresh
         true
       else
@@ -353,7 +356,7 @@ module Searchkick
 
     # https://gist.github.com/jarosan/3124884
     # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-    def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil)
+    def full_reindex(relation, import: true, resume: false, retain: false, mode: nil, refresh_interval: nil, scope: nil, wait: nil, job_options: nil)
       raise ArgumentError, "wait only available in :async mode" if !wait.nil? && mode != :async
       raise ArgumentError, "Full reindex does not support :queue mode - use :async mode instead" if mode == :queue
 
@@ -373,7 +376,8 @@ module Searchkick
         mode: (mode || :inline),
         full: true,
         resume: resume,
-        scope: scope
+        scope: scope,
+        job_options: job_options
       }
 
       uuid = index.uuid

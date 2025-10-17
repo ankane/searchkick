@@ -1,6 +1,7 @@
 ## 6.0.0 (unreleased)
 
 - Added `conversions_v2` option
+- Added `job_options` option
 - Added support for `exists: false`
 - Added `quantization` to `knn` option for Elasticsearch
 - Changed async reindex to use ranges for numeric primary keys with Active Record

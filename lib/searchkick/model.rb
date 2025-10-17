@@ -12,7 +12,7 @@ module Searchkick
       end
 
       unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :case_sensitive, :conversions, :conversions_v2, :deep_paging, :default_fields,
-        :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :knn, :language,
+        :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :job_options, :knn, :language,
         :locations, :mappings, :match, :max_result_window, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,
         :special_characters, :stem, :stemmer, :stem_conversions, :stem_exclusion, :stemmer_override, :suggest, :synonyms, :text_end,
         :text_middle, :text_start, :unscope, :word, :word_end, :word_middle, :word_start]
@@ -35,8 +35,8 @@ module Searchkick
       mod = Module.new
       include(mod)
       mod.module_eval do
-        def reindex(method_name = nil, mode: nil, refresh: false)
-          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true)
+        def reindex(method_name = nil, mode: nil, refresh: false, job_options: nil)
+          self.class.searchkick_index.reindex([self], method_name: method_name, mode: mode, refresh: refresh, single: true, job_options: job_options)
         end unless base.method_defined?(:reindex)
 
         def similar(**options)
