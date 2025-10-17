@@ -2,7 +2,7 @@ module Searchkick
   class ReindexV2Job < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
-    def perform(class_name, id, method_name = nil, routing: nil, index_name: nil, allow_missing: false)
+    def perform(class_name, id, method_name = nil, routing: nil, index_name: nil, allow_missing: nil)
       model = Searchkick.load_model(class_name, allow_child: true)
       index = model.searchkick_index(name: index_name)
       # use should_index? to decide whether to index (not default scope)

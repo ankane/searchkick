@@ -2,7 +2,7 @@ module Searchkick
   class BulkReindexJob < Searchkick.parent_job.constantize
     queue_as { Searchkick.queue_name }
 
-    def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil, allow_missing: false)
+    def perform(class_name:, record_ids: nil, index_name: nil, method_name: nil, batch_id: nil, min_id: nil, max_id: nil, allow_missing: nil)
       model = Searchkick.load_model(class_name)
       index = model.searchkick_index(name: index_name)
 

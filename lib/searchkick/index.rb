@@ -164,7 +164,7 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name, allow_missing: false)
+    def bulk_update(records, method_name, allow_missing: nil)
       return if records.empty?
 
       notify_bulk(records, "Update") do
@@ -211,7 +211,7 @@ module Searchkick
 
     # note: this is designed to be used internally
     # so it does not check object matches index class
-    def reindex(object, method_name: nil, allow_missing: false, full: false, **options)
+    def reindex(object, method_name: nil, allow_missing: nil, full: false, **options)
       options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
 
       if object.is_a?(Array)
