@@ -1,7 +1,6 @@
 require "bundler/setup"
 Bundler.require(:default)
 require "minitest/autorun"
-require "minitest/pride"
 require "active_support/notifications"
 
 ENV["RACK_ENV"] = "test"

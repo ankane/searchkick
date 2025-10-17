@@ -3,7 +3,7 @@ source "https://rubygems.org"
 gemspec path: ".."
 
 gem "rake"
-gem "minitest", ">= 5"
+gem "minitest"
 gem "sqlite3"
 gem "activerecord", "~> 7.2.0"
 gem "actionpack", "~> 7.2.0"
