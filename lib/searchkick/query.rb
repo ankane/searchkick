@@ -28,7 +28,7 @@ module Searchkick
       unknown_keywords = options.keys - [:aggs, :block, :body, :body_options, :boost,
         :boost_by, :boost_by_distance, :boost_by_recency, :boost_where, :conversions, :conversions_v2, :conversions_term, :debug, :emoji, :exclude, :explain,
         :fields, :highlight, :includes, :index_name, :indices_boost, :knn, :limit, :load,
-        :match, :misspellings, :models, :model_includes, :offset, :operator, :order, :padding, :page, :per_page, :profile,
+        :match, :misspellings, :models, :model_includes, :offset, :opaque_id, :operator, :order, :padding, :page, :per_page, :profile,
         :request_params, :routing, :scope_results, :scroll, :select, :similar, :smart_aggs, :suggest, :total_entries, :track, :type, :where]
       raise ArgumentError, "unknown keywords: #{unknown_keywords.join(", ")}" if unknown_keywords.any?
 
@@ -94,6 +94,7 @@ module Searchkick
       params[:type] = @type if @type
       params[:routing] = @routing if @routing
       params[:scroll] = @scroll if @scroll
+      params[:opaque_id] = @opaque_id if @opaque_id
       params.merge!(options[:request_params]) if options[:request_params]
       params
     end
@@ -117,7 +118,7 @@ module Searchkick
       query = params
       type = query[:type]
       index = query[:index].is_a?(Array) ? query[:index].join(",") : query[:index]
-      request_params = query.except(:index, :type, :body)
+      request_params = query.except(:index, :type, :body, :opaque_id)
 
       # no easy way to tell which host the client will use
       host =
@@ -131,7 +132,7 @@ module Searchkick
       request_params.each do |k, v|
         params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
       end
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json' -d '#{query[:body].to_json}'"
+      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json'#{" -H 'X-Opaque-ID: #{query[:opaque_id]}'" if query[:opaque_id]} -d '#{query[:body].to_json}'"
     end
 
     def handle_response(response)
@@ -152,7 +153,8 @@ module Searchkick
         total_entries: options[:total_entries],
         index_mapping: @index_mapping,
         suggest: options[:suggest],
-        scroll: options[:scroll]
+        scroll: options[:scroll],
+        opaque_id: options[:opaque_id]
       }
 
       if options[:debug]
@@ -266,6 +268,7 @@ module Searchkick
       padding = [options[:padding].to_i, 0].max
       offset = (options[:offset] || (page - 1) * per_page + padding).to_i
       scroll = options[:scroll]
+      opaque_id = options[:opaque_id]
 
       max_result_window = searchkick_options[:max_result_window]
       original_per_page = per_page
@@ -569,6 +572,7 @@ module Searchkick
       @padding = padding
       @load = load
       @scroll = scroll
+      @opaque_id = opaque_id
     end
 
     def set_fields

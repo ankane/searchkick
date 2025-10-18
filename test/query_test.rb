@@ -24,6 +24,16 @@ class QueryTest < Minitest::Test
     assert_equal "dfs_query_then_fetch", Product.search("*", request_params: {search_type: "dfs_query_then_fetch"}).params[:search_type]
   end
 
+  def test_opaque_id
+    store_names ["Milk"]
+    set_search_slow_log(0)
+    Product.search("*", opaque_id: "search").load
+    Product.search("*", scroll: "5s", opaque_id: "scroll").scroll { }
+    Searchkick.multi_search([Product.search("*")], opaque_id: "multi_search")
+  ensure
+    set_search_slow_log(-1)
+  end
+
   def test_debug
     store_names ["Milk"]
     out, _ = capture_io do
@@ -87,5 +97,14 @@ class QueryTest < Minitest::Test
     assert_warns "Records in search index do not exist in database" do
       assert_search "product", ["Product A"], scope_results: ->(r) { r.where(name: "Product A") }
     end
+  end
+
+  private
+
+  def set_search_slow_log(value)
+    settings = {
+      "index.search.slowlog.threshold.query.warn" => value
+    }
+    Product.searchkick_index.update_settings(settings)
   end
 end

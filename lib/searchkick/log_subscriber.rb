@@ -24,7 +24,7 @@ module Searchkick
 
       index = payload[:query][:index].is_a?(Array) ? payload[:query][:index].join(",") : payload[:query][:index]
       type = payload[:query][:type]
-      request_params = payload[:query].except(:index, :type, :body)
+      request_params = payload[:query].except(:index, :type, :body, :opaque_id)
 
       params = []
       request_params.each do |k, v|

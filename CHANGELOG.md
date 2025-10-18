@@ -3,6 +3,7 @@
 - Added `conversions_v2` option
 - Added `job_options` option
 - Added `parent_job` option
+- Added `opaque_id` option
 - Added `allow_missing` option for partial reindex
 - Added support for `exists: false`
 - Added `quantization` to `knn` option for Elasticsearch
