@@ -2275,7 +2275,7 @@ end
 
 ## History
 
-View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md).
+View the [changelog](https://github.com/ankane/searchkick/blob/master/CHANGELOG.md)
 
 ## Thanks
 
