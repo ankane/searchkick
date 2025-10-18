@@ -3,8 +3,8 @@ require_relative "test_helper"
 class PaginationTest < Minitest::Test
   def test_limit
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_order "product", ["Product A", "Product B"], order: {name: :asc}, limit: 2
-    assert_order_relation ["Product A", "Product B"], Product.search("product").order(name: :asc).limit(2)
+    assert_order ["Product A", "Product B"], search("product", order: {name: :asc}, limit: 2)
+    assert_order ["Product A", "Product B"], search("product").order(name: :asc).limit(2)
   end
 
   def test_no_limit
@@ -15,13 +15,13 @@ class PaginationTest < Minitest::Test
 
   def test_offset
     store_names ["Product A", "Product B", "Product C", "Product D"]
-    assert_order "product", ["Product C", "Product D"], order: {name: :asc}, offset: 2, limit: 100
-    assert_order_relation ["Product C", "Product D"], Product.search("product").order(name: :asc).offset(2).limit(100)
+    assert_order ["Product C", "Product D"], search("product", order: {name: :asc}, offset: 2, limit: 100)
+    assert_order ["Product C", "Product D"], search("product").order(name: :asc).offset(2).limit(100)
   end
 
   def test_pagination
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
-    products = Product.search("product", order: {name: :asc}, page: 2, per_page: 2, padding: 1)
+    products = search("product", order: {name: :asc}, page: 2, per_page: 2, padding: 1)
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page
@@ -47,7 +47,7 @@ class PaginationTest < Minitest::Test
 
   def test_relation
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
-    products = Product.search("product", padding: 1).order(name: :asc).page(2).per_page(2)
+    products = search("product", padding: 1).order(name: :asc).page(2).per_page(2)
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page
@@ -73,7 +73,7 @@ class PaginationTest < Minitest::Test
 
   def test_body
     store_names ["Product A", "Product B", "Product C", "Product D", "Product E", "Product F"]
-    products = Product.search("product", body: {query: {match_all: {}}, sort: [{name: "asc"}]}, page: 2, per_page: 2, padding: 1)
+    products = search("product", body: {query: {match_all: {}}, sort: [{name: "asc"}]}, page: 2, per_page: 2, padding: 1)
     assert_equal ["Product D", "Product E"], products.map(&:name)
     assert_equal "product", products.entry_name
     assert_equal 2, products.current_page

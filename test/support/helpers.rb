@@ -52,21 +52,27 @@ class Minitest::Test
     store names.map { |name| {name: name} }, model, reindex: reindex
   end
 
-  # no order
-  def assert_search(term, expected, options = {}, model = default_model)
-    assert_equal expected.sort, model.search(term, **options).map(&:name).sort
+  def search(term, **options)
+    default_model.search(term, **options)
   end
 
-  def assert_search_relation(expected, relation)
-    assert_equal expected.sort, relation.map(&:name).sort
+  # no order
+  def assert_search(term, expected, options = {}, model = default_model)
+    # new format
+    if expected.is_a?(Searchkick::Relation)
+      assert_equal term.sort, expected.map(&:name).sort
+    else
+      assert_equal expected.sort, model.search(term, **options).map(&:name).sort
+    end
   end
 
   def assert_order(term, expected, options = {}, model = default_model)
-    assert_equal expected, model.search(term, **options).map(&:name)
-  end
-
-  def assert_order_relation(expected, relation)
-    assert_equal expected, relation.map(&:name)
+    # new format
+    if expected.is_a?(Searchkick::Relation)
+      assert_equal term, expected.map(&:name)
+    else
+      assert_equal expected, model.search(term, **options).map(&:name)
+    end
   end
 
   def assert_equal_scores(term, options = {}, model = default_model)
@@ -74,7 +80,12 @@ class Minitest::Test
   end
 
   def assert_first(term, expected, options = {}, model = default_model)
-    assert_equal expected, model.search(term, **options).map(&:name).first
+    # new format
+    if expected.is_a?(Searchkick::Relation)
+      assert_equal term, expected.map(&:name).first
+    else
+      assert_equal expected, model.search(term, **options).map(&:name).first
+    end
   end
 
   def assert_misspellings(term, expected, misspellings = {}, model = default_model)
