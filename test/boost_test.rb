@@ -96,11 +96,17 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", user_ids: [3]}
     ]
     assert_first "Tomato B", search("tomato", boost_where: {user_ids: 2})
+    assert_first "Tomato B", search("tomato").boost_where(user_ids: 2)
     assert_first "Tomato B", search("tomato", boost_where: {user_ids: 1..2})
+    assert_first "Tomato B", search("tomato").boost_where(user_ids: 1..2)
     assert_first "Tomato B", search("tomato", boost_where: {user_ids: [1, 4]})
+    assert_first "Tomato B", search("tomato").boost_where(user_ids: [1, 4])
     assert_first "Tomato B", search("tomato", boost_where: {user_ids: {value: 2, factor: 10}})
+    assert_first "Tomato B", search("tomato").boost_where(user_ids: {value: 2, factor: 10})
     assert_first "Tomato B", search("tomato", boost_where: {user_ids: {value: [1, 4], factor: 10}})
+    assert_first "Tomato B", search("tomato").boost_where(user_ids: {value: [1, 4], factor: 10})
     assert_order ["Tomato C", "Tomato B", "Tomato A"], search("tomato", boost_where: {user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}]})
+    assert_order ["Tomato C", "Tomato B", "Tomato A"], search("tomato").boost_where(user_ids: [{value: 1, factor: 10}, {value: 3, factor: 20}])
   end
 
   def test_boost_where_negative_boost
@@ -110,6 +116,7 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", user_ids: [2]}
     ]
     assert_first "Tomato A", search("tomato", boost_where: {user_ids: {value: 2, factor: 0.5}})
+    assert_first "Tomato A", search("tomato").boost_where(user_ids: {value: 2, factor: 0.5})
   end
 
   def test_boost_by_recency
@@ -119,6 +126,7 @@ class BoostTest < Minitest::Test
       {name: "Article 3", created_at: Time.now}
     ]
     assert_order ["Article 3", "Article 2", "Article 1"], search("article", boost_by_recency: {created_at: {scale: "7d", decay: 0.5}})
+    assert_order ["Article 3", "Article 2", "Article 1"], search("article").boost_by_recency(created_at: {scale: "7d", decay: 0.5})
   end
 
   def test_boost_by_recency_origin
@@ -128,6 +136,7 @@ class BoostTest < Minitest::Test
       {name: "Article 3", created_at: Time.now}
     ]
     assert_order ["Article 1", "Article 2", "Article 3"], search("article", boost_by_recency: {created_at: {origin: 2.days.ago, scale: "7d", decay: 0.5}})
+    assert_order ["Article 1", "Article 2", "Article 3"], search("article").boost_by_recency(created_at: {origin: 2.days.ago, scale: "7d", decay: 0.5})
   end
 
   def test_boost_by_distance
@@ -137,6 +146,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order ["San Francisco", "San Antonio", "San Marino"], search("san", boost_by_distance: {field: :location, origin: [37, -122], scale: "1000mi"})
+    assert_order ["San Francisco", "San Antonio", "San Marino"], search("san").boost_by_distance(field: :location, origin: [37, -122], scale: "1000mi")
   end
 
   def test_boost_by_distance_hash
@@ -146,6 +156,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order ["San Francisco", "San Antonio", "San Marino"], search("san", boost_by_distance: {field: :location, origin: {lat: 37, lon: -122}, scale: "1000mi"})
+    assert_order ["San Francisco", "San Antonio", "San Marino"], search("san").boost_by_distance(field: :location, origin: {lat: 37, lon: -122}, scale: "1000mi")
   end
 
   def test_boost_by_distance_v2
@@ -155,6 +166,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order ["San Francisco", "San Antonio", "San Marino"], search("san", boost_by_distance: {location: {origin: [37, -122], scale: "1000mi"}})
+    assert_order ["San Francisco", "San Antonio", "San Marino"], search("san").boost_by_distance(location: {origin: [37, -122], scale: "1000mi"})
   end
 
   def test_boost_by_distance_v2_hash
@@ -164,6 +176,7 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667}
     ]
     assert_order ["San Francisco", "San Antonio", "San Marino"], search("san", boost_by_distance: {location: {origin: {lat: 37, lon: -122}, scale: "1000mi"}})
+    assert_order ["San Francisco", "San Antonio", "San Marino"], search("san").boost_by_distance(location: {origin: {lat: 37, lon: -122}, scale: "1000mi"})
   end
 
   def test_boost_by_distance_v2_factor
@@ -173,7 +186,9 @@ class BoostTest < Minitest::Test
       {name: "San Marino", latitude: 43.9333, longitude: 12.4667, found_rate: 0.2}
     ]
     assert_order ["San Antonio", "San Francisco", "San Marino"], search("san", boost_by: {found_rate: {factor: 100}}, boost_by_distance: {location: {origin: [37, -122], scale: "1000mi"}})
+    assert_order ["San Antonio", "San Francisco", "San Marino"], search("san").boost_by(found_rate: {factor: 100}).boost_by_distance(location: {origin: [37, -122], scale: "1000mi"})
     assert_order ["San Francisco", "San Antonio", "San Marino"], search("san", boost_by: {found_rate: {factor: 100}}, boost_by_distance: {location: {origin: [37, -122], scale: "1000mi", factor: 100}})
+    assert_order ["San Francisco", "San Antonio", "San Marino"], search("san").boost_by(found_rate: {factor: 100}).boost_by_distance(location: {origin: [37, -122], scale: "1000mi", factor: 100})
   end
 
   def test_boost_by_indices

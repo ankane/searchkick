@@ -220,6 +220,45 @@ module Searchkick
     end
 
     # experimental
+    def boost_where(value)
+      clone.boost_where!(value)
+    end
+
+    # experimental
+    def boost_where!(value)
+      check_loaded
+      # TODO merge duplicate fields
+      (@options[:boost_where] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def boost_by_recency(value)
+      clone.boost_by_recency!(value)
+    end
+
+    # experimental
+    def boost_by_recency!(value)
+      check_loaded
+      (@options[:boost_by_recency] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def boost_by_distance(value)
+      clone.boost_by_distance!(value)
+    end
+
+    # experimental
+    def boost_by_distance!(value)
+      check_loaded
+      # legacy format
+      value = {value[:field] => value.except(:field)} if value[:field]
+      (@options[:boost_by_distance] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
