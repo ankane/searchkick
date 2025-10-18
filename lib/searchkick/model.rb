@@ -11,7 +11,7 @@ module Searchkick
         options[:conversions] = options.delete(:conversions_v1)
       end
 
-      unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :case_sensitive, :conversions, :conversions_v2, :deep_paging, :default_fields,
+      unknown_keywords = options.keys - [:_all, :_type, :batch_size, :callbacks, :callback_options, :case_sensitive, :conversions, :conversions_v2, :deep_paging, :default_fields,
         :filterable, :geo_shape, :highlight, :ignore_above, :index_name, :index_prefix, :inheritance, :job_options, :knn, :language,
         :locations, :mappings, :match, :max_result_window, :merge_mappings, :routing, :searchable, :search_synonyms, :settings, :similarity,
         :special_characters, :stem, :stemmer, :stem_conversions, :stem_exclusion, :stemmer_override, :suggest, :synonyms, :text_end,
@@ -29,6 +29,8 @@ module Searchkick
       unless [:inline, true, false, :async, :queue].include?(callbacks)
         raise ArgumentError, "Invalid value for callbacks"
       end
+      callback_options = (options[:callback_options] || {}).dup
+      callback_options[:if] = [-> { Searchkick.callbacks?(default: callbacks) }, callback_options[:if]].compact.flatten(1)
 
       base = self
 
@@ -107,10 +109,10 @@ module Searchkick
         # always add callbacks, even when callbacks is false
         # so Model.callbacks block can be used
         if respond_to?(:after_commit)
-          after_commit :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_commit :reindex, **callback_options
         elsif respond_to?(:after_save)
-          after_save :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
-          after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
+          after_save :reindex, **callback_options
+          after_destroy :reindex, **callback_options
         end
       end
     end
