@@ -114,27 +114,6 @@ module Searchkick
       end
     end
 
-    def to_curl
-      query = params
-      type = query[:type]
-      index = query[:index].is_a?(Array) ? query[:index].join(",") : query[:index]
-      request_params = query.except(:index, :type, :body, :opaque_id)
-
-      # no easy way to tell which host the client will use
-      host =
-        if Searchkick.client.transport.respond_to?(:transport)
-          Searchkick.client.transport.transport.hosts.first
-        else
-          Searchkick.client.transport.hosts.first
-        end
-      credentials = host[:user] || host[:password] ? "#{host[:user]}:#{host[:password]}@" : nil
-      params = ["pretty"]
-      request_params.each do |k, v|
-        params << "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"
-      end
-      "curl #{host[:protocol]}://#{credentials}#{host[:host]}:#{host[:port]}/#{CGI.escape(index)}#{type ? "/#{type.map { |t| CGI.escape(t) }.join(',')}" : ''}/_search?#{params.join('&')} -H 'Content-Type: application/json'#{" -H 'X-Opaque-ID: #{query[:opaque_id]}'" if query[:opaque_id]} -d '#{query[:body].to_json}'"
-    end
-
     def handle_response(response)
       opts = {
         page: @page,
@@ -159,8 +138,8 @@ module Searchkick
 
       if options[:debug]
         server = Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"
-        puts "Searchkick Version: #{Searchkick::VERSION}"
-        puts "Server Version: #{server} #{Searchkick.server_version}"
+        puts "Searchkick #{Searchkick::VERSION}"
+        puts "#{server} #{Searchkick.server_version}"
         puts
 
         puts "Model Options"
@@ -190,7 +169,7 @@ module Searchkick
         end
 
         puts "Query"
-        puts to_curl
+        puts JSON.pretty_generate(params[:body])
         puts
 
         puts "Results"
