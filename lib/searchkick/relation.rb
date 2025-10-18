@@ -190,7 +190,7 @@ module Searchkick
     # experimental
     def fields!(*values)
       check_loaded
-      (@options[:fields] ||= []).concat(values)
+      (@options[:fields] ||= []).concat(values.flatten)
       self
     end
 
@@ -214,7 +214,11 @@ module Searchkick
     # experimental
     def boost_by!(value)
       check_loaded
-      value = {value => {}} unless value.is_a?(Hash)
+      if value.is_a?(Array)
+        value = value.to_h { |f| [f, {factor: 1}] }
+      elsif !value.is_a?(Hash)
+        value = {value => {factor: 1}}
+      end
       (@options[:boost_by] ||= {}).merge!(value)
       self
     end
@@ -255,6 +259,32 @@ module Searchkick
       # legacy format
       value = {value[:field] => value.except(:field)} if value[:field]
       (@options[:boost_by_distance] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def boost_indices(value)
+      clone.boost_indices!(value)
+    end
+    alias_method :indices_boost, :boost_indices
+
+    # experimental
+    def boost_indices!(value)
+      check_loaded
+      (@options[:indices_boost] ||= {}).merge!(value)
+      self
+    end
+    alias_method :indices_boost!, :boost_indices!
+
+    # experimental
+    def models(value)
+      clone.models!(value)
+    end
+
+    # experimental
+    def models!(*values)
+      check_loaded
+      (@options[:models] ||= []).concat(values.flatten)
       self
     end
 

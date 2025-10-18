@@ -735,7 +735,7 @@ module Searchkick
       if boost_by.is_a?(Array)
         boost_by = boost_by.to_h { |f| [f, {factor: 1}] }
       elsif boost_by.is_a?(Hash)
-        multiply_by, boost_by = boost_by.partition { |_, v| v.delete(:boost_mode) == "multiply" }.map(&:to_h)
+        multiply_by, boost_by = boost_by.transform_values(&:dup).partition { |_, v| v.delete(:boost_mode) == "multiply" }.map(&:to_h)
       end
       boost_by[options[:boost]] = {factor: 1} if options[:boost]
 

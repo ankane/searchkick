@@ -10,7 +10,6 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", orders_count: 100}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost: "orders_count"
-    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato").boost("orders_count")
   end
 
   def test_boost_zero
@@ -18,7 +17,6 @@ class BoostTest < Minitest::Test
       {name: "Zero Boost", orders_count: 0}
     ]
     assert_order "zero", ["Zero Boost"], boost: "orders_count"
-    assert_order_relation ["Zero Boost"], Product.search("zero").boost("orders_count")
   end
 
   # fields
@@ -29,7 +27,6 @@ class BoostTest < Minitest::Test
       {name: "White", color: "Red Red Red"}
     ]
     assert_order "red", ["Red", "White"], fields: ["name^10", "color"]
-    assert_order_relation ["Red", "White"], Product.search("red").fields("name^10", "color")
   end
 
   def test_fields_decimal
@@ -38,7 +35,6 @@ class BoostTest < Minitest::Test
       {name: "White", color: "Red Red Red"}
     ]
     assert_order "red", ["Red", "White"], fields: ["name^10.5", "color"]
-    assert_order_relation ["Red", "White"], Product.search("red").fields("name^10.5", "color")
   end
 
   def test_fields_word_start
@@ -47,7 +43,6 @@ class BoostTest < Minitest::Test
       {name: "White", color: "Red Red Red"}
     ]
     assert_order "red", ["Red", "White"], fields: [{"name^10" => :word_start}, "color"]
-    assert_order_relation ["Red", "White"], Product.search("red").fields({"name^10" => :word_start}, "color")
   end
 
   # for issue #855
@@ -65,9 +60,7 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", orders_count: 100}
     ]
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: [:orders_count]
-    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato").boost_by(:orders_count)
     assert_order "tomato", ["Tomato C", "Tomato B", "Tomato A"], boost_by: {orders_count: {factor: 10}}
-    assert_order_relation ["Tomato C", "Tomato B", "Tomato A"], Product.search("tomato").boost_by(orders_count: {factor: 10})
   end
 
   def test_boost_by_missing
@@ -76,7 +69,6 @@ class BoostTest < Minitest::Test
       {name: "Tomato B", orders_count: 10}
     ]
     assert_order "tomato", ["Tomato A", "Tomato B"], boost_by: {orders_count: {missing: 100}}
-    assert_order_relation ["Tomato A", "Tomato B"], Product.search("tomato").boost_by(orders_count: {missing: 100})
   end
 
   def test_boost_by_boost_mode_multiply
@@ -86,7 +78,6 @@ class BoostTest < Minitest::Test
       {name: "Tomato C", found_rate: 0.5}
     ]
     assert_order "tomato", ["Tomato B", "Tomato A", "Tomato C"], boost_by: {found_rate: {boost_mode: "multiply"}}
-    assert_order_relation ["Tomato B", "Tomato A", "Tomato C"], Product.search("tomato").boost_by(found_rate: {boost_mode: "multiply"})
   end
 
   def test_boost_where
@@ -181,5 +172,9 @@ class BoostTest < Minitest::Test
     store_names ["Rex"], Animal
     store_names ["Rexx"], Product
     assert_order "Rex", ["Rexx", "Rex"], {models: [Animal, Product], indices_boost: {Animal => 1, Product => 200}, fields: [:name]}, Searchkick
+  end
+
+  def supports_relation?
+    true
   end
 end

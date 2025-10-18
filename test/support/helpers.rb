@@ -63,6 +63,14 @@ class Minitest::Test
 
   def assert_order(term, expected, options = {}, model = default_model)
     assert_equal expected, model.search(term, **options).map(&:name)
+
+    if supports_relation?
+      relation = model.search(term)
+      options.each do |k, v|
+        relation = relation.public_send(k, v)
+      end
+      assert_equal expected, relation.map(&:name)
+    end
   end
 
   def assert_order_relation(expected, relation)
@@ -132,6 +140,10 @@ class Minitest::Test
 
   def default_model
     Product
+  end
+
+  def supports_relation?
+    false
   end
 
   def ci?
