@@ -56,13 +56,11 @@ class Minitest::Test
   def assert_search(term, expected, options = {}, model = default_model)
     assert_equal expected.sort, model.search(term, **options).map(&:name).sort
 
-    if supports_relation?
-      relation = model.search(term)
-      options.each do |k, v|
-        relation = relation.public_send(k, v)
-      end
-      assert_equal expected.sort, relation.map(&:name).sort
+    relation = model.search(term)
+    options.each do |k, v|
+      relation = relation.public_send(k, v)
     end
+    assert_equal expected.sort, relation.map(&:name).sort
   end
 
   def assert_search_relation(expected, relation)
@@ -72,13 +70,11 @@ class Minitest::Test
   def assert_order(term, expected, options = {}, model = default_model)
     assert_equal expected, model.search(term, **options).map(&:name)
 
-    if supports_relation?
-      relation = model.search(term)
-      options.each do |k, v|
-        relation = relation.public_send(k, v)
-      end
-      assert_equal expected, relation.map(&:name)
+    relation = model.search(term)
+    options.each do |k, v|
+      relation = relation.public_send(k, v)
     end
+    assert_equal expected, relation.map(&:name)
   end
 
   def assert_order_relation(expected, relation)
@@ -148,10 +144,6 @@ class Minitest::Test
 
   def default_model
     Product
-  end
-
-  def supports_relation?
-    false
   end
 
   def ci?

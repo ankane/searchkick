@@ -143,8 +143,4 @@ class GeoShapeTest < Minitest::Test
   def default_model
     Region
   end
-
-  def supports_relation?
-    true
-  end
 end

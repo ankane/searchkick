@@ -195,6 +195,18 @@ module Searchkick
     end
 
     # experimental
+    def match(value)
+      clone.match!(value)
+    end
+
+    # experimental
+    def match!(value)
+      check_loaded
+      @options[:match] = value
+      self
+    end
+
+    # experimental
     def boost(value)
       clone.boost!(value)
     end
@@ -277,8 +289,8 @@ module Searchkick
     alias_method :indices_boost!, :boost_indices!
 
     # experimental
-    def models(value)
-      clone.models!(value)
+    def models(*values)
+      clone.models!(*values)
     end
 
     # experimental
@@ -289,9 +301,46 @@ module Searchkick
     end
 
     # experimental
+    def misspellings(value)
+      clone.misspellings!(value)
+    end
+
+    # experimental
+    def misspellings!(value)
+      check_loaded
+      @options[:misspellings] = value
+      self
+    end
+
+    # experimental
+    def operator(value)
+      clone.operator!(value)
+    end
+
+    # experimental
+    def operator!(value)
+      check_loaded
+      @options[:operator] = value
+      self
+    end
+
+    # experimental
+    def emoji(value)
+      clone.emoji!(value)
+    end
+
+    # experimental
+    def emoji!(value)
+      check_loaded
+      @options[:emoji] = value
+      self
+    end
+
+    # experimental
     def conversions_v1(value)
       clone.conversions_v1!(value)
     end
+    alias_method :conversions, :conversions_v1
 
     # experimental
     def conversions_v1!(value)
@@ -299,6 +348,7 @@ module Searchkick
       @options[:conversions_v1] = value
       self
     end
+    alias_method :conversions!, :conversions_v1!
 
     # experimental
     def conversions_v2(value)
@@ -309,6 +359,42 @@ module Searchkick
     def conversions_v2!(value)
       check_loaded
       @options[:conversions_v2] = value
+      self
+    end
+
+    # experimental
+    def conversions_term(value)
+      clone.conversions_term!(value)
+    end
+
+    # experimental
+    def conversions_term!(value)
+      check_loaded
+      @options[:conversions_term] = value
+      self
+    end
+
+    # experimental
+    def routing(value)
+      clone.routing!(value)
+    end
+
+    # experimental
+    def routing!(value)
+      check_loaded
+      @options[:routing] = value
+      self
+    end
+
+    # experimental
+    def exclude(*values)
+      clone.exclude!(*values)
+    end
+
+    # experimental
+    def exclude!(*values)
+      check_loaded
+      (@options[:exclude] ||= []).concat(values.flatten)
       self
     end
 
@@ -325,6 +411,78 @@ module Searchkick
     end
 
     # experimental
+    def body_options(value)
+      clone.body_options!(value)
+    end
+
+    # experimental
+    def body_options!(value)
+      check_loaded
+      (@options[:body_options] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def similar(value)
+      clone.similar!(value)
+    end
+
+    # experimental
+    def similar!(value)
+      check_loaded
+      @options[:similar] = value
+      self
+    end
+
+    # experimental
+    def index_name(*values)
+      clone.index_name!(*values)
+    end
+
+    # experimental
+    def index_name!(*values)
+      check_loaded
+      (@options[:index_name] ||= []).concat(values.flatten)
+      self
+    end
+
+    # experimental
+    def scope_results(value)
+      clone.scope_results!(value)
+    end
+
+    # experimental
+    def scope_results!(value)
+      check_loaded
+      @options[:scope_results] = value
+      self
+    end
+
+    # experimental
+    def debug(value)
+      clone.debug!(value)
+    end
+
+    # experimental
+    def debug!(value)
+      check_loaded
+      @options[:debug] = value
+      self
+    end
+
+    # experimental
+    def explain(value)
+      clone.explain!(value)
+    end
+
+    # experimental
+    def explain!(value)
+      check_loaded
+      @options[:explain] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
@@ -335,8 +493,19 @@ module Searchkick
     end
 
     # experimental
-    def load
-      private_execute
+    def load(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        private_execute
+        self
+      else
+        clone.load!(value)
+      end
+    end
+
+    # experimental
+    def load!(value)
+      check_loaded
+      @options[:load] = value
       self
     end
 

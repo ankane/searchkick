@@ -223,8 +223,4 @@ class KnnTest < Minitest::Test
       end
     end
   end
-
-  def supports_relation?
-    true
-  end
 end
