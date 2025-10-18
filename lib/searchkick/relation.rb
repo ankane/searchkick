@@ -301,6 +301,23 @@ module Searchkick
     end
 
     # experimental
+    def index_name(*values)
+      clone.index_name!(*values)
+    end
+
+    # experimental
+    def index_name!(*values)
+      check_loaded
+      values = values.flatten
+      if values.all? { |v| v.respond_to?(:searchkick_index) }
+        models!(*values)
+      else
+        (@options[:index_name] ||= []).concat(values.flatten)
+        self
+      end
+    end
+
+    # experimental
     def misspellings(value)
       clone.misspellings!(value)
     end
@@ -431,18 +448,6 @@ module Searchkick
     def similar!(value)
       check_loaded
       @options[:similar] = value
-      self
-    end
-
-    # experimental
-    def index_name(*values)
-      clone.index_name!(*values)
-    end
-
-    # experimental
-    def index_name!(*values)
-      check_loaded
-      (@options[:index_name] ||= []).concat(values.flatten)
       self
     end
 
