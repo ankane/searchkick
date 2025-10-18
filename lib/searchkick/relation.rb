@@ -500,6 +500,34 @@ module Searchkick
     end
 
     # experimental
+    def aggs(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        private_execute.aggs
+      else
+        clone.aggs!(value)
+      end
+    end
+
+    # experimental
+    def aggs!(value)
+      check_loaded
+      (@options[:aggs] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def smart_aggs(value)
+      clone.smart_aggs!(value)
+    end
+
+    # experimental
+    def smart_aggs!(value)
+      check_loaded
+      @options[:smart_aggs] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
