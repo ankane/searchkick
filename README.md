@@ -2091,7 +2091,7 @@ Product.search("milk", includes: [:brand, :stores])
 Eager load different associations by model
 
 ```ruby
-Searchkick.search("*",  models: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
+Searchkick.search("*", models: [Product, Store], model_includes: {Product => [:store], Store => [:product]})
 ```
 
 Run additional scopes on results
