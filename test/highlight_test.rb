@@ -14,6 +14,7 @@ class HighlightTest < Minitest::Test
   def test_tag
     store_names ["Two Door Cinema Club"]
     assert_equal "Two Door <strong>Cinema</strong> Club", Product.search("cinema", highlight: {tag: "<strong>"}).highlights.first[:name]
+    assert_equal "Two Door <strong>Cinema</strong> Club", Product.search("cinema").highlight(tag: "<strong>").highlights.first[:name]
   end
 
   def test_tag_class

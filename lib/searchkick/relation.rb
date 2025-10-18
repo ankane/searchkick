@@ -463,6 +463,18 @@ module Searchkick
       self
     end
 
+    # highlight
+    def highlight(value)
+      clone.highlight!(value)
+    end
+
+    # experimental
+    def highlight!(value)
+      check_loaded
+      @options[:highlight] = value
+      self
+    end
+
     # experimental
     def debug(value)
       clone.debug!(value)
