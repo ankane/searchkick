@@ -2180,7 +2180,7 @@ class Product < ApplicationRecord
   searchkick callbacks: false
 
   # add the callbacks manually
-  after_commit :reindex, if: -> (model) { model.previous_changes.key?("name") } # use your own condition
+  after_commit :reindex, if: -> { previous_changes.key?("name") } # use your own condition
 end
 ```
 
