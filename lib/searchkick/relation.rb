@@ -259,6 +259,30 @@ module Searchkick
     end
 
     # experimental
+    def conversions_v1(value)
+      clone.conversions_v1!(value)
+    end
+
+    # experimental
+    def conversions_v1!(value)
+      check_loaded
+      @options[:conversions_v1] = value
+      self
+    end
+
+    # experimental
+    def conversions_v2(value)
+      clone.conversions_v2!(value)
+    end
+
+    # experimental
+    def conversions_v2!(value)
+      check_loaded
+      @options[:conversions_v2] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
