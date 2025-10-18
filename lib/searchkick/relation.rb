@@ -183,6 +183,43 @@ module Searchkick
     end
 
     # experimental
+    def fields(*values)
+      clone.fields!(*values)
+    end
+
+    # experimental
+    def fields!(*values)
+      check_loaded
+      (@options[:fields] ||= []).concat(values)
+      self
+    end
+
+    # experimental
+    def boost(value)
+      clone.boost!(value)
+    end
+
+    # experimental
+    def boost!(value)
+      check_loaded
+      @options[:boost] = value
+      self
+    end
+
+    # experimental
+    def boost_by(value)
+      clone.boost_by!(value)
+    end
+
+    # experimental
+    def boost_by!(value)
+      check_loaded
+      value = {value => {}} unless value.is_a?(Hash)
+      (@options[:boost_by] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
