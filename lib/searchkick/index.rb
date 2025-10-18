@@ -212,7 +212,9 @@ module Searchkick
     # note: this is designed to be used internally
     # so it does not check object matches index class
     def reindex(object, method_name: nil, allow_missing: nil, full: false, **options)
-      options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
+      if @options[:job_options]
+        options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
+      end
 
       if object.is_a?(Array)
         # note: purposefully skip full
