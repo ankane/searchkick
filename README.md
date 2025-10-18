@@ -2076,10 +2076,10 @@ Change search queue name
 Searchkick.queue_name = :search_reindex
 ```
 
-Change the parent job (defaults to `"ActiveJob::Base"`) [unreleased]
+Change the parent job [unreleased]
 
 ```ruby
-Searchkick.parent_job = "ApplicationJob"
+Searchkick.parent_job = "ApplicationJob" # defaults to "ActiveJob::Base"
 ```
 
 Eager load associations
