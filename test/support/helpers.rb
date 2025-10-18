@@ -55,6 +55,14 @@ class Minitest::Test
   # no order
   def assert_search(term, expected, options = {}, model = default_model)
     assert_equal expected.sort, model.search(term, **options).map(&:name).sort
+
+    if supports_relation?
+      relation = model.search(term)
+      options.each do |k, v|
+        relation = relation.public_send(k, v)
+      end
+      assert_equal expected.sort, relation.map(&:name).sort
+    end
   end
 
   def assert_search_relation(expected, relation)

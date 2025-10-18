@@ -313,6 +313,18 @@ module Searchkick
     end
 
     # experimental
+    def knn(value)
+      clone.knn!(value)
+    end
+
+    # experimental
+    def knn!(value)
+      check_loaded
+      @options[:knn] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end
