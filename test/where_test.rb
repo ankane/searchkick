@@ -84,17 +84,17 @@ class WhereTest < Minitest::Test
       {name: "Product C", store_id: 3, in_stock: false, backordered: true, created_at: now - 2, orders_count: 2, user_ids: [1, 3]},
       {name: "Product D", store_id: 4, in_stock: false, backordered: false, created_at: now - 3, orders_count: 1}
     ]
-    assert_search ["Product A", "Product B"], search("product").where(in_stock: true)
+    assert_search_relation ["Product A", "Product B"], Product.search("product").where(in_stock: true)
 
     # multiple where
-    assert_search ["Product A"], search("product").where(in_stock: true).where(backordered: true)
+    assert_search_relation ["Product A"], Product.search("product").where(in_stock: true).where(backordered: true)
 
     # rewhere
-    assert_search ["Product A", "Product C"], search("product").where(in_stock: true).rewhere(backordered: true)
+    assert_search_relation ["Product A", "Product C"], Product.search("product").where(in_stock: true).rewhere(backordered: true)
 
     # not
-    assert_search ["Product C", "Product D"], search("product").where.not(in_stock: true)
-    assert_search ["Product C"], search("product").where.not(in_stock: true).where(backordered: true)
+    assert_search_relation ["Product C", "Product D"], Product.search("product").where.not(in_stock: true)
+    assert_search_relation ["Product C"], Product.search("product").where.not(in_stock: true).where(backordered: true)
   end
 
   def test_where_string_operators
