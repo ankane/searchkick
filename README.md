@@ -1230,15 +1230,15 @@ And use:
 
 ```ruby
 class ProductTest < ActiveSupport::TestCase
-  def setup
+  setup do
     Searchkick.enable_callbacks
   end
 
-  def teardown
+  teardown do
     Searchkick.disable_callbacks
   end
 
-  def test_search
+  test "search" do
     Product.create!(name: "Apple")
     Product.search_index.refresh
     assert_equal ["Apple"], Product.search("apple").map(&:name)
