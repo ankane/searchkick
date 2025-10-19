@@ -567,6 +567,21 @@ module Searchkick
       self
     end
 
+    def first(value = NO_DEFAULT_VALUE)
+      result =
+        if loaded?
+          private_execute
+        else
+          limit(value == NO_DEFAULT_VALUE ? 1 : value).load
+        end
+
+      if value == NO_DEFAULT_VALUE
+        result.first
+      else
+        result.first(value)
+      end
+    end
+
     def reorder(*values)
       clone.reorder!(*values)
     end

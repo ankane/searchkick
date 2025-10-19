@@ -15,6 +15,11 @@ class ResultsTest < Minitest::Test
     assert_kind_of Product, products[0]
     assert_kind_of Array, products.slice(0, 1)
     assert_kind_of Array, products.to_ary
+  end
+
+  def test_first
+    store_names ["Product A", "Product B"]
+    products = Product.search("product")
     assert_kind_of Product, products.first
     assert_kind_of Array, products.first(1)
   end
