@@ -2120,7 +2120,7 @@ Run additional scopes on results
 Product.search("milk", scope_results: ->(r) { r.with_attached_images })
 ```
 
-Set opaque id for slow query logs [unreleased]
+Set opaque id for slow logs [unreleased]
 
 ```ruby
 Product.search("milk", opaque_id: "some-id")
