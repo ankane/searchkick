@@ -2076,10 +2076,24 @@ Change the search method name
 Searchkick.search_method_name = :lookup
 ```
 
-Change search queue name
+Change the queue name
 
 ```ruby
-Searchkick.queue_name = :search_reindex
+Searchkick.queue_name = :search_reindex # defaults to :searchkick
+```
+
+Change the queue name or priority for a model [unreleased]
+
+```ruby
+class Product < ApplicationRecord
+  searchkick job_options: {queue: "critical", priority: 10}
+end
+```
+
+Change the queue name or priority for a specific call [unreleased]
+
+```ruby
+Product.where(store_id: 1).reindex(mode: :async, job_options: {queue: "critical", priority: 10})
 ```
 
 Change the parent job [unreleased]
