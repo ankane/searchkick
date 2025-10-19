@@ -528,6 +528,18 @@ module Searchkick
     end
 
     # experimental
+    def opaque_id(value)
+      clone.opaque_id!(value)
+    end
+
+    # experimental
+    def opaque_id!(value)
+      check_loaded
+      @options[:opaque_id] = value
+      self
+    end
+
+    # experimental
     def only(*keys)
       Relation.new(@model, @term, **@options.slice(*keys))
     end

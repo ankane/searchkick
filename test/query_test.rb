@@ -28,6 +28,7 @@ class QueryTest < Minitest::Test
     store_names ["Milk"]
     set_search_slow_log(0)
     Product.search("*", opaque_id: "search").load
+    Product.search("*").opaque_id("search_relation").load
     Product.search("*", scroll: "5s", opaque_id: "scroll").scroll { }
     Searchkick.multi_search([Product.search("*")], opaque_id: "multi_search")
   ensure
