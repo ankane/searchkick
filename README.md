@@ -2100,6 +2100,14 @@ Run additional scopes on results
 Product.search("milk", scope_results: ->(r) { r.with_attached_images })
 ```
 
+Set opaque id for slow query logs [unreleased]
+
+```ruby
+Product.search("milk", opaque_id: "some-id")
+# or
+Searchkick.multi_search([search1, search2], opaque_id: "some-id")
+```
+
 Specify default fields to search
 
 ```ruby
