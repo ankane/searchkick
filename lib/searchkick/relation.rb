@@ -188,7 +188,7 @@ module Searchkick
     end
 
     # experimental
-    def debug(value)
+    def debug(value = true)
       clone.debug!(value)
     end
 
@@ -200,7 +200,7 @@ module Searchkick
     end
 
     # experimental
-    def emoji(value)
+    def emoji(value = true)
       clone.emoji!(value)
     end
 
@@ -224,7 +224,7 @@ module Searchkick
     end
 
     # experimental
-    def explain(value)
+    def explain(value = true)
       clone.explain!(value)
     end
 
@@ -487,7 +487,7 @@ module Searchkick
     end
 
     # experimental
-    def profile(value)
+    def profile(value = true)
       clone.profile!(value)
     end
 
@@ -551,7 +551,7 @@ module Searchkick
     end
 
     # experimental
-    def similar(value)
+    def similar(value = true)
       clone.similar!(value)
     end
 
@@ -575,7 +575,7 @@ module Searchkick
     end
 
     # experimental
-    def suggest(value)
+    def suggest(value = true)
       clone.suggest!(value)
     end
 
@@ -603,7 +603,7 @@ module Searchkick
     end
 
     # experimental
-    def track(value)
+    def track(value = true)
       clone.track!(value)
     end
 
