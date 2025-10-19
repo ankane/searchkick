@@ -1217,11 +1217,14 @@ module ActiveSupport
   class TestCase
     parallelize_setup do |worker|
       Searchkick.index_suffix = worker
+
+      # reindex models for parallel tests
+      Product.reindex
     end
   end
 end
 
-# reindex models
+# reindex models for non-parallel tests
 Product.reindex
 
 # and disable callbacks
