@@ -1716,7 +1716,7 @@ Product.reindex(:prices_data)
 Ignore errors for missing documents with: [unreleased]
 
 ```ruby
-Product.reindex(:prices_data, allow_missing: true)
+Product.reindex(:prices_data, ignore_missing: true)
 ```
 
 ## Advanced

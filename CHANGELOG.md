@@ -6,7 +6,7 @@
 - Added `parent_job` option
 - Added `opaque_id` option
 - Added `callback_options` option
-- Added `allow_missing` option for partial reindex
+- Added `ignore_missing` option for partial reindex
 - Added support for `exists: false`
 - Added `quantization` to `knn` option for Elasticsearch
 - Changed async reindex to use ranges for numeric primary keys with Active Record
