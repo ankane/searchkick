@@ -534,6 +534,24 @@ module Searchkick
     end
 
     # experimental
+    def scroll(value = NO_DEFAULT_VALUE, &block)
+      if value == NO_DEFAULT_VALUE
+        private_execute.scroll(&block)
+      elsif block_given?
+        clone.scroll!(value).scroll(&block)
+      else
+        clone.scroll!(value)
+      end
+    end
+
+    # experimental
+    def scroll!(value)
+      check_loaded
+      @options[:scroll] = value
+      self
+    end
+
+    # experimental
     def select(*values, &block)
       if block_given?
         private_execute.select(*values, &block)
