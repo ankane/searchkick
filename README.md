@@ -1226,6 +1226,16 @@ class ActiveSupport::TestCase
 end
 ```
 
+And optionally `test/application_system_test_case.rb`:
+
+```ruby
+class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  setup do
+    Searchkick.disable_callbacks
+  end
+end
+```
+
 And use:
 
 ```ruby
