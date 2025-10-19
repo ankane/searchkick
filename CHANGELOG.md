@@ -1,6 +1,6 @@
 ## 6.0.0 (unreleased)
 
-- Added new query API
+- Added new query builder API (similar to Active Record)
 - Added `conversions_v2` option
 - Added `job_options` option
 - Added `parent_job` option
