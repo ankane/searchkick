@@ -37,6 +37,15 @@ class ConversionsTest < Minitest::Test
     Product.reindex
   end
 
+  def test_v1_term
+    store [
+      {name: "Tomato A", conversions: {"tomato" => 1, "soup" => 3}},
+      {name: "Tomato B", conversions: {"tomato" => 2, "soup" => 2}},
+      {name: "Tomato C", conversions: {"tomato" => 3, "soup" => 1}}
+    ]
+    assert_order "tomato", ["Tomato A", "Tomato B", "Tomato C"], conversions_term: "soup"
+  end
+
   def test_v1_weight
     Product.reindex
     store [
@@ -102,6 +111,16 @@ class ConversionsTest < Minitest::Test
     end
   ensure
     Product.reindex
+  end
+
+  def test_v2_term
+    store [
+      {name: "Tomato A", conversions_v2: {"tomato" => 1, "soup" => 3}},
+      {name: "Tomato B", conversions_v2: {"tomato" => 2, "soup" => 2}},
+      {name: "Tomato C", conversions_v2: {"tomato" => 3, "soup" => 1}}
+    ]
+    assert_order "tomato", ["Tomato A", "Tomato B", "Tomato C"], conversions_v2: {term: "soup"}
+    assert_order "tomato", ["Tomato A", "Tomato B", "Tomato C"], conversions_v2: true, conversions_term: "soup"
   end
 
   def test_v2_weight
