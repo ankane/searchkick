@@ -193,7 +193,7 @@ module Searchkick
     end
 
     # experimental
-    def debug!(value)
+    def debug!(value = true)
       check_loaded
       @options[:debug] = value
       self
@@ -205,7 +205,7 @@ module Searchkick
     end
 
     # experimental
-    def emoji!(value)
+    def emoji!(value = true)
       check_loaded
       @options[:emoji] = value
       self
@@ -229,7 +229,7 @@ module Searchkick
     end
 
     # experimental
-    def explain!(value)
+    def explain!(value = true)
       check_loaded
       @options[:explain] = value
       self
@@ -491,7 +491,7 @@ module Searchkick
     end
 
     # experimental
-    def profile!(value)
+    def profile!(value = true)
       check_loaded
       @options[:profile] = value
       self
@@ -555,7 +555,7 @@ module Searchkick
     end
 
     # experimental
-    def similar!(value)
+    def similar!(value = true)
       check_loaded
       @options[:similar] = value
       self
@@ -579,7 +579,7 @@ module Searchkick
     end
 
     # experimental
-    def suggest!(value)
+    def suggest!(value = true)
       check_loaded
       @options[:suggest] = value
       self
@@ -607,7 +607,7 @@ module Searchkick
     end
 
     # experimental
-    def track!(value)
+    def track!(value = true)
       check_loaded
       @options[:track] = value
       self
