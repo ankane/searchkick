@@ -267,7 +267,7 @@ module Searchkick
     # experimental
     def includes!(*values)
       check_loaded
-      (@options[:includes] ||= []).concat(values)
+      (@options[:includes] ||= []).concat(values.flatten)
       self
     end
 
@@ -283,7 +283,7 @@ module Searchkick
       if values.all? { |v| v.respond_to?(:searchkick_index) }
         models!(*values)
       else
-        (@options[:index_name] ||= []).concat(values.flatten)
+        (@options[:index_name] ||= []).concat(values)
         self
       end
     end
@@ -436,9 +436,8 @@ module Searchkick
 
     # experimental
     def order!(*values)
-      values = values.first if values.size == 1 && values.first.is_a?(Array)
       check_loaded
-      (@options[:order] ||= []).concat(values)
+      (@options[:order] ||= []).concat(values.flatten)
       self
     end
 
@@ -546,7 +545,7 @@ module Searchkick
     # experimental
     def select!(*values)
       check_loaded
-      (@options[:select] ||= []).concat(values)
+      (@options[:select] ||= []).concat(values.flatten)
       self
     end
 
