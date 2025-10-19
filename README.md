@@ -1213,27 +1213,19 @@ For performance, only enable Searchkick callbacks for the tests that need it.
 Add to your `test/test_helper.rb`:
 
 ```ruby
-class ActiveSupport::TestCase
-  parallelize_setup do |worker|
-    Searchkick.index_suffix = worker
-
-    # reindex models
-    Product.reindex
-
-    # and disable callbacks
-    Searchkick.disable_callbacks
+module ActiveSupport
+  class TestCase
+    parallelize_setup do |worker|
+      Searchkick.index_suffix = worker
+    end
   end
 end
-```
 
-And optionally `test/application_system_test_case.rb`:
+# reindex models
+Product.reindex
 
-```ruby
-class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  setup do
-    Searchkick.disable_callbacks
-  end
-end
+# and disable callbacks
+Searchkick.disable_callbacks
 ```
 
 And use:
