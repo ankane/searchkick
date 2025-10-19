@@ -1208,9 +1208,9 @@ As you iterate on your search, it’s a good idea to add tests.
 
 For performance, only enable Searchkick callbacks for the tests that need it.
 
-### Parallel Tests
+### Rails
 
-Rails 6 enables parallel tests by default. Add to your `test/test_helper.rb`:
+Add to your `test/test_helper.rb`:
 
 ```ruby
 class ActiveSupport::TestCase
