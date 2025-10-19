@@ -100,6 +100,15 @@ class QueryTest < Minitest::Test
     end
   end
 
+  def test_scope_results_relation
+    skip unless activerecord?
+
+    store_names ["Product A", "Product B"]
+    assert_warns "Records in search index do not exist in database" do
+      assert_search_relation ["Product A"], Product.search("product").scope_results(->(r) { r.where(name: "Product A") })
+    end
+  end
+
   private
 
   def set_search_slow_log(value)
