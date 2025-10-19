@@ -375,7 +375,6 @@ module Searchkick
 
     # experimental
     def offset(value = NO_DEFAULT_VALUE)
-      # TODO remove in Searchkick 6
       if value == NO_DEFAULT_VALUE
         private_execute.offset
       else
@@ -428,8 +427,12 @@ module Searchkick
     end
 
     # experimental
-    def padding(value)
-      clone.padding!(value)
+    def padding(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        private_execute.padding
+      else
+        clone.padding!(value)
+      end
     end
 
     # experimental
@@ -453,7 +456,6 @@ module Searchkick
 
     # experimental
     def per_page(value = NO_DEFAULT_VALUE)
-      # TODO remove in Searchkick 6
       if value == NO_DEFAULT_VALUE
         private_execute.per_page
       else
@@ -569,8 +571,12 @@ module Searchkick
     end
 
     # experimental
-    def total_entries(value)
-      clone.total_entries!(value)
+    def total_entries(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        private_execute.total_entries
+      else
+        clone.total_entries!(value)
+      end
     end
 
     # experimental
