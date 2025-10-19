@@ -5,7 +5,7 @@ module Searchkick
     # note: modifying body directly is not supported
     # and has no impact on query after being executed
     # TODO freeze body object?
-    delegate :body, :params, to: :query
+    delegate :params, to: :query
     delegate_missing_to :private_execute
 
     attr_reader :model
@@ -40,6 +40,22 @@ module Searchkick
     def aggs!(value)
       check_loaded
       (@options[:aggs] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def body(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        query.body
+      else
+        clone.body!(value)
+      end
+    end
+
+    # experimental
+    def body!(value)
+      check_loaded
+      @options[:body] = value
       self
     end
 
