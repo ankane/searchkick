@@ -166,6 +166,7 @@ module Searchkick
     end
 
     def batch_job(class_name, batch_id, job_options, **options)
+      job_options ||= {}
       # TODO expire Redis key
       Searchkick.with_redis { |r| r.call("SADD", batches_key, [batch_id]) }
       Searchkick::BulkReindexJob.set(**job_options).perform_later(
