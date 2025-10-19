@@ -28,181 +28,30 @@ module Searchkick
     end
 
     # experimental
-    def limit(value)
-      clone.limit!(value)
-    end
-
-    # experimental
-    def limit!(value)
-      check_loaded
-      @options[:limit] = value
-      self
-    end
-
-    # experimental
-    def offset(value = NO_DEFAULT_VALUE)
-      # TODO remove in Searchkick 6
+    def aggs(value = NO_DEFAULT_VALUE)
       if value == NO_DEFAULT_VALUE
-        private_execute.offset
+        private_execute.aggs
       else
-        clone.offset!(value)
+        clone.aggs!(value)
       end
     end
 
     # experimental
-    def offset!(value)
+    def aggs!(value)
       check_loaded
-      @options[:offset] = value
+      (@options[:aggs] ||= {}).merge!(value)
       self
     end
 
     # experimental
-    def page(value)
-      clone.page!(value)
+    def body_options(value)
+      clone.body_options!(value)
     end
 
     # experimental
-    def page!(value)
+    def body_options!(value)
       check_loaded
-      @options[:page] = value
-      self
-    end
-
-    # experimental
-    def per_page(value = NO_DEFAULT_VALUE)
-      # TODO remove in Searchkick 6
-      if value == NO_DEFAULT_VALUE
-        private_execute.per_page
-      else
-        clone.per_page!(value)
-      end
-    end
-
-    # experimental
-    def per_page!(value)
-      check_loaded
-      @options[:per_page] = value
-      self
-    end
-
-    # experimental
-    def where(value = NO_DEFAULT_VALUE)
-      if value == NO_DEFAULT_VALUE
-        Where.new(self)
-      else
-        clone.where!(value)
-      end
-    end
-
-    # experimental
-    def where!(value)
-      check_loaded
-      if @options[:where]
-        @options[:where] = {_and: [@options[:where], ensure_permitted(value)]}
-      else
-        @options[:where] = ensure_permitted(value)
-      end
-      self
-    end
-
-    # experimental
-    def rewhere(value)
-      clone.rewhere!(value)
-    end
-
-    # experimental
-    def rewhere!(value)
-      check_loaded
-      @options[:where] = ensure_permitted(value)
-      self
-    end
-
-    # experimental
-    def order(*values)
-      clone.order!(*values)
-    end
-
-    # experimental
-    def order!(*values)
-      values = values.first if values.size == 1 && values.first.is_a?(Array)
-      check_loaded
-      (@options[:order] ||= []).concat(values)
-      self
-    end
-
-    # experimental
-    def reorder(*values)
-      clone.reorder!(*values)
-    end
-
-    # experimental
-    def reorder!(*values)
-      check_loaded
-      @options[:order] = values
-      self
-    end
-
-    # experimental
-    def select(*values, &block)
-      if block_given?
-        private_execute.select(*values, &block)
-      else
-        clone.select!(*values)
-      end
-    end
-
-    # experimental
-    def select!(*values)
-      check_loaded
-      (@options[:select] ||= []).concat(values)
-      self
-    end
-
-    # experimental
-    def reselect(*values)
-      clone.reselect!(*values)
-    end
-
-    # experimental
-    def reselect!(*values)
-      check_loaded
-      @options[:select] = values
-      self
-    end
-
-    # experimental
-    def includes(*values)
-      clone.includes!(*values)
-    end
-
-    # experimental
-    def includes!(*values)
-      check_loaded
-      (@options[:includes] ||= []).concat(values)
-      self
-    end
-
-    # experimental
-    def fields(*values)
-      clone.fields!(*values)
-    end
-
-    # experimental
-    def fields!(*values)
-      check_loaded
-      (@options[:fields] ||= []).concat(values.flatten)
-      self
-    end
-
-    # experimental
-    def match(value)
-      clone.match!(value)
-    end
-
-    # experimental
-    def match!(value)
-      check_loaded
-      @options[:match] = value
+      (@options[:body_options] ||= {}).merge!(value)
       self
     end
 
@@ -236,15 +85,16 @@ module Searchkick
     end
 
     # experimental
-    def boost_where(value)
-      clone.boost_where!(value)
+    def boost_by_distance(value)
+      clone.boost_by_distance!(value)
     end
 
     # experimental
-    def boost_where!(value)
+    def boost_by_distance!(value)
       check_loaded
-      # TODO merge duplicate fields
-      (@options[:boost_where] ||= {}).merge!(value)
+      # legacy format
+      value = {value[:field] => value.except(:field)} if value[:field]
+      (@options[:boost_by_distance] ||= {}).merge!(value)
       self
     end
 
@@ -261,95 +111,27 @@ module Searchkick
     end
 
     # experimental
-    def boost_by_distance(value)
-      clone.boost_by_distance!(value)
+    def boost_where(value)
+      clone.boost_where!(value)
     end
 
     # experimental
-    def boost_by_distance!(value)
+    def boost_where!(value)
       check_loaded
-      # legacy format
-      value = {value[:field] => value.except(:field)} if value[:field]
-      (@options[:boost_by_distance] ||= {}).merge!(value)
+      # TODO merge duplicate fields
+      (@options[:boost_where] ||= {}).merge!(value)
       self
     end
 
     # experimental
-    def boost_indices(value)
-      clone.boost_indices!(value)
+    def conversions(value)
+      clone.conversions!(value)
     end
-    alias_method :indices_boost, :boost_indices
 
     # experimental
-    def boost_indices!(value)
+    def conversions!(value)
       check_loaded
-      (@options[:indices_boost] ||= {}).merge!(value)
-      self
-    end
-    alias_method :indices_boost!, :boost_indices!
-
-    # experimental
-    def models(*values)
-      clone.models!(*values)
-    end
-
-    # experimental
-    def models!(*values)
-      check_loaded
-      (@options[:models] ||= []).concat(values.flatten)
-      self
-    end
-
-    # experimental
-    def index_name(*values)
-      clone.index_name!(*values)
-    end
-
-    # experimental
-    def index_name!(*values)
-      check_loaded
-      values = values.flatten
-      if values.all? { |v| v.respond_to?(:searchkick_index) }
-        models!(*values)
-      else
-        (@options[:index_name] ||= []).concat(values.flatten)
-        self
-      end
-    end
-
-    # experimental
-    def misspellings(value)
-      clone.misspellings!(value)
-    end
-
-    # experimental
-    def misspellings!(value)
-      check_loaded
-      @options[:misspellings] = value
-      self
-    end
-
-    # experimental
-    def operator(value)
-      clone.operator!(value)
-    end
-
-    # experimental
-    def operator!(value)
-      check_loaded
-      @options[:operator] = value
-      self
-    end
-
-    # experimental
-    def emoji(value)
-      clone.emoji!(value)
-    end
-
-    # experimental
-    def emoji!(value)
-      check_loaded
-      @options[:emoji] = value
+      @options[:conversions] = value
       self
     end
 
@@ -357,7 +139,6 @@ module Searchkick
     def conversions_v1(value)
       clone.conversions_v1!(value)
     end
-    alias_method :conversions, :conversions_v1
 
     # experimental
     def conversions_v1!(value)
@@ -365,7 +146,6 @@ module Searchkick
       @options[:conversions_v1] = value
       self
     end
-    alias_method :conversions!, :conversions_v1!
 
     # experimental
     def conversions_v2(value)
@@ -392,14 +172,26 @@ module Searchkick
     end
 
     # experimental
-    def routing(value)
-      clone.routing!(value)
+    def debug(value)
+      clone.debug!(value)
     end
 
     # experimental
-    def routing!(value)
+    def debug!(value)
       check_loaded
-      @options[:routing] = value
+      @options[:debug] = value
+      self
+    end
+
+    # experimental
+    def emoji(value)
+      clone.emoji!(value)
+    end
+
+    # experimental
+    def emoji!(value)
+      check_loaded
+      @options[:emoji] = value
       self
     end
 
@@ -416,50 +208,26 @@ module Searchkick
     end
 
     # experimental
-    def knn(value)
-      clone.knn!(value)
+    def explain(value)
+      clone.explain!(value)
     end
 
     # experimental
-    def knn!(value)
+    def explain!(value)
       check_loaded
-      @options[:knn] = value
+      @options[:explain] = value
       self
     end
 
     # experimental
-    def body_options(value)
-      clone.body_options!(value)
+    def fields(*values)
+      clone.fields!(*values)
     end
 
     # experimental
-    def body_options!(value)
+    def fields!(*values)
       check_loaded
-      (@options[:body_options] ||= {}).merge!(value)
-      self
-    end
-
-    # experimental
-    def similar(value)
-      clone.similar!(value)
-    end
-
-    # experimental
-    def similar!(value)
-      check_loaded
-      @options[:similar] = value
-      self
-    end
-
-    # experimental
-    def scope_results(value)
-      clone.scope_results!(value)
-    end
-
-    # experimental
-    def scope_results!(value)
-      check_loaded
-      @options[:scope_results] = value
+      (@options[:fields] ||= []).concat(values.flatten)
       self
     end
 
@@ -476,77 +244,68 @@ module Searchkick
     end
 
     # experimental
-    def debug(value)
-      clone.debug!(value)
+    def includes(*values)
+      clone.includes!(*values)
     end
 
     # experimental
-    def debug!(value)
+    def includes!(*values)
       check_loaded
-      @options[:debug] = value
+      (@options[:includes] ||= []).concat(values)
       self
     end
 
     # experimental
-    def explain(value)
-      clone.explain!(value)
+    def index_name(*values)
+      clone.index_name!(*values)
     end
 
     # experimental
-    def explain!(value)
+    def index_name!(*values)
       check_loaded
-      @options[:explain] = value
-      self
-    end
-
-    # experimental
-    def aggs(value = NO_DEFAULT_VALUE)
-      if value == NO_DEFAULT_VALUE
-        private_execute.aggs
+      values = values.flatten
+      if values.all? { |v| v.respond_to?(:searchkick_index) }
+        models!(*values)
       else
-        clone.aggs!(value)
+        (@options[:index_name] ||= []).concat(values.flatten)
+        self
       end
     end
 
     # experimental
-    def aggs!(value)
+    def indices_boost(value)
+      clone.indices_boost!(value)
+    end
+
+    # experimental
+    def indices_boost!(value)
       check_loaded
-      (@options[:aggs] ||= {}).merge!(value)
+      (@options[:indices_boost] ||= {}).merge!(value)
       self
     end
 
     # experimental
-    def smart_aggs(value)
-      clone.smart_aggs!(value)
+    def knn(value)
+      clone.knn!(value)
     end
 
     # experimental
-    def smart_aggs!(value)
+    def knn!(value)
       check_loaded
-      @options[:smart_aggs] = value
+      @options[:knn] = value
       self
     end
 
     # experimental
-    def opaque_id(value)
-      clone.opaque_id!(value)
+    def limit(value)
+      clone.limit!(value)
     end
 
     # experimental
-    def opaque_id!(value)
+    def limit!(value)
       check_loaded
-      @options[:opaque_id] = value
+      @options[:limit] = value
       self
-    end
-
-    # experimental
-    def only(*keys)
-      Relation.new(@model, @term, **@options.slice(*keys))
-    end
-
-    # experimental
-    def except(*keys)
-      Relation.new(@model, @term, **@options.except(*keys))
     end
 
     # experimental
@@ -564,6 +323,351 @@ module Searchkick
       check_loaded
       @options[:load] = value
       self
+    end
+
+    # experimental
+    def match(value)
+      clone.match!(value)
+    end
+
+    # experimental
+    def match!(value)
+      check_loaded
+      @options[:match] = value
+      self
+    end
+
+    # experimental
+    def misspellings(value)
+      clone.misspellings!(value)
+    end
+
+    # experimental
+    def misspellings!(value)
+      check_loaded
+      @options[:misspellings] = value
+      self
+    end
+
+    # experimental
+    def models(*values)
+      clone.models!(*values)
+    end
+
+    # experimental
+    def models!(*values)
+      check_loaded
+      (@options[:models] ||= []).concat(values.flatten)
+      self
+    end
+
+    # experimental
+    def model_includes(*values)
+      clone.model_includes!(*values)
+    end
+
+    # experimental
+    def model_includes!(*values)
+      check_loaded
+      (@options[:model_includes] ||= []).concat(values.flatten)
+      self
+    end
+
+    # experimental
+    def offset(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.offset
+      else
+        clone.offset!(value)
+      end
+    end
+
+    # experimental
+    def offset!(value)
+      check_loaded
+      @options[:offset] = value
+      self
+    end
+
+    # experimental
+    def opaque_id(value)
+      clone.opaque_id!(value)
+    end
+
+    # experimental
+    def opaque_id!(value)
+      check_loaded
+      @options[:opaque_id] = value
+      self
+    end
+
+    # experimental
+    def operator(value)
+      clone.operator!(value)
+    end
+
+    # experimental
+    def operator!(value)
+      check_loaded
+      @options[:operator] = value
+      self
+    end
+
+    # experimental
+    def order(*values)
+      clone.order!(*values)
+    end
+
+    # experimental
+    def order!(*values)
+      values = values.first if values.size == 1 && values.first.is_a?(Array)
+      check_loaded
+      (@options[:order] ||= []).concat(values)
+      self
+    end
+
+    # experimental
+    def padding(value)
+      clone.padding!(value)
+    end
+
+    # experimental
+    def padding!(value)
+      check_loaded
+      @options[:padding] = value
+      self
+    end
+
+    # experimental
+    def page(value)
+      clone.page!(value)
+    end
+
+    # experimental
+    def page!(value)
+      check_loaded
+      @options[:page] = value
+      self
+    end
+
+    # experimental
+    def per_page(value = NO_DEFAULT_VALUE)
+      # TODO remove in Searchkick 6
+      if value == NO_DEFAULT_VALUE
+        private_execute.per_page
+      else
+        clone.per_page!(value)
+      end
+    end
+
+    # experimental
+    def per_page!(value)
+      check_loaded
+      @options[:per_page] = value
+      self
+    end
+
+    # experimental
+    def profile(value)
+      clone.profile!(value)
+    end
+
+    # experimental
+    def profile!(value)
+      check_loaded
+      @options[:profile] = value
+      self
+    end
+
+    # experimental
+    def request_params(value)
+      clone.request_params!(value)
+    end
+
+    # experimental
+    def request_params!(value)
+      check_loaded
+      (@options[:request_params] ||= {}).merge!(value)
+      self
+    end
+
+    # experimental
+    def routing(value)
+      clone.routing!(value)
+    end
+
+    # experimental
+    def routing!(value)
+      check_loaded
+      @options[:routing] = value
+      self
+    end
+
+    # experimental
+    def scope_results(value)
+      clone.scope_results!(value)
+    end
+
+    # experimental
+    def scope_results!(value)
+      check_loaded
+      @options[:scope_results] = value
+      self
+    end
+
+    # experimental
+    def select(*values, &block)
+      if block_given?
+        private_execute.select(*values, &block)
+      else
+        clone.select!(*values)
+      end
+    end
+
+    # experimental
+    def select!(*values)
+      check_loaded
+      (@options[:select] ||= []).concat(values)
+      self
+    end
+
+    # experimental
+    def similar(value)
+      clone.similar!(value)
+    end
+
+    # experimental
+    def similar!(value)
+      check_loaded
+      @options[:similar] = value
+      self
+    end
+
+    # experimental
+    def smart_aggs(value)
+      clone.smart_aggs!(value)
+    end
+
+    # experimental
+    def smart_aggs!(value)
+      check_loaded
+      @options[:smart_aggs] = value
+      self
+    end
+
+    # experimental
+    def suggest(value)
+      clone.suggest!(value)
+    end
+
+    # experimental
+    def suggest!(value)
+      check_loaded
+      @options[:suggest] = value
+      self
+    end
+
+    # experimental
+    def total_entries(value)
+      clone.total_entries!(value)
+    end
+
+    # experimental
+    def total_entries!(value)
+      check_loaded
+      @options[:total_entries] = value
+      self
+    end
+
+    # experimental
+    def track(value)
+      clone.track!(value)
+    end
+
+    # experimental
+    def track!(value)
+      check_loaded
+      @options[:track] = value
+      self
+    end
+
+    # experimental
+    def type(value)
+      clone.type!(value)
+    end
+
+    # experimental
+    def type!(value)
+      check_loaded
+      @options[:type] = value
+      self
+    end
+
+    # experimental
+    def where(value = NO_DEFAULT_VALUE)
+      if value == NO_DEFAULT_VALUE
+        Where.new(self)
+      else
+        clone.where!(value)
+      end
+    end
+
+    # experimental
+    def where!(value)
+      check_loaded
+      if @options[:where]
+        @options[:where] = {_and: [@options[:where], ensure_permitted(value)]}
+      else
+        @options[:where] = ensure_permitted(value)
+      end
+      self
+    end
+
+    # experimental
+    def reorder(*values)
+      clone.reorder!(*values)
+    end
+
+    # experimental
+    def reorder!(*values)
+      check_loaded
+      @options[:order] = values
+      self
+    end
+
+    # experimental
+    def reselect(*values)
+      clone.reselect!(*values)
+    end
+
+    # experimental
+    def reselect!(*values)
+      check_loaded
+      @options[:select] = values
+      self
+    end
+
+    # experimental
+    def rewhere(value)
+      clone.rewhere!(value)
+    end
+
+    # experimental
+    def rewhere!(value)
+      check_loaded
+      @options[:where] = ensure_permitted(value)
+      self
+    end
+
+    # experimental
+    def only(*keys)
+      Relation.new(@model, @term, **@options.slice(*keys))
+    end
+
+    # experimental
+    def except(*keys)
+      Relation.new(@model, @term, **@options.except(*keys))
     end
 
     def loaded?
