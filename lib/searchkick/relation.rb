@@ -614,14 +614,14 @@ module Searchkick
     end
 
     # experimental
-    def type(value)
-      clone.type!(value)
+    def type(*values)
+      clone.type!(*values)
     end
 
     # experimental
-    def type!(value)
+    def type!(*values)
       check_loaded
-      @options[:type] = value
+      (@options[:type] ||= []).concat(values.flatten)
       self
     end
 
