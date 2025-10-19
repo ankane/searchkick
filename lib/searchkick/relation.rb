@@ -411,6 +411,7 @@ module Searchkick
 
     def per_page!(value)
       check_loaded
+      # TODO set limit?
       @options[:per_page] = value
       self
     end
@@ -572,7 +573,12 @@ module Searchkick
         if loaded?
           private_execute
         else
-          limit(value == NO_DEFAULT_VALUE ? 1 : value).load
+          limit = value == NO_DEFAULT_VALUE ? 1 : value
+          previous_limit = (@options[:limit] || @options[:per_page])&.to_i
+          if previous_limit && previous_limit < limit
+            limit = previous_limit
+          end
+          limit(limit).load
         end
 
       if value == NO_DEFAULT_VALUE
