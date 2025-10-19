@@ -13,11 +13,6 @@ module Searchkick
       @options = options
     end
 
-    # TODO make private in 6.0
-    def results
-      @results ||= with_hit.map(&:first)
-    end
-
     def with_hit
       return enum_for(:with_hit) unless block_given?
 
@@ -222,6 +217,10 @@ module Searchkick
     private
 
     attr_reader :klass, :options
+
+    def results
+      @results ||= with_hit.map(&:first)
+    end
 
     def with_hit_and_missing_records
       @with_hit_and_missing_records ||= begin

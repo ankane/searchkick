@@ -52,14 +52,14 @@ class MultiIndicesTest < Minitest::Test
     store_names ["Product A"]
 
     error = assert_raises(Searchkick::Error) do
-      Searchkick.search("product").results
+      Searchkick.search("product").to_a
     end
     assert_includes error.message, "Unknown model"
   end
 
   def test_no_models_or_index_name_load_false
     store_names ["Product A"]
-    Searchkick.search("product", load: false).results
+    Searchkick.search("product", load: false).to_a
   end
 
   private
