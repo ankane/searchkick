@@ -107,7 +107,7 @@ module Searchkick
             prepare
             response = execute_search
           end
-        rescue => e # TODO rescue type
+        rescue => e
           handle_error(e)
         end
         handle_response(response)
