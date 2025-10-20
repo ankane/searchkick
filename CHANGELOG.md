@@ -12,6 +12,7 @@
 - Changed async reindex to use ranges for numeric primary keys with Active Record
 - Fixed error with `case_sensitive` option and synonyms
 - Removed default quantization for `knn` option for Elasticsearch 8.14+
+- Removed `results` method (use `to_a` instead)
 - Removed `execute` option and method (no longer needed)
 - Removed dependency on Hashie
 - Deprecated `conversions` option in favor of `conversions_v2`
