@@ -589,7 +589,7 @@ module Searchkick
     end
 
     def pluck(*keys)
-      if @options[:load] == false
+      if !loaded? && @options[:load] == false
         select(*keys).send(:private_execute).pluck(*keys)
       else
         private_execute.pluck(*keys)
