@@ -1325,7 +1325,7 @@ Create a trait for each model:
 FactoryBot.define do
   factory :product do
     trait :reindex do
-      after(:create) do |product, _evaluator|
+      after(:create) do |product, _|
         product.reindex(refresh: true)
       end
     end
