@@ -44,6 +44,20 @@ class RelationTest < Minitest::Test
     assert_equal 10000, Product.search("*").limit(10).except(:limit).limit_value
   end
 
+  def test_first
+    store_names ["Product A", "Product B"]
+    products = Product.search("product")
+    assert_kind_of Product, products.first
+    assert_kind_of Array, products.first(1)
+    assert_equal 1, products.limit(1).first(2).size
+  end
+
+  def test_first_loaded
+    store_names ["Product A", "Product B"]
+    products = Product.search("product").load
+    assert_kind_of Product, products.first
+  end
+
   # TODO call pluck on Active Record query
   # currently uses pluck from Active Support enumerable
   def test_pluck

@@ -17,14 +17,6 @@ class ResultsTest < Minitest::Test
     assert_kind_of Array, products.to_ary
   end
 
-  def test_first
-    store_names ["Product A", "Product B"]
-    products = Product.search("product")
-    assert_kind_of Product, products.first
-    assert_kind_of Array, products.first(1)
-    assert_equal 1, products.limit(1).first(2).size
-  end
-
   def test_with_hit
     store_names ["Product A", "Product B"]
     results = Product.search("product")
