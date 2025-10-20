@@ -1319,7 +1319,7 @@ end
 
 ### Factory Bot
 
-Create a trait for each model:
+Define a trait for each model:
 
 ```ruby
 FactoryBot.define do
