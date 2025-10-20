@@ -1319,12 +1319,11 @@ end
 
 ### Factory Bot
 
-Use a trait and `after(:create)` hook for each indexed model:
+Create a trait for each model:
 
 ```ruby
 FactoryBot.define do
   factory :product do
-    # should be last trait so runs after other callbacks
     trait :reindex do
       after(:create) do |product, _evaluator|
         product.reindex(refresh: true)
@@ -1332,9 +1331,12 @@ FactoryBot.define do
     end
   end
 end
+```
 
-# use it
-FactoryBot.create(:product, :some_trait, :reindex, some_attribute: "foo")
+And use:
+
+```ruby
+FactoryBot.create(:product, :reindex)
 ```
 
 ### GitHub Actions
