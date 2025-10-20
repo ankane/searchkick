@@ -1,4 +1,4 @@
-## 6.0.0 (unreleased)
+## 6.0.0 (2025-10-19)
 
 - Added new query builder API (similar to Active Record)
 - Added `conversions_v2` option
