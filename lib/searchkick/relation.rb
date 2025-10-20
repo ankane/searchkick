@@ -588,6 +588,14 @@ module Searchkick
       end
     end
 
+    def pluck(*keys)
+      if @options[:load] == false
+        select(*keys).send(:private_execute).pluck(*keys)
+      else
+        private_execute.pluck(*keys)
+      end
+    end
+
     def reorder(*values)
       clone.reorder!(*values)
     end
