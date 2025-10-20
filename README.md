@@ -1492,8 +1492,10 @@ And create an initializer with:
 
 ```ruby
 class SearchSerializer
+  CODER = JSON::Coder.new { |v, _| v.is_a?(Time) ? v.as_json : v }
+
   def dump(object)
-    JSON.generate(object)
+    CODER.generate(object)
   end
 end
 
