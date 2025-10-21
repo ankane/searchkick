@@ -209,7 +209,7 @@ Not in
 where.not(aisle_id: [25, 30])
 ```
 
-All elements
+Contains all
 
 ```ruby
 where(user_ids: {all: [1, 3]})
