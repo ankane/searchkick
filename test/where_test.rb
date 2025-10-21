@@ -96,6 +96,9 @@ class WhereTest < Minitest::Test
     assert_search_relation ["Product C", "Product D"], Product.search("product").where.not(in_stock: true)
     assert_search_relation ["Product C"], Product.search("product").where.not(in_stock: true).where(backordered: true)
     assert_search_relation ["Product A", "Product C"], Product.search("product").where.not(store_id: [2, 4])
+
+    # compound
+    assert_search_relation ["Product B", "Product C"], Product.search("product").where(_or: [{in_stock: true}, {backordered: true}]).where(_or: [{store_id: 2}, {orders_count: 2}])
   end
 
   def test_where_string_operators
