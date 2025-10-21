@@ -258,12 +258,15 @@ module Searchkick
       self
     end
 
-    def knn(value)
-      clone.knn!(value)
+    def knn(value, vector = NO_DEFAULT_VALUE, **options)
+      clone.knn!(value, vector, **options)
     end
 
-    def knn!(value)
+    def knn!(value, vector = NO_DEFAULT_VALUE, **options)
       check_loaded
+      if vector != NO_DEFAULT_VALUE
+        value = options.merge(field: value, vector: vector)
+      end
       @options[:knn] = value
       self
     end
