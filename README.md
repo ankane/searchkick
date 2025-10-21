@@ -110,7 +110,7 @@ Where
 where(store_id: 1, expires_at: Time.now..)
 ```
 
-[All of these options are supported](#filtering)
+[These types of filters are supported](#filtering)
 
 Order
 
@@ -172,8 +172,6 @@ results.response
 **Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. This applies to the total count as well.
 
 ### Filtering
-
-Many types of filters are supported.
 
 Equal
 
