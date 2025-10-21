@@ -185,7 +185,7 @@ Not equal
 where.not(store_id: 2)
 ```
 
-Comparison (`gt`, `lt`, `gte`, and `lte`)
+Greater than (`gt`), less than (`lt`), greater than or equal (`gte`), less than or equal (`lte`)
 
 ```ruby
 where(expires_at: {gt: Time.now})
