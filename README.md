@@ -245,12 +245,6 @@ Exists
 where(store_id: {exists: true})
 ```
 
-Combine filters with AND
-
-```ruby
-where(_and: [{in_stock: true}, {backordered: true}])
-```
-
 Combine filters with OR
 
 ```ruby
