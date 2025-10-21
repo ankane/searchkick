@@ -107,23 +107,10 @@ fields(:name, :brand)
 Where
 
 ```ruby
-where(
-  expires_at: {gt: Time.now},    # lt, gte, lte also available
-  orders_count: 1..10,           # equivalent to {gte: 1, lte: 10}
-  aisle_id: [25, 30],            # in
-  store_id: {not: 2},            # not
-  aisle_id: {not: [25, 30]},     # not in
-  user_ids: {all: [1, 3]},       # all elements in array
-  category: {like: "%frozen%"},  # like
-  category: {ilike: "%frozen%"}, # ilike
-  category: /frozen .+/,         # regexp
-  category: {prefix: "frozen"},  # prefix
-  store_id: {exists: true},      # exists
-  _not: {store_id: 1},           # negate a condition
-  _or: [{in_stock: true}, {backordered: true}],
-  _and: [{in_stock: true}, {backordered: true}]
-)
+where(store_id: 1, expires_at: Time.now..)
 ```
+
+[All of these options are supported](#filtering)
 
 Order
 
@@ -183,6 +170,94 @@ results.response
 ```
 
 **Note:** By default, Elasticsearch and OpenSearch [limit paging](#deep-paging) to the first 10,000 results for performance. This applies to the total count as well.
+
+### Filtering
+
+Many types of filters are supported.
+
+Equal
+
+```ruby
+where(store_id: 1)
+```
+
+Not equal
+
+```ruby
+where.not(store_id: 2)
+```
+
+Comparison (`gt`, `lt`, `gte`, and `lte`)
+
+```ruby
+where(expires_at: {gt: Time.now})
+```
+
+Range
+
+```ruby
+where(orders_count: 1..10)
+```
+
+In
+
+```ruby
+where(aisle_id: [25, 30])
+```
+
+Not in
+
+```ruby
+where.not(aisle_id: [25, 30])
+```
+
+All elements
+
+```ruby
+where(user_ids: {all: [1, 3]})
+```
+
+Like
+
+```ruby
+where(category: {like: "%frozen%"})
+```
+
+Case-insensitive like
+
+```ruby
+where(category: {ilike: "%frozen%"})
+```
+
+Regular expression
+
+```ruby
+where(category: /frozen .+/)
+```
+
+Prefix
+
+```ruby
+where(category: {prefix: "frozen"})
+```
+
+Exists
+
+```ruby
+where(store_id: {exists: true})
+```
+
+Combine filters with AND
+
+```ruby
+where(_and: [{in_stock: true}, {backordered: true}])
+```
+
+Combine filters with OR
+
+```ruby
+where(_or: [{in_stock: true}, {backordered: true}])
+```
 
 ### Boosting
 
