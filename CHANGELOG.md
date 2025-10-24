@@ -1,3 +1,7 @@
+## 6.0.1 (unreleased)
+
+- Fixed `to_json` method for `HashWrapper`
+
 ## 6.0.0 (2025-10-19)
 
 - Added new query builder API (similar to Active Record)

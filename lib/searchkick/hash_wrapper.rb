@@ -12,6 +12,10 @@ module Searchkick
       @attributes
     end
 
+    def to_json
+      @attributes.to_json
+    end
+
     def method_missing(name, ...)
       if @attributes.key?(name.to_s)
         self[name]
