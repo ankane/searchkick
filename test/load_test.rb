@@ -35,6 +35,9 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
     assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_a.to_json).first["name"]
+
+    # confirm as_json attribute does not override method
+    assert_equal ({"as_json" => 1}), Searchkick::HashWrapper.new({"as_json" => 1}).as_json
   end
 
   def test_false_methods
