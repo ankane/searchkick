@@ -12,8 +12,9 @@ module Searchkick
       @attributes
     end
 
-    # for as_json
-    alias_method :to_hash, :to_h
+    def as_json(...)
+      @attributes.as_json(...)
+    end
 
     def to_json(...)
       @attributes.to_json(...)
