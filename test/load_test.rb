@@ -16,7 +16,9 @@ class LoadTest < Minitest::Test
     refute product.respond_to?(:missing)
     assert_nil product[:missing]
     assert_equal "Product A", product.attributes["name"]
+    assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product").to_a.to_json).first["name"]
   end
 
   def test_false
@@ -30,7 +32,9 @@ class LoadTest < Minitest::Test
     refute product.respond_to?(:missing)
     assert_nil product[:missing]
     assert_equal "Product A", product.to_h["name"]
+    assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_a.to_json).first["name"]
   end
 
   def test_false_methods

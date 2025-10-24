@@ -1,3 +1,7 @@
+## 6.0.2 (unreleased)
+
+- Fixed `to_json` method for `HashWrapper`
+
 ## 6.0.1 (2025-10-24)
 
 - Fixed `to_json` method for `HashWrapper`
