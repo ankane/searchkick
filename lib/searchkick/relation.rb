@@ -648,6 +648,10 @@ module Searchkick
       private_execute.to_a.to_json(...)
     end
 
+    def as_json(...)
+      private_execute.to_a.as_json(...)
+    end
+
     def to_yaml
       private_execute.to_a.to_yaml
     end
