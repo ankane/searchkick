@@ -20,6 +20,14 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
     assert_equal "Product A", JSON.parse(Product.search("product").to_json).first["name"]
     assert_equal "Product A", Product.search("product").as_json.first["name"]
+    assert_equal ({"name" => "Product A"}), product.as_json(only: ["name"])
+    assert_equal ({"name" => "Product A"}), product.as_json(only: [:name])
+    refute product.as_json(except: ["name"]).key?("name")
+    refute product.as_json(except: [:name]).key?("name")
+    assert_empty product.as_json(only: ["missing"])
+    assert_raises(NoMethodError) do
+      product.as_json(methods: [:missing])
+    end
   end
 
   def test_false
@@ -37,6 +45,15 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
     assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_json).first["name"]
     assert_equal "Product A", Product.search("product", load: false).as_json.first["name"]
+    assert_equal ({"name" => "Product A"}), product.as_json(only: ["name"])
+    # same behavior as Hashie::Mash
+    assert_empty product.as_json(only: [:name])
+    refute product.as_json(except: ["name"]).key?("name")
+    # same behavior as Hashie::Mash
+    assert product.as_json(except: [:name]).key?("name")
+    assert_empty product.as_json(only: ["missing"])
+    # same behavior as Hashie::Mash
+    product.as_json(methods: [:missing])
   end
 
   def test_false_methods
