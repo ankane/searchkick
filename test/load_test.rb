@@ -18,7 +18,7 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", product.attributes["name"]
     assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
-    assert_equal "Product A", JSON.parse(Product.search("product").to_a.to_json).first["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product").to_json).first["name"]
   end
 
   def test_false
@@ -34,7 +34,7 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", product.to_h["name"]
     assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
-    assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_a.to_json).first["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_json).first["name"]
   end
 
   def test_false_methods

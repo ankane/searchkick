@@ -644,6 +644,10 @@ module Searchkick
       Results.new(nil, nil, nil).respond_to?(...) || super
     end
 
+    def to_json(...)
+      private_execute.to_a.to_json(...)
+    end
+
     def to_yaml
       private_execute.to_a.to_yaml
     end

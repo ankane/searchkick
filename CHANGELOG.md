@@ -1,3 +1,7 @@
+## 6.0.3 (unreleased)
+
+- Improved `to_json` method for `Relation`
+
 ## 6.0.2 (2025-10-24)
 
 - Fixed `as_json` method for `HashWrapper`
