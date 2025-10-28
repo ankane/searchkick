@@ -26,7 +26,7 @@
 - Removed default quantization for `knn` option for Elasticsearch 8.14+
 - Removed `results` method (use `to_a` instead)
 - Removed `execute` option and method (no longer needed)
-- Removed `options` method (use specific methods instead)
+- Removed `options` method (use individual methods instead)
 - Removed dependency on Hashie
 - Deprecated `conversions` option in favor of `conversions_v2`
 - Dropped support for Elasticsearch 7 and OpenSearch 1
