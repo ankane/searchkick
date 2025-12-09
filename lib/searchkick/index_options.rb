@@ -578,7 +578,7 @@ module Searchkick
         # https://groups.google.com/forum/#!topic/elasticsearch/p7qcQlgHdB8
         # TODO use a snowball stemmer on synonyms when creating the token filter
 
-        # http://elasticsearch-users.115913.n3.nabble.com/synonym-multi-words-search-td4030811.html
+        # https://discuss.elastic.co/t/synonym-multi-words-search/10964
         # I find the following approach effective if you are doing multi-word synonyms (synonym phrases):
         # - Only apply the synonym expansion at index time
         # - Don't have the synonym filter applied search

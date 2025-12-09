@@ -285,7 +285,7 @@ class WhereTest < Minitest::Test
     assert_search "product", [], where: {store_id: []}
   end
 
-  # http://elasticsearch-users.115913.n3.nabble.com/Numeric-range-quey-or-filter-in-an-array-field-possible-or-not-td4042967.html
+  # https://discuss.elastic.co/t/numeric-range-quey-or-filter-in-an-array-field-possible-or-not/14053
   # https://gist.github.com/jprante/7099463
   def test_where_range_array
     store [
