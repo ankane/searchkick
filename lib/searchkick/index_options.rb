@@ -524,7 +524,7 @@ module Searchkick
 
       dynamic_fields = {
         # analyzed field must be the default field for include_in_all
-        # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+        # https://www.elastic.co/guide/reference/mapping/multi-field-type/
         # however, we can include the not_analyzed field in _all
         # and the _all index analyzer will take care of it
         "{name}" => keyword_mapping
@@ -544,7 +544,7 @@ module Searchkick
         end
       end
 
-      # http://www.elasticsearch.org/guide/reference/mapping/multi-field-type/
+      # https://www.elastic.co/guide/reference/mapping/multi-field-type/
       multi_field = dynamic_fields["{name}"].merge(fields: dynamic_fields.except("{name}"))
 
       mappings = {
