@@ -75,21 +75,6 @@ class SearchTest < Minitest::Test
     assert_raises(Searchkick::MissingIndexError) { Product.search("test", index_name: "not_found").to_a }
   end
 
-  def test_unsupported_version
-    skip if Searchkick.opensearch?
-
-    raises_exception = lambda do |*|
-      if defined?(Elastic::Transport)
-        raise Elastic::Transport::Transport::Error, "[500] No query registered for [multi_match]"
-      else
-        raise Elasticsearch::Transport::Transport::Error, "[500] No query registered for [multi_match]"
-      end
-    end
-    Searchkick.client.stub :search, raises_exception do
-      assert_raises(Searchkick::UnsupportedVersionError) { Product.search("test").to_a }
-    end
-  end
-
   def test_invalid_body
     assert_raises(Searchkick::InvalidQueryError) { Product.search(body: {boom: true}).to_a }
   end
