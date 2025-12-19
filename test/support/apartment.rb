@@ -23,9 +23,11 @@ tenants.each do |tenant|
   end
   Apartment::Tenant.switch!(tenant)
 
-  ActiveRecord::Migration.create_table :tenants, force: true do |t|
-    t.string :name
-    t.timestamps null: true
+  ActiveRecord::Schema.define do
+    create_table :tenants, force: true do |t|
+      t.string :name
+      t.timestamps null: true
+    end
   end
 
   Tenant.reindex
