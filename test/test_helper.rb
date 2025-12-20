@@ -23,20 +23,6 @@ end
 Searchkick.search_timeout = 5
 Searchkick.index_suffix = ENV["TEST_ENV_NUMBER"] # for parallel tests
 
-class SearchSerializer
-  def dump(object)
-    JSON.generate(object.as_json)
-  end
-end
-
-if ENV["TEST_SERIALIZER"]
-  if defined?(Elasticsearch)
-    Elasticsearch::API.settings[:serializer] = SearchSerializer.new
-  else
-    OpenSearch::API.settings[:serializer] = SearchSerializer.new
-  end
-end
-
 puts "Running against #{Searchkick.opensearch? ? "OpenSearch" : "Elasticsearch"} #{Searchkick.server_version}"
 
 I18n.config.enforce_available_locales = true

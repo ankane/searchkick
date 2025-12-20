@@ -1547,28 +1547,6 @@ See [Production Rails](https://github.com/ankane/production_rails) for other goo
 
 ## Performance
 
-### JSON Generation
-
-Increase performance with faster JSON generation. Add to your Gemfile:
-
-```ruby
-gem "json", ">= 2.10.2"
-```
-
-And create an initializer with:
-
-```ruby
-class SearchSerializer
-  def dump(object)
-    JSON.generate(object.as_json)
-  end
-end
-
-Elasticsearch::API.settings[:serializer] = SearchSerializer.new
-# or
-OpenSearch::API.settings[:serializer] = SearchSerializer.new
-```
-
 ### Persistent HTTP Connections
 
 Significantly increase performance with persistent HTTP connections. Add [Typhoeus](https://github.com/typhoeus/typhoeus) to your Gemfile and it’ll automatically be used.

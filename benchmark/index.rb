@@ -18,7 +18,7 @@ class SearchSerializer
   end
 end
 
-Elasticsearch::API.settings[:serializer] = SearchSerializer.new
+# Elasticsearch::API.settings[:serializer] = SearchSerializer.new
 # OpenSearch::API.settings[:serializer] = SearchSerializer.new
 
 Searchkick.redis = Redis.new
