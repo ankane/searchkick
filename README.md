@@ -1560,7 +1560,7 @@ And create an initializer with:
 ```ruby
 class SearchSerializer
   def dump(object)
-    CODER.generate(object.as_json)
+    JSON.generate(object.as_json)
   end
 end
 
