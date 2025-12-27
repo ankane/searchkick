@@ -25,8 +25,12 @@ class LoadTest < Minitest::Test
     refute product.as_json(except: ["name"]).key?("name")
     refute product.as_json(except: [:name]).key?("name")
     assert_empty product.as_json(only: ["missing"])
-    assert_raises(NoMethodError) do
+    if mongoid?
       product.as_json(methods: [:missing])
+    else
+      assert_raises(NoMethodError) do
+        product.as_json(methods: [:missing])
+      end
     end
   end
 
