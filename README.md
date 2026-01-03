@@ -1182,7 +1182,7 @@ And to search, use:
 ```ruby
 Animal.search("*")                # all animals
 Dog.search("*")                   # just dogs
-Animal.search("*").type(Dog, Cat) # just cats and dogs
+Animal.search("*").type(Cat, Dog) # just cats and dogs
 ```
 
 **Notes:**
@@ -2287,7 +2287,7 @@ Product.search("apples").where(in_stock: true).limit(10).offset(50)
 
 All existing options can be used as methods, or you can continue to use the existing API.
 
-This release also significantly improves the performance of searches when using conversions. To upgrade without downtime, add `conversions_v2` to your model and an additional field to `search_data`:
+This release also significantly improves the performance of searches when using conversions. To upgrade conversions without downtime, add `conversions_v2` to your model and an additional field to `search_data`:
 
 ```ruby
 class Product < ApplicationRecord
