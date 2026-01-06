@@ -85,6 +85,11 @@ class RelationTest < Minitest::Test
     refute relation.loaded?
   end
 
+  def test_inspect
+    store_names ["Product A"]
+    assert_match "#<Searchkick::Relation [#<Product", Product.search("product").inspect
+  end
+
   def test_to_yaml
     store_names ["Product A", "Product B"]
     if mongoid?
