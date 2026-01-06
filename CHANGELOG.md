@@ -1,4 +1,4 @@
-## 6.0.3 (unreleased)
+## 6.0.3 (2026-01-06)
 
 - Fixed `inspect` method for `Relation`
 
