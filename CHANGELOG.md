@@ -1,6 +1,7 @@
 ## 6.0.3 (unreleased)
 
 - Improved `to_json` and `as_json` methods for `Relation`
+- Fixed `inspect` method for `Relation`
 
 ## 6.0.2 (2025-10-24)
 
