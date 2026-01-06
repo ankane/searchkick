@@ -18,8 +18,8 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", product.attributes["name"]
     assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
-    assert_equal "Product A", JSON.parse(Product.search("product").to_json).first["name"]
-    assert_equal "Product A", Product.search("product").as_json.first["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product").to_a.to_json).first["name"]
+    assert_equal "Product A", Product.search("product").to_a.as_json.first["name"]
     assert_equal ({"name" => "Product A"}), product.as_json(only: ["name"])
     assert_equal ({"name" => "Product A"}), product.as_json(only: [:name])
     refute product.as_json(except: ["name"]).key?("name")
@@ -47,8 +47,8 @@ class LoadTest < Minitest::Test
     assert_equal "Product A", product.to_h["name"]
     assert_equal "Product A", product.as_json["name"]
     assert_equal "Product A", JSON.parse(product.to_json)["name"]
-    assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_json).first["name"]
-    assert_equal "Product A", Product.search("product", load: false).as_json.first["name"]
+    assert_equal "Product A", JSON.parse(Product.search("product", load: false).to_a.to_json).first["name"]
+    assert_equal "Product A", Product.search("product", load: false).to_a.as_json.first["name"]
     assert_equal ({"name" => "Product A"}), product.as_json(only: ["name"])
     # same behavior as Hashie::Mash
     assert_empty product.as_json(only: [:name])

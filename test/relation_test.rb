@@ -90,23 +90,25 @@ class RelationTest < Minitest::Test
     assert_match "#<Searchkick::Relation [#<Product", Product.search("product").inspect
   end
 
-  def test_to_json
-    store_names ["Product A", "Product B"]
-    if mongoid?
-      assert_equal Product.all.to_a.to_json, Product.search("product").to_json
-    else
-      assert_equal Product.all.to_json, Product.search("product").to_json
-    end
-  end
+  # TODO uncomment in 7.0
+  # def test_to_json
+  #   store_names ["Product A", "Product B"]
+  #   if mongoid?
+  #     assert_equal Product.all.to_a.to_json, Product.search("product").to_json
+  #   else
+  #     assert_equal Product.all.to_json, Product.search("product").to_json
+  #   end
+  # end
 
-  def test_as_json
-    store_names ["Product A", "Product B"]
-    if mongoid?
-      assert_equal Product.all.to_a.as_json, Product.search("product").as_json
-    else
-      assert_equal Product.all.as_json, Product.search("product").as_json
-    end
-  end
+  # TODO uncomment in 7.0
+  # def test_as_json
+  #   store_names ["Product A", "Product B"]
+  #   if mongoid?
+  #     assert_equal Product.all.to_a.as_json, Product.search("product").as_json
+  #   else
+  #     assert_equal Product.all.as_json, Product.search("product").as_json
+  #   end
+  # end
 
   def test_to_yaml
     store_names ["Product A", "Product B"]
