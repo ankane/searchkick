@@ -22,7 +22,7 @@ module Searchkick
 
     # same as Active Record
     def inspect
-      entries = results.first(11).map!(&:inspect)
+      entries = private_execute.first(11).map!(&:inspect)
       entries[10] = "..." if entries.size == 11
       "#<#{self.class.name} [#{entries.join(', ')}]>"
     end
