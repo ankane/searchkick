@@ -248,7 +248,7 @@ module Searchkick
           grouped_hits.each do |index, index_hits|
             results[index] = {}
             index_models[index].each do |model|
-              results[index].merge!(results_query(model, index_hits).to_a.index_by { |r| r.id.to_s })
+              results[index].merge!(results_query(model, index_hits).to_a.index_by { |r| record_search_id(r) })
             end
           end
 
@@ -331,7 +331,11 @@ module Searchkick
         records = options[:scope_results].call(records)
       end
 
-      Searchkick.load_records(records, ids)
+      if records.respond_to?(:find_by_search_document_ids)
+        records.find_by_search_document_ids(ids)
+      else
+        Searchkick.load_records(records, ids)
+      end
     end
 
     def combine_includes(result, inc)
@@ -342,6 +346,11 @@ module Searchkick
           result << inc
         end
       end
+    end
+
+    def record_search_id(record)
+      id = record.respond_to?(:search_document_id) ? record.search_document_id : record.id
+      id.to_s
     end
 
     def base_field(k)
