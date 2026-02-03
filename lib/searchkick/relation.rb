@@ -409,7 +409,9 @@ module Searchkick
       end
     end
 
-    alias_method :per, :per_page
+    def per(value)
+      per_page(value)
+    end
 
     def per_page!(value)
       check_loaded
