@@ -409,6 +409,8 @@ module Searchkick
       end
     end
 
+    alias_method :per, :per_page
+
     def per_page!(value)
       check_loaded
       # TODO set limit?
