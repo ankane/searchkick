@@ -216,18 +216,18 @@ class AggsTest < Minitest::Test
   end
 
   def test_relation
-    assert_equal ({1 => 1}), buckets_as_hash(Product.search("Product").aggs(store_id: {where: {in_stock: true}}).aggs["store_id"])
+    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs(store_id: {where: {in_stock: true}})
   end
 
   def test_relation_smart_aggs_false
-    assert_equal ({2 => 2}), buckets_as_hash(Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false).aggs["store_id"])
+    assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false)
   end
 
   protected
 
   def assert_aggs(expected, options)
-    aggs = Product.search("Product", **options).aggs
-    assert_equal expected, aggs.to_h { |field, agg| [field, buckets_as_hash(agg)] }
+    relation = options.is_a?(Searchkick::Relation) ? options : Product.search("Product", **options)
+    assert_equal expected, relation.aggs.to_h { |field, agg| [field, buckets_as_hash(agg)] }
   end
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
