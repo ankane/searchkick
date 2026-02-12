@@ -12,11 +12,11 @@ class AggsTest < Minitest::Test
   end
 
   def test_basic
-    assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: [:store_id])
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: [:store_id]
   end
 
   def test_where
-    assert_equal ({1 => 1}), store_agg(aggs: {store_id: {where: {in_stock: true}}})
+    assert_aggs ({"store_id" => {1 => 1}}), aggs: {store_id: {where: {in_stock: true}}}
   end
 
   def test_order
@@ -25,19 +25,18 @@ class AggsTest < Minitest::Test
   end
 
   def test_field
-    assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: {store_id: {}})
-    assert_equal ({1 => 1, 2 => 2}), store_agg(aggs: {store_id: {field: "store_id"}})
-    assert_equal ({1 => 1, 2 => 2}), store_agg({aggs: {store_id_new: {field: "store_id"}}}, "store_id_new")
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: {store_id: {}}
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: {store_id: {field: "store_id"}}
+    assert_aggs ({"store_id_new" => {1 => 1, 2 => 2}}), aggs: {store_id_new: {field: "store_id"}}
   end
 
   def test_min_doc_count
-    assert_equal ({2 => 2}), store_agg(aggs: {store_id: {min_doc_count: 2}})
+    assert_aggs ({"store_id" => {2 => 2}}), aggs: {store_id: {min_doc_count: 2}}
   end
 
   def test_script
-    source = "'Color: ' + _value"
-    agg = Product.search("Product", aggs: {color: {script: {source: source}}}).aggs["color"]
-    assert_equal ({"Color: blue" => 1, "Color: green" => 1, "Color: red" => 1}), buckets_as_hash(agg)
+    expected = {"color" => {"Color: blue" => 1, "Color: green" => 1, "Color: red" => 1}}
+    assert_aggs expected, aggs: {color: {script: {source: "'Color: ' + _value"}}}
   end
 
   def test_no_aggs
@@ -73,33 +72,34 @@ class AggsTest < Minitest::Test
   end
 
   def test_query_where
-    assert_equal ({1 => 1}), store_agg(where: {in_stock: true}, aggs: [:store_id])
+    assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
   end
 
   def test_two_wheres
-    assert_equal ({2 => 1}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}})
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
   end
 
   def test_where_override
-    assert_equal ({}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}})
-    assert_equal ({2 => 1}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}})
+    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
   end
 
   def test_skip
-    assert_equal ({1 => 1, 2 => 2}), store_agg(where: {store_id: 2}, aggs: [:store_id])
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
   end
 
   def test_skip_complex
-    assert_equal ({1 => 1, 2 => 1}), store_agg(where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id])
+    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
   end
 
   def test_multiple
-    assert_equal ({"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}), store_multiple_aggs(aggs: [:store_id, :color])
+    expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
+    assert_aggs expected, aggs: [:store_id, :color]
   end
 
   def test_smart_aggs_false
-    assert_equal ({2 => 2}), store_agg(where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
-    assert_equal ({2 => 2}), store_agg(where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false)
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
   def test_aggs_group_by_date
@@ -211,23 +211,8 @@ class AggsTest < Minitest::Test
   end
 
   def test_body_options
-    products =
-      Product.search("*",
-        body_options: {
-          aggs: {
-            price: {
-              histogram: {field: :price, interval: 10}
-            }
-          }
-        }
-      )
-
-    expected = [
-      {"key" => 0.0, "doc_count" => 1},
-      {"key" => 10.0, "doc_count" => 1},
-      {"key" => 20.0, "doc_count" => 2}
-    ]
-    assert_equal products.aggs["price"]["buckets"], expected
+    expected = {"price" => {0.0 => 1, 10.0 => 0, 20.0 => 2}}
+    assert_aggs expected, body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}}
   end
 
   def test_relation
@@ -239,6 +224,11 @@ class AggsTest < Minitest::Test
   end
 
   protected
+
+  def assert_aggs(expected, options)
+    aggs = Product.search("Product", **options).aggs
+    assert_equal expected, aggs.to_h { |field, agg| [field, buckets_as_hash(agg)] }
+  end
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
     Product.search(query,
@@ -259,16 +249,5 @@ class AggsTest < Minitest::Test
 
   def buckets_as_hash(agg)
     agg["buckets"].to_h { |v| [v["key"], v["doc_count"]] }
-  end
-
-  def store_agg(options, agg_key = "store_id")
-    buckets = Product.search("Product", **options).aggs[agg_key]
-    buckets_as_hash(buckets)
-  end
-
-  def store_multiple_aggs(options)
-    Product.search("Product", **options).aggs.to_h do |field, filtered_agg|
-      [field, buckets_as_hash(filtered_agg)]
-    end
   end
 end
