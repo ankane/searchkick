@@ -50,25 +50,6 @@ class AggsTest < Minitest::Test
     assert_equal(1, agg["sum_other_doc_count"])
   end
 
-  def test_ranges
-    price_ranges = [{to: 10}, {from: 10, to: 20}, {from: 20}]
-    agg = Product.search("Product", aggs: {price: {ranges: price_ranges}}).aggs["price"]
-    assert_equal 3, agg["buckets"].size
-    assert_equal 10.0, agg["buckets"][0]["to"]
-    assert_equal 20.0, agg["buckets"][2]["from"]
-    assert_equal 1, agg["buckets"][0]["doc_count"]
-    assert_equal 0, agg["buckets"][1]["doc_count"]
-    assert_equal 2, agg["buckets"][2]["doc_count"]
-  end
-
-  def test_date_ranges
-    ranges = [{to: 1.day.ago}, {from: 1.day.ago, to: 1.day.from_now}, {from: 1.day.from_now}]
-    agg = Product.search("Product", aggs: {created_at: {date_ranges: ranges}}).aggs["created_at"]
-    assert_equal 1, agg["buckets"][0]["doc_count"]
-    assert_equal 1, agg["buckets"][1]["doc_count"]
-    assert_equal 1, agg["buckets"][2]["doc_count"]
-  end
-
   def test_query_where
     assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
   end
@@ -100,14 +81,33 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
-  def test_aggs_group_by_date
+  def test_ranges
+    price_ranges = [{to: 10}, {from: 10, to: 20}, {from: 20}]
+    agg = Product.search("Product", aggs: {price: {ranges: price_ranges}}).aggs["price"]
+    assert_equal 3, agg["buckets"].size
+    assert_equal 10.0, agg["buckets"][0]["to"]
+    assert_equal 20.0, agg["buckets"][2]["from"]
+    assert_equal 1, agg["buckets"][0]["doc_count"]
+    assert_equal 0, agg["buckets"][1]["doc_count"]
+    assert_equal 2, agg["buckets"][2]["doc_count"]
+  end
+
+  def test_date_ranges
+    ranges = [{to: 1.day.ago}, {from: 1.day.ago, to: 1.day.from_now}, {from: 1.day.from_now}]
+    agg = Product.search("Product", aggs: {created_at: {date_ranges: ranges}}).aggs["created_at"]
+    assert_equal 1, agg["buckets"][0]["doc_count"]
+    assert_equal 1, agg["buckets"][1]["doc_count"]
+    assert_equal 1, agg["buckets"][2]["doc_count"]
+  end
+
+  def test_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
     aggs = {products_per_year: {date_histogram: {field: :created_at, calendar_interval: :year}}}
     products = Product.search("Product", where: {created_at: {lt: Time.now}}, aggs: aggs)
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
-  def test_aggs_with_time_zone
+  def test_time_zone
     start_time = Time.at(1529366400)
     store [
       {name: "Opera House Pass", created_at: start_time},
@@ -129,23 +129,23 @@ class AggsTest < Minitest::Test
     assert_equal expected, Product.search("Pass", aggs: sydney_aggs).aggs["products_per_day"]["buckets"]
   end
 
-  def test_aggs_avg
+  def test_avg
     products = Product.search("*", aggs: {avg_price: {avg: {field: :price}}})
     assert_equal 16.5, products.aggs["avg_price"]["value"]
   end
 
-  def test_aggs_cardinality
+  def test_cardinality
     products = Product.search("*", aggs: {total_stores: {cardinality: {field: :store_id}}})
     assert_equal 3, products.aggs["total_stores"]["value"]
   end
 
-  def test_aggs_min_max
+  def test_min_max
     products = Product.search("*", aggs: {min_price: {min: {field: :price}}, max_price: {max: {field: :price}}})
     assert_equal 5, products.aggs["min_price"]["value"]
     assert_equal 25, products.aggs["max_price"]["value"]
   end
 
-  def test_aggs_sum
+  def test_sum
     products = Product.search("*", aggs: {sum_price: {sum: {field: :price}}})
     assert_equal 66, products.aggs["sum_price"]["value"]
   end
