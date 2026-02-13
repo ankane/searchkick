@@ -1,6 +1,7 @@
 ## 6.1.0 (unreleased)
 
 - Added `per` method
+- Fixed error with `aggs` method and non-hash arguments
 
 ## 6.0.3 (2026-01-06)
 
