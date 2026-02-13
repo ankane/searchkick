@@ -101,6 +101,10 @@ class WhereTest < Minitest::Test
     assert_search_relation ["Product B", "Product C"], Product.search("product").where(_or: [{in_stock: true}, {backordered: true}]).where(_or: [{store_id: 2}, {orders_count: 2}])
   end
 
+  def test_where_relation_additive
+    assert_search_relation [], Product.search("product").where(in_stock: true).where(in_stock: false)
+  end
+
   def test_where_string_operators
     error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
