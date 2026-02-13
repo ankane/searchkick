@@ -37,15 +37,16 @@ module Searchkick
 
     def aggs!(*args, **kwargs)
       check_loaded
-      @options[:aggs] ||= {}
+      aggs = {}
       args.flatten.each do |arg|
         if arg.is_a?(Hash)
-          @options[:aggs].merge!(arg)
+          aggs.merge!(arg)
         else
-          @options[:aggs][arg] = {}
+          aggs[arg] = {}
         end
       end
-      @options[:aggs].merge!(kwargs)
+      aggs.merge!(kwargs)
+      @options[:aggs] = (@options[:aggs] || {}).merge(aggs)
       self
     end
 
@@ -69,7 +70,7 @@ module Searchkick
 
     def body_options!(value)
       check_loaded
-      (@options[:body_options] ||= {}).merge!(value)
+      @options[:body_options] = (@options[:body_options] || {}).merge(value)
       self
     end
 
@@ -94,7 +95,7 @@ module Searchkick
       elsif !value.is_a?(Hash)
         value = {value => {factor: 1}}
       end
-      (@options[:boost_by] ||= {}).merge!(value)
+      @options[:boost_by] = (@options[:boost_by] || {}).merge(value)
       self
     end
 
@@ -106,7 +107,7 @@ module Searchkick
       check_loaded
       # legacy format
       value = {value[:field] => value.except(:field)} if value[:field]
-      (@options[:boost_by_distance] ||= {}).merge!(value)
+      @options[:boost_by_distance] = (@options[:boost_by_distance] || {}).merge(value)
       self
     end
 
@@ -116,7 +117,7 @@ module Searchkick
 
     def boost_by_recency!(value)
       check_loaded
-      (@options[:boost_by_recency] ||= {}).merge!(value)
+      @options[:boost_by_recency] = (@options[:boost_by_recency] || {}).merge(value)
       self
     end
 
@@ -127,7 +128,7 @@ module Searchkick
     def boost_where!(value)
       check_loaded
       # TODO merge duplicate fields
-      (@options[:boost_where] ||= {}).merge!(value)
+      @options[:boost_where] = (@options[:boost_where] || {}).merge(value)
       self
     end
 
@@ -197,7 +198,8 @@ module Searchkick
 
     def exclude!(*values)
       check_loaded
-      (@options[:exclude] ||= []).concat(values.flatten)
+      @options[:exclude] ||= []
+      @options[:exclude] += values.flatten
       self
     end
 
@@ -217,7 +219,8 @@ module Searchkick
 
     def fields!(*values)
       check_loaded
-      (@options[:fields] ||= []).concat(values.flatten)
+      @options[:fields] ||= []
+      @options[:fields] += values.flatten
       self
     end
 
@@ -237,7 +240,8 @@ module Searchkick
 
     def includes!(*values)
       check_loaded
-      (@options[:includes] ||= []).concat(values.flatten)
+      @options[:includes] ||= []
+      @options[:includes] += values.flatten
       self
     end
 
@@ -251,7 +255,8 @@ module Searchkick
       if values.all? { |v| v.respond_to?(:searchkick_index) }
         models!(*values)
       else
-        (@options[:index_name] ||= []).concat(values)
+        @options[:index_name] ||= []
+        @options[:index_name] += values
         self
       end
     end
@@ -262,7 +267,7 @@ module Searchkick
 
     def indices_boost!(value)
       check_loaded
-      (@options[:indices_boost] ||= {}).merge!(value)
+      @options[:indices_boost] = (@options[:indices_boost] || {}).merge(value)
       self
     end
 
@@ -327,7 +332,8 @@ module Searchkick
 
     def models!(*values)
       check_loaded
-      (@options[:models] ||= []).concat(values.flatten)
+      @options[:models] ||= []
+      @options[:models] += values.flatten
       self
     end
 
@@ -337,7 +343,8 @@ module Searchkick
 
     def model_includes!(*values)
       check_loaded
-      (@options[:model_includes] ||= []).concat(values.flatten)
+      @options[:model_includes] ||= []
+      @options[:model_includes] += values.flatten
       self
     end
 
@@ -381,7 +388,8 @@ module Searchkick
 
     def order!(*values)
       check_loaded
-      (@options[:order] ||= []).concat(values.flatten)
+      @options[:order] ||= []
+      @options[:order] += values.flatten
       self
     end
 
@@ -444,7 +452,7 @@ module Searchkick
 
     def request_params!(value)
       check_loaded
-      (@options[:request_params] ||= {}).merge!(value)
+      @options[:request_params] = (@options[:request_params] || {}).merge(value)
       self
     end
 
@@ -494,7 +502,8 @@ module Searchkick
 
     def select!(*values)
       check_loaded
-      (@options[:select] ||= []).concat(values.flatten)
+      @options[:select] ||= []
+      @options[:select] += values.flatten
       self
     end
 
@@ -558,7 +567,8 @@ module Searchkick
 
     def type!(*values)
       check_loaded
-      (@options[:type] ||= []).concat(values.flatten)
+      @options[:type] ||= []
+      @options[:type] += values.flatten
       self
     end
 
@@ -695,7 +705,8 @@ module Searchkick
 
     def initialize_copy(other)
       super
-      @options = @options.deep_dup
+      # shallow dup and avoid updating values in-place
+      @options = @options.dup
       @execute = nil
     end
   end
