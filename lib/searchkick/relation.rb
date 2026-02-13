@@ -27,17 +27,19 @@ module Searchkick
       "#<#{self.class.name} [#{entries.join(', ')}]>"
     end
 
-    def aggs(value = NO_DEFAULT_VALUE)
-      if value == NO_DEFAULT_VALUE
+    def aggs(*args, **kwargs)
+      if args.empty? && kwargs.empty?
         private_execute.aggs
       else
-        clone.aggs!(value)
+        clone.aggs!(*args, **kwargs)
       end
     end
 
-    def aggs!(value)
+    def aggs!(*args, **kwargs)
       check_loaded
-      (@options[:aggs] ||= {}).merge!(value)
+      @options[:aggs] ||= {}
+      @options[:aggs].merge!(args.to_h { |arg| [arg, {}] })
+      @options[:aggs].merge!(kwargs)
       self
     end
 
