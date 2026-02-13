@@ -180,10 +180,7 @@ class AggsTest < Minitest::Test
 
   def assert_aggs(expected, options)
     relation = options.is_a?(Searchkick::Relation) ? options : Product.search("Product", **options)
-    assert_equal expected, relation.aggs.to_h { |field, agg| [field, buckets_as_hash(agg)] }
-  end
-
-  def buckets_as_hash(agg)
-    agg["buckets"].to_h { |v| [v["key"], v["doc_count"]] }
+    buckets = relation.aggs.to_h { |f, a| [f, a["buckets"].to_h { |v| [v["key"], v["doc_count"]] }] }
+    assert_equal expected, buckets
   end
 end
