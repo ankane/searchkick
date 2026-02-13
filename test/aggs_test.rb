@@ -11,17 +11,47 @@ class AggsTest < Minitest::Test
     ]
   end
 
-  def test_basic
+  def test_single
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: [:store_id]
+  end
+
+  def test_multiple
+    expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
+    assert_aggs expected, aggs: [:store_id, :color]
+  end
+
+  def test_none
+    assert_nil Product.search("*").aggs
   end
 
   def test_where
     assert_aggs ({"store_id" => {1 => 1}}), aggs: {store_id: {where: {in_stock: true}}}
   end
 
-  def test_order
-    agg = Product.search("Product", aggs: {color: {order: {_key: "desc"}}}).aggs["color"]
-    assert_equal ["red", "green", "blue"], agg["buckets"].map { |b| b["key"] }
+  def test_where_query
+    assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
+  end
+
+  def test_where_both
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
+  end
+
+  def test_where_override
+    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
+  end
+
+  def test_skip
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
+  end
+
+  def test_skip_complex
+    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
+  end
+
+  def test_smart_aggs_false
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
   def test_field
@@ -39,8 +69,9 @@ class AggsTest < Minitest::Test
     assert_aggs expected, aggs: {color: {script: {source: "'Color: ' + _value"}}}
   end
 
-  def test_no_aggs
-    assert_nil Product.search("*").aggs
+  def test_order
+    agg = Product.search("Product", aggs: {color: {order: {_key: "desc"}}}).aggs["color"]
+    assert_equal ["red", "green", "blue"], agg["buckets"].map { |b| b["key"] }
   end
 
   def test_limit
@@ -48,37 +79,6 @@ class AggsTest < Minitest::Test
     assert_equal 1, agg["buckets"].size
     # assert_equal 3, agg["doc_count"]
     assert_equal(1, agg["sum_other_doc_count"])
-  end
-
-  def test_query_where
-    assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
-  end
-
-  def test_two_wheres
-    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
-  end
-
-  def test_where_override
-    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
-    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
-  end
-
-  def test_skip
-    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
-  end
-
-  def test_skip_complex
-    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
-  end
-
-  def test_multiple
-    expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
-    assert_aggs expected, aggs: [:store_id, :color]
-  end
-
-  def test_smart_aggs_false
-    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
-    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
   def test_ranges
