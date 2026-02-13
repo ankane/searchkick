@@ -105,20 +105,11 @@ class AggsTest < Minitest::Test
   def test_aggs_group_by_date
     store [{name: "Old Product", created_at: 3.years.ago}]
     products =
-      Product.search("Product",
-        where: {
-          created_at: {lt: Time.now}
-        },
-        aggs: {
-          products_per_year: {
-            date_histogram: {
-              field: :created_at,
-              calendar_interval: :year
-            }
-          }
-        }
+      Product.search(
+        "Product",
+        where: {created_at: {lt: Time.now}},
+        aggs: {products_per_year: {date_histogram: {field: :created_at, calendar_interval: :year}}}
       )
-
     assert_equal 4, products.aggs["products_per_year"]["buckets"].size
   end
 
@@ -149,64 +140,23 @@ class AggsTest < Minitest::Test
   end
 
   def test_aggs_avg
-    products =
-      Product.search("*",
-        aggs: {
-          avg_price: {
-            avg: {
-              field: :price
-            }
-          }
-        }
-      )
+    products = Product.search("*", aggs: {avg_price: {avg: {field: :price}}})
     assert_equal 16.5, products.aggs["avg_price"]["value"]
   end
 
   def test_aggs_cardinality
-    products =
-      Product.search("*",
-        aggs: {
-          total_stores: {
-            cardinality: {
-              field: :store_id
-            }
-          }
-        }
-      )
+    products = Product.search("*", aggs: {total_stores: {cardinality: {field: :store_id}}})
     assert_equal 3, products.aggs["total_stores"]["value"]
   end
 
   def test_aggs_min_max
-    products =
-      Product.search("*",
-        aggs: {
-          min_price: {
-            min: {
-              field: :price
-            }
-          },
-          max_price: {
-            max: {
-              field: :price
-            }
-          }
-        }
-      )
+    products = Product.search("*", aggs: {min_price: {min: {field: :price}}, max_price: {max: {field: :price}}})
     assert_equal 5, products.aggs["min_price"]["value"]
     assert_equal 25, products.aggs["max_price"]["value"]
   end
 
   def test_aggs_sum
-    products =
-      Product.search("*",
-        aggs: {
-          sum_price: {
-            sum: {
-              field: :price
-            }
-          }
-        }
-      )
+    products = Product.search("*", aggs: {sum_price: {sum: {field: :price}}})
     assert_equal 66, products.aggs["sum_price"]["value"]
   end
 
@@ -231,19 +181,10 @@ class AggsTest < Minitest::Test
   end
 
   def search_aggregate_by_day_with_time_zone(query, time_zone = '-8:00')
-    Product.search(query,
-      where: {
-        created_at: {lt: Time.now}
-      },
-      aggs: {
-        products_per_day: {
-          date_histogram: {
-            field: :created_at,
-            calendar_interval: :day,
-            time_zone: time_zone
-          }
-        }
-      }
+    Product.search(
+      query,
+      where: {created_at: {lt: Time.now}},
+      aggs: {products_per_day: {date_histogram: {field: :created_at, calendar_interval: :day, time_zone: time_zone}}}
     )
   end
 
