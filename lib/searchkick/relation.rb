@@ -46,7 +46,7 @@ module Searchkick
         end
       end
       aggs.merge!(kwargs)
-      @options[:aggs] = (@options[:aggs] || {}).merge(aggs)
+      merge_option(:aggs, aggs)
       self
     end
 
@@ -70,7 +70,7 @@ module Searchkick
 
     def body_options!(value)
       check_loaded
-      @options[:body_options] = (@options[:body_options] || {}).merge(value)
+      merge_option(:body_options, value)
       self
     end
 
@@ -95,7 +95,7 @@ module Searchkick
       elsif !value.is_a?(Hash)
         value = {value => {factor: 1}}
       end
-      @options[:boost_by] = (@options[:boost_by] || {}).merge(value)
+      merge_option(:boost_by, value)
       self
     end
 
@@ -107,7 +107,7 @@ module Searchkick
       check_loaded
       # legacy format
       value = {value[:field] => value.except(:field)} if value[:field]
-      @options[:boost_by_distance] = (@options[:boost_by_distance] || {}).merge(value)
+      merge_option(:boost_by_distance, value)
       self
     end
 
@@ -117,7 +117,7 @@ module Searchkick
 
     def boost_by_recency!(value)
       check_loaded
-      @options[:boost_by_recency] = (@options[:boost_by_recency] || {}).merge(value)
+      merge_option(:boost_by_recency, value)
       self
     end
 
@@ -128,7 +128,7 @@ module Searchkick
     def boost_where!(value)
       check_loaded
       # TODO merge duplicate fields
-      @options[:boost_where] = (@options[:boost_where] || {}).merge(value)
+      merge_option(:boost_where, value)
       self
     end
 
@@ -198,8 +198,7 @@ module Searchkick
 
     def exclude!(*values)
       check_loaded
-      @options[:exclude] ||= []
-      @options[:exclude] += values.flatten
+      concat_option(:exclude, values.flatten)
       self
     end
 
@@ -219,8 +218,7 @@ module Searchkick
 
     def fields!(*values)
       check_loaded
-      @options[:fields] ||= []
-      @options[:fields] += values.flatten
+      concat_option(:fields, values.flatten)
       self
     end
 
@@ -240,8 +238,7 @@ module Searchkick
 
     def includes!(*values)
       check_loaded
-      @options[:includes] ||= []
-      @options[:includes] += values.flatten
+      concat_option(:includes, values.flatten)
       self
     end
 
@@ -255,8 +252,7 @@ module Searchkick
       if values.all? { |v| v.respond_to?(:searchkick_index) }
         models!(*values)
       else
-        @options[:index_name] ||= []
-        @options[:index_name] += values
+        concat_option(:index_name, values)
         self
       end
     end
@@ -267,7 +263,7 @@ module Searchkick
 
     def indices_boost!(value)
       check_loaded
-      @options[:indices_boost] = (@options[:indices_boost] || {}).merge(value)
+      merge_option(:indices_boost, value)
       self
     end
 
@@ -388,8 +384,7 @@ module Searchkick
 
     def order!(*values)
       check_loaded
-      @options[:order] ||= []
-      @options[:order] += values.flatten
+      concat_option(:order, values.flatten)
       self
     end
 
@@ -452,7 +447,7 @@ module Searchkick
 
     def request_params!(value)
       check_loaded
-      @options[:request_params] = (@options[:request_params] || {}).merge(value)
+      merge_option(:request_params, value)
       self
     end
 
@@ -708,6 +703,22 @@ module Searchkick
       # shallow dup and avoid updating values in-place
       @options = @options.dup
       @execute = nil
+    end
+
+    def concat_option(key, value)
+      if @options[key]
+        @options[key] += value
+      else
+        @options[key] = value.to_ary
+      end
+    end
+
+    def merge_option(key, value)
+      if @options[key]
+        @options[key] = @options[key].merge(value)
+      else
+        @options[key] = value.to_hash
+      end
     end
   end
 end
