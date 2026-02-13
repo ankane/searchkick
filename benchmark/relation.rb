@@ -6,9 +6,9 @@ class Product < ActiveRecord::Base
   searchkick
 end
 
-relation = Product.search("apples")
+Product.all # initial Active Record allocations
 
 stats = AllocationStats.trace do
-  relation.where(store_id: 1).where(in_stock: true).order(:name).limit(10).offset(50)
+  Product.search("apples").where(store_id: 1).where(in_stock: true).order(:name).limit(10).offset(50)
 end
 puts stats.allocations(alias_paths: true).to_text

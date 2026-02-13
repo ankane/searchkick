@@ -17,7 +17,7 @@ module Searchkick
       @options = options
 
       # generate query to validate options
-      query
+      query if options.any?
     end
 
     # same as Active Record
