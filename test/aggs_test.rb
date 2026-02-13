@@ -156,7 +156,15 @@ class AggsTest < Minitest::Test
   end
 
   def test_relation
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").aggs(:store_id)
     assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs(store_id: {where: {in_stock: true}})
+    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs({store_id: {where: {in_stock: true}}})
+  end
+
+  def test_relation_multiple
+    expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
+    assert_aggs expected, Product.search("Product").aggs(:store_id, :color)
+    assert_aggs expected, Product.search("Product").aggs([:store_id, :color])
   end
 
   def test_relation_smart_aggs_false

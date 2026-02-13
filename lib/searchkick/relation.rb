@@ -38,7 +38,13 @@ module Searchkick
     def aggs!(*args, **kwargs)
       check_loaded
       @options[:aggs] ||= {}
-      @options[:aggs].merge!(args.to_h { |arg| [arg, {}] })
+      args.flatten.each do |arg|
+        if arg.is_a?(Hash)
+          @options[:aggs].merge!(arg)
+        else
+          @options[:aggs][arg] = {}
+        end
+      end
       @options[:aggs].merge!(kwargs)
       self
     end
