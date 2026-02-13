@@ -328,8 +328,7 @@ module Searchkick
 
     def models!(*values)
       check_loaded
-      @options[:models] ||= []
-      @options[:models] += values.flatten
+      concat_option(:models, values.flatten)
       self
     end
 
@@ -339,8 +338,7 @@ module Searchkick
 
     def model_includes!(*values)
       check_loaded
-      @options[:model_includes] ||= []
-      @options[:model_includes] += values.flatten
+      concat_option(:model_includes, values.flatten)
       self
     end
 
@@ -497,8 +495,7 @@ module Searchkick
 
     def select!(*values)
       check_loaded
-      @options[:select] ||= []
-      @options[:select] += values.flatten
+      concat_option(:select, values.flatten)
       self
     end
 
@@ -562,8 +559,7 @@ module Searchkick
 
     def type!(*values)
       check_loaded
-      @options[:type] ||= []
-      @options[:type] += values.flatten
+      concat_option(:type, values.flatten)
       self
     end
 
