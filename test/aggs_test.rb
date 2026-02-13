@@ -167,14 +167,13 @@ class AggsTest < Minitest::Test
     assert_aggs expected, Product.search("Product").aggs([:store_id, :color])
   end
 
-  def test_relation_smart_aggs_false
-    assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false)
+  def test_relation_multiple_arguments
+    expected = {"store_id" => {1 => 1}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
+    assert_aggs expected, Product.search("Product").aggs(:color, store_id: {where: {in_stock: true}})
   end
 
-  def test_relation_with_positional_args
-    aggs = Product.search("Product").aggs(:color, store_id: {where: {in_stock: true}}).aggs
-    assert_equal ({"blue" => 1, "green" => 1, "red" => 1}), buckets_as_hash(aggs["color"])
-    assert_equal ({1 => 1}), buckets_as_hash(aggs["store_id"])
+  def test_relation_smart_aggs_false
+    assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false)
   end
 
   protected
