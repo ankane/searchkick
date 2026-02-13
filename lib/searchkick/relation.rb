@@ -14,7 +14,7 @@ module Searchkick
     def initialize(model, term = "*", **options)
       @model = model
       @term = term
-      @options = options
+      @options = options.deep_dup
 
       # generate query to validate options
       query
