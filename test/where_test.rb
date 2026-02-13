@@ -88,6 +88,7 @@ class WhereTest < Minitest::Test
 
     # multiple where
     assert_search_relation ["Product A"], Product.search("product").where(in_stock: true).where(backordered: true)
+    assert_search_relation [], Product.search("product").where(in_stock: true).where(in_stock: false)
 
     # rewhere
     assert_search_relation ["Product A", "Product C"], Product.search("product").where(in_stock: true).rewhere(backordered: true)
@@ -99,10 +100,6 @@ class WhereTest < Minitest::Test
 
     # compound
     assert_search_relation ["Product B", "Product C"], Product.search("product").where(_or: [{in_stock: true}, {backordered: true}]).where(_or: [{store_id: 2}, {orders_count: 2}])
-  end
-
-  def test_where_relation_additive
-    assert_search_relation [], Product.search("product").where(in_stock: true).where(in_stock: false)
   end
 
   def test_where_string_operators
