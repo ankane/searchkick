@@ -55,12 +55,7 @@ class Minitest::Test
   # no order
   def assert_search(term, expected, options = {}, model = default_model)
     assert_equal expected.sort, model.search(term, **options).map(&:name).sort
-
-    relation = model.search(term)
-    options.each do |k, v|
-      relation = relation.public_send(k, v)
-    end
-    assert_equal expected.sort, relation.map(&:name).sort
+    assert_equal expected.sort, build_relation(model, term, **options).map(&:name).sort
   end
 
   def assert_search_relation(expected, relation)
@@ -69,12 +64,7 @@ class Minitest::Test
 
   def assert_order(term, expected, options = {}, model = default_model)
     assert_equal expected, model.search(term, **options).map(&:name)
-
-    relation = model.search(term)
-    options.each do |k, v|
-      relation = relation.public_send(k, v)
-    end
-    assert_equal expected, relation.map(&:name)
+    assert_equal expected, build_relation(model, term, **options).map(&:name)
   end
 
   def assert_order_relation(expected, relation)
@@ -102,6 +92,14 @@ class Minitest::Test
       yield
     end
     assert_match "[searchkick] WARNING: #{message}", stderr
+  end
+
+  def build_relation(model, term, **options)
+    relation = model.search(term)
+    options.each do |k, v|
+      relation = relation.public_send(k, v)
+    end
+    relation
   end
 
   def with_options(options, model = default_model)
