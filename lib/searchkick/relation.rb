@@ -695,6 +695,7 @@ module Searchkick
 
     def initialize_copy(other)
       super
+      @options = @options.deep_dup
       @execute = nil
     end
   end

@@ -23,6 +23,13 @@ class RelationTest < Minitest::Test
     assert_equal ["Product A"], products.map(&:name)
   end
 
+  def test_non_mutating
+    store_names ["Product A", "Product B"]
+    products = Product.search("*").order(:name)
+    products.limit(1)
+    assert_equal ["Product A", "Product B"], products.map(&:name)
+  end
+
   def test_load
     products = Product.search("*")
     refute products.loaded?
