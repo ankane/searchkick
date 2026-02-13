@@ -79,14 +79,6 @@ class Minitest::Test
     assert_equal expected, model.search(term, **options).map(&:name).first
   end
 
-  def assert_misspellings(term, expected, misspellings = {}, model = default_model)
-    options = {
-      fields: [:name, :color],
-      misspellings: misspellings
-    }
-    assert_search(term, expected, options, model)
-  end
-
   def assert_warns(message)
     _, stderr = capture_io do
       yield

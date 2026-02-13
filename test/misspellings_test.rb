@@ -102,4 +102,14 @@ class MisspellingsTest < Minitest::Test
     store_names ["Sriracha"]
     assert_search "siracha", ["Sriracha"], fields: [{name: :word_middle}], misspellings: {fields: [:name]}
   end
+
+  private
+
+  def assert_misspellings(term, expected, misspellings = {}, model = default_model)
+    options = {
+      fields: [:name, :color],
+      misspellings: misspellings
+    }
+    assert_search(term, expected, options, model)
+  end
 end
