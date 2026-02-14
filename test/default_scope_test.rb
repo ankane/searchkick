@@ -2,7 +2,7 @@ require_relative "test_helper"
 
 class DefaultScopeTest < Minitest::Test
   def setup
-    Band.destroy_all
+    setup_model(Band)
   end
 
   def test_reindex
