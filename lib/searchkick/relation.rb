@@ -573,10 +573,17 @@ module Searchkick
 
     def where!(value)
       check_loaded
+      value = ensure_permitted(value)
       if @options[:where]
-        @options[:where] = {_and: [@options[:where], ensure_permitted(value)]}
+        # keep simple when possible for smart aggs
+        if !@options[:where].keys.intersect?(value.keys)
+          merge_option(:where, value)
+        else
+          # TODO flatten
+          @options[:where] = {_and: [@options[:where], value]}
+        end
       else
-        @options[:where] = ensure_permitted(value)
+        @options[:where] = value
       end
       self
     end
