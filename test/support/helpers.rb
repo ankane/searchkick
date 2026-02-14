@@ -45,6 +45,8 @@ class Minitest::Test
           model.create!(documents.shuffle)
         end
       end
+      # prevent warnings
+      model.searchkick_index.refresh
     end
   end
 

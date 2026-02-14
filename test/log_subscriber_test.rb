@@ -53,6 +53,9 @@ class LogSubscriberTest < Minitest::Test
   end
 
   def test_search
+    # prevent warnings
+    Product.searchkick_index.refresh
+
     output = capture_logs do
       Product.search("product").to_a
     end
@@ -60,6 +63,9 @@ class LogSubscriberTest < Minitest::Test
   end
 
   def test_multi_search
+    # prevent warnings
+    Product.searchkick_index.refresh
+
     output = capture_logs do
       Searchkick.multi_search([Product.search("product")])
     end
