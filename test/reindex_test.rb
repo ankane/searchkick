@@ -253,6 +253,7 @@ class ReindexTest < Minitest::Test
     index = Searchkick::Index.new(reindex[:index_name])
     index.refresh
     assert_equal 2, index.total_docs
+    index.delete
   end
 
   def test_full_async_wait
@@ -287,6 +288,7 @@ class ReindexTest < Minitest::Test
     index = Searchkick::Index.new(reindex[:index_name])
     index.refresh
     assert_equal 1, index.total_docs
+    index.delete
   ensure
     Sku.destroy_all
   end
@@ -310,6 +312,8 @@ class ReindexTest < Minitest::Test
   end
 
   def test_full_resume
+    Product.searchkick_index.clean_indices
+
     if mongoid?
       error = assert_raises(Searchkick::Error) do
         Product.reindex(resume: true)
