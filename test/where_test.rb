@@ -76,7 +76,7 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product B"], where: {user_ids: {_not: [3, nil]}}
   end
 
-  def test_where_relation
+  def test_relation
     now = Time.now
     store [
       {name: "Product A", store_id: 1, in_stock: true, backordered: true, created_at: now, orders_count: 4, user_ids: [1, 2, 3]},
@@ -103,7 +103,7 @@ class WhereTest < Minitest::Test
     assert_search_relation ["Product B", "Product C"], Product.search("product").where(_or: [{in_stock: true}, {backordered: true}]).where(_or: [{store_id: 2}, {orders_count: 2}])
   end
 
-  def test_where_string_operators
+  def test_string_operators
     error = assert_raises(ArgumentError) do
       assert_search "product", [], where: {store_id: {"lt" => 2}}
     end
@@ -256,14 +256,14 @@ class WhereTest < Minitest::Test
     assert_equal "expected Searchkick::Script", error.message
   end
 
-  def test_where_string
+  def test_string
     store [
       {name: "Product A", color: "RED"}
     ]
     assert_search "product", ["Product A"], where: {color: "RED"}
   end
 
-  def test_where_nil
+  def test_nil
     store [
       {name: "Product A"},
       {name: "Product B", color: "red"}
@@ -271,25 +271,25 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {color: nil}
   end
 
-  def test_where_id
+  def test_id
     store_names ["Product A"]
     product = Product.first
     assert_search "product", ["Product A"], where: {id: product.id.to_s}
   end
 
-  def test_where_empty
+  def test_empty
     store_names ["Product A"]
     assert_search "product", ["Product A"], where: {}
   end
 
-  def test_where_empty_array
+  def test_empty_array
     store_names ["Product A"]
     assert_search "product", [], where: {store_id: []}
   end
 
   # https://discuss.elastic.co/t/numeric-range-quey-or-filter-in-an-array-field-possible-or-not/14053
   # https://gist.github.com/jprante/7099463
-  def test_where_range_array
+  def test_range_array
     store [
       {name: "Product A", user_ids: [11, 23, 13, 16, 17, 23]},
       {name: "Product B", user_ids: [1, 2, 3, 4, 5, 6, 7, 8, 9]},
@@ -298,7 +298,7 @@ class WhereTest < Minitest::Test
     assert_search "product", ["Product A"], where: {user_ids: {gt: 10, lt: 24}}
   end
 
-  def test_where_range_array_again
+  def test_range_array_again
     store [
       {name: "Product A", user_ids: [19, 32, 42]},
       {name: "Product B", user_ids: [13, 40, 52]}
