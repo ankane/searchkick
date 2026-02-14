@@ -88,6 +88,7 @@ class WhereTest < Minitest::Test
 
     # multiple where
     assert_search_relation ["Product A"], Product.search("product").where(in_stock: true).where(backordered: true)
+    assert_search_relation ["Product A"], Product.search("product").where.not(store_id: 2).where.not(store_id: 3).where.not(store_id: 4)
     assert_search_relation [], Product.search("product").where(in_stock: true).where(in_stock: false)
     assert_search_relation [], Product.search("product").where(in_stock: true).where("in_stock" => false)
 
