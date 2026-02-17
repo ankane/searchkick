@@ -155,33 +155,32 @@ class AggsTest < Minitest::Test
 
   def test_smart_aggs
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id], smart_aggs: false
+
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: {not: 2}}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: {not: 2}}, aggs: [:store_id], smart_aggs: false
+
     # TODO fix
     assert_aggs ({"store_id" => {1 => 1}}), where: {_not: {store_id: 2}}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_not: {store_id: 2}}, aggs: [:store_id], smart_aggs: false
+
     # TODO fix
     assert_aggs ({"store_id" => {2 => 2}}), where: {_and: [{store_id: 2}]}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_and: [{store_id: 2}]}, aggs: [:store_id], smart_aggs: false
 
     assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
-  end
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_and: [{store_id: 2}]}, aggs: [:store_id], smart_aggs: false
 
-  def test_smart_aggs_relation
-    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").where(store_id: 2).aggs(:store_id)
-    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").where(store_id: {not: 2}).aggs(:store_id)
-    # TODO fix
-    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").where.not(store_id: 2).aggs(:store_id)
-    # TODO fix
-    assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(_and: [{store_id: 2}]).aggs(:store_id)
-
-    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2).where(price: {gt: 5}).aggs(:store_id)
-    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2, price: {gt: 5}).aggs(:store_id)
-  end
-
-  def test_smart_aggs_false
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
     assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}
     assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
-  def test_smart_aggs_false_relation
+  def test_smart_aggs_relation
+    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2).where(price: {gt: 5}).aggs(:store_id)
+    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2, price: {gt: 5}).aggs(:store_id)
     assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false)
   end
 
