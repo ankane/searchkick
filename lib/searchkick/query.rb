@@ -874,7 +874,7 @@ module Searchkick
 
         agg_where = ensure_permitted(agg_options[:where] || {})
         if options[:smart_aggs] != false && options[:where]
-          agg_where = smart_agg_filters(ensure_permitted(options[:where]), field, agg_where)
+          agg_where = smart_agg_filters(ensure_permitted(options[:where]), field.to_s, agg_where)
         end
         agg_filters = where_filters(agg_where)
 
@@ -903,18 +903,20 @@ module Searchkick
       end
     end
 
-    # TODO figure out _or
     def smart_agg_filters(where, field, agg_where)
       smart_where = {}
       where.each do |f, v|
         case f
         when :_and
           smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, agg_where) }
+        when :_or
+          # TODO figure out how to handle
+          smart_where[f] = v
         when :_not
           # TODO figure out agg_where overrides
           smart_where[f] = smart_agg_filters(v, field, {})
         else
-          if f != field
+          if f.to_s != field
             smart_where[f] = v
           end
         end
