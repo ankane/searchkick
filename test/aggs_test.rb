@@ -13,11 +13,20 @@ class AggsTest < Minitest::Test
 
   def test_single
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").aggs(:store_id)
   end
 
   def test_multiple
     expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
     assert_aggs expected, aggs: [:store_id, :color]
+    assert_aggs expected, Product.search("Product").aggs(:store_id, :color)
+    assert_aggs expected, Product.search("Product").aggs([:store_id, :color])
+  end
+
+  def test_multiple_where
+    expected = {"store_id" => {1 => 1}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
+    assert_aggs expected, aggs: {color: {}, store_id: {where: {in_stock: true}}}
+    assert_aggs expected, Product.search("Product").aggs(:color, store_id: {where: {in_stock: true}})
   end
 
   def test_none
@@ -26,6 +35,8 @@ class AggsTest < Minitest::Test
 
   def test_where
     assert_aggs ({"store_id" => {1 => 1}}), aggs: {store_id: {where: {in_stock: true}}}
+    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs(store_id: {where: {in_stock: true}})
+    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs({store_id: {where: {in_stock: true}}})
   end
 
   def test_where_query
@@ -39,19 +50,6 @@ class AggsTest < Minitest::Test
   def test_where_override
     assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
     assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
-  end
-
-  def test_skip
-    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
-  end
-
-  def test_skip_complex
-    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
-  end
-
-  def test_smart_aggs_false
-    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
-    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
   end
 
   def test_field
@@ -155,29 +153,23 @@ class AggsTest < Minitest::Test
     assert_aggs expected, body_options: {aggs: {price: {histogram: {field: :price, interval: 10}}}}
   end
 
-  def test_relation
-    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").aggs(:store_id)
-    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs(store_id: {where: {in_stock: true}})
-    assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs({store_id: {where: {in_stock: true}}})
+  def test_smart_aggs
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
   end
 
-  def test_relation_multiple
-    expected = {"store_id" => {1 => 1, 2 => 2}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
-    assert_aggs expected, Product.search("Product").aggs(:store_id, :color)
-    assert_aggs expected, Product.search("Product").aggs([:store_id, :color])
-  end
-
-  def test_relation_multiple_arguments
-    expected = {"store_id" => {1 => 1}, "color" => {"blue" => 1, "green" => 1, "red" => 1}}
-    assert_aggs expected, Product.search("Product").aggs(:color, store_id: {where: {in_stock: true}})
-  end
-
-  def test_relation_smart_aggs
+  def test_smart_aggs_relation
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), Product.search("Product").where(store_id: 2).aggs(:store_id)
     assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2, price: {gt: 5}).aggs(:store_id)
     assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), Product.search("Product").where(store_id: 2).where(price: {gt: 5}).aggs(:store_id)
   end
 
-  def test_relation_smart_aggs_false
+  def test_smart_aggs_false
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+  end
+
+  def test_smart_aggs_false_relation
     assert_aggs ({"store_id" => {2 => 2}}), Product.search("Product").where(color: "red").aggs(store_id: {where: {in_stock: false}}).smart_aggs(false)
   end
 
