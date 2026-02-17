@@ -157,6 +157,10 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id], smart_aggs: false
 
+    # TODO fix
+    assert_aggs ({"store_id" => {2 => 2}}), where: {store_id: 2}, aggs: ["store_id"]
+    assert_aggs ({"store_id" => {2 => 2}}), where: {"store_id" => 2}, aggs: [:store_id]
+
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: {not: 2}}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: {not: 2}}, aggs: [:store_id], smart_aggs: false
 
