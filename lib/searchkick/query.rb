@@ -872,7 +872,6 @@ module Searchkick
           }
         end
 
-        # TODO handle string/symbol mismatch between where and agg_where
         agg_where = ensure_permitted(agg_options[:where] || {})
         if options[:smart_aggs] != false && options[:where]
           agg_where = smart_agg_filters(ensure_permitted(options[:where]), field.to_s, agg_where)
@@ -906,6 +905,7 @@ module Searchkick
 
     def smart_agg_filters(where, field, agg_where)
       smart_where = {}
+      agg_where_keys = agg_where.except(:_and, :_or, :_not).to_h { |k, v| [k.to_s, true] }
       where.each do |f, v|
         case f
         when :_and
@@ -917,7 +917,7 @@ module Searchkick
           # TODO figure out agg_where overrides
           smart_where[f] = smart_agg_filters(v, field, {})
         else
-          if f.to_s != field
+          if f.to_s != field && !agg_where_keys.include?(f.to_s)
             smart_where[f] = v
           end
         end

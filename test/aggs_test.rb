@@ -153,6 +153,9 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
     assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}, smart_aggs: false
 
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, "color" => "red"}}}
+    assert_aggs ({"store_id" => {2 => 1}}), where: {"color" => "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
+
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id], smart_aggs: false
 
