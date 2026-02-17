@@ -873,7 +873,7 @@ module Searchkick
         end
 
         agg_where = ensure_permitted(agg_options[:where] || {})
-        unless options[:smart_aggs] == false
+        if options[:smart_aggs] != false
           where = ensure_permitted(options[:where] || {}).reject { |k| k == field }
           agg_where = where.merge(agg_where)
         end
