@@ -39,19 +39,6 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs({store_id: {where: {in_stock: true}}})
   end
 
-  def test_where_query
-    assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
-  end
-
-  def test_where_both
-    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
-  end
-
-  def test_where_override
-    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
-    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
-  end
-
   def test_field
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: {store_id: {}}
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), aggs: {store_id: {field: "store_id"}}
@@ -154,6 +141,18 @@ class AggsTest < Minitest::Test
   end
 
   def test_smart_aggs
+    assert_aggs ({"store_id" => {1 => 1}}), where: {in_stock: true}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {in_stock: true}, aggs: [:store_id], smart_aggs: false
+
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}
+    assert_aggs ({"store_id" => {2 => 2}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
+    assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
+    assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}, smart_aggs: false
+
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2}, aggs: [:store_id], smart_aggs: false
 
