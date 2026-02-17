@@ -872,6 +872,7 @@ module Searchkick
           }
         end
 
+        # TODO handle string/symbol mismatch between where and agg_where
         agg_where = ensure_permitted(agg_options[:where] || {})
         if options[:smart_aggs] != false && options[:where]
           agg_where = smart_agg_filters(ensure_permitted(options[:where]), field.to_s, agg_where)
