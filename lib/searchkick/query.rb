@@ -908,10 +908,9 @@ module Searchkick
       agg_where_keys = agg_where.except(:_and, :_or, :_not, :_script).to_h { |k, v| [k.to_s, true] }
       where.each do |f, v|
         case f
-        when :_and
+        when :_and, :_or
           smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, agg_where) }
-        when :_or, :_script
-          # TODO figure out how to handle
+        when :_script
           smart_where[f] = v
         when :_not
           # TODO figure out agg_where overrides
