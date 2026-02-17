@@ -905,12 +905,12 @@ module Searchkick
 
     def smart_agg_filters(where, field, agg_where)
       smart_where = {}
-      agg_where_keys = agg_where.except(:_and, :_or, :_not).to_h { |k, v| [k.to_s, true] }
+      agg_where_keys = agg_where.except(:_and, :_or, :_not, :_script).to_h { |k, v| [k.to_s, true] }
       where.each do |f, v|
         case f
         when :_and
           smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, agg_where) }
-        when :_or
+        when :_or, :_script
           # TODO figure out how to handle
           smart_where[f] = v
         when :_not
