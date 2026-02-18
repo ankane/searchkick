@@ -208,6 +208,9 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {2 => 1}}), where: {or: [[{color: "red"}]]}, aggs: {store_id: {where: {or: [[{in_stock: false}]]}}}
     assert_aggs ({"store_id" => {2 => 2}}), where: {or: [[{color: "red"}]]}, aggs: {store_id: {where: {or: [[{in_stock: false}]]}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {2 => 1}}), where: {_script: Searchkick.script("doc['color'].value == 'red'")}, aggs: {store_id: {where: {_script: Searchkick.script("!doc['in_stock'].value")}}}
+    assert_aggs ({"store_id" => {2 => 2}}), where: {_script: Searchkick.script("doc['color'].value == 'red'")}, aggs: {store_id: {where: {_script: Searchkick.script("!doc['in_stock'].value")}}}, smart_aggs: false
   end
 
   def test_smart_aggs_agg_where_overlap
