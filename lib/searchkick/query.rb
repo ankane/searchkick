@@ -909,7 +909,7 @@ module Searchkick
       where.each do |f, v|
         case f
         when :_and, :_or
-          smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, agg_where) }
+          smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, {}) }
         when :_script
           smart_where[f] = v
         when :_not
