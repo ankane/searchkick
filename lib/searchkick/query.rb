@@ -876,14 +876,13 @@ module Searchkick
         if options[:smart_aggs] != false && options[:where]
           where = ensure_permitted(options[:where])
           where_without_field = where_without_field(where, field.to_s)
-          agg_where =
-            if agg_where.any? && where_without_field.any?
-              combine_agg_where(agg_where, where_without_field)
-            elsif agg_where.any?
-              agg_where
+          if where_without_field.any?
+            if agg_where.any?
+              agg_where = combine_agg_where(agg_where, where_without_field)
             else
-              where_without_field
+              agg_where = where_without_field
             end
+          end
         end
         agg_filters = where_filters(agg_where)
 
