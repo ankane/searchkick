@@ -941,7 +941,7 @@ module Searchkick
       field_keys = result.except(:_and, :_or, :_not, :_script).transform_keys(&:to_s)
       where.each do |f, v|
         case f
-        when :_and, :_or, :_script, :_not
+        when :_and, :_or, :_not, :_script
           result[f] = v unless result.key?(f)
         else
           result[f] = v unless field_keys.include?(f.to_s)
