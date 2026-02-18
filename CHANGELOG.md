@@ -2,7 +2,8 @@
 
 - Added `per` method
 - Fixed error with `aggs` method and non-hash arguments
-- Fixed smart aggs not applying when multiple `where` calls
+- Fixed smart aggs behavior with `_and`, `_or`, and `_not`
+- Fixed smart aggs behavior when multiple `where` calls
 
 ## 6.0.3 (2026-01-06)
 
