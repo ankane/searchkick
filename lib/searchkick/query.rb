@@ -911,7 +911,7 @@ module Searchkick
         case f
         when :_and, :_or
           result[f] = v.map { |v2| where_without_field(v2, field) }
-          when :_not
+        when :_not
           result[f] = where_without_field(v, field)
         when :_script
           result[f] = v
