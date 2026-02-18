@@ -156,6 +156,9 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {1 => 1}}), where: {or: [[{in_stock: true}]]}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {or: [[{in_stock: true}]]}, aggs: [:store_id], smart_aggs: false
+
+    assert_aggs ({"store_id" => {1 => 1}}), where: {_script: Searchkick.script("doc['in_stock'].value")}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_script: Searchkick.script("doc['in_stock'].value")}, aggs: [:store_id], smart_aggs: false
   end
 
   def test_smart_aggs_overlap
