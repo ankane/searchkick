@@ -202,6 +202,12 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {2 => 1}}), where: {_and: [{color: "red"}]}, aggs: {store_id: {where: {_and: [{in_stock: false}]}}}
     assert_aggs ({"store_id" => {2 => 2}}), where: {_and: [{color: "red"}]}, aggs: {store_id: {where: {_and: [{in_stock: false}]}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {2 => 1}}), where: {_or: [{color: "red"}]}, aggs: {store_id: {where: {_or: [{in_stock: false}]}}}
+    assert_aggs ({"store_id" => {2 => 2}}), where: {_or: [{color: "red"}]}, aggs: {store_id: {where: {_or: [{in_stock: false}]}}}, smart_aggs: false
+
+    assert_aggs ({"store_id" => {2 => 1}}), where: {or: [[{color: "red"}]]}, aggs: {store_id: {where: {or: [[{in_stock: false}]]}}}
+    assert_aggs ({"store_id" => {2 => 2}}), where: {or: [[{color: "red"}]]}, aggs: {store_id: {where: {or: [[{in_stock: false}]]}}}, smart_aggs: false
   end
 
   def test_smart_aggs_agg_where_overlap
