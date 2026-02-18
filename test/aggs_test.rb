@@ -37,6 +37,7 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {1 => 1}}), aggs: {store_id: {where: {in_stock: true}}}
     assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs(store_id: {where: {in_stock: true}})
     assert_aggs ({"store_id" => {1 => 1}}), Product.search("Product").aggs({store_id: {where: {in_stock: true}}})
+    assert_aggs ({"store_id" => {1 => 1}}), aggs: {store_id: {where: {_not: {in_stock: false}}}}
   end
 
   def test_field
