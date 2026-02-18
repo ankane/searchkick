@@ -213,6 +213,7 @@ class AggsTest < Minitest::Test
     assert_aggs ({"store_id" => {2 => 2}}), where: {_script: Searchkick.script("doc['color'].value == 'red'")}, aggs: {store_id: {where: {_script: Searchkick.script("!doc['in_stock'].value")}}}, smart_aggs: false
   end
 
+  # only basic conditions are overridden (the rest are additive)
   def test_smart_aggs_agg_where_overlap
     assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}
     assert_aggs ({"store_id" => {}}), where: {color: "red"}, aggs: {store_id: {where: {in_stock: false, color: "blue"}}}, smart_aggs: false
@@ -222,6 +223,9 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {2 => 1}}), where: {color: "blue"}, aggs: {store_id: {where: {in_stock: false, "color" => "red"}}}
     assert_aggs ({"store_id" => {2 => 1}}), where: {"color" => "blue"}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
+
+    assert_aggs ({"store_id" => {}}), where: {_and: [{color: "blue"}]}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}
+    assert_aggs ({"store_id" => {2 => 1}}), where: {_and: [{color: "blue"}]}, aggs: {store_id: {where: {in_stock: false, color: "red"}}}, smart_aggs: false
   end
 
   def test_smart_aggs_relation
