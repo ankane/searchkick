@@ -938,7 +938,6 @@ module Searchkick
       result
     end
 
-    # TODO improve
     def combine_agg_where(agg_where, where)
       result = agg_where.dup
       field_keys = result.except(:_and, :_or, :or, :_not, :_script).transform_keys(&:to_s)
