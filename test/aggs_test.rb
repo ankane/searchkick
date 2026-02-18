@@ -153,6 +153,9 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {1 => 1}}), where: {_or: [{in_stock: true}]}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_or: [{in_stock: true}]}, aggs: [:store_id], smart_aggs: false
+
+    assert_aggs ({"store_id" => {1 => 1}}), where: {or: [[{in_stock: true}]]}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {or: [[{in_stock: true}]]}, aggs: [:store_id], smart_aggs: false
   end
 
   def test_smart_aggs_overlap
@@ -179,6 +182,9 @@ class AggsTest < Minitest::Test
 
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_or: [{store_id: 2}, {in_stock: true}]}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {_or: [{store_id: 2}, {in_stock: true}]}, aggs: [:store_id], smart_aggs: false
+
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {or: [[{store_id: 2}]]}, aggs: [:store_id]
+    assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {or: [[{store_id: 2}]]}, aggs: [:store_id], smart_aggs: false
 
     assert_aggs ({"store_id" => {1 => 1, 2 => 1}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id]
     assert_aggs ({"store_id" => {1 => 1, 2 => 2}}), where: {store_id: 2, price: {gt: 5}}, aggs: [:store_id], smart_aggs: false

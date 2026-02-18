@@ -921,6 +921,8 @@ module Searchkick
         when :_or
           r = v.map { |v2| where_without_field(v2, field) }
           result[f] = r unless r.any?(&:empty?)
+        when :or
+          result[f] = v.map { |v2| v2.map { |v3| where_without_field(v3, field) } }
         when :_not
           r = where_without_field(v, field)
           result[f] = r unless r.empty?
@@ -938,10 +940,10 @@ module Searchkick
     # TODO improve
     def combine_agg_where(agg_where, where)
       result = agg_where.dup
-      field_keys = result.except(:_and, :_or, :_not, :_script).transform_keys(&:to_s)
+      field_keys = result.except(:_and, :_or, :or, :_not, :_script).transform_keys(&:to_s)
       where.each do |f, v|
         case f
-        when :_and, :_or, :_not, :_script
+        when :_and, :_or, :or, :_not, :_script
           result[f] = v unless result.key?(f)
         else
           result[f] = v unless field_keys.include?(f.to_s)
@@ -1097,6 +1099,7 @@ module Searchkick
       (where || {}).each do |field, value|
         field = :_id if field.to_s == "id"
 
+        # update smart aggs when adding new symbol
         if field == :or
           value.each do |or_clause|
             filters << {bool: {should: or_clause.map { |or_statement| {bool: {filter: where_filters(or_statement)}} }}}
