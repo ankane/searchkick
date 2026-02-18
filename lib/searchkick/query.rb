@@ -909,10 +909,15 @@ module Searchkick
       result = {}
       where.each do |f, v|
         case f
-        when :_and, :_or
-          result[f] = v.map { |v2| where_without_field(v2, field) }
+        when :_and
+          r = v.map { |v2| where_without_field(v2, field) }.reject(&:empty?)
+          result[f] = r unless r.empty?
+        when :_or
+          r = v.map { |v2| where_without_field(v2, field) }
+          result[f] = r unless r.any?(&:empty?)
         when :_not
-          result[f] = where_without_field(v, field)
+          r = where_without_field(v, field)
+          result[f] = r unless r.empty?
         when :_script
           result[f] = v
         else
