@@ -874,7 +874,9 @@ module Searchkick
 
         agg_where = ensure_permitted(agg_options[:where] || {})
         if options[:smart_aggs] != false && options[:where]
-          agg_where = smart_agg_filters(ensure_permitted(options[:where]), field.to_s, agg_where)
+          where = ensure_permitted(options[:where])
+          where_without_field = where_without_field(where, field.to_s)
+          agg_where = combine_agg_where(agg_where, where_without_field)
         end
         agg_filters = where_filters(agg_where)
 
@@ -903,26 +905,38 @@ module Searchkick
       end
     end
 
-    def smart_agg_filters(where, field, agg_where)
-      smart_where = {}
-      agg_where_keys = agg_where.except(:_and, :_or, :_not, :_script).to_h { |k, v| [k.to_s, true] }
+    def where_without_field(where, field)
+      result = {}
       where.each do |f, v|
         case f
         when :_and, :_or
-          smart_where[f] = v.map { |v2| smart_agg_filters(v2, field, {}) }
+          result[f] = v.map { |v2| where_without_field(v2, field) }
+          when :_not
+          result[f] = where_without_field(v, field)
         when :_script
-          smart_where[f] = v
-        when :_not
-          # TODO figure out agg_where overrides
-          smart_where[f] = smart_agg_filters(v, field, {})
+          result[f] = v
         else
-          if f.to_s != field && !agg_where_keys.include?(f.to_s)
-            smart_where[f] = v
+          if f.to_s != field
+            result[f] = v
           end
         end
       end
-      smart_where.merge!(agg_where)
-      smart_where
+      result
+    end
+
+    # TODO improve
+    def combine_agg_where(agg_where, where)
+      result = agg_where.dup
+      field_keys = result.except(:_and, :_or, :_not, :_script).transform_keys(&:to_s)
+      where.each do |f, v|
+        case f
+        when :_and, :_or, :_script, :_not
+          result[f] = v unless result.key?(f)
+        else
+          result[f] = v unless field_keys.include?(f.to_s)
+        end
+      end
+      result
     end
 
     def set_knn(payload, knn, per_page, offset)
