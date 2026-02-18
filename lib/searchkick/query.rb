@@ -922,7 +922,8 @@ module Searchkick
           r = v.map { |v2| where_without_field(v2, field) }
           result[f] = r unless r.any?(&:empty?)
         when :or
-          result[f] = v.map { |v2| v2.map { |v3| where_without_field(v3, field) } }
+          r = v.map { |v2| v2.map { |v3| where_without_field(v3, field) }.reject { |v2| v2.any?(&:empty?) } }
+          result[f] = r unless r.empty?
         when :_not
           r = where_without_field(v, field)
           result[f] = r unless r.empty?
