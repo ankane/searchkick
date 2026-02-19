@@ -1,4 +1,4 @@
-## 6.1.0 (unreleased)
+## 6.1.0 (2026-02-18)
 
 - Added `per` method
 - Fixed error with `aggs` method and non-hash arguments
