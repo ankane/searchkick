@@ -575,11 +575,11 @@ module Searchkick
       check_loaded
       value = ensure_permitted(value)
       if @options[:where]
-        if @options[:where][:_and].is_a?(Array)
-          merge_option(:where, {_and: @options[:where][:_and] + [value]})
         # keep simple when possible for smart aggs
-        elsif !@options[:where].keys.intersect?(value.keys)
+        if !@options[:where].keys.intersect?(value.keys)
           merge_option(:where, value)
+        elsif @options[:where][:_and].is_a?(Array)
+          merge_option(:where, {_and: @options[:where][:_and] + [value]})
         else
           @options[:where] = {_and: [@options[:where], value]}
         end
