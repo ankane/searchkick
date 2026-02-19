@@ -1,3 +1,7 @@
+## 6.1.1 (unreleased)
+
+- Fixed smart aggs behavior with `_and`
+
 ## 6.1.0 (2026-02-18)
 
 - Added `per` method
