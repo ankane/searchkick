@@ -146,6 +146,10 @@ module Searchkick
     end
   end
 
+  def self.rescore_vector_support?
+    !opensearch? && !server_below?("8.18.0")
+  end
+
   def self.search(term = "*", model: nil, **options, &block)
     options = options.dup
     klass = model

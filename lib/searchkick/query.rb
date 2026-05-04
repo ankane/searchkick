@@ -973,6 +973,7 @@ module Searchkick
       exact = field_options[:distance].nil? || distance != field_options[:distance] if exact.nil?
       k = per_page + offset
       ef_search = knn[:ef_search]
+      rescore_vector = knn[:rescore_vector]
       filter = payload.delete(:query)
 
       if distance.nil?
@@ -1073,12 +1074,25 @@ module Searchkick
             }
           }
         else
+          if rescore_vector && !Searchkick.rescore_vector_support?
+            raise Error, "rescore_vector requires Elasticsearch 8.18+"
+          end
+
+          rescore_vector_options =
+            if rescore_vector
+              oversample = rescore_vector == true ? nil : rescore_vector
+              {rescore_vector: {oversample: oversample}.compact}
+            else
+              {}
+            end
+
           payload[:knn] = {
             field: field,
             query_vector: vector,
             k: k,
             filter: filter
           }.merge(ef_search ? {num_candidates: ef_search} : {})
+           .merge(rescore_vector_options)
         end
       end
     end
