@@ -205,6 +205,29 @@ class KnnTest < Minitest::Test
     assert_order "*", ["A", "B"], knn: {field: :embedding, vector: [1, 2, 3], ef_search: 20}, limit: 10
   end
 
+  def test_rescore_vector
+    skip unless Searchkick.rescore_vector_support?
+
+    store [{name: "A", embedding_bbq: [1, 2, 3]}, {name: "B", embedding_bbq: [-1, -2, -3]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding_bbq, vector: [1, 2, 3], rescore_vector: true}
+  end
+
+  def test_rescore_vector_with_oversample
+    skip unless Searchkick.rescore_vector_support?
+
+    store [{name: "A", embedding_bbq: [1, 2, 3]}, {name: "B", embedding_bbq: [-1, -2, -3]}, {name: "C"}]
+    assert_order "*", ["A", "B"], knn: {field: :embedding_bbq, vector: [1, 2, 3], rescore_vector: 1.5}
+  end
+
+  def test_rescore_vector_unsupported
+    skip unless Searchkick.opensearch? || Searchkick.server_below?("8.18.0")
+
+    error = assert_raises(Searchkick::Error) do
+      Product.search("*", knn: {field: :embedding, vector: [1, 2, 3], rescore_vector: true})
+    end
+    assert_match "rescore_vector requires Elasticsearch 8.18+", error.message
+  end
+
   private
 
   def assert_approx(approx, field, distance, **knn_options)

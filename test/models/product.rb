@@ -26,7 +26,8 @@ class Product
       embedding: {dimensions: 3, distance: "cosine", m: 16, ef_construction: 100},
       embedding2: {dimensions: 3, distance: "inner_product"},
       embedding3: {dimensions: 3, distance: "euclidean"}
-    }.merge(Searchkick.opensearch? ? {} : {embedding4: {dimensions: 3}}) : nil
+    }.merge(Searchkick.opensearch? ? {} : {embedding4: {dimensions: 3}})
+     .merge(Searchkick.rescore_vector_support? ? {embedding_bbq: {dimensions: 3, distance: "cosine", quantization: "bbq"}} : {}) : nil
 
   attr_accessor :conversions, :conversions_v2, :user_ids, :aisle, :details
 
