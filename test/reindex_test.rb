@@ -363,4 +363,68 @@ class ReindexTest < Minitest::Test
     Product.reindex
     Product.reindex # run twice for both index paths
   end
+
+  def test_after_reindex_record_inline
+    Product.searchkick_options[:after_reindex] = ->(klass) {
+      klass.reindex(:clear_color, refresh: true)
+    }
+
+    store [{name: "A", color: "red"}]
+    Product.find_by!(name: "A").reindex(refresh: true)
+
+    hit = Product.search("*", where: {name: "A"}, load: false).first
+    assert_nil hit.color
+  ensure
+    Product.searchkick_options.delete(:after_reindex)
+  end
+
+
+  def test_after_reindex_record_inline_partial_skips
+    Product.searchkick_options[:after_reindex] = ->(klass) {
+      klass.reindex(:clear_color, refresh: true)
+    }
+
+    store [{name: "A", color: "red"}]
+    Product.find_by!(name: "A").reindex(:search_color, refresh: true)
+
+    hit = Product.search("*", where: {name: "A"}, load: false).first
+    assert_equal "red", hit.color
+  ensure
+    Product.searchkick_options.delete(:after_reindex)
+  end
+
+  def test_after_reindex_record_destroyed_still_fires
+    store [{name: "A", color: "red"}, {name: "B", color: "blue"}]
+    product = Product.find_by!(name: "A")
+    product.destroy
+    Product.searchkick_index.refresh
+    # set callback AFTER the destroy so we don't conflate the AR after_commit
+    # path with the explicit-reindex path under test
+    Product.searchkick_options[:after_reindex] = ->(klass) {
+      klass.reindex(:clear_color, refresh: true)
+    }
+
+    product.reindex
+
+    hit = Product.search("*", where: {name: "B"}, load: false).first
+    assert_nil hit.color
+  ensure
+    Product.searchkick_options.delete(:after_reindex)
+  end
+
+  def test_after_reindex_relation_inline
+    Product.searchkick_options[:after_reindex] = ->(klass) {
+      klass.reindex(:clear_color, refresh: true)
+    }
+
+    store [{name: "A", color: "red"}]
+    Product.reindex(refresh: true)
+    
+    hit = Product.search("*", where: {name: "A"}, load: false).first
+    assert_nil hit.color
+  ensure
+    Product.searchkick_options.delete(:after_reindex)
+  end
+
+
 end

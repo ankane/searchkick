@@ -218,7 +218,10 @@ module Searchkick
 
       if object.is_a?(Array)
         # note: purposefully skip full
-        return reindex_records(object, method_name: method_name, ignore_missing: ignore_missing, **options)
+        result = reindex_records(object, method_name: method_name, ignore_missing: ignore_missing, **options)
+        run_after_reindex_callback(object.first.class.searchkick_klass) if method_name.nil? && result
+        return result
+
       end
 
       if !object.respond_to?(:searchkick_klass)
@@ -232,7 +235,7 @@ module Searchkick
       refresh = options.fetch(:refresh, !scoped)
       options.delete(:refresh)
 
-      if method_name || (scoped && !full)
+      result = if method_name || (scoped && !full)
         mode = options.delete(:mode) || :inline
         scope = options.delete(:scope)
         job_options = options.delete(:job_options)
@@ -253,9 +256,10 @@ module Searchkick
           end
           options[:mode] ||= :async
         end
-
         full_reindex(relation, **options)
       end
+      run_after_reindex_callback(klass) if options[:after_reindex] && method_name.nil? && result
+      result
     end
 
     def create_index(index_options: nil)
@@ -474,6 +478,15 @@ module Searchkick
         ActiveSupport::Notifications.instrument("request.searchkick", event) do
           yield
         end
+      end
+    end
+
+    def run_after_reindex_callback(klass)
+      callback = klass.searchkick_options[:after_reindex]
+      return unless callback
+      raise ArgumentError, "after_reindex must respond to :call" unless callback.respond_to?(:call)
+        ActiveSupport::Notifications.instrument("after_reindex.searchkick", class: klass.name) do
+        callback.call(klass)
       end
     end
   end

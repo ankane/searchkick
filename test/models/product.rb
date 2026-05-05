@@ -57,4 +57,16 @@ class Product
       name: name
     }
   end
+
+  def search_color
+    {
+      color: color
+    }
+  end
+
+  def clear_color
+    {
+      color: nil
+    }
+  end
 end
