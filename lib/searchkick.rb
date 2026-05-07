@@ -57,6 +57,8 @@ module Searchkick
   class DangerousOperation < Error; end
   class ImportError < Error; end
 
+  ON_MISSING_VALUES = [:raise, :ignore, :full].freeze
+
   class << self
     attr_accessor :search_method_name, :timeout, :models, :client_options, :redis, :index_prefix, :index_suffix, :queue_name, :model_options, :client_type, :parent_job
     attr_writer :client, :env, :search_timeout
@@ -272,6 +274,33 @@ module Searchkick
 
   def self.warn(message)
     super("[searchkick] WARNING: #{message}")
+  end
+
+  def self.normalize_on_missing(on_missing, ignore_missing)
+    if !ignore_missing.nil? && !on_missing.nil?
+      raise ArgumentError, "Cannot pass both on_missing and ignore_missing"
+    end
+
+    # Use a nil check instead of present? to distinguish between ignore_missing: nil (unset),
+    # ignore_missing: true, and ignore_missing: false. 
+    if !ignore_missing.nil?
+      case ignore_missing
+      when true
+        Searchkick.warn "ignore_missing is deprecated, use on_missing: :ignore instead of ignore_missing: true"
+      when false
+        Searchkick.warn "ignore_missing is deprecated, use on_missing: :raise instead of ignore_missing: false"
+      end
+      return ignore_missing ? :ignore : :raise
+    end
+
+    return :raise if on_missing.nil?
+
+    on_missing = on_missing.to_sym if on_missing.is_a?(String)
+    unless ON_MISSING_VALUES.include?(on_missing)
+      raise ArgumentError,
+      "Invalid value for on_missing: #{on_missing.inspect} (expected one of #{ON_MISSING_VALUES.map(&:inspect).join(', ')})"
+    end
+    on_missing
   end
 
   # private

@@ -14,7 +14,7 @@ module Searchkick
         end
 
       relation = Searchkick.scope(model)
-      RecordIndexer.new(index).reindex_items(relation, items, method_name: nil, ignore_missing: nil)
+      RecordIndexer.new(index).reindex_items(relation, items, method_name: nil, on_missing: nil)
     end
   end
 end

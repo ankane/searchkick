@@ -164,11 +164,11 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name, ignore_missing: nil)
+    def bulk_update(records, method_name, on_missing: nil)
       return if records.empty?
 
       notify_bulk(records, "Update") do
-        queue_update(records, method_name, ignore_missing: ignore_missing)
+        queue_update(records, method_name, on_missing: on_missing)
       end
     end
 
@@ -211,14 +211,15 @@ module Searchkick
 
     # note: this is designed to be used internally
     # so it does not check object matches index class
-    def reindex(object, method_name: nil, ignore_missing: nil, full: false, **options)
+    def reindex(object, method_name: nil, ignore_missing: nil, on_missing: nil, full: false, **options)
+      on_missing = Searchkick.normalize_on_missing(on_missing, ignore_missing)
       if @options[:job_options]
         options[:job_options] = (@options[:job_options] || {}).merge(options[:job_options] || {})
       end
 
       if object.is_a?(Array)
         # note: purposefully skip full
-        return reindex_records(object, method_name: method_name, ignore_missing: ignore_missing, **options)
+        return reindex_records(object, method_name: method_name, on_missing: on_missing, **options)
       end
 
       if !object.respond_to?(:searchkick_klass)
@@ -239,7 +240,7 @@ module Searchkick
         raise ArgumentError, "unsupported keywords: #{options.keys.map(&:inspect).join(", ")}" if options.any?
 
         # import only
-        import_scope(relation, method_name: method_name, mode: mode, scope: scope, ignore_missing: ignore_missing, job_options: job_options)
+        import_scope(relation, method_name: method_name, mode: mode, scope: scope, on_missing: on_missing, job_options: job_options)
         self.refresh if refresh
         true
       else
@@ -331,9 +332,21 @@ module Searchkick
       Searchkick.indexer.queue(records.reject { |r| r.id.blank? }.map { |r| RecordData.new(self, r).delete_data })
     end
 
-    def queue_update(records, method_name, ignore_missing:)
+    def queue_update(records, method_name, on_missing:)
       items = records.map { |r| RecordData.new(self, r).update_data(method_name) }
-      items.each { |i| i.instance_variable_set(:@ignore_missing, true) } if ignore_missing
+      if on_missing && on_missing != :raise
+        items.each_with_index do |item, i|
+          case on_missing
+          when :ignore
+            item.instance_variable_set(:@on_missing_ignore, true)
+          when :full
+            item.instance_variable_set(
+              :@on_missing_full_builder,
+              -> { RecordData.new(self, records[i]).index_data }
+            )
+          end
+        end
+      end
       Searchkick.indexer.queue(items)
     end
 

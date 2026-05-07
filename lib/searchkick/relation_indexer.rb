@@ -6,7 +6,7 @@ module Searchkick
       @index = index
     end
 
-    def reindex(relation, mode:, method_name: nil, ignore_missing: nil, full: false, resume: false, scope: nil, job_options: nil)
+    def reindex(relation, mode:, method_name: nil, on_missing: nil, full: false, resume: false, scope: nil, job_options: nil)
       # apply scopes
       if scope
         relation = relation.send(scope)
@@ -38,7 +38,7 @@ module Searchkick
         mode: mode,
         method_name: method_name,
         full: full,
-        ignore_missing: ignore_missing,
+        on_missing: on_missing,
         job_options: job_options
       }
       record_indexer = RecordIndexer.new(index)
