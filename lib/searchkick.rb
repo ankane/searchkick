@@ -223,32 +223,15 @@ module Searchkick
         self.bulk_batch_size = batch_size if value == :bulk
         result = yield
         if callbacks_value == :bulk && indexer.queued_items.any?
-          size = bulk_batch_size
-          if size
-            indexer.queued_items.each_slice(size) do |slice|
-              event = {}
-              if message
-                message.call(event)
-              else
-                event[:name] = "Bulk"
-                event[:count] = slice.size
-              end
-              ActiveSupport::Notifications.instrument("request.searchkick", event) do
-                indexer.perform_items(slice)
-              end
-            end
-            indexer.queued_items.clear
+          event = {}
+          if message
+            message.call(event)
           else
-            event = {}
-            if message
-              message.call(event)
-            else
-              event[:name] = "Bulk"
-              event[:count] = indexer.queued_items.size
-            end
-            ActiveSupport::Notifications.instrument("request.searchkick", event) do
-              indexer.perform
-            end
+            event[:name] = "Bulk"
+            event[:count] = indexer.queued_items.size
+          end
+          ActiveSupport::Notifications.instrument("request.searchkick", event) do
+            indexer.perform(batch_size: bulk_batch_size)
           end
         end
         result

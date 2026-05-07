@@ -13,18 +13,17 @@ module Searchkick
       perform unless Searchkick.callbacks_value == :bulk
     end
 
-    def perform
+    def perform(batch_size: nil)
       items = @queued_items
       @queued_items = []
 
       return if items.empty?
 
-      bulk(items)
-    end
-
-    def perform_items(items)
-      @queued_items = items
-      perform
+      if batch_size
+        items.each_slice(batch_size) { |slice| bulk(slice) }
+      else
+        bulk(items)
+      end
     end
 
     def bulk(items)

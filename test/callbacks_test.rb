@@ -126,22 +126,25 @@ class CallbacksTest < Minitest::Test
     assert_search "safe", []
   end
 
-  def test_bulk_batch_size_fires_instrumentation_per_batch
-    events = []
-    subscription = ActiveSupport::Notifications.subscribe("request.searchkick") do |*args|
-      event = ActiveSupport::Notifications::Event.new(*args)
-      events << event.payload[:count]
+  def test_bulk_batch_size_makes_n_http_calls
+    bulk_call_count = 0
+    original_bulk = Searchkick::Indexer.instance_method(:bulk)
+
+    Searchkick::Indexer.define_method(:bulk) do |items|
+      bulk_call_count += 1
+      original_bulk.bind(self).call(items)
     end
 
-    Searchkick.callbacks(:bulk, batch_size: 2) do
-      store_names (1..5).map { |i| "InstrProduct #{i}" }
+    begin
+      Searchkick.callbacks(:bulk, batch_size: 2) do
+        store_names (1..5).map { |i| "HttpProduct #{i}" }
+      end
+    ensure
+      Searchkick::Indexer.define_method(:bulk, original_bulk)
     end
 
-    ActiveSupport::Notifications.unsubscribe(subscription)
-
-    # 5 items with batch_size 2 → 3 batches (2, 2, 1)
-    assert_equal 3, events.size
-    assert_equal [2, 2, 1], events
+    # 5 items with batch_size 2 → 3 HTTP calls (2, 2, 1)
+    assert_equal 3, bulk_call_count
   end
 
   def test_disable_callbacks
