@@ -10,12 +10,7 @@ module Searchkick
 
     def queue(items)
       @queued_items.concat(items)
-      if Searchkick.callbacks_value == :bulk
-        batch_size = Searchkick.bulk_batch_size
-        perform if batch_size && @queued_items.size >= batch_size
-      else
-        perform
-      end
+      perform unless Searchkick.callbacks_value == :bulk
     end
 
     def perform
@@ -24,6 +19,15 @@ module Searchkick
 
       return if items.empty?
 
+      bulk(items)
+    end
+
+    def perform_items(items)
+      @queued_items = items
+      perform
+    end
+
+    def bulk(items)
       response = Searchkick.client.bulk(body: items)
       if response["errors"]
         # note: delete does not set error when item not found

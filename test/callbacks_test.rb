@@ -113,10 +113,9 @@ class CallbacksTest < Minitest::Test
     assert_nil Searchkick.bulk_batch_size, "batch_size should be nil after all blocks exit"
   end
 
-  def test_bulk_batch_size_exception_preserves_flushed_items
-    # Use batch_size: 1 so each item flushes immediately — makes exception timing deterministic
+  def test_bulk_batch_size_exception_nothing_flushed
     begin
-      Searchkick.callbacks(:bulk, batch_size: 1) do
+      Searchkick.callbacks(:bulk, batch_size: 2) do
         store_names ["Safe A", "Safe B"]
         raise "intentional error"
       end
@@ -124,7 +123,25 @@ class CallbacksTest < Minitest::Test
       # expected
     end
     Product.searchkick_index.refresh
-    assert_search "safe", ["Safe A", "Safe B"]
+    assert_search "safe", []
+  end
+
+  def test_bulk_batch_size_fires_instrumentation_per_batch
+    events = []
+    subscription = ActiveSupport::Notifications.subscribe("request.searchkick") do |*args|
+      event = ActiveSupport::Notifications::Event.new(*args)
+      events << event.payload[:count]
+    end
+
+    Searchkick.callbacks(:bulk, batch_size: 2) do
+      store_names (1..5).map { |i| "InstrProduct #{i}" }
+    end
+
+    ActiveSupport::Notifications.unsubscribe(subscription)
+
+    # 5 items with batch_size 2 → 3 batches (2, 2, 1)
+    assert_equal 3, events.size
+    assert_equal [2, 2, 1], events
   end
 
   def test_disable_callbacks

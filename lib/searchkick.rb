@@ -220,24 +220,41 @@ module Searchkick
       previous_batch_size = bulk_batch_size
       begin
         self.callbacks_value = value
-        Thread.current[:searchkick_bulk_batch_size] = batch_size if value == :bulk
+        self.bulk_batch_size = batch_size if value == :bulk
         result = yield
         if callbacks_value == :bulk && indexer.queued_items.any?
-          event = {}
-          if message
-            message.call(event)
+          size = bulk_batch_size
+          if size
+            indexer.queued_items.each_slice(size) do |slice|
+              event = {}
+              if message
+                message.call(event)
+              else
+                event[:name] = "Bulk"
+                event[:count] = slice.size
+              end
+              ActiveSupport::Notifications.instrument("request.searchkick", event) do
+                indexer.perform_items(slice)
+              end
+            end
+            indexer.queued_items.clear
           else
-            event[:name] = "Bulk"
-            event[:count] = indexer.queued_items.size
-          end
-          ActiveSupport::Notifications.instrument("request.searchkick", event) do
-            indexer.perform
+            event = {}
+            if message
+              message.call(event)
+            else
+              event[:name] = "Bulk"
+              event[:count] = indexer.queued_items.size
+            end
+            ActiveSupport::Notifications.instrument("request.searchkick", event) do
+              indexer.perform
+            end
           end
         end
         result
       ensure
         self.callbacks_value = previous_value
-        Thread.current[:searchkick_bulk_batch_size] = previous_batch_size
+        self.bulk_batch_size = previous_batch_size
       end
     else
       self.callbacks_value = value
@@ -246,6 +263,10 @@ module Searchkick
 
   def self.bulk_batch_size
     Thread.current[:searchkick_bulk_batch_size]
+  end
+
+  def self.bulk_batch_size=(value)
+    Thread.current[:searchkick_bulk_batch_size] = value
   end
 
   def self.aws_credentials=(creds)
