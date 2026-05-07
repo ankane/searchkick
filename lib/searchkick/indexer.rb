@@ -10,7 +10,12 @@ module Searchkick
 
     def queue(items)
       @queued_items.concat(items)
-      perform unless Searchkick.callbacks_value == :bulk
+      if Searchkick.callbacks_value == :bulk
+        batch_size = Searchkick.bulk_batch_size
+        perform if batch_size && @queued_items.size >= batch_size
+      else
+        perform
+      end
     end
 
     def perform

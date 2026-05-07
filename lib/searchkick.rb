@@ -214,11 +214,13 @@ module Searchkick
   end
 
   # message is private
-  def self.callbacks(value = nil, message: nil)
+  def self.callbacks(value = nil, batch_size: nil, message: nil)
     if block_given?
       previous_value = callbacks_value
+      previous_batch_size = bulk_batch_size
       begin
         self.callbacks_value = value
+        Thread.current[:searchkick_bulk_batch_size] = batch_size if value == :bulk
         result = yield
         if callbacks_value == :bulk && indexer.queued_items.any?
           event = {}
@@ -235,10 +237,15 @@ module Searchkick
         result
       ensure
         self.callbacks_value = previous_value
+        Thread.current[:searchkick_bulk_batch_size] = previous_batch_size
       end
     else
       self.callbacks_value = value
     end
+  end
+
+  def self.bulk_batch_size
+    Thread.current[:searchkick_bulk_batch_size]
   end
 
   def self.aws_credentials=(creds)

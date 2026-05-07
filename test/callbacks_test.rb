@@ -84,6 +84,49 @@ class CallbacksTest < Minitest::Test
     end
   end
 
+  def test_bulk_batch_size_all_items_indexed
+    names = (1..5).map { |i| "BatchProduct #{i}" }
+    Searchkick.callbacks(:bulk, batch_size: 2) do
+      store_names names
+    end
+    Product.searchkick_index.refresh
+    assert_search "batchproduct", names
+  end
+
+  def test_bulk_batch_size_remainder_flushed_at_block_end
+    Searchkick.callbacks(:bulk, batch_size: 3) do
+      store_names ["Rem A", "Rem B"]
+    end
+    Product.searchkick_index.refresh
+    assert_search "rem", ["Rem A", "Rem B"]
+  end
+
+  def test_bulk_batch_size_nesting_restores_outer_threshold
+    outer_batch_size_during_inner = nil
+    Searchkick.callbacks(:bulk, batch_size: 100) do
+      Searchkick.callbacks(:bulk, batch_size: 50) do
+        outer_batch_size_during_inner = Searchkick.bulk_batch_size
+      end
+      assert_equal 100, Searchkick.bulk_batch_size, "outer batch_size should be restored after inner block"
+    end
+    assert_equal 50, outer_batch_size_during_inner
+    assert_nil Searchkick.bulk_batch_size, "batch_size should be nil after all blocks exit"
+  end
+
+  def test_bulk_batch_size_exception_preserves_flushed_items
+    # Use batch_size: 1 so each item flushes immediately — makes exception timing deterministic
+    begin
+      Searchkick.callbacks(:bulk, batch_size: 1) do
+        store_names ["Safe A", "Safe B"]
+        raise "intentional error"
+      end
+    rescue RuntimeError
+      # expected
+    end
+    Product.searchkick_index.refresh
+    assert_search "safe", ["Safe A", "Safe B"]
+  end
+
   def test_disable_callbacks
     # make sure callbacks default to on
     assert Searchkick.callbacks?

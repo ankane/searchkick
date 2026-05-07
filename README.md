@@ -651,6 +651,14 @@ Searchkick.callbacks(:bulk) do
 end
 ```
 
+To avoid large `_bulk` requests when processing many records, use `batch_size:` to flush automatically after every N items.
+
+```ruby
+Searchkick.callbacks(:bulk, batch_size: 1000) do
+  Product.find_each(&:update_fields)
+end
+```
+
 Or temporarily skip updates.
 
 ```ruby
