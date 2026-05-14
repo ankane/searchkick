@@ -1,4 +1,4 @@
-## 6.1.1 (unreleased)
+## 6.1.1 (2026-05-14)
 
 - Fixed smart aggs behavior with `_and`
 
