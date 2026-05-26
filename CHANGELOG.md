@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fixed `clear_scroll` failing with `too_long_http_line_exception` on indices with many shards (scroll_id moved to request body)
+
 ## 6.1.1 (2026-05-14)
 
 - Fixed smart aggs behavior with `_and`
