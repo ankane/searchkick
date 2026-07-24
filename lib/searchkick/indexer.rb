@@ -19,8 +19,7 @@ module Searchkick
 
       return if items.empty?
 
-      items = items.as_json if Searchkick.opensearch4_client?
-      response = Searchkick.client.bulk(body: items)
+      response = Searchkick.client.bulk(body: Searchkick.opensearch4_client? ? items.as_json : items)
       if response["errors"]
         # note: delete does not set error when item not found
         first_with_error = response["items"].map do |item|

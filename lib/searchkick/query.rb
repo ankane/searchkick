@@ -231,8 +231,7 @@ module Searchkick
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
-        params = params.as_json if Searchkick.opensearch4_client?
-        Searchkick.client.search(params)
+        Searchkick.client.search(Searchkick.opensearch4_client? ? params.as_json : params)
       end
     end
 
