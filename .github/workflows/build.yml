@@ -15,6 +15,9 @@ jobs:
           - ruby: 3.2
             gemfile: gemfiles/activerecord72.gemfile
             elasticsearch: 8
+          - ruby: "4.0"
+            gemfile: gemfiles/opensearch4.gemfile
+            opensearch: 3
           - ruby: 3.4
             gemfile: gemfiles/opensearch3.gemfile
             opensearch: 3

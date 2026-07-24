@@ -94,7 +94,7 @@ module Searchkick
       params[:type] = @type if @type
       params[:routing] = @routing if @routing
       params[:scroll] = @scroll if @scroll
-      params[:opaque_id] = @opaque_id if @opaque_id
+      Searchkick.add_opaque_id(params, @opaque_id) if @opaque_id
       params.merge!(options[:request_params]) if options[:request_params]
       params
     end
@@ -225,11 +225,13 @@ module Searchkick
 
     def execute_search
       name = searchkick_klass ? "#{searchkick_klass.name} Search" : "Search"
+      params = params()
       event = {
         name: name,
         query: params
       }
       ActiveSupport::Notifications.instrument("search.searchkick", event) do
+        params = params.as_json if Searchkick.opensearch4_client?
         Searchkick.client.search(params)
       end
     end

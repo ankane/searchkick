@@ -133,6 +133,13 @@ module Searchkick
     @opensearch
   end
 
+  def self.opensearch4_client?
+    unless defined?(@opensearch4_client)
+      @opensearch4_client = defined?(OpenSearch) && OpenSearch::VERSION.to_i >= 4 && client.is_a?(OpenSearch::Client)
+    end
+    @opensearch4_client
+  end
+
   def self.server_below?(version)
     Gem::Version.new(server_version.split("-")[0]) < Gem::Version.new(version.split("-")[0])
   end
@@ -348,6 +355,15 @@ module Searchkick
       model.unscoped
     else
       model
+    end
+  end
+
+  # private
+  def self.add_opaque_id(params, opaque_id)
+    if opensearch4_client?
+      (params[:headers] ||= {}).merge!("X-Opaque-Id" => opaque_id)
+    else
+      params[:opaque_id] = opaque_id
     end
   end
 

@@ -19,7 +19,7 @@ module Searchkick
       params = {
         body: search_queries.flat_map { |q| [q.params.except(:body), q.body] }
       }
-      params[:opaque_id] = @opaque_id if @opaque_id
+      Searchkick.add_opaque_id(params, @opaque_id) if @opaque_id
       responses = client.msearch(params)["responses"]
 
       retry_queries = []
