@@ -1,6 +1,7 @@
 ## 6.2.0 (unreleased)
 
 - Added support for `opensearch-ruby` 4 gem
+- Dropped support for Ruby < 3.3 and Active Record < 8
 
 ## 6.1.2 (2026-06-04)
 
