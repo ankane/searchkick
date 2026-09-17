@@ -222,11 +222,11 @@ module Searchkick
       self
     end
 
-    def highlight(value)
+    def highlight(value = true)
       clone.highlight!(value)
     end
 
-    def highlight!(value)
+    def highlight!(value = true)
       check_loaded
       @options[:highlight] = value
       self
