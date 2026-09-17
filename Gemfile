@@ -17,3 +17,4 @@ gem "gemoji-parser"
 gem "parallel_tests"
 gem "typhoeus", platform: :mri
 gem "cgi" # for elasticsearch
+gem "json", "< 3"
