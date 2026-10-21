@@ -72,6 +72,31 @@ class InheritanceTest < Minitest::Test
     assert_equal 2, Animal.search("bear").size
   end
 
+  def test_becomes
+    store_names ["Bear A"], Cat
+    store_names ["Bear B"], Dog
+
+    cat = Cat.find_by!(name: "Bear A")
+    cat.becomes!(Dog).save!
+    Animal.searchkick_index.refresh
+    assert_equal 2, Dog.search("bear").size
+  end
+
+  def test_becomes_async
+    store_names ["Bear A"], Cat
+    store_names ["Bear B"], Dog
+
+    cat = Cat.find_by!(name: "Bear A")
+    Searchkick.callbacks(false) do
+      cat.becomes!(Dog).save!
+    end
+    perform_enqueued_jobs do
+      cat.reindex(mode: :async)
+    end
+    Animal.searchkick_index.refresh
+    assert_equal 2, Dog.search("bear").size
+  end
+
   def test_child_models_option
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog

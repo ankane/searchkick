@@ -37,7 +37,7 @@ module Searchkick
           end
 
           Searchkick::ReindexV2Job.set(**job_options).perform_later(
-            record.class.name,
+            record.class.searchkick_options[:class_name],
             record.id.to_s,
             method_name ? method_name.to_s : nil,
             routing: routing,
