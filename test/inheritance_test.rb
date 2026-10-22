@@ -73,6 +73,8 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_becomes
+    skip unless activerecord?
+
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog
 
@@ -83,6 +85,8 @@ class InheritanceTest < Minitest::Test
   end
 
   def test_becomes_async
+    skip unless activerecord?
+
     store_names ["Bear A"], Cat
     store_names ["Bear B"], Dog
 
