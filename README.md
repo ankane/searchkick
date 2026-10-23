@@ -2097,7 +2097,9 @@ Change the queue name
 Searchkick.queue_name = :search_reindex # defaults to :searchkick
 ```
 
-Change the queue name or priority for a model
+Change background job options for a model
+
+Uses [Active Job's `set` method](https://api.rubyonrails.org/classes/ActiveJob/Core/ClassMethods.html#method-i-set), so you can change the queue, priority, or delay reindexing.
 
 ```ruby
 class Product < ApplicationRecord
@@ -2105,10 +2107,20 @@ class Product < ApplicationRecord
 end
 ```
 
-Change the queue name or priority for a specific call
+Delay reindexing for async callbacks
+
+```ruby
+class Product < ApplicationRecord
+  searchkick callbacks: :async, job_options: {wait: 30.seconds}
+end
+```
+
+Change background job options for a specific call
 
 ```ruby
 Product.reindex(mode: :async, job_options: {queue: "critical", priority: 10})
+Product.reindex(mode: :async, job_options: {wait: 30.seconds})
+Product.reindex(mode: :async, job_options: {wait_until: 1.hour.from_now})
 ```
 
 Change the parent job

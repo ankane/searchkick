@@ -36,6 +36,25 @@ class ReindexTest < Minitest::Test
     end
   end
 
+  def test_record_async_job_options_wait
+    product = Product.create!(name: "Product A")
+    freeze_time do
+      assert_enqueued_with(job: Searchkick::ReindexV2Job, at: 30.seconds.from_now) do
+        assert_equal true, product.reindex(mode: :async, job_options: {wait: 30.seconds})
+      end
+    end
+  end
+
+  def test_record_async_job_options_wait_until
+    product = Product.create!(name: "Product A")
+    run_at = 2.hours.from_now.change(usec: 0)
+    freeze_time do
+      assert_enqueued_with(job: Searchkick::ReindexV2Job, at: run_at) do
+        product.reindex(mode: :async, job_options: {wait_until: run_at})
+      end
+    end
+  end
+
   def test_record_queue
     reindex_queue = Product.searchkick_index.reindex_queue
     reindex_queue.clear
