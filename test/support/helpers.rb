@@ -1,5 +1,6 @@
 class Minitest::Test
   include ActiveJob::TestHelper
+  include ActiveSupport::Testing::TimeHelpers
 
   def setup
     [Product, Store].each do |model|

@@ -1,5 +1,6 @@
 ## 6.2.0 (unreleased)
 
+- Documented `wait` and `wait_until` for `job_options`
 - Added support for `opensearch-ruby` 4 gem
 - Fixed error with `highlight` method and no arguments
 - Fixed async reindex for inherited models when changing type

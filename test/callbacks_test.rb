@@ -76,6 +76,16 @@ class CallbacksTest < Minitest::Test
     end
   end
 
+  def test_record_async_job_options_wait
+    with_options({callbacks: :async, job_options: {wait: 1.minute}}, Song) do
+      freeze_time do
+        assert_enqueued_with(job: Searchkick::ReindexV2Job, at: 1.minute.from_now) do
+          Song.create!(name: "Product A")
+        end
+      end
+    end
+  end
+
   def test_relation_async
     with_options({callbacks: :async}, Song) do
       assert_enqueued_jobs 0 do
