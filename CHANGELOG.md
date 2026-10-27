@@ -1,6 +1,6 @@
 ## 6.2.0 (unreleased)
 
-- Added support for `opensearch-ruby` 4 gem
+- Added support for `opensearch-ruby` 4 gem (in beta)
 - Fixed error with `highlight` method and no arguments
 - Fixed async reindex for inherited models when changing type
 - Dropped support for Ruby < 3.3 and Active Record < 8
