@@ -1,4 +1,4 @@
-## 6.2.0 (unreleased)
+## 6.2.0 (2026-10-27)
 
 - Added support for `opensearch-ruby` 4 gem (in beta)
 - Fixed error with `highlight` method and no arguments
