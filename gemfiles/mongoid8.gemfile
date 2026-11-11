@@ -12,4 +12,3 @@ gem "actionpack"
 gem "kaminari"
 gem "gemoji-parser"
 gem "ostruct" # for mongoid
-gem "json", "< 3"
